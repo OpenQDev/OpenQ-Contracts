@@ -17,6 +17,7 @@
     "v-tooltip": "^2.0.3"
   },
   "devDependencies": {
+    "@fortawesome/free-regular-svg-icons": "^5.14.0",
     "@fortawesome/free-brands-svg-icons": "^5.14.0",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@nuxtjs/fontawesome": "^1.1.2",

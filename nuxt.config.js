@@ -62,6 +62,7 @@ export default {
 
   fontawesome: {
     icons: {
+      regular: ['faCopy'],
       solid: ['faCheck', 'faSignInAlt', 'faSignOutAlt', 'faAngleDoubleRight', 'faExternalLinkAlt'],
       brands: ['faEthereum', 'faTwitter', 'faGithub'],
     },
