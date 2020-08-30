@@ -11,6 +11,7 @@
           <li>web3 integration/event listening</li>
           <li>endpoint for external Chainlink adapter</li>
           <li>deployment/hosting</li>
+          <li>GitHub bot (commenting deposits)</li>
         </ul>
       </li>
       <li>
