@@ -25,9 +25,9 @@
             <input type="number" class="form-control form-control-lg mb-2" placeholder="0" />
             <span>Days</span>
           </div>
-          <a href="#" class="btn btn-lg btn-primary shadow-sm d-block mt-4">
+          <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" :disabled="!connected">
             Confirm
-          </a>
+          </button>
         </div>
       </div>
       <div class="card border-0 rounded-xl shadow" v-if="view == 'withdraw'" key="withdraw">
@@ -69,6 +69,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex"
+
 export default {
   transition: 'fade',
   data() {
@@ -77,6 +79,17 @@ export default {
       registered: false,
     }
   },
+  computed: {
+    ...mapGetters(['accounts', 'connected']),
+  },
+  mounted() {
+    if (this.$web3) {
+      this.$web3.eth.getAccounts().then(accounts => {
+        this.$store.commit('setAccounts', accounts)
+        this.$web3.eth.getBalance(accounts[0]).then(balance => this.$store.commit('setBalance', balance))
+      })
+    }
+  }
 }
 </script>
 

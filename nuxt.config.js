@@ -37,7 +37,8 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    '@/plugins/tooltips'
+    '@/plugins/tooltips',
+    '@/plugins/web3',
   ],
   /*
   ** Auto import components
