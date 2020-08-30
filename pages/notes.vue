@@ -25,12 +25,14 @@
           <li>move all issue deposit to a pull request (issue owner, individual deposit ownership stays intact)</li>
           <li>list issue deposits</li>
           <li>list pull request deposits</li>
+          <li>keep track of users deposit/withdraw ratio (reliance indicator)</li>
           <li>
             Chainlink
             <ul>
               <li>check existance of repositories</li>
               <li>check author and status of pull requests</li>
               <li>check issue status</li>
+              <li>auto refill with uniswap</li>
             </ul>
           </li>
         </ul>
