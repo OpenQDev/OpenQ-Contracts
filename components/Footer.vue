@@ -1,5 +1,5 @@
 <template>
-  <footer class="mt-3">
+  <footer class="py-3">
     <a href="#" class="text-muted px-2">
       <font-awesome-icon :icon="['fab', 'twitter']" />
     </a>
