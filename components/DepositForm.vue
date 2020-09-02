@@ -5,7 +5,7 @@
       <HelpIcon v-tooltip="'Paste the URL of the GitHub issue or pull request you want to deposit into.'" width="18px" height="18px" class="mb-1" />
     </small>
     <input type="text" class="form-control form-control-lg mb-2" placeholder="https://github.com/..." v-model="url" />
-    <div v-if="loading || contribution" class="mt-1">
+    <div v-if="loading || contribution">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loading" class="text-muted-light" />
       <IssueEmbed :contribution="contribution" v-if="contribution && type == 1" />
       <PullRequestEmbed :contribution="contribution" v-if="contribution && type == 2" />
@@ -34,6 +34,12 @@
   </div>
 </div>
 </template>
+
+<style lang="sass">
+.form-control
+  position: relative
+  z-index: 2
+</style>
 
 <script>
 import { mapGetters } from "vuex"

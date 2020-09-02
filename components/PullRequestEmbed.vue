@@ -1,5 +1,5 @@
 <template>
-  <div class="embed rounded p-2 mb-2">
+  <div class="embed rounded-bottom p-2 mb-2">
     <div class="d-flex">
       <span :class="'d-flex align-items-center badge badge-pill pl-1 mr-1 badge-' + (contribution.state === 'open' ? 'success' : (contribution.merged ? 'merged' : 'danger'))">
         <MergeIcon width="16px" height="16px" class="mr-1" v-if="contribution.merged" />
@@ -30,6 +30,9 @@
 <style lang="sass">
 .embed
   background: #f8f8f8
+  position: relative
+  z-index: 1
+  margin-top: -10px
   .badge
     font-weight: normal
 </style>
