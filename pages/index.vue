@@ -25,8 +25,11 @@
             <input type="number" class="form-control form-control-lg mb-2" placeholder="0" />
             <span>Days</span>
           </div>
-          <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" :disabled="!connected">
+          <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected">
             Confirm
+          </button>
+          <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
+            Connect
           </button>
         </div>
       </div>
@@ -70,8 +73,10 @@
 
 <script>
 import { mapGetters } from "vuex"
+import connect from "@/mixins/connect"
 
 export default {
+  mixins: [connect],
   transition: 'fade',
   data() {
     return {
