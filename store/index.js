@@ -26,3 +26,9 @@ export const mutations = {
     state.balance = balance
   }
 }
+
+export const actions = {
+  load({ dispatch }) {
+    return Promise.all([dispatch("github/login")])
+  }
+}

@@ -10,20 +10,39 @@
         </a>
       </span>
       <span v-else key="connected">
-        <a href="#" class="mx-auto btn btn-sm btn-light position-relative wallet disabled">
-          {{ formattedBalance }} ETH
-          <span class="btn btn-sm btn-primary position-absolute address">
+        <span href="#" class="mx-auto btn-group">
+          <span class="btn btn-sm btn-light disabled">
+            <b>{{ formattedBalance }} ETH</b>
+          </span>
+          <span class="btn btn-sm btn-primary disabled">
             <AddressShort :address="account" />
           </span>
-        </a>
-        <a href="#" class="mx-auto btn btn-sm btn-dark shadow-sm" @click="connectedGithub = true">
+          <span class="btn btn-sm btn-dark disabled" v-if="githubUser">
+            <font-awesome-icon :icon="['fab', 'github']" />
+            {{ githubUser.login }}
+          </span>
+        </span>
+        <a
+          v-if="!githubUser"
+          :href="
+            'https://github.com/login/oauth/authorize?scope=user:email&client_id=' +
+              githubClientId
+          "
+          class="mx-auto btn btn-sm btn-dark shadow-sm"
+        >
           <font-awesome-icon :icon="['fab', 'github']" />
-          {{ connectedGithub ? 'mktcode' : 'Connect' }}
+          Connect
         </a>
       </span>
     </transition>
   </div>
 </template>
+
+<style lang="sass">
+.disabled
+  opacity: 1 !important
+  z-index: 1 !important
+</style>
 
 <script>
 import { mapGetters } from "vuex"
@@ -31,11 +50,13 @@ import { mapGetters } from "vuex"
 export default {
   data() {
     return {
+      githubClientId: process.env.GITHUB_CLIENT_ID,
       connectedGithub: false,
     }
   },
   computed: {
     ...mapGetters(['connected', 'account', 'balance']),
+    ...mapGetters("github", { githubUser: 'user' }),
     formattedBalance() {
       return Number(this.$web3.utils.fromWei(this.balance.toString(), "ether")).toFixed(2)
     }
@@ -52,13 +73,3 @@ export default {
   },
 }
 </script>
-
-<style lang="sass">
-  .wallet
-    opacity: 1 !important
-    font-weight: bold
-    padding-right: 100px
-    .address
-      top: 0
-      right: 0
-</style>

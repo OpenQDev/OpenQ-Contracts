@@ -10,6 +10,12 @@ export default {
   ** See https://nuxtjs.org/api/configuration-target
   */
   target: 'server',
+
+  /*
+  ** API
+  */
+  serverMiddleware: ["~/api/index"],
+
   /*
   ** Headers of the page
   ** See https://nuxtjs.org/api/configuration-head
@@ -39,6 +45,7 @@ export default {
   plugins: [
     '@/plugins/tooltips',
     '@/plugins/web3',
+    '@/plugins/load',
   ],
   /*
   ** Auto import components
@@ -48,11 +55,15 @@ export default {
   /*
   ** Nuxt.js dev-modules
   */
-  buildModules: ['@nuxtjs/fontawesome'],
+  buildModules: [
+    ['@nuxtjs/dotenv', { only: ['API_URL', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'] }],
+    '@nuxtjs/fontawesome',
+  ],
   /*
   ** Nuxt.js modules
   */
   modules: [
+    '@nuxtjs/axios',
     '@nuxtjs/pwa',
   ],
   /*
