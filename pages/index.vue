@@ -9,8 +9,10 @@
       <span class="text-primary">Withdraw</span>
     </div>
     <transition name="fade" mode="out-in">
-      <DepositForm v-if="view == 'deposit'" />
-      <WithdrawalForm v-else />
+      <keep-alive>
+        <DepositForm v-if="view == 'deposit'" />
+        <WithdrawalForm v-else />
+      </keep-alive>
     </transition>
   </div>
 </template>
@@ -41,9 +43,8 @@ export default {
 
 <style lang="sass">
   .card
-    max-width: 420px
-    min-width: 380px
-    .info-icon
+    width: 380px
+    .help-icon
       opacity: 0.6
       cursor: pointer
     .amount-input
@@ -52,6 +53,6 @@ export default {
         font-size: 1.5rem
         position: absolute
         right: 50px
-        top: 8px
+        top: 6px
         opacity: 0.4
 </style>

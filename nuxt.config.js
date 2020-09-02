@@ -43,6 +43,7 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
+    '@/plugins/moment',
     '@/plugins/tooltips',
     '@/plugins/web3',
     '@/plugins/load',
@@ -56,7 +57,12 @@ export default {
   ** Nuxt.js dev-modules
   */
   buildModules: [
-    ['@nuxtjs/dotenv', { only: ['API_URL', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'] }],
+    ['@nuxtjs/dotenv', { only: [
+      'API_URL',
+      'GITHUB_CLIENT_ID',
+      'GITHUB_CLIENT_SECRET',
+      'GITHUB_APP_ACCESS_TOKEN'
+    ] }],
     '@nuxtjs/fontawesome',
   ],
   /*
@@ -74,8 +80,8 @@ export default {
 
   fontawesome: {
     icons: {
-      regular: ['faCopy'],
-      solid: ['faCheck', 'faSignInAlt', 'faSignOutAlt', 'faAngleDoubleRight', 'faExternalLinkAlt'],
+      regular: ['faCopy', 'faCommentAlt'],
+      solid: ['faCheck', 'faBan', 'faInfoCircle', 'faSignInAlt', 'faSignOutAlt', 'faAngleDoubleRight', 'faExternalLinkAlt', 'faCircleNotch'],
       brands: ['faEthereum', 'faTwitter', 'faGithub'],
     },
   },
