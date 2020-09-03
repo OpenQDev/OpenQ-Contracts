@@ -33,8 +33,10 @@ export default {
   mounted() {
     if (this.$web3) {
       this.$web3.eth.getAccounts().then(accounts => {
-        this.$store.commit('setAccounts', accounts)
-        this.$web3.eth.getBalance(accounts[0]).then(balance => this.$store.commit('setBalance', balance))
+        if (accounts.length) {
+          this.$store.commit('setAccounts', accounts)
+          this.$web3.eth.getBalance(accounts[0]).then(balance => this.$store.commit('setBalance', balance))
+        }
       })
     }
   }
