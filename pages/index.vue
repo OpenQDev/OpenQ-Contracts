@@ -43,18 +43,7 @@ export default {
 }
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
   .card
     width: 380px
-    .help-icon
-      opacity: 0.6
-      cursor: pointer
-    .amount-input
-      position: relative
-      span
-        font-size: 1.5rem
-        position: absolute
-        right: 50px
-        top: 6px
-        opacity: 0.4
 </style>

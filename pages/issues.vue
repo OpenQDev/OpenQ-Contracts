@@ -70,21 +70,18 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-  .card
-    max-width: 640px
-    min-width: 320px
-    .issue-list
-      > a
-        border: solid 1px #eee
-        color: #333
-        &:hover
-          border-color: transparent
-          background: #0366d6
-          color: white
-          .text-muted,
-          .text-danger
-            color: white !important
-          .badge-pill
-            background: white
-            color: #0366d6
+  .issue-list
+    > a
+      border: solid 1px #eee
+      color: #333
+      &:hover
+        border-color: transparent
+        background: #0366d6
+        color: white
+        .text-muted,
+        .text-danger
+          color: white !important
+        .badge-pill
+          background: white
+          color: #0366d6
   </style>
