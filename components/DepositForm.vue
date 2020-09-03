@@ -14,7 +14,7 @@
       Deposit amount
     </small>
     <div class="amount-input mb-2">
-      <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" />
+      <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
       <span>ETH</span>
     </div>
     <small class="text-muted d-flex justify-content-between">
@@ -22,10 +22,10 @@
       <HelpIcon v-tooltip="'Lock up deposits to shows commitment to contributors, rank higher in listings and earn merge coins to promote your projects. <a href=\'#\' target=\'_blank\'>learn more</a>'" width="18px" height="18px" class="mb-1" />
     </small>
     <div class="amount-input mb-2">
-      <input type="number" class="form-control form-control-lg mb-2" min="0" max="180" step="1" placeholder="0" />
+      <input type="number" class="form-control form-control-lg mb-2" min="0" max="180" step="1" placeholder="0" v-model="lockDays" />
       <span>Days</span>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" :disabled="!contribution">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" :disabled="!contribution || amount == 0">
       Confirm
     </button>
     <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
@@ -54,6 +54,8 @@ export default {
       loading: false,
       contribution: null,
       type: 0,
+      amount: 0,
+      lockDays: 0,
     }
   },
   watch: {
