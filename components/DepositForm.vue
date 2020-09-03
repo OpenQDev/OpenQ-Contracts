@@ -69,7 +69,7 @@ export default {
           this.loading = true
           this.type = 1
           this.loadIssue(owner, repo, number)
-            .then(issue => {this.contribution = issue; console.log(issue)})
+            .then(issue => this.contribution = issue)
             .finally(() => this.loading = false)
         } else if (newUrl.includes('/pull/')) {
           this.loading = true
