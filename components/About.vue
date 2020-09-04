@@ -2,10 +2,14 @@
   <div :class="['about text-white', { open }]">
     <div class="shadow-gradient"></div>
     <a href="#" class="scroll show-about text-center" @click="open = true">
-      <small class="d-block mt-1">About</small>
+      <small class="d-block mt-1">
+        <font-awesome-icon :icon="['fas', 'chevron-down']" />
+      </small>
     </a>
     <a href="#" class="scroll show-app text-center" @click="open = false">
-      <small class="d-block">App</small>
+      <small class="d-block">
+        <font-awesome-icon :icon="['fas', 'chevron-up']" />
+      </small>
     </a>
     <div class="container-fluid pt-5">
       <div class="container">

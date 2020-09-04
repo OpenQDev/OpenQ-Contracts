@@ -81,7 +81,19 @@ export default {
   fontawesome: {
     icons: {
       regular: ['faCopy', 'faCommentAlt'],
-      solid: ['faLongArrowAltUp', 'faCheck', 'faBan', 'faInfoCircle', 'faSignInAlt', 'faSignOutAlt', 'faAngleDoubleRight', 'faExternalLinkAlt', 'faCircleNotch'],
+      solid: [
+        'faChevronUp',
+        'faChevronDown',
+        'faLongArrowAltUp',
+        'faCheck',
+        'faBan',
+        'faInfoCircle',
+        'faSignInAlt',
+        'faSignOutAlt',
+        'faAngleDoubleRight',
+        'faExternalLinkAlt',
+        'faCircleNotch'
+      ],
       brands: ['faEthereum', 'faTwitter', 'faGithub'],
     },
   },
