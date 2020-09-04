@@ -16,7 +16,7 @@
         {{ contribution.created_at | moment("MMMM Do YYYY") }}
         <span class="text-dark">by</span>
         <a :href="contribution.user.html_url" target="_blank" class="text-muted">
-          <b>{{ contribution.user.login }}</b>
+          <b>{{ githubUser && githubUser.login === contribution.user.login ? 'you' : contribution.user.login }}</b>
         </a>
       </span>
       <span>
@@ -27,18 +27,13 @@
   </div>
 </template>
 
-<style lang="sass">
-.embed
-  background: #f8f8f8
-  position: relative
-  z-index: 1
-  margin-top: -10px
-  .badge
-    font-weight: normal
-</style>
-
 <script>
+import { mapGetters } from "vuex"
+
 export default {
-  props: ['contribution']
+  props: ['contribution'],
+  computed: {
+    ...mapGetters("github", { githubUser: 'user' }),
+  }
 }
 </script>
