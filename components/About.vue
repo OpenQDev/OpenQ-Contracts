@@ -1,5 +1,5 @@
 <template>
-  <div :class="['about text-white bg-primary', { open }]">
+  <div :class="['about text-white', { open }]">
     <div class="shadow-gradient"></div>
     <a href="#" class="scroll show-about text-center" @click="open = true">
       <small class="d-block mt-1">About</small>
@@ -9,17 +9,22 @@
     </a>
     <div class="container-fluid pt-5">
       <div class="container">
+        <div class="text-center mt-4 mb-5">
+          <a href="#" class="text-white mx-2">About</a>
+          <a href="#" class="text-white-50 mx-2">Token</a>
+          <a href="#" class="text-white-50 mx-2">FAQ</a>
+        </div>
         <div class="row">
           <div class="col text-left">
             <Logo color="white" size="xl" />
-            <p class="lead">
+            <p class="lead mt-4">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
             </p>
           </div>
           <div class="col d-flex justify-content-center align-items-center flex-column">
-            <h1>Pay Contributors</h1>
-            <h1>Farm MergeCoin Tokens</h1>
-            <h1>Promote your Project</h1>
+            <h1>Pay Contributors.</h1>
+            <h1>Farm Merge Tokens.</h1>
+            <h1>Promote your Project.</h1>
           </div>
         </div>
       </div>
@@ -40,6 +45,8 @@
   padding: 15px 7px
 
 .about
+  background: rgb(0,23,85)
+  background: linear-gradient(90deg, rgba(0,23,85,1) 0%, rgba(0,74,157,1) 40%, rgba(0,74,157,1) 60%, rgba(0,23,85,1) 100%)
   border-top: solid 4px white
   position: absolute
   margin-top: -4px
