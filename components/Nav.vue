@@ -9,12 +9,18 @@
     <nuxt-link to="/issues" class="text-dark px-2">
       Open Issues
     </nuxt-link>
-    <nuxt-link to="/projects" class="text-dark px-2">
+    <nuxt-link to="/projects" class="text-muted px-2">
       Projects
       <span class="badge badge-primary badge-pill font-weight-normal">
         soon
       </span>
     </nuxt-link>
+    <a href="#" class="text-muted px-2">
+      Developers
+      <span class="badge badge-primary badge-pill font-weight-normal">
+        soon
+      </span>
+    </a>
   </div>
 </template>
 
