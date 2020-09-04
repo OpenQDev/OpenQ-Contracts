@@ -1,7 +1,7 @@
 <template>
-  <div class="logo d-flex justify-content-center mt-5">
+  <div :class="['logo', { 'logo-xl': size == 'xl', 'logo-lg': size == 'lg', 'text-white': color == 'white' }]">
     <div>
-      <img src="/logo.png" width="30" />
+      <img :src="color == 'white' ? '/logo-white.png' : '/logo.png'" :width="size == 'xl' ? 70 : (size == 'lg' ? 50 : 30)" />
       MergePay
     </div>
   </div>
@@ -11,6 +11,16 @@
 .logo
   font-family: 'Cinzel', serif
   font-size: 1.5rem
+  &.logo-lg
+    font-size: 2rem
+  &.logo-xl
+    font-size: 4rem
   img
     opacity: 0.8
 </style>
+
+<script>
+export default {
+  props: ['size', 'color']
+}
+</script>
