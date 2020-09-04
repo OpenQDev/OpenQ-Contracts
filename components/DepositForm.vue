@@ -20,10 +20,27 @@
       <IssueEmbed :contribution="contribution" v-if="contribution && type == 1" />
       <PullRequestEmbed :contribution="contribution" v-if="contribution && type == 2" />
     </div>
-    <small class="text-muted">
-      Deposit amount
+    <small class="text-muted d-flex justify-content-between align-items-end mb-1">
+      {{ move ? 'Source deposit' : 'Deposit amount'}}
+      <h4 v-if="move" class="text-muted-light"><font-awesome-icon :icon="['fas', 'long-arrow-alt-up']" /></h4>
+      <a href="#" class="text-muted font-weight-bold" v-if="move" @click="move = false">new deposit</a>
+      <a href="#" class="text-muted font-weight-bold" v-else @click="move = true">take from existing deposit</a>
     </small>
-    <div class="amount-input mb-2">
+    <div v-if="move">
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="sourceUrl" />
+      <div class="alert alert-warning" v-if="url == sourceUrl">
+        <font-awesome-icon :icon="['fas', 'info-circle']" />
+        <small>
+          Source is same as target.
+        </small>
+      </div>
+      <div v-else-if="sourceLoading || sourceContribution">
+        <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sourceLoading" class="text-muted-light" />
+        <IssueEmbed :contribution="sourceContribution" v-if="sourceContribution && sourceType == 1" />
+        <PullRequestEmbed :contribution="sourceContribution" v-if="sourceContribution && sourceType == 2" />
+      </div>
+    </div>
+    <div class="amount-input mb-2" v-else>
       <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
       <span>ETH</span>
     </div>
@@ -35,7 +52,7 @@
       <input type="number" class="form-control form-control-lg mb-2" min="0" max="180" step="1" placeholder="0" v-model="lockDays" />
       <span>Days</span>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || amount == 0 || sendingDeposit">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
       {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
@@ -56,13 +73,18 @@ export default {
   data() {
     return {
       url: '',
+      sourceUrl: '',
       loading: false,
+      sourceLoading: false,
       contribution: null,
+      sourceContribution: null,
       type: 0,
+      sourceType: 0,
       amount: 0,
       lockDays: 0,
       sendingDeposit: false,
-      showDepositSuccess: false
+      showDepositSuccess: false,
+      move: false
     }
   },
   watch: {
@@ -86,6 +108,29 @@ export default {
           this.loadPullRequest(owner, repo, number)
             .then(pr => this.contribution = pr)
             .finally(() => this.loading = false)
+        }
+      }
+    },
+    sourceUrl(newUrl, oldUrl) {
+      this.sourceContribution = null
+      if (newUrl != this.url && newUrl.includes('https://github.com')) {
+        let urlParts = newUrl.split('/')
+        let number = urlParts.pop()
+        urlParts.pop()
+        let repo = urlParts.pop()
+        let owner = urlParts.pop()
+        if (newUrl.includes('/issues/')) {
+          this.sourceLoading = true
+          this.sourceType = 1
+          this.loadIssue(owner, repo, number)
+            .then(issue => this.sourceContribution = issue)
+            .finally(() => this.sourceLoading = false)
+        } else if (newUrl.includes('/pull/')) {
+          this.sourceLoading = true
+          this.sourceType = 2
+          this.loadPullRequest(owner, repo, number)
+            .then(pr => this.sourceContribution = pr)
+            .finally(() => this.sourceLoading = false)
         }
       }
     }
