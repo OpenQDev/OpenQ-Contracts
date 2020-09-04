@@ -1,5 +1,15 @@
 <template>
   <div class="card-body">
+    <div class="alert alert-success border-0" v-if="showDepositSuccess">
+      <button type="button" class="close text-success" @click="showDepositSuccess = false">
+        <span>&times;</span>
+      </button>
+      <CheckIcon width="24px" height="24px" />
+      Deposit confirmed! :)<br>
+      <small>
+        See all your deposits <nuxt-link to="/deposits">here</nuxt-link>. You can withdraw any deposit at any time.
+      </small>
+    </div>
     <small class="text-muted d-flex justify-content-between">
       Issue or Pull Request
       <HelpIcon v-tooltip="'Paste the URL of the GitHub issue or pull request you want to deposit into.'" width="18px" height="18px" class="mb-1" />
@@ -25,8 +35,9 @@
       <input type="number" class="form-control form-control-lg mb-2" min="0" max="180" step="1" placeholder="0" v-model="lockDays" />
       <span>Days</span>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" :disabled="!contribution || amount == 0">
-      Confirm
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || amount == 0 || sendingDeposit">
+      <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
+      {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
     <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
       Connect
@@ -50,6 +61,8 @@ export default {
       type: 0,
       amount: 0,
       lockDays: 0,
+      sendingDeposit: false,
+      showDepositSuccess: false
     }
   },
   watch: {
@@ -80,5 +93,19 @@ export default {
   computed: {
     ...mapGetters(['connected']),
   },
+  methods: {
+    sendDeposit() {
+      this.sendingDeposit = true
+      setTimeout(() => {
+        this.sendingDeposit = false
+        this.showDepositSuccess = true
+        this.url = ''
+        this.contribution = null
+        this.type = 0
+        this.lockDays = 0
+        this.amount = 0
+      }, 2000)
+    }
+  }
 }
 </script>
