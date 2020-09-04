@@ -24,7 +24,7 @@
       {{ move ? 'Source deposit' : 'Deposit amount'}}
       <h4 v-if="move" class="text-muted-light"><font-awesome-icon :icon="['fas', 'long-arrow-alt-up']" /></h4>
       <a href="#" class="text-muted font-weight-bold" v-if="move" @click="move = false">new deposit</a>
-      <a href="#" class="text-muted font-weight-bold" v-else @click="move = true">take from existing deposit</a>
+      <a href="#" class="text-muted font-weight-bold" v-else @click="move = true">move from existing deposit</a>
     </small>
     <div v-if="move">
       <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="sourceUrl" />
