@@ -145,8 +145,11 @@ export default {
         this.sendingDeposit = false
         this.showDepositSuccess = true
         this.url = ''
+        this.sourceUrl = ''
         this.contribution = null
+        this.sourceContribution = null
         this.type = 0
+        this.sourceType = 0
         this.lockDays = 0
         this.amount = 0
       }, 2000)
