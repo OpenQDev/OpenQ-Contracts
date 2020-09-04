@@ -4,7 +4,7 @@
       Issue or Pull Request
       <HelpIcon v-tooltip="'Paste the URL of the GitHub issue or pull request you want to deposit into.'" width="18px" height="18px" class="mb-1" />
     </small>
-    <input type="text" class="form-control form-control-lg mb-2" placeholder="https://github.com/..." v-model="url" />
+    <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
     <div v-if="loading || contribution">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loading" class="text-muted-light" />
       <IssueEmbed :contribution="contribution" v-if="contribution && type == 1" />
@@ -35,12 +35,6 @@
 </div>
 </template>
 
-<style lang="sass">
-.form-control
-  position: relative
-  z-index: 2
-</style>
-
 <script>
 import { mapGetters } from "vuex"
 import connect from '@/mixins/connect'
@@ -60,13 +54,13 @@ export default {
   },
   watch: {
     url(newUrl, oldUrl) {
+      this.contribution = null
       if (newUrl.includes('https://github.com')) {
         let urlParts = newUrl.split('/')
         let number = urlParts.pop()
         urlParts.pop()
         let repo = urlParts.pop()
         let owner = urlParts.pop()
-        this.contribution = null
         if (newUrl.includes('/issues/')) {
           this.loading = true
           this.type = 1
@@ -77,13 +71,9 @@ export default {
           this.loading = true
           this.type = 2
           this.loadPullRequest(owner, repo, number)
-            .then(pr => {this.contribution = pr; console.log(pr)})
+            .then(pr => this.contribution = pr)
             .finally(() => this.loading = false)
-        } else {
-          this.contribution = null
         }
-      } else {
-        this.contribution = null
       }
     }
   },
