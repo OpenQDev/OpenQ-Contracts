@@ -1,5 +1,6 @@
 <template>
   <div :class="['about text-white bg-primary', { open }]">
+    <div class="shadow-gradient"></div>
     <a href="#" class="scroll show-about text-center" @click="open = true">
       <small class="d-block mt-1">About</small>
     </a>
@@ -49,6 +50,13 @@
   z-index: 2
   transition: top 1s cubic-bezier(0.76, 0, 0.24, 1)
   height: 100vh
+  .shadow-gradient
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    height: 25px
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%)
   > .container-fluid
     height: 100vh
     overflow-y: scroll
