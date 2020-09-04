@@ -28,7 +28,7 @@
     </small>
     <div v-if="move">
       <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="sourceUrl" />
-      <div class="alert alert-warning" v-if="url == sourceUrl">
+      <div class="alert alert-warning" v-if="url && sourceUrl && url == sourceUrl">
         <font-awesome-icon :icon="['fas', 'info-circle']" />
         <small>
           Source is same as target.
