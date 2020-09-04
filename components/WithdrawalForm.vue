@@ -17,7 +17,7 @@
       <CheckIcon width="24px" height="24px" />
       Registration successfull! :)<br>
       <small>
-        You can now delete the repository again.
+        You can now delete the repository again and start withdrawing funds from your merged pull requests.
       </small>
     </div>
     <small class="text-muted d-flex justify-content-between">
