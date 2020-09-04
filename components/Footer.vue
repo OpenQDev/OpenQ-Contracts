@@ -4,7 +4,7 @@
       <a href="#" class="text-muted px-2">
         <font-awesome-icon :icon="['fab', 'twitter']" />
       </a>
-      <a href="#" class="text-muted px-2">
+      <a href="https://github.com/mktcode" target="_blank" class="text-muted px-2">
         <font-awesome-icon :icon="['fab', 'github']" />
       </a>
       <a href="#" class="text-muted px-2">
