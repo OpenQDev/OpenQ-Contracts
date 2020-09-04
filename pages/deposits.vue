@@ -13,11 +13,11 @@
                 Improve customization by allowing manually setting calculated variables in styles<br>
                 <small class="text-muted">twbs/bootstrap/issues/31538</small>
               </div>
-              <div class="mx-3 px-3 text-nowrap border-left border-right text-center d-flex flex-column justify-content-center">
+              <div class="ml-3 px-3 text-nowrap border-left text-center d-flex flex-column justify-content-center">
                 <h4 class="mb-0">{{ (5 / i).toFixed(2) }} ETH</h4>
                 <small class="text-muted" v-if="i != 5">(locked {{ 23 - i }} days)</small>
               </div>
-              <div class="my-auto">
+              <div class="my-auto d-flex flex-column">
                 <a href="#" class="btn btn-sm btn-light mb-1">
                   <font-awesome-icon :icon="['fas', 'angle-double-right']" />
                 </a>
