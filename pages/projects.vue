@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <div class="row" v-for="i in 3">
       <div class="col" v-for="i in 3">
         <div class="card border-0 rounded-xl shadow mb-4">

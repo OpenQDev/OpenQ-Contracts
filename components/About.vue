@@ -16,19 +16,29 @@
         <div class="text-center mt-4 mb-5">
           <a href="#" class="text-white mx-2">About</a>
           <a href="#" class="text-white-50 mx-2">Token</a>
+          <a href="#" class="text-white-50 mx-2">Promotions</a>
           <a href="#" class="text-white-50 mx-2">FAQ</a>
         </div>
         <div class="row">
           <div class="col text-left">
             <Logo color="white" size="xl" />
             <p class="lead mt-4">
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+              MergePay offers an easy and secure way to reward contributors with ETH.
+              Anyone can deposit ETH on any issue or pull request. Contributors can withdraw
+              these deposits, if all conditions are met, an thereby farm Merge Tokens for the
+              respective depositers and themselves. These tokens can be used for promotion or
+              staked to profit from our service fees.
             </p>
+            <div class="pt-5">
+              <button href="#" class="btn btn-lg btn-light rounded-xl shadow-sm d-flex flex-column px-4 mx-auto">
+                <span>Buy Merge Tokens</span>
+                <small><sup class="text-muted">Presale starts 10/01/20</sup></small>
+              </button>
+            </div>
           </div>
-          <div class="col d-flex justify-content-center align-items-center flex-column">
-            <h1>Pay Contributors.</h1>
-            <h1>Farm Merge Tokens.</h1>
-            <h1>Promote your Project.</h1>
+          <div class="col d-flex justify-content-center align-items-center flex-column text-center">
+            <h1 class="font-weight-normal">Earn by contributing,<br>supporting projects<br>and staking.</h1>
+            <h1 class="font-weight-normal mt-5">Reach devs with<br>rewards and promotions.</h1>
           </div>
         </div>
       </div>
@@ -70,10 +80,12 @@
     background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%)
   > .container-fluid
     height: 100vh
-    overflow-y: scroll
+    overflow: auto
     opacity: 0
     transition: opacity 1s ease
     transition-delay: .5s
+    position: relative
+    z-index: 0
   &.open
     top: 4px
     > .container-fluid
@@ -86,6 +98,7 @@
     margin-left: -38px
     background: white
     color: #999
+    z-index: 3
     &.show-about
       margin-top: -29px
       border-top-left-radius: 25px

@@ -6,7 +6,7 @@
         We suggest installing the <a href="https://metamask.io" target="_blank">MetaMask extension</a>.
       </div>
       <Header />
-      <Nuxt class="mw-100" />
+      <Nuxt />
       <Footer />
     </div>
     <About />

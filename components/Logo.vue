@@ -11,12 +11,14 @@
 .logo
   font-family: 'Cinzel', serif
   font-size: 1.5rem
+  img
+    opacity: 0.8
   &.logo-lg
     font-size: 2rem
   &.logo-xl
     font-size: 4rem
-  img
-    opacity: 0.8
+    img
+      opacity: 1
 </style>
 
 <script>
