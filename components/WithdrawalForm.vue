@@ -31,6 +31,16 @@
     </div>
     <div v-if="connected">
       <div v-if="registered">
+        <h2 class="my-3 text-center" v-if="contribution">
+          <div v-if="loadingDepositAmount">
+            <font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" />
+            <small class="d-block text-muted-light"><sup>loading deposit</sup></small>
+          </div>
+          <div v-else>
+            {{ formattedDepositAmount }} ETH
+            <small class="d-block text-muted"><sup>deposited</sup></small>
+          </div>
+        </h2>
         <div class="alert alert-warning border-0 mt-2 mb-2" v-if="contribution && githubUser && contribution.user.login !== githubUser.login">
           <font-awesome-icon :icon="['fas', 'info-circle']" />
           <small>
@@ -42,6 +52,41 @@
           <small>
             This pull request is not merged yet.
           </small>
+        </div>
+        <div v-for="(beneficiary, index) in beneficiaries" :key="beneficiaries.address" class="d-flex beneficiary mb-2" v-if="contribution && contribution.merged && githubUser && contribution.user.login === githubUser.login">
+          <div class="flex-fill d-flex flex-column align-items-end">
+            <input type="text" class="form-control address" placeholder="Address" v-model="beneficiary.address" />
+            <div v-if="beneficiary.address">
+              <small class="text-muted pr-1" v-if="$web3 && $web3.utils.isAddress(beneficiary.address)">
+                <CheckIcon width="12px" height="12px" />
+                valid
+              </small>
+              <small class="text-danger pr-1" v-else>
+                not valid
+              </small>
+            </div>
+          </div>
+          <div class="d-flex flex-column align-items-end">
+            <div class="amount-input amount-input-sm">
+              <input type="number" min="0" max="100" step="1" class="form-control percentage" placeholder="0" v-model="beneficiary.percentage" />
+              <span>%</span>
+            </div>
+            <small class="text-muted pr-1">~0.2 ETH</small>
+          </div>
+          <a href="#" class="btn btn-light mb-auto remove border" @click="removeBeneficiary(beneficiary)">
+            <font-awesome-icon :icon="['fas', 'minus']" />
+          </a>
+        </div>
+        <div class="text-center" v-if="!sendingWithdrawal && contribution && contribution.merged && githubUser && contribution.user.login === githubUser.login">
+          <h5 class="mb-3 font-weight-bold" v-if="beneficiaries.length">
+            {{ formatAmount(totalBeneficiariesAmount) }} ETH<br><small class="text-muted"><sup>goes to beneficiaries.</sup></small>
+          </h5>
+          <a href="#" class="btn btn-sm btn-light" @click="beneficiaries.push({ address: '', percentage: 0 })">
+            <small>
+              <font-awesome-icon :icon="['fas', 'plus']" />
+              add beneficiary
+            </small>
+          </a>
         </div>
         <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdraw()" :disabled="sendingWithdrawal || !contribution || !contribution.merged || !githubUser || contribution.user.login !== githubUser.login">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingWithdrawal" />
@@ -81,6 +126,22 @@
   </div>
 </template>
 
+<style lang="sass">
+.beneficiary
+  .address
+    border-top-right-radius: 0
+    border-bottom-right-radius: 0
+  .percentage
+    border-radius: 0
+    border-left: 0
+    border-right: 0
+    width: 100px
+  .remove
+    border-top-left-radius: 0
+    border-bottom-left-radius: 0
+
+</style>
+
 <script>
 import { mapGetters } from "vuex"
 import connect from '@/mixins/connect'
@@ -99,11 +160,15 @@ export default {
       contribution: null,
       sendingWithdrawal: false,
       showWithdrawalSuccess: false,
+      beneficiaries: [],
+      depositAmount: 0,
+      loadingDepositAmount: false
     }
   },
   watch: {
     url(newUrl, oldUrl) {
       this.contribution = null
+      this.depositAmount = 0
       if (newUrl.includes('https://github.com') && newUrl.includes('/pull/')) {
         let urlParts = newUrl.split('/')
         let number = urlParts.pop()
@@ -112,7 +177,10 @@ export default {
         let owner = urlParts.pop()
         this.loadingContribution = true
         this.loadPullRequest(owner, repo, number)
-          .then(pr => this.contribution = pr)
+          .then(pr => {
+            this.contribution = pr
+            this.loadDepositAmount(pr.id)
+          })
           .finally(() => this.loadingContribution = false)
       }
     }
@@ -120,6 +188,14 @@ export default {
   computed: {
     ...mapGetters(['connected']),
     ...mapGetters("github", { githubUser: 'user' }),
+    formattedDepositAmount() {
+      return this.depositAmount ? Number(this.$web3.utils.fromWei(this.depositAmount.toString(), "ether")).toFixed(2) : "0.00"
+    },
+    totalBeneficiariesAmount() {
+      let totalPercentage = 0
+      this.beneficiaries.forEach(b => totalPercentage += Number(b.percentage))
+      return totalPercentage ? this.depositAmount / 100 * totalPercentage : 0
+    }
   },
   methods: {
     register() {
@@ -136,8 +212,26 @@ export default {
         this.sendingWithdrawal = false
         this.showWithdrawalSuccess = true
         this.contribution = null
+        this.depositAmount = 0
         this.url = ''
+        this.beneficiaries = []
       }, 2000)
+    },
+    loadDepositAmount(prId) {
+      this.loadingDepositAmount = true
+      setTimeout(() => {
+        this.loadingDepositAmount = false
+        this.depositAmount = 5000000000000000000
+      }, 3000)
+    },
+    removeBeneficiary(beneficiary) {
+      let existingIndex = this.beneficiaries.findIndex(ben => ben === beneficiary)
+      if (existingIndex != -1) {
+        this.beneficiaries.splice(existingIndex, 1)
+      }
+    },
+    formatAmount(amount) {
+      return Number(this.$web3.utils.fromWei(amount.toString(), "ether")).toFixed(2)
     }
   }
 }

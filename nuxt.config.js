@@ -82,6 +82,8 @@ export default {
     icons: {
       regular: ['faCopy', 'faCommentAlt'],
       solid: [
+        'faPlus',
+        'faMinus',
         'faChevronUp',
         'faChevronDown',
         'faLongArrowAltUp',
