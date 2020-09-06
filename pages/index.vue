@@ -1,17 +1,25 @@
 <template>
   <div class="card border-0 rounded-xl shadow">
     <div class="d-flex justify-content-around mt-3" v-if="view == 'deposit'">
+      <a href="#" class="text-muted" @click="view = 'send'">Send</a>
       <span class="text-primary">Deposit</span>
       <a href="#" class="text-muted" @click="view = 'withdraw'">Withdraw</a>
     </div>
-    <div class="d-flex justify-content-around mt-3" v-else>
+    <div class="d-flex justify-content-around mt-3" v-else-if="view == 'withdraw'">
+      <a href="#" class="text-muted" @click="view = 'send'">Send</a>
       <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
       <span class="text-primary">Withdraw</span>
+    </div>
+    <div class="d-flex justify-content-around mt-3" v-else-if="view == 'send'">
+      <span class="text-primary">Send</span>
+      <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
+      <a href="#" class="text-muted" @click="view = 'withdraw'">Withdraw</a>
     </div>
     <transition name="fade" mode="out-in">
       <keep-alive>
         <DepositForm v-if="view == 'deposit'" />
-        <WithdrawalForm v-else />
+        <WithdrawalForm v-else-if="view == 'withdraw'" />
+        <SendForm v-else-if="view == 'send'" />
       </keep-alive>
     </transition>
   </div>

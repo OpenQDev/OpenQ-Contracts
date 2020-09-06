@@ -14,33 +14,56 @@
     <div class="container-fluid pt-5">
       <div class="container">
         <div class="text-center mt-4 mb-5">
-          <a href="#" class="text-white mx-2">About</a>
-          <a href="#" class="text-white-50 mx-2">Token</a>
-          <a href="#" class="text-white-50 mx-2">Promotions</a>
-          <a href="#" class="text-white-50 mx-2">FAQ</a>
+          <a href="#" :class="'mx-2 text-white' + (view == 'about' ? '' : '-50')" @click="view = 'about'">About</a>
+          <a href="#" :class="'mx-2 text-white' + (view == 'merge-token' ? '' : '-50')" @click="view = 'merge-token'">Merge Token</a>
+          <a href="#" :class="'mx-2 text-white' + (view == 'sendreceive' ? '' : '-50')" @click="view = 'sendreceive'">Sending &amp; Receiving</a>
+          <a href="#" :class="'mx-2 text-white' + (view == 'depositwithdraw' ? '' : '-50')" @click="view = 'depositwithdraw'">Deposits &amp; Withdrawals</a>
+          <a href="#" :class="'mx-2 text-white' + (view == 'promo' ? '' : '-50')" @click="view = 'promo'">Promotions</a>
+          <a href="#" :class="'mx-2 text-white' + (view == 'faq' ? '' : '-50')" @click="view = 'faq'">FAQ</a>
         </div>
-        <div class="row">
-          <div class="col text-left">
-            <Logo color="white" size="xl" />
-            <p class="lead mt-4">
-              MergePay offers an easy and secure way to reward contributors with ETH.
-              Anyone can deposit ETH on any issue or pull request. Contributors can withdraw
-              these deposits, if all conditions are met, an thereby farm Merge Tokens for the
-              respective depositers and themselves. These tokens can be used for promotion or
-              staked to profit from our service fees.
-            </p>
-            <div class="pt-5">
-              <button href="#" class="btn btn-lg btn-light rounded-xl shadow-sm d-flex flex-column px-4 mx-auto">
-                <span>Buy Merge Tokens</span>
-                <small><sup class="text-muted">Presale starts 10/01/20</sup></small>
-              </button>
+        <transition name="fade" mode="out-in">
+          <div v-if="view == 'about'" key="about">
+            <div class="row">
+              <div class="col text-left">
+                <Logo color="white" size="xl" />
+                <p class="lead mt-4">
+                  MergePay offers an easy and secure way to reward contributors with ETH.
+                  You can send ETH to any GitHub username and anyone can make ETH deposits on any issue or pull request, which contributors can withdraw, if the conditions are met.
+                </p>
+                <p class="lead">
+                  Whenever ETH is transferred using MergePay, Merge Tokens are farmed for everybody involved in the transfer.
+                  Also every new GitHub user that registers on MergePay gets Merge Token in exchange for the registration fee of 0.01 ETH.
+                  Merge Tokens can be used by developers to claim issues or for promotional purposes on the platform, you can stake them
+                  to directly profit from our service fees or simply trade them on the open market.
+                </p>
+              </div>
+              <div class="col d-flex justify-content-center align-items-center flex-column text-center claims">
+                <h1 class="font-weight-normal">Earn by contributing, supporting projects and staking...</h1>
+                <h1 class="font-weight-normal mt-4">...or reach devs with rewards and promotions.</h1>
+              </div>
             </div>
           </div>
-          <div class="col d-flex justify-content-center align-items-center flex-column text-center">
-            <h1 class="font-weight-normal">Earn by contributing,<br>supporting projects<br>and staking.</h1>
-            <h1 class="font-weight-normal mt-5">Reach devs with<br>rewards and promotions.</h1>
+          <div v-if="view == 'merge-token'" key="merge-token">
+            <div class="row">
+              <div class="col">
+                <h1>Merge Token</h1>
+                <div class="pt-5">
+                  <button href="#" class="btn btn-lg btn-light rounded-xl shadow-sm d-flex flex-column px-4 mx-auto">
+                    <span>Buy Merge Tokens</span>
+                    <small><sup class="text-muted">Presale starts 10/01/20</sup></small>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+          <div v-else key="something">
+            <div class="row">
+              <div class="col">
+                <h1>...</h1>
+              </div>
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -71,6 +94,10 @@
   z-index: 2
   transition: top 1s cubic-bezier(0.76, 0, 0.24, 1)
   height: 100vh
+  .logo
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.8)
+  .claims
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.8)
   .shadow-gradient
     position: absolute
     top: 0
@@ -142,7 +169,8 @@
 export default {
   data() {
     return {
-      open: false
+      open: false,
+      view: 'about'
     }
   }
 }
