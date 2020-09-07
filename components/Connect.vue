@@ -17,6 +17,9 @@
           <span class="btn btn-sm btn-primary disabled">
             <AddressShort :address="account" />
           </span>
+          <span class="btn btn-sm btn-warning disabled" v-if="networkId != 1">
+            {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
+          </span>
           <span class="btn btn-sm btn-dark disabled" v-if="githubUser">
             <font-awesome-icon :icon="['fab', 'github']" />
             {{ githubUser.login }}
@@ -54,6 +57,7 @@ export default {
     return {
       githubClientId: process.env.GITHUB_CLIENT_ID,
       connectedGithub: false,
+      networkId: 0,
     }
   },
   computed: {
@@ -61,7 +65,10 @@ export default {
     ...mapGetters("github", { githubUser: 'user' }),
     formattedBalance() {
       return Number(this.$web3.utils.fromWei(this.balance.toString(), "ether")).toFixed(2)
-    }
+    },
   },
+  async mounted() {
+    this.networkId = await this.$web3.eth.net.getId()
+  }
 }
 </script>
