@@ -1,3 +1,4 @@
+const fs = require("fs")
 
 export default {
   /*
@@ -15,6 +16,10 @@ export default {
   ** API
   */
   serverMiddleware: ["~/api/index"],
+
+  env: {
+    MERGEPAY_ABI: JSON.parse(fs.readFileSync("./MergePay.json").toString()).abi
+  },
 
   /*
   ** Headers of the page
@@ -61,7 +66,8 @@ export default {
       'API_URL',
       'GITHUB_CLIENT_ID',
       'GITHUB_CLIENT_SECRET',
-      'GITHUB_APP_ACCESS_TOKEN'
+      'GITHUB_APP_ACCESS_TOKEN',
+      'MERGE_PAY_ADDRESS'
     ] }],
     '@nuxtjs/fontawesome',
   ],

@@ -84,7 +84,7 @@ export default {
       lockDays: 0,
       sendingDeposit: false,
       showDepositSuccess: false,
-      move: false
+      move: false,
     }
   },
   watch: {
@@ -136,12 +136,16 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected']),
+    ...mapGetters(['connected', 'account']),
   },
   methods: {
     sendDeposit() {
       this.sendingDeposit = true
-      setTimeout(() => {
+      this.$mergePay.methods.deposit(
+        this.type,
+        this.contribution.node_id,
+        this.lockDays
+      ).send({ from: this.account, value: this.$web3.utils.toWei(this.amount, "ether") }).then(tx => {
         this.sendingDeposit = false
         this.showDepositSuccess = true
         this.url = ''
@@ -152,8 +156,8 @@ export default {
         this.sourceType = 0
         this.lockDays = 0
         this.amount = 0
-      }, 2000)
+      })
     }
-  }
+  },
 }
 </script>
