@@ -43,7 +43,7 @@
               </div>
             </div>
           </div>
-          <div v-if="view == 'merge-token'" key="merge-token">
+          <div v-else-if="view == 'merge-token'" key="merge-token">
             <div class="row">
               <div class="col">
                 <h1>Merge Token</h1>
