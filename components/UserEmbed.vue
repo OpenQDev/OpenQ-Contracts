@@ -2,7 +2,10 @@
   <div>
     <a :href="user.url" target="_blank" class="avatar" :style="'background-image: url(' + user.avatarUrl + ')'"></a>
     <div class="embed rounded-bottom p-2 mb-2">
-      <b>{{ user.name }}</b>
+      <div class="d-flex justify-content-between">
+        <b>{{ user.name }}</b>
+        <font-awesome-icon :icon="['fab', 'github']" class="text-muted-light" />
+      </div>
       <small class="d-flex justify-content-between text-muted mt-1">
         <span>ID:</span>
         <span>{{ user.id | moment("MMMM Do YYYY") }}</span>
