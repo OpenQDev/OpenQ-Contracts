@@ -99,7 +99,7 @@
             To withdraw a deposit for a merged pull request you need to verify your GitHub
             account on the Ethereum blockchain by creating a repository named
             after your address and then clicking on Register.
-            Afterwards you can remove this repository again.<br>
+            Afterwards you can remove this repository again and also update your address at any time.<br>
             <div class="d-flex justify-content-between border border-primary rounded-lg px-2 py-1 mt-2">
               <i class="my-auto">github.com/mktcode/0x27711...9E520</i>
               <span class="p-1"><font-awesome-icon :icon="['far', 'copy']" /></span>
