@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-2 d-flex justify-content-center">
+  <div class="d-flex justify-content-center">
     <transition name="fade" mode="out-in">
       <span v-if="!connected" key="disconnected">
         <a href="#" class="mx-auto btn btn-sm btn-primary shadow-sm" @click="connect()" v-if="$web3">
