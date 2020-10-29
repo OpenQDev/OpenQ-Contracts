@@ -4,10 +4,16 @@
 
 <script>
 export default {
-  props: ['address'],
+  props: ['address', 'length'],
   computed: {
     shortenedAddress() {
-      return this.address.substr(0, 5) + '...' + this.address.substr(38)
+      if (this.length === 'medium') {
+        return this.address.substr(0, 12) + '...' + this.address.substr(32)
+      } else if (this.length === 'long') {
+        return this.address.substr(0, 17) + '...' + this.address.substr(28)
+      } else {
+        return this.address.substr(0, 5) + '...' + this.address.substr(38)
+      }
     }
   }
 }
