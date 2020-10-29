@@ -17,10 +17,15 @@
       <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" v-model="username" />
       <div v-if="loading || user">
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loading" class="text-muted-light" />
-        <UserEmbed :user="user" v-if="user" />
+        <UserEmbed :user="user" :address="address" v-if="user" />
       </div>
     </div>
-    <div class="alert alert-info" v-if="user">
+    <div class="alert alert-info" v-if="user && address">
+      <small>
+        You don't need to use MergePay for the transfer! But, if you do, you and the recipient will receive MergeToken.
+      </small>
+    </div>
+    <div class="alert alert-info" v-else-if="user">
       <div class="mb-2">
         <InfoIcon width="24px" height="24px" />
         This GitHub user is not registered.
@@ -46,7 +51,7 @@
       <input type="number" class="form-control form-control-lg mb-2" min="0" max="180" step="1" placeholder="0" v-model="lockDays" />
       <span>Days</span>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!user || amount == 0 || sending">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="send()" :disabled="!user || amount == 0 || sending">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
       {{ sending ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
@@ -67,6 +72,7 @@ export default {
   data() {
     return {
       username: '',
+      address: null,
       loading: false,
       user: null,
       amount: 0,
@@ -84,34 +90,49 @@ export default {
           this.loading = true
           this.user = null
           this.loadUser(newUsername)
-          .then(user => this.user = user)
-          .catch(() => this.user = null)
-          .finally(() => this.loading = false)
+            .then(user => {
+              this.user = user
+              this.$mergePay.methods._users(newUsername).call().then(result => {
+                if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmations) {
+                  this.address = result.account
+                } else {
+                  this.address = null
+                }
+              })
+            })
+            .catch(() => {
+              this.user = null
+              this.address = null
+            })
+            .finally(() => this.loading = false)
         } else {
           this.user = null
+          this.address = null
           this.loading = false
         }
       }, 500)
     },
   },
   computed: {
-    ...mapGetters(['connected']),
+    ...mapGetters(['connected', 'account']),
   },
   methods: {
-    sendDeposit() {
+    send() {
       this.sending = true
-      setTimeout(() => {
-        this.sending = false
-        this.showDepositSuccess = true
-        this.url = ''
-        this.sourceUrl = ''
-        this.contribution = null
-        this.sourceContribution = null
-        this.type = 0
-        this.sourceType = 0
-        this.lockDays = 0
+      this.$mergePay.methods.sendEthToGithubUser(this.username).send({
+        from: this.account,
+        value: this.$web3.utils.toWei(this.amount, "ether")
+      }).then(result => {
+        console.log(result)
+        this.loading = false
         this.amount = 0
-      }, 2000)
+        this.showSendSuccess = true
+      }).catch(e => {
+        console.log(e)
+        this.loading = false
+      }).finally(() => {
+        this.loading = false
+      })
     }
   }
 }

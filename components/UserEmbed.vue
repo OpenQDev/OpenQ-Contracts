@@ -8,7 +8,7 @@
       </div>
       <small class="d-flex justify-content-between text-muted mt-1">
         <span>ID:</span>
-        <span>{{ user.id | moment("MMMM Do YYYY") }}</span>
+        <span>{{ user.id }}</span>
       </small>
       <small class="d-flex justify-content-between text-muted mt-1">
         <span>Signed up:</span>
@@ -18,6 +18,11 @@
         <span>Last active:</span>
         <span>{{ user.updatedAt | moment("MMMM Do YYYY") }}</span>
       </small>
+    </div>
+    <div class="btn btn-sm btn-light btn-block mb-2 d-flex align-items-center" v-if="address">
+      <font-awesome-icon :icon="['fab', 'ethereum']" class="text-muted" />
+      <AddressShort :address="address" length="long" class="text-muted mr-auto ml-1" />
+      <font-awesome-icon :icon="['far', 'copy']" class="text-muted" />
     </div>
   </div>
 </template>
@@ -39,6 +44,6 @@
 
 <script>
 export default {
-  props: ['user'],
+  props: ['user', 'address'],
 }
 </script>
