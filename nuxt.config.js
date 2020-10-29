@@ -67,7 +67,9 @@ export default {
       'GITHUB_CLIENT_ID',
       'GITHUB_CLIENT_SECRET',
       'GITHUB_APP_ACCESS_TOKEN',
-      'MERGE_PAY_ADDRESS'
+      'MERGEPAY_ADDRESS',
+      'ORACLE_ADDRESS',
+      'ORACLE_KEY'
     ] }],
     '@nuxtjs/fontawesome',
   ],

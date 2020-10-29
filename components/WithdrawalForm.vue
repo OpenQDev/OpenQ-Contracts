@@ -186,7 +186,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected']),
+    ...mapGetters(['connected', 'account']),
     ...mapGetters("github", { githubUser: 'user' }),
     formattedDepositAmount() {
       return this.depositAmount ? Number(this.$web3.utils.fromWei(this.depositAmount.toString(), "ether")).toFixed(2) : "0.00"
@@ -200,11 +200,15 @@ export default {
   methods: {
     register() {
       this.loadingRegistration = true
-      setTimeout(() => {
-        this.registered = true
-        this.loadingRegistration = false
-        this.showRegistrationSuccess = true
-      }, 2000)
+      this.$mergePay.methods.register(this.githubUser.login).send({ from: this.account  }).then(result => {
+        this.$mergePay.events.RegistrationConfirmedEvent().on('data', event => {
+          if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
+            this.registered = true
+            this.showRegistrationSuccess = true
+            this.loadingRegistration = false
+          }
+        })
+      }).catch(() => this.loadingRegistration = false)
     },
     withdraw() {
       this.sendingWithdrawal = true
