@@ -20,7 +20,7 @@
         You can now delete the repository again and start withdrawing funds.
       </small>
     </div>
-    <div v-if="registered">
+    <div v-if="registeredAccount === account">
       <small class="text-muted d-flex justify-content-between">
         Pull Request
         <HelpIcon v-tooltip="'Paste the URL of the GitHub pull request you want to withdraw from. The pull request must be merged and submitted by you.'" width="18px" height="18px" class="mb-1 help-icon" />
@@ -32,7 +32,7 @@
       <PullRequestEmbed :contribution="contribution" v-if="contribution" />
     </div>
     <div v-if="connected">
-      <div v-if="registered">
+      <div v-if="registeredAccount === account">
         <h2 class="my-3 text-center" v-if="contribution">
           <div v-if="loadingDepositAmount">
             <font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" />
@@ -110,21 +110,29 @@
         </div>
       </div>
       <div v-else>
-        <div class="alert alert-primary border-0">
+        <div class="alert alert-primary border-0 mb-0">
           <small>
             To withdraw deposits or receive funds with your GitHub account,
             you need to verify your account by creating a repository
             named after your Ethereum address and then registering below.
             Afterwards you can remove this repository again and also update your
-            address at any time.<br>
-            <div class="d-flex justify-content-between border border-primary rounded-lg px-2 py-1 mt-2" v-if="githubUser">
-              <i class="my-auto">github.com/{{ githubUser.login }}/0x27711...9E520</i>
-              <span class="p-1"><font-awesome-icon :icon="['far', 'copy']" /></span>
-            </div>
-            <div v-else class="mt-3">Connect to your GitHub account first to register.</div>
+            address at any time.
+            <div v-if="!githubUser" class="mt-3">Connect to your GitHub account first to register.</div>
           </small>
         </div>
-        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="githubUser" @click="register()" :disabled="loadingRegistration">
+        <div v-if="githubUser">
+          <div class="d-flex justify-content-between align-items-center btn btn-light mt-2">
+            <font-awesome-icon :icon="['far', 'copy']" />
+            <i class="my-auto"><AddressShort :address="account" length="medium" /></i>
+            <i></i>
+          </div>
+          <a href="https://github.com/new" target="_blank" class="d-flex justify-content-between align-items-center btn btn-dark btn-block mt-2">
+            <font-awesome-icon :icon="['fab', 'github']" />
+            Create Repository
+            <i></i>
+          </a>
+        </div>
+        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-3" v-if="githubUser" @click="register()" :disabled="loadingRegistration">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingRegistration" />
           {{ loadingRegistration ? 'Waiting for confirmation...' : 'Register' }}
         </button>
@@ -205,7 +213,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account', 'registered']),
+    ...mapGetters(['connected', 'account', 'registeredAccount']),
     ...mapGetters("github", { githubUser: 'user' }),
     formattedDepositAmount() {
       return this.depositAmount ? Number(this.$web3.utils.fromWei(this.depositAmount.toString(), "ether")).toFixed(2) : "0.00"
@@ -225,7 +233,7 @@ export default {
       this.$mergePay.methods.register(this.githubUser.login).send({ from: this.account  }).then(result => {
         this.$mergePay.events.RegistrationConfirmedEvent().on('data', event => {
           if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
-            this.$store.commit("setRegistered", true)
+            this.$store.commit("setRegisteredAccount", event.returnValues.account)
             this.showRegistrationSuccess = true
             this.loadingRegistration = false
           }

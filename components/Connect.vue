@@ -30,6 +30,12 @@
             <b>{{ formattedBalance }} ETH</b>
             <AddressShort :address="account" class="ml-2" />
           </div>
+          <a v-if="registeredAccount && registeredAccount != account" href="#" class="d-flex mx-auto">
+            <small>
+              Registered:<AddressShort :address="registeredAccount" class="ml-1" />
+              <font-awesome-icon :icon="['fas', 'info-circle']" />
+            </small>
+          </a>
           <small v-if="networkId != 1" class="text-muted">
             <small><font-awesome-icon :icon="['fas', 'circle']" class="text-warning" /></small>
             {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
@@ -60,18 +66,14 @@ export default {
     return {
       githubClientId: process.env.GITHUB_CLIENT_ID,
       connectedGithub: false,
-      networkId: 0,
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account', 'balance']),
+    ...mapGetters(['connected', 'account', 'balance', 'registeredAccount', 'networkId']),
     ...mapGetters("github", { githubUser: 'user' }),
     formattedBalance() {
       return Number(this.$web3.utils.fromWei(this.balance.toString(), "ether")).toFixed(2)
     },
-  },
-  async mounted() {
-    this.networkId = await this.$web3.eth.net.getId()
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto">
+  <div class="d-flex justify-content-center">
     <nuxt-link to="/" class="text-dark px-2">
       Transfer
     </nuxt-link>

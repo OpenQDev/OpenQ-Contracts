@@ -4,21 +4,21 @@
       <a href="#" class="text-muted" @click="view = 'send'">Send</a>
       <span class="text-primary">Deposit</span>
       <a href="#" class="text-muted" @click="view = 'withdraw'">
-        {{ registered ? 'Withdraw' : 'Register' }}
+        {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
       </a>
     </div>
     <div class="d-flex justify-content-around mt-3" v-else-if="view == 'withdraw'">
       <a href="#" class="text-muted" @click="view = 'send'">Send</a>
       <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
       <span class="text-primary">
-        {{ registered ? 'Withdraw' : 'Register' }}
+        {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
       </span>
     </div>
     <div class="d-flex justify-content-around mt-3" v-else-if="view == 'send'">
       <span class="text-primary">Send</span>
       <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
       <a href="#" class="text-muted" @click="view = 'withdraw'">
-        {{ registered ? 'Withdraw' : 'Register' }}
+        {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
       </a>
     </div>
     <transition name="fade" mode="out-in">
@@ -42,34 +42,24 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['accounts', 'registered']),
+    ...mapGetters(['account', 'registeredAccount']),
     ...mapGetters('github', { githubUser: 'user' }),
   },
   watch: {
     githubUser() {
       if (this.githubUser) {
         this.$mergePay.methods._users(this.githubUser.login).call().then(result => {
-          if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmations) {
-            this.$store.commit('setRegistered', true)
+          if (result.account !== "0x0000000000000000000000000000000000000000" && Number(result.confirmations)) {
+            this.$store.commit('setRegisteredAccount', result.account)
           } else {
-            this.$store.commit('setRegistered', false)
+            this.$store.commit('setRegisteredAccount', null)
           }
         }).catch(() => {
-          this.$store.commit('setRegistered', false)
+          this.$store.commit('setRegisteredAccount', null)
         })
       } else {
-        this.$store.commit('setRegistered', false)
+        this.$store.commit('setRegisteredAccount', null)
       }
-    }
-  },
-  mounted() {
-    if (this.$web3) {
-      this.$web3.eth.getAccounts().then(accounts => {
-        if (accounts.length) {
-          this.$store.commit('setAccounts', accounts)
-          this.$web3.eth.getBalance(accounts[0]).then(balance => this.$store.commit('setBalance', balance))
-        }
-      })
     }
   }
 }

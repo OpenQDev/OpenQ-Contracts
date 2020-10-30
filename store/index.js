@@ -1,10 +1,14 @@
 export const state = () => ({
+  networkId: null,
   accounts: [],
-  registered: false,
+  registeredAccount: null,
   balance: 0
 })
 
 export const getters = {
+  networkId(state) {
+    return state.networkId
+  },
   accounts(state) {
     return state.accounts
   },
@@ -17,20 +21,23 @@ export const getters = {
   connected(state) {
     return !!state.accounts.length
   },
-  registered(state) {
-    return state.registered
+  registeredAccount(state) {
+    return state.registeredAccount
   }
 }
 
 export const mutations = {
+  setNetworkId(state, id) {
+    state.networkId = id
+  },
   setAccounts(state, accounts) {
     state.accounts = accounts
   },
   setBalance(state, balance) {
     state.balance = balance
   },
-  setRegistered(state, registered) {
-    state.registered = registered
+  setRegisteredAccount(state, registeredAccount) {
+    state.registeredAccount = registeredAccount
   }
 }
 
@@ -39,11 +46,20 @@ export const actions = {
     return dispatch("github/login").then((result) => {
       if (rootState.github.user) {
         this.$mergePay.methods._users(rootState.github.user.login).call().then(result => {
-          commit("setRegistered", result.account !== "0x0000000000000000000000000000000000000000" && result.confirmations)
+          commit("setRegisteredAccount", result.account !== "0x0000000000000000000000000000000000000000" && Number(result.confirmations) ? result.account : null)
         }).catch(() => {
-          commit("setRegistered", false)
+          commit("setRegisteredAccount", null)
         })
       }
+      this.$web3.eth.getAccounts().then(accounts => {
+        if (accounts.length) {
+          commit('setAccounts', accounts)
+          this.$web3.eth.getBalance(accounts[0]).then(balance => commit('setBalance', balance))
+        }
+      })
+      this.$web3.eth.net.getId().then(result => {
+        commit('setNetworkId', result)
+      })
     })
   },
 }
