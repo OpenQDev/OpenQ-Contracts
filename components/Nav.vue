@@ -7,7 +7,7 @@
       My Deposits
     </nuxt-link>
     <nuxt-link to="/issues" class="text-dark px-2">
-      Open Issues
+      Issues
     </nuxt-link>
     <!-- <nuxt-link to="/projects" class="text-muted px-2">
       Projects
