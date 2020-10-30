@@ -13,6 +13,13 @@
         <span v-if="githubUser">
           <font-awesome-icon :icon="['fab', 'github']" />
           {{ githubUser.login }}
+          <a
+            v-if="registeredAccount && registeredAccount != account"
+            class="btn btn-sm px-1 py-0 text-danger"
+            v-tooltip="'You are not connected to the Ethereum account registered with this GitHub account. Switch accounts or register again.'"
+          >
+            <small><font-awesome-icon :icon="['fas', 'exclamation-triangle']" /></small>
+          </a>
         </span>
         <a
           v-if="!githubUser"
@@ -30,12 +37,6 @@
             <b>{{ formattedBalance }} ETH</b>
             <AddressShort :address="account" class="ml-2" />
           </div>
-          <a v-if="registeredAccount && registeredAccount != account" href="#" class="d-flex mx-auto">
-            <small>
-              Registered:<AddressShort :address="registeredAccount" class="ml-1" />
-              <font-awesome-icon :icon="['fas', 'info-circle']" />
-            </small>
-          </a>
           <small v-if="networkId != 1" class="text-muted">
             <small><font-awesome-icon :icon="['fas', 'circle']" class="text-warning" /></small>
             {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}

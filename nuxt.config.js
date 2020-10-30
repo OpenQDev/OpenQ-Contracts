@@ -98,6 +98,7 @@ export default {
         'faCheck',
         'faBan',
         'faInfoCircle',
+        'faExclamationTriangle',
         'faSignInAlt',
         'faSignOutAlt',
         'faAngleDoubleRight',
