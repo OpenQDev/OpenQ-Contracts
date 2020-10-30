@@ -69,6 +69,12 @@ export default {
       loadUserTimeout: null
     }
   },
+  mounted() {
+    if (this.$route.params.recipient) {
+      this.username = this.$route.params.recipient
+      this.amount = Number(this.$route.params.amount)
+    }
+  },
   watch: {
     username(newUsername, oldUsername) {
       clearTimeout(this.loadUserTimeout)

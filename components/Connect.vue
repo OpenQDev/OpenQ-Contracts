@@ -18,7 +18,7 @@
             <AddressShort :address="account" />
           </span>
           <span class="btn btn-sm btn-warning disabled" v-if="networkId != 1">
-            {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
+            {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown')) }}
           </span>
           <span class="btn btn-sm btn-dark disabled" v-if="githubUser">
             <font-awesome-icon :icon="['fab', 'github']" />

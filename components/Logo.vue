@@ -1,5 +1,5 @@
 <template>
-  <div :class="['logo', { 'logo-xl': size == 'xl', 'logo-lg': size == 'lg', 'text-white': color == 'white' }]">
+  <div :class="['logo', { 'logo-xl': size == 'xl', 'logo-lg': size == 'lg', 'text-white': color == 'white', 'text-dark': color == 'dark' }]">
     <div>
       <img :src="color == 'white' ? '/logo-white.png' : '/logo.png'" :width="size == 'xl' ? 70 : (size == 'lg' ? 50 : 30)" />
       MergePay
