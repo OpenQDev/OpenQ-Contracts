@@ -31,9 +31,7 @@
         This GitHub user is not registered.
       </div>
       <small>
-        Registration is requred to receive funds.
-        Do you want to cover the registration fee of 0.01 ETH for {{ user.login }}?
-        The total amount specified below will be transferred the moment the user registers.
+        Funds will be held in our smart contract and can be withdrawn by {{ user.login }} once registered.
       </small>
     </div>
     <small class="text-muted mb-1">
@@ -43,7 +41,7 @@
       <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
       <span>ETH</span>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="send()" :disabled="!user || amount == 0 || sending">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="address ? send() : deposit()" :disabled="!user || amount == 0 || sending">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
       {{ sending ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
@@ -115,7 +113,22 @@ export default {
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
-        console.log(result)
+        this.loading = false
+        this.amount = 0
+        this.showSendSuccess = true
+      }).catch(e => {
+        console.log(e)
+        this.loading = false
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    deposit() {
+      this.sending = true
+      this.$mergePay.methods.depositEthForGithubUser(this.username).send({
+        from: this.account,
+        value: this.$web3.utils.toWei(this.amount, "ether")
+      }).then(result => {
         this.loading = false
         this.amount = 0
         this.showSendSuccess = true

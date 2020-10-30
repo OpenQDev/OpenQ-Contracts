@@ -3,17 +3,23 @@
     <div class="d-flex justify-content-around mt-3" v-if="view == 'deposit'">
       <a href="#" class="text-muted" @click="view = 'send'">Send</a>
       <span class="text-primary">Deposit</span>
-      <a href="#" class="text-muted" @click="view = 'withdraw'">Withdraw</a>
+      <a href="#" class="text-muted" @click="view = 'withdraw'">
+        {{ registered ? 'Withdraw' : 'Register' }}
+      </a>
     </div>
     <div class="d-flex justify-content-around mt-3" v-else-if="view == 'withdraw'">
       <a href="#" class="text-muted" @click="view = 'send'">Send</a>
       <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
-      <span class="text-primary">Withdraw</span>
+      <span class="text-primary">
+        {{ registered ? 'Withdraw' : 'Register' }}
+      </span>
     </div>
     <div class="d-flex justify-content-around mt-3" v-else-if="view == 'send'">
       <span class="text-primary">Send</span>
       <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
-      <a href="#" class="text-muted" @click="view = 'withdraw'">Withdraw</a>
+      <a href="#" class="text-muted" @click="view = 'withdraw'">
+        {{ registered ? 'Withdraw' : 'Register' }}
+      </a>
     </div>
     <transition name="fade" mode="out-in">
       <keep-alive>
@@ -36,7 +42,25 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['accounts']),
+    ...mapGetters(['accounts', 'registered']),
+    ...mapGetters('github', { githubUser: 'user' }),
+  },
+  watch: {
+    githubUser() {
+      if (this.githubUser) {
+        this.$mergePay.methods._users(this.githubUser.login).call().then(result => {
+          if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmations) {
+            this.$store.commit('setRegistered', true)
+          } else {
+            this.$store.commit('setRegistered', false)
+          }
+        }).catch(() => {
+          this.$store.commit('setRegistered', false)
+        })
+      } else {
+        this.$store.commit('setRegistered', false)
+      }
+    }
   },
   mounted() {
     if (this.$web3) {

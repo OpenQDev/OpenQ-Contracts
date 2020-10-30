@@ -1,5 +1,6 @@
 export const state = () => ({
   accounts: [],
+  registered: false,
   balance: 0
 })
 
@@ -15,6 +16,9 @@ export const getters = {
   },
   connected(state) {
     return !!state.accounts.length
+  },
+  registered(state) {
+    return state.registered
   }
 }
 
@@ -24,11 +28,22 @@ export const mutations = {
   },
   setBalance(state, balance) {
     state.balance = balance
+  },
+  setRegistered(state, registered) {
+    state.registered = registered
   }
 }
 
 export const actions = {
-  load({ dispatch }) {
-    return Promise.all([dispatch("github/login")])
-  }
+  load({ commit, dispatch, state, rootState }) {
+    return dispatch("github/login").then((result) => {
+      if (rootState.github.user) {
+        this.$mergePay.methods._users(rootState.github.user.login).call().then(result => {
+          commit("setRegistered", result.account !== "0x0000000000000000000000000000000000000000" && result.confirmations)
+        }).catch(() => {
+          commit("setRegistered", false)
+        })
+      }
+    })
+  },
 }

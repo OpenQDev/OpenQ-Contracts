@@ -20,11 +20,13 @@
         You can now delete the repository again and start withdrawing funds from your merged pull requests.
       </small>
     </div>
-    <small class="text-muted d-flex justify-content-between">
-      Pull Request
-      <HelpIcon v-tooltip="'Paste the URL of the GitHub pull request you want to withdraw from. The pull request must be merged and submitted by you.'" width="18px" height="18px" class="mb-1 help-icon" />
-    </small>
-    <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
+    <div v-if="registered">
+      <small class="text-muted d-flex justify-content-between">
+        Pull Request
+        <HelpIcon v-tooltip="'Paste the URL of the GitHub pull request you want to withdraw from. The pull request must be merged and submitted by you.'" width="18px" height="18px" class="mb-1 help-icon" />
+      </small>
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
+    </div>
     <div v-if="loadingContribution || contribution">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingContribution" class="text-muted-light" />
       <PullRequestEmbed :contribution="contribution" v-if="contribution" />
@@ -92,14 +94,26 @@
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingWithdrawal" />
           {{ sendingWithdrawal ? 'Waiting for confirmation...' : 'Confirm' }}
         </button>
+        <div v-if="userDeposits.length" class="border-top mt-3 pt-3">
+          <div v-for="(deposit, index) in userDeposits" :key="index" class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="mb-0">
+                {{ $web3.utils.fromWei(deposit.amount, 'ether') }} ETH
+              </h4>
+              <small class="text-muted">From: <AddressShort :address="deposit.from" length="medium" /></small>
+            </div>
+            <button class="btn btn-primary shadow-sm" @click="withdrawUserDeposit(deposit.id)">Withdraw</button>
+          </div>
+        </div>
       </div>
       <div v-else>
         <div class="alert alert-primary border-0">
           <small>
-            To withdraw a deposit for a merged pull request you need to verify your GitHub
-            account on the Ethereum blockchain by creating a repository named
-            after your address and then clicking on Register.
-            Afterwards you can remove this repository again and also update your address at any time.<br>
+            To withdraw deposits or receive funds through your GitHub username,
+            you need to verify your GitHub account by creating a repository
+            named after your Ethereum address and then clicking on Register.
+            Afterwards you can remove this repository again and also update your
+            address at any time.<br>
             <div class="d-flex justify-content-between border border-primary rounded-lg px-2 py-1 mt-2">
               <i class="my-auto">github.com/mktcode/0x27711...9E520</i>
               <span class="p-1"><font-awesome-icon :icon="['far', 'copy']" /></span>
@@ -152,7 +166,6 @@ export default {
   data() {
     return {
       githubClientId: process.env.GITHUB_CLIENT_ID,
-      registered: false,
       loadingRegistration: false,
       showRegistrationSuccess: false,
       url: '',
@@ -162,7 +175,8 @@ export default {
       showWithdrawalSuccess: false,
       beneficiaries: [],
       depositAmount: 0,
-      loadingDepositAmount: false
+      loadingDepositAmount: false,
+      userDeposits: []
     }
   },
   watch: {
@@ -186,7 +200,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account']),
+    ...mapGetters(['connected', 'account', 'registered']),
     ...mapGetters("github", { githubUser: 'user' }),
     formattedDepositAmount() {
       return this.depositAmount ? Number(this.$web3.utils.fromWei(this.depositAmount.toString(), "ether")).toFixed(2) : "0.00"
@@ -197,13 +211,16 @@ export default {
       return totalPercentage ? this.depositAmount / 100 * totalPercentage : 0
     }
   },
+  mounted() {
+    this.updateUserDeposits()
+  },
   methods: {
     register() {
       this.loadingRegistration = true
       this.$mergePay.methods.register(this.githubUser.login).send({ from: this.account  }).then(result => {
         this.$mergePay.events.RegistrationConfirmedEvent().on('data', event => {
           if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
-            this.registered = true
+            this.$store.commit("setRegistered", true)
             this.showRegistrationSuccess = true
             this.loadingRegistration = false
           }
@@ -220,6 +237,23 @@ export default {
         this.url = ''
         this.beneficiaries = []
       }, 2000)
+    },
+    withdrawUserDeposit(id) {
+      this.$mergePay.methods.withdrawUserDeposit(id).send({ from: this.account }).then(result => {
+        this.updateUserDeposits()
+      }).catch(e => console.log(e))
+    },
+    updateUserDeposits() {
+      this.$mergePay.methods.getDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
+        ids.forEach(id => {
+          this.$mergePay.methods._userDeposits(id).call().then(deposit => {
+            if (Number(deposit.amount)) {
+              deposit.id = id
+              this.userDeposits.push(deposit)
+            }
+          })
+        })
+      })
     },
     loadDepositAmount(prId) {
       this.loadingDepositAmount = true
