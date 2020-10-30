@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto mt-4 mb-5">
+  <div class="mx-auto">
     <nuxt-link to="/" class="text-dark px-2">
       Transfer
     </nuxt-link>
@@ -9,7 +9,7 @@
     <nuxt-link to="/issues" class="text-dark px-2">
       Open Issues
     </nuxt-link>
-    <nuxt-link to="/projects" class="text-muted px-2">
+    <!-- <nuxt-link to="/projects" class="text-muted px-2">
       Projects
       <span class="badge badge-primary badge-pill font-weight-normal">
         soon
@@ -20,7 +20,7 @@
       <span class="badge badge-primary badge-pill font-weight-normal">
         soon
       </span>
-    </a>
+    </a> -->
   </div>
 </template>
 

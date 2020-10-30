@@ -6,7 +6,7 @@
         We suggest installing the <a href="https://metamask.io" target="_blank">MetaMask extension</a>.
       </div>
       <nuxt-link to="/"><Logo class="d-flex justify-content-center mt-5 mb-3" color="dark" /></nuxt-link>
-      <Connect class="mb-3" />
+      <Connect class="mb-5" />
       <Nuxt />
       <Footer />
     </div>

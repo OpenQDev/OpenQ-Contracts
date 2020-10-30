@@ -112,15 +112,16 @@
       <div v-else>
         <div class="alert alert-primary border-0">
           <small>
-            To withdraw deposits or receive funds through your GitHub username,
-            you need to verify your GitHub account by creating a repository
-            named after your Ethereum address and then clicking on Register.
+            To withdraw deposits or receive funds with your GitHub account,
+            you need to verify your account by creating a repository
+            named after your Ethereum address and then registering below.
             Afterwards you can remove this repository again and also update your
             address at any time.<br>
-            <div class="d-flex justify-content-between border border-primary rounded-lg px-2 py-1 mt-2">
-              <i class="my-auto">github.com/mktcode/0x27711...9E520</i>
+            <div class="d-flex justify-content-between border border-primary rounded-lg px-2 py-1 mt-2" v-if="githubUser">
+              <i class="my-auto">github.com/{{ githubUser.login }}/0x27711...9E520</i>
               <span class="p-1"><font-awesome-icon :icon="['far', 'copy']" /></span>
             </div>
+            <div v-else class="mt-3">Connect to your GitHub account first to register.</div>
           </small>
         </div>
         <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="githubUser" @click="register()" :disabled="loadingRegistration">
@@ -251,16 +252,18 @@ export default {
     },
     updateUserDeposits() {
       let deposits = []
-      this.$mergePay.methods.getDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
-        ids.forEach(id => {
-          this.$mergePay.methods._userDeposits(id).call().then(deposit => {
-            if (Number(deposit.amount)) {
-              deposit.id = id
-              deposits.push(deposit)
-            }
+      if (this.githubUser) {
+        this.$mergePay.methods.getDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
+          ids.forEach(id => {
+            this.$mergePay.methods._userDeposits(id).call().then(deposit => {
+              if (Number(deposit.amount)) {
+                deposit.id = id
+                deposits.push(deposit)
+              }
+            })
           })
         })
-      })
+      }
       this.userDeposits = deposits
     },
     loadDepositAmount(prId) {

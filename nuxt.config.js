@@ -102,7 +102,8 @@ export default {
         'faSignOutAlt',
         'faAngleDoubleRight',
         'faExternalLinkAlt',
-        'faCircleNotch'
+        'faCircleNotch',
+        'faCircle'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub'],
     },

@@ -9,21 +9,10 @@
           Install MetaMask
         </a>
       </span>
-      <span v-else key="connected">
-        <span href="#" class="mx-auto btn-group">
-          <span class="btn btn-sm btn-light disabled">
-            <b>{{ formattedBalance }} ETH</b>
-          </span>
-          <span class="btn btn-sm btn-primary disabled">
-            <AddressShort :address="account" />
-          </span>
-          <span class="btn btn-sm btn-warning disabled" v-if="networkId != 1">
-            {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown')) }}
-          </span>
-          <span class="btn btn-sm btn-dark disabled" v-if="githubUser">
-            <font-awesome-icon :icon="['fab', 'github']" />
-            {{ githubUser.login }}
-          </span>
+      <span v-else key="connected" class="d-flex flex-column align-items-center">
+        <span v-if="githubUser">
+          <font-awesome-icon :icon="['fab', 'github']" />
+          {{ githubUser.login }}
         </span>
         <a
           v-if="!githubUser"
@@ -36,6 +25,20 @@
           <font-awesome-icon :icon="['fab', 'github']" />
           Connect
         </a>
+        <div class="d-flex flex-column text-center mt-1">
+          <div>
+            <b>{{ formattedBalance }} ETH</b>
+            <AddressShort :address="account" class="ml-2" />
+          </div>
+          <small v-if="networkId != 1" class="text-muted">
+            <small><font-awesome-icon :icon="['fas', 'circle']" class="text-warning" /></small>
+            {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
+          </small>
+          <small v-else class="text-muted">
+            <small><font-awesome-icon :icon="['fas', 'circle']" class="text-success" /></small>
+            Mainnet
+          </small>
+        </div>
       </span>
     </transition>
   </div>
