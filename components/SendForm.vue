@@ -5,10 +5,7 @@
         <span>&times;</span>
       </button>
       <CheckIcon width="24px" height="24px" />
-      Transfer confirmed! :)<br>
-      <small>
-        The GitHub user <a href="#">mktcode</a> will now receive 0.1 ETH once a week.
-      </small>
+      Transfer confirmed! :)
     </div>
     <small class="text-muted d-flex justify-content-between">
       GitHub User
@@ -113,14 +110,13 @@ export default {
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
-        this.loading = false
         this.amount = 0
         this.showSendSuccess = true
       }).catch(e => {
         console.log(e)
-        this.loading = false
       }).finally(() => {
         this.loading = false
+        this.sending = false
       })
     },
     deposit() {
@@ -129,14 +125,13 @@ export default {
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
-        this.loading = false
         this.amount = 0
         this.showSendSuccess = true
       }).catch(e => {
         console.log(e)
-        this.loading = false
       }).finally(() => {
         this.loading = false
+        this.sending = false
       })
     }
   }

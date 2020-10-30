@@ -17,7 +17,7 @@
       <CheckIcon width="24px" height="24px" />
       Registration successfull! :)<br>
       <small>
-        You can now delete the repository again and start withdrawing funds from your merged pull requests.
+        You can now delete the repository again and start withdrawing funds.
       </small>
     </div>
     <div v-if="registered">
@@ -102,7 +102,10 @@
               </h4>
               <small class="text-muted">From: <AddressShort :address="deposit.from" length="medium" /></small>
             </div>
-            <button class="btn btn-primary shadow-sm" @click="withdrawUserDeposit(deposit.id)">Withdraw</button>
+            <button class="btn btn-primary shadow-sm" @click="withdrawUserDeposit(deposit.id)" :disabled="withdrawingUserDeposit != 0">
+              <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="withdrawingUserDeposit === deposit.id" />
+              {{ withdrawingUserDeposit === deposit.id ? '' : 'Withdraw' }}
+            </button>
           </div>
         </div>
       </div>
@@ -176,7 +179,8 @@ export default {
       beneficiaries: [],
       depositAmount: 0,
       loadingDepositAmount: false,
-      userDeposits: []
+      userDeposits: [],
+      withdrawingUserDeposit: 0
     }
   },
   watch: {
@@ -239,21 +243,25 @@ export default {
       }, 2000)
     },
     withdrawUserDeposit(id) {
-      this.$mergePay.methods.withdrawUserDeposit(id).send({ from: this.account }).then(result => {
-        this.updateUserDeposits()
-      }).catch(e => console.log(e))
+      this.withdrawingUserDeposit = id
+      this.$mergePay.methods.withdrawUserDeposit(id).send({ from: this.account })
+        .then(() => this.updateUserDeposits())
+        .catch(e => console.log(e))
+        .finally(() => this.withdrawingUserDeposit = 0)
     },
     updateUserDeposits() {
+      let deposits = []
       this.$mergePay.methods.getDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
         ids.forEach(id => {
           this.$mergePay.methods._userDeposits(id).call().then(deposit => {
             if (Number(deposit.amount)) {
               deposit.id = id
-              this.userDeposits.push(deposit)
+              deposits.push(deposit)
             }
           })
         })
       })
+      this.userDeposits = deposits
     },
     loadDepositAmount(prId) {
       this.loadingDepositAmount = true
