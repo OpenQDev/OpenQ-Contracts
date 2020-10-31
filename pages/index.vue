@@ -1,5 +1,5 @@
 <template>
-  <div class="card border-0 rounded-xl shadow">
+  <div class="content card border-0 rounded-xl shadow">
     <div class="d-flex justify-content-around mt-3" v-if="view == 'deposit'">
       <a href="#" class="text-muted" @click="view = 'send'">Send</a>
       <span class="text-primary">Deposit</span>
@@ -64,8 +64,3 @@ export default {
   }
 }
 </script>
-
-<style lang="sass" scoped>
-  .card
-    width: 380px
-</style>

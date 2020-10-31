@@ -25,8 +25,10 @@ body
   &:disabled
     opacity: 0.25
 
-.card
-  border-radius: 1rem
+.content
+  max-width: 360px
+.content-wide
+  max-width: 480px
 
 a:hover
   text-decoration: none
@@ -44,6 +46,8 @@ a:hover
   overflow-y: scroll
   position: relative
   z-index: 1
+  > div
+    max-width: 100%
 
 .text-muted-light
   color: #ccc !important
@@ -94,3 +98,12 @@ a:hover
 
 .rounded-xl
   border-radius: 2rem
+
+@media screen and (max-width: 480px)
+  .main
+    padding-left: 0 !important
+    padding-right: 0 !important
+    .content
+      border-radius: 0 !important
+      max-width: 100%
+      width: 100%

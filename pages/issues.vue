@@ -1,7 +1,7 @@
 <template>
   <div>
     <transition name="fade" mode="out-in">
-      <div class="card border-0 rounded-xl shadow" v-if="view == 'top'" key="top">
+      <div class="content content-wide card border-0 rounded-xl shadow" v-if="view == 'top'" key="top">
         <div class="d-flex justify-content-around mt-3">
           <span class="text-primary">Top</span>
           <a href="#" class="text-muted" @click="view = 'new'">New</a>
