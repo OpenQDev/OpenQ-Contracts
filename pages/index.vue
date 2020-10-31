@@ -38,7 +38,7 @@ export default {
   transition: 'fade',
   data() {
     return {
-      view: 'deposit',
+      view: 'send',
     }
   },
   computed: {
