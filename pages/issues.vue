@@ -8,7 +8,7 @@
         </div>
         <div class="card-body p-0">
           <div class="issue-list">
-            <a href="#" target="_blank" class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
+            <a class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
               <div class="my-auto text-truncate">
                 Improve customization by allowing manually setting calculated variables in styles<br>
                 <small class="text-muted">twbs/bootstrap/issues/31538</small><br>
@@ -23,9 +23,11 @@
               </div>
             </a>
           </div>
-          <a href="#" class="btn btn-primary d-block text-center m-3">
-            load more
-          </a>
+          <div class="m-3">
+            <button class="btn btn-primary text-center btn-block" disabled>
+              Comming soon!
+            </button>
+          </div>
         </div>
       </div>
       <div class="content content-wide card border-0 rounded-xl shadow" v-if="view == 'new'" key="new">
@@ -35,7 +37,7 @@
         </div>
         <div class="card-body p-0">
           <div class="issue-list">
-            <a href="#" target="_blank" class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
+            <a class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
               <div class="my-auto text-truncate">
                 Improve customization by allowing manually setting calculated variables in styles<br>
                 <small class="text-muted">twbs/bootstrap/issues/31538</small><br>
@@ -49,9 +51,11 @@
               </div>
             </a>
           </div>
-          <a href="#" class="btn btn-primary d-block text-center m-3">
-            load more
-          </a>
+          <div class="m-3">
+            <button class="btn btn-primary text-center btn-block" disabled>
+              Comming soon!
+            </button>
+          </div>
         </div>
       </div>
     </transition>

@@ -8,7 +8,7 @@
         </div>
         <div class="card-body p-0">
           <div class="issue-list">
-            <a href="#" target="_blank" class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
+            <a class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
               <div class="my-auto text-truncate">
                 Improve customization by allowing manually setting calculated variables in styles<br>
                 <small class="text-muted">twbs/bootstrap/issues/31538</small>
@@ -18,18 +18,20 @@
                 <small class="text-muted" v-if="i != 5">(locked {{ 23 - i }} days)</small>
               </div>
               <div class="my-auto d-flex flex-column">
-                <a href="#" class="btn btn-sm btn-light mb-1">
+                <a class="btn btn-sm btn-light mb-1">
                   <font-awesome-icon :icon="['fas', 'angle-double-right']" />
                 </a>
-                <a href="#" :class="['btn btn-sm btn-light', { disabled: i != 5 }]">
+                <a class="btn btn-sm btn-light">
                   <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
                 </a>
               </div>
             </a>
           </div>
-          <a href="#" class="btn btn-primary d-block text-center m-3">
-            load more
-          </a>
+          <div class="m-3">
+            <button class="btn btn-primary text-center btn-block" disabled>
+              Comming soon!
+            </button>
+          </div>
         </div>
       </div>
       <div class="content content-wide card border-0 rounded-xl shadow" v-if="view == 'history'" key="history">
@@ -39,7 +41,7 @@
         </div>
         <div class="card-body p-0">
           <div class="issue-list">
-            <a href="#" target="_blank" class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
+            <a class="d-flex justify-content-between p-3 m-3 rounded-lg" v-for="i in 5">
               <div class="my-auto text-truncate">
                 Improve customization by allowing manually setting calculated variables in styles<br>
                 <small class="text-muted">twbs/bootstrap/issues/31538</small>
@@ -51,9 +53,11 @@
               </div>
             </a>
           </div>
-          <a href="#" class="btn btn-primary d-block text-center m-3">
-            load more
-          </a>
+          <div class="m-3">
+            <button class="btn btn-primary text-center btn-block" disabled>
+              Comming soon!
+            </button>
+          </div>
         </div>
       </div>
     </transition>
