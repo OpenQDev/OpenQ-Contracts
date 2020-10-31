@@ -32,7 +32,7 @@
           </a>
         </div>
       </div>
-      <div class="card border-0 rounded-xl shadow" v-if="view == 'history'" key="history">
+      <div class="content content-wide card border-0 rounded-xl shadow" v-if="view == 'history'" key="history">
         <div class="d-flex justify-content-around mt-3">
           <a href="#" class="text-muted" @click="view = 'open'">Open</a>
           <span class="text-primary">History</span>
