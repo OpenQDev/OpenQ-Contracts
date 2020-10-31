@@ -8,7 +8,7 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 const infuraKey = "e0189e8eefe34324b7422c56cd4c6ff5";
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
-const provider = new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${infuraKey}`)
+const provider = new HDWalletProvider(mnemonic, `https://kovan.infura.io/v3/${infuraKey}`)
 
 const web3 = new Web3(provider)
 
