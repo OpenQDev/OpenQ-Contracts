@@ -1,5 +1,5 @@
 <template>
-  <div class="card-body">
+  <div class="card-body" style="max-width: 360px">
     <div class="alert alert-success border-0" v-if="showSendSuccess">
       <button type="button" class="close text-success" @click="showSendSuccess = false">
         <span>&times;</span>

@@ -1,5 +1,5 @@
 <template>
-  <footer class="pt-3 pb-5">
+  <footer class="pt-5 pb-5">
     <div class="mb-5">
       <a href="https://twitter.com/thecodelander" target="_blank" class="text-muted px-2">
         <font-awesome-icon :icon="['fab', 'twitter']" />

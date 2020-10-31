@@ -1,7 +1,10 @@
 <template>
   <div>
-    <Logo class="mt-5 d-flex justify-content-center" />
-    <Connect class="mt-3 mb-5" />
+    <div class="header mb-5 pb-3 pt-3 px-3 border">
+      <Logo class="d-flex justify-content-center" />
+      <CompatNote />
+      <Connect class="mt-3" />
+    </div>
     <Nav class="mb-3" />
   </div>
 </template>

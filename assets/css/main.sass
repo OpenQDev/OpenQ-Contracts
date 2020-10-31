@@ -11,6 +11,8 @@ body
   background: radial-gradient(circle, rgba(255,255,255,1) 10%, rgba(0,0,0,0.2) 100%)
   background-attachment: fixed
   background-repeat: no-repeat
+  background-size: 120%
+  background-position: center center
   min-height: 100vh
   font-family: 'Raleway', sans-serif
   overflow: hidden
@@ -24,6 +26,10 @@ body
   &.disabled,
   &:disabled
     opacity: 0.25
+
+.header
+  border-bottom-left-radius: 2rem
+  border-bottom-right-radius: 2rem
 
 .content
   max-width: 360px !important
