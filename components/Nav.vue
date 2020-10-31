@@ -4,7 +4,7 @@
       Transfer
     </nuxt-link>
     <nuxt-link to="/deposits" class="text-dark px-2">
-      My Deposits
+      Deposits
     </nuxt-link>
     <nuxt-link to="/issues" class="text-dark px-2">
       Issues
