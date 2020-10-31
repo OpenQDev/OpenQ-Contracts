@@ -52,9 +52,10 @@
       <input type="number" class="form-control form-control-lg mb-2" min="0" max="180" step="1" placeholder="0" v-model="lockDays" />
       <span>Days</span>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
+    <!-- <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit"> -->
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="true">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
-      {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
+      {{ sendingDeposit ? 'Waiting for confirmation...' : 'Coming soon!' }}
     </button>
     <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
       Connect
