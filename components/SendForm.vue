@@ -85,13 +85,15 @@ export default {
           this.loadUser(newUsername)
             .then(user => {
               this.user = user
-              this.$mergePay.methods._users(newUsername).call().then(result => {
-                if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmations) {
-                  this.address = result.account
-                } else {
-                  this.address = null
-                }
-              })
+              if (this.$mergePay) {
+                this.$mergePay.methods._users(newUsername).call().then(result => {
+                  if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmations) {
+                    this.address = result.account
+                  } else {
+                    this.address = null
+                  }
+                }).catch(e => console.log(e))
+              }
             })
             .catch(() => {
               this.user = null
