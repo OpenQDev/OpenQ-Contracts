@@ -1,13 +1,12 @@
 require("dotenv").config();
 const axios = require("axios")
 
-const infuraKey = "e0189e8eefe34324b7422c56cd4c6ff5";
 const Web3 = require('web3')
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
-const web3 = new Web3(`wss://kovan.infura.io/ws/v3/${infuraKey}`)
-const walletProvider = new HDWalletProvider(mnemonic, `wss://kovan.infura.io/ws/v3/${infuraKey}`)
+const web3 = new Web3(`wss://kovan.infura.io/ws/v3/${process.env.INFURA_KEY}`)
+const walletProvider = new HDWalletProvider(mnemonic, `wss://kovan.infura.io/ws/v3/${process.env.INFURA_KEY}`)
 const web3wallet = new Web3(walletProvider)
 const mergepay = new web3wallet.eth.Contract(require('./../MergePay.json').abi, process.env.MERGEPAY_ADDRESS)
 
