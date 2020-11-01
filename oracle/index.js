@@ -1,51 +1,59 @@
 require("dotenv").config();
 const axios = require("axios")
 
-const Web3 = require('web3')
-
-// const provider = 'ws://127.0.0.1:9545'
-const HDWalletProvider = require('@truffle/hdwallet-provider');
 const infuraKey = "e0189e8eefe34324b7422c56cd4c6ff5";
+const Web3 = require('web3')
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
-const provider = new HDWalletProvider(mnemonic, `https://kovan.infura.io/v3/${infuraKey}`)
+const web3 = new Web3(`wss://kovan.infura.io/ws/v3/${infuraKey}`)
+const walletProvider = new HDWalletProvider(mnemonic, `wss://kovan.infura.io/ws/v3/${infuraKey}`)
+const web3wallet = new Web3(walletProvider)
+const mergepay = new web3wallet.eth.Contract(require('./../MergePay.json').abi, process.env.MERGEPAY_ADDRESS)
 
-const web3 = new Web3(provider)
-
-const MERGEPAY_ABI = require('./../MergePay.json').abi
-const MERGEPAY_ADDRESS = process.env.MERGEPAY_ADDRESS
-const MERGEPAY = new web3.eth.Contract(MERGEPAY_ABI, MERGEPAY_ADDRESS)
-const ORACLE_ADDRESS = process.env.ORACLE_ADDRESS
-
-MERGEPAY.events.RegistrationRequestEvent().on('data', event => {
-  console.log(`Registration request: ${event.returnValues.account}, ${event.returnValues.githubUser}`)
-  axios
-    .post(
-      "https://api.github.com/graphql",
-      {
-        query: `query {
-  repositoryOwner (login: "${event.returnValues.githubUser}") {
-    repository(name: "${event.returnValues.account}") {
+// listen for incoming events
+subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRESS }, (error, result) => {
+  if (error) {
+    console.log(error)
+  } else if (result.topics.includes(web3.utils.sha3("RegistrationRequestEvent(address,string)"))) {
+    // registration event
+    const data = web3.eth.abi.decodeParameters(['address', 'string'], result.data)
+    const address = data[0]
+    const githubUser = data[1]
+    console.log(`Registration request for: ${githubUser}:${address}`)
+    // check for repository named after address
+    axios
+      .post(
+        "https://api.github.com/graphql",
+        {
+          query: `query {
+  repositoryOwner (login: "${githubUser}") {
+    repository(name: "${address}") {
       name
     }
   }
 }`
-      },
-      {
-        headers: {
-          Authorization: "bearer " + process.env.GITHUB_APP_ACCESS_TOKEN
+        },
+        {
+          headers: {
+            Authorization: "bearer " + process.env.GITHUB_APP_ACCESS_TOKEN
+          }
         }
-      }
-    )
-    .then(data => {
-      console.log(data.data.data.repositoryOwner.repository)
-      if (data.data.data.repositoryOwner.repository) {
-        MERGEPAY.methods.registerConfirm(event.returnValues.githubUser, event.returnValues.account).send({
-          from: ORACLE_ADDRESS
-        }).then(async () => {
-          console.log('Confirmed!')
-          console.log('Oracle balance:', web3.utils.fromWei((await web3.eth.getBalance(ORACLE_ADDRESS)).toString(), "ether"))
-        })
-      }
-    })
+      )
+      .then(data => {
+        if (data.data.data.repositoryOwner.repository) {
+          // confirm
+          console.log('Repository found.')
+          mergepay.methods.registerConfirm(githubUser, address).send({
+            from: process.env.ORACLE_ADDRESS
+          }).then(async () => {
+            console.log('Confirmed.')
+            console.log('Oracle balance:', web3.utils.fromWei((await web3.eth.getBalance(process.env.ORACLE_ADDRESS)).toString(), "ether"))
+          }).catch(async e => {
+            console.log('Confirmation failed!', e)
+            console.log('Oracle balance:', web3.utils.fromWei((await web3.eth.getBalance(process.env.ORACLE_ADDRESS)).toString(), "ether"))
+          })
+        }
+      })
+  }
 })
