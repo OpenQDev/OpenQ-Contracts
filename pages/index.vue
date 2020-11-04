@@ -1,31 +1,19 @@
 <template>
   <div class="content card border-0 rounded-xl shadow">
-    <div class="d-flex justify-content-around mt-3" v-if="view == 'deposit'">
-      <a href="#" class="text-muted" @click="view = 'send'">Send</a>
-      <span class="text-primary">Deposit</span>
-      <a href="#" class="text-muted" @click="view = 'withdraw'">
-        {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
-      </a>
-    </div>
-    <div class="d-flex justify-content-around mt-3" v-else-if="view == 'withdraw'">
-      <a href="#" class="text-muted" @click="view = 'send'">Send</a>
-      <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
-      <span class="text-primary">
-        {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
-      </span>
-    </div>
-    <div class="d-flex justify-content-around mt-3" v-else-if="view == 'send'">
-      <span class="text-primary">Send</span>
-      <a href="#" class="text-muted" @click="view = 'deposit'">Deposit</a>
-      <a href="#" class="text-muted" @click="view = 'withdraw'">
+    <div class="d-flex justify-content-around mt-3">
+      <a href="#" :class="'mx-3 text-' + (view === 'send' ? 'primary' : 'muted')" @click="view = 'send'">Send</a>
+      <a href="#" :class="'mx-3 text-' + (view === 'deposit' ? 'primary' : 'muted')" @click="view = 'deposit'">Deposit</a>
+      <a href="#" :class="'mx-3 text-' + (view === 'issues' ? 'primary' : 'muted')" @click="view = 'issues'">Issues</a>
+      <a href="#" :class="'mx-3 text-' + (view === 'withdraw' ? 'primary' : 'muted')" @click="view = 'withdraw'">
         {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
       </a>
     </div>
     <transition name="fade" mode="out-in">
       <keep-alive>
-        <DepositForm v-if="view == 'deposit'" />
+        <SendForm v-if="view == 'send'" />
+        <DepositForm v-else-if="view == 'deposit'" />
+        <IssuesList v-else-if="view == 'issues'" />
         <WithdrawalForm v-else-if="view == 'withdraw'" />
-        <SendForm v-else-if="view == 'send'" />
       </keep-alive>
     </transition>
   </div>

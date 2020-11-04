@@ -1,23 +1,35 @@
 <template>
   <div>
-    <div class="content content-wide card border-0 rounded-xl shadow">
-      <div class="card-body p-0">
-        <div class="issue-list">
-          <Issue v-for="issue in issues" :issueId="issue.id" :depositAmount="issue.depositAmount" :boostAmount="issue.boostAmount" :key="issue.id" />
-        </div>
-        <div class="m-3">
-          <button class="btn btn-primary text-center btn-block" disabled>
-            Comming soon!
-          </button>
-        </div>
-      </div>
+    <div class="issue-list mt-3">
+      <Issue v-for="issue in issues" :issueId="issue.id" :depositAmount="issue.depositAmount" :boostAmount="issue.boostAmount" :key="issue.id" />
+    </div>
+    <div class="card-body">
+      <button class="btn btn-primary text-center btn-block" disabled>
+        Comming soon!
+      </button>
     </div>
   </div>
 </template>
 
+<style lang="sass" scoped>
+.issue-list
+  > a
+    border: solid 1px #eee
+    color: #333
+    &:hover
+      border-color: transparent
+      background: #0366d6
+      color: white
+      .text-muted,
+      .text-danger
+        color: white !important
+      .badge-pill
+        background: white
+        color: #0366d6
+</style>
+
 <script>
 export default {
-  transition: 'fade',
   data() {
     return {
       issueDeposits: []
@@ -28,7 +40,7 @@ export default {
       let issues = []
       this.issueDeposits.forEach(deposit => {
         let depositAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
-        let boostAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether')) * Math.floor(Math.random() * 10)
+        let boostAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether')) * Math.floor(Math.random() * 3)
 
         let existingIssue = issues.find(issue => issue.id == deposit.issueId)
         if (existingIssue) {
@@ -71,20 +83,3 @@ export default {
   }
 }
 </script>
-
-<style lang="sass" scoped>
-  .issue-list
-    > a
-      border: solid 1px #eee
-      color: #333
-      &:hover
-        border-color: transparent
-        background: #0366d6
-        color: white
-        .text-muted,
-        .text-danger
-          color: white !important
-        .badge-pill
-          background: white
-          color: #0366d6
-  </style>

@@ -1,8 +1,8 @@
 <template>
   <div v-if="issue">
-    <div class="issue d-flex justify-content-between p-3 m-3 rounded-lg">
+    <div :class="'issue d-flex justify-content-between px-3 py-2 my-2 ' + (boostAmount > 0 ? 'border-left border-right border-primary' : '')">
       <div class="d-flex flex-column text-truncate">
-        <div class="my-auto text-truncate">
+        <div class="text-truncate">
           {{ issue.title }}{{ issue.title }}{{ issue.title }}
         </div>
         <div class="text-truncate">
@@ -21,15 +21,16 @@
           </span>
         </div>
       </div>
-      <div class="ml-3 pl-3 text-nowrap border-left text-center d-flex flex-column">
-        <h4 class="mb-0">{{ depositAmount.toFixed(2) }} ETH</h4>
+      <div class="ml-2 pl-2 text-nowrap text-center d-flex flex-column">
+        <h5 class="mb-0">{{ depositAmount.toFixed(2) }} <small>ETH</small></h5>
         <small>{{ boostAmount.toFixed(2) }} MERGE</small>
-        <small class="text-muted">added 08/20/2020</small>
-        <small class="text-muted">locked 23 days</small>
+        <small class="text-muted">locked</small>
       </div>
     </div>
   </div>
-  <div v-else>loading</div>
+  <div v-else class="d-flex justify-content-center p-4 m-3 rounded-lg">
+    <font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" />
+  </div>
 </template>
 
 <style lang="sass">
