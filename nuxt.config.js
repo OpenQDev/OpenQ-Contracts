@@ -104,7 +104,8 @@ export default {
         'faAngleDoubleRight',
         'faExternalLinkAlt',
         'faCircleNotch',
-        'faCircle'
+        'faCircle',
+        'faThumbtack'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub'],
     },

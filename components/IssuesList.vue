@@ -40,7 +40,7 @@ export default {
       let issues = []
       this.issueDeposits.forEach(deposit => {
         let depositAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
-        let boostAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether')) * Math.floor(Math.random() * 3)
+        let boostAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether')) * Math.floor(Math.random() * 10)
 
         let existingIssue = issues.find(issue => issue.id == deposit.issueId)
         if (existingIssue) {
