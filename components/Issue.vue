@@ -6,7 +6,6 @@
           <div class="text-truncate">{{ issue.title }}{{ issue.title }}{{ issue.title }}</div>
           <small class="text-muted text-truncate">
             {{ issue.owner }}/{{ issue.repository }}/issues/{{ issue.number }}
-            {{ issue.owner }}/{{ issue.repository }}/issues/{{ issue.number }}
           </small>
         </div>
         <div class="ml-2">
@@ -32,17 +31,20 @@
           <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
             Deposit
           </button>
-          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
+          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop v-if="issue.owner === githubUser.login">
+            Release
+          </button>
+          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop v-if="issue.owner !== githubUser.login">
             Withdraw
           </button>
           <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
             <font-awesome-icon :icon="['fas', 'thumbtack']" />
             Pin
           </button>
-          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
+          <a class="btn btn-sm my-auto ml-1 btn-light" @click.stop :href="'https://github.com/' + issue.owner + '/' + issue.repository + '/issues/' + issue.number" target="_blank">
             <font-awesome-icon :icon="['fab', 'github']" />
             <font-awesome-icon :icon="['fas', 'external-link-alt']" class="text-muted-light ml-1" />
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -69,6 +71,8 @@
 </style>
 
 <script>
+import { mapGetters } from "vuex"
+
 export default {
   props: ['issueId', 'depositAmount', 'boostAmount'],
   data() {
@@ -76,6 +80,9 @@ export default {
       issue: null,
       showDetails: false
     }
+  },
+  computed: {
+    ...mapGetters('github', { githubUser: 'user' })
   },
   methods: {
     brightnessByColor(color) {
