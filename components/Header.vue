@@ -5,6 +5,5 @@
       <CompatNote />
       <Connect class="mt-3" />
     </div>
-    <Nav class="mb-3" />
   </div>
 </template>
