@@ -46,7 +46,7 @@ export const actions = {
     return dispatch("github/login").then((result) => {
       if (rootState.github.user && this.$mergePay) {
         this.$mergePay.methods._users(rootState.github.user.login).call().then(result => {
-          commit("setRegisteredAccount", result.account !== "0x0000000000000000000000000000000000000000" && Number(result.confirmations) ? result.account : null)
+          commit("setRegisteredAccount", result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed ? result.account : null)
         }).catch(() => {
           commit("setRegisteredAccount", null)
         })

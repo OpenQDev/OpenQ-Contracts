@@ -108,6 +108,20 @@
             </button>
           </div>
         </div>
+        <div v-if="accountsUserDeposits.length" class="border-top mt-3 pt-3">
+          <div v-for="(deposit, index) in accountsUserDeposits" :key="index" class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="mb-0">
+                {{ $web3.utils.fromWei(deposit.amount, 'ether') }} ETH
+              </h4>
+              <small class="text-muted">From: <AddressShort :address="deposit.from" length="medium" /></small>
+            </div>
+            <button class="btn btn-primary shadow-sm" @click="refundUserDeposit(deposit.id)" :disabled="refundingUserDeposit != 0">
+              <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="refundingUserDeposit === deposit.id" />
+              {{ refundingUserDeposit === deposit.id ? '' : 'Refund' }}
+            </button>
+          </div>
+        </div>
       </div>
       <div v-else>
         <div class="alert alert-primary border-0 mb-0">
@@ -189,6 +203,7 @@ export default {
       depositAmount: 0,
       loadingDepositAmount: false,
       userDeposits: [],
+      accountsUserDeposits: [],
       withdrawingUserDeposit: 0
     }
   },
@@ -258,10 +273,17 @@ export default {
         .catch(e => console.log(e))
         .finally(() => this.withdrawingUserDeposit = 0)
     },
+    refundUserDeposit(id) {
+      this.refundingUserDeposit = id
+      this.$mergePay.methods.refundUserDeposit(id).send({ from: this.account })
+        .then(() => this.updateUserDeposits())
+        .catch(e => console.log(e))
+        .finally(() => this.refundingUserDeposit = 0)
+    },
     updateUserDeposits() {
       let deposits = []
       if (this.githubUser) {
-        this.$mergePay.methods.getDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
+        this.$mergePay.methods.getUserDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
           ids.forEach(id => {
             this.$mergePay.methods._userDeposits(id).call().then(deposit => {
               if (Number(deposit.amount)) {
@@ -273,6 +295,19 @@ export default {
         })
       }
       this.userDeposits = deposits
+
+      let accountsDeposits = []
+      this.$mergePay.methods.getUserDepositIdsForSender().call().then(ids => {
+        ids.forEach(id => {
+          this.$mergePay.methods._userDeposits(id).call().then(deposit => {
+            if (Number(deposit.amount)) {
+              deposit.id = id
+              accountsDeposits.push(deposit)
+            }
+          })
+        })
+      })
+      this.accountsUserDeposits = accountsDeposits
     },
     loadDepositAmount(prId) {
       this.loadingDepositAmount = true

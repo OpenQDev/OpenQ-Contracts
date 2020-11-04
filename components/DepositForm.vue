@@ -11,8 +11,7 @@
       </small>
     </div>
     <small class="text-muted d-flex justify-content-between">
-      Issue or Pull Request
-      <HelpIcon v-tooltip="'Paste the URL of the GitHub issue or pull request you want to deposit into.'" width="18px" height="18px" class="mb-1" />
+      Issue URL
     </small>
     <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
     <div v-if="loading || contribution">
@@ -45,17 +44,19 @@
       <span>ETH</span>
     </div>
     <small class="text-muted d-flex justify-content-between">
-      Lock up (optional, max. 180)
-      <HelpIcon v-tooltip="'Lock up deposits to shows commitment to contributors, rank higher in listings and earn merge coins to promote your projects. <a href=\'#\' target=\'_blank\'>learn more</a>'" width="18px" height="18px" class="mb-1" />
+      Lock deposit
+      <HelpIcon v-tooltip="'By locking up your deposit you get 1% of your deposit in merge tokens once the deposit got released.<br><a href=\'#\' target=\'_blank\'>Learn more</a>'" width="18px" height="18px" class="mb-1" />
     </small>
     <div class="amount-input mb-2">
-      <input type="number" class="form-control form-control-lg mb-2" min="0" max="180" step="1" placeholder="0" v-model="lockDays" />
-      <span>Days</span>
+      <select class="form-control form-control-lg mb-2" v-model="lock">
+        <option value="none">no</option>
+        <option value="closed">until issue is closed</option>
+        <option value="closed">until released by project owner</option>
+      </select>
     </div>
-    <!-- <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit"> -->
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="true">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
-      {{ sendingDeposit ? 'Waiting for confirmation...' : 'Coming soon!' }}
+      {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
     <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
       Connect
@@ -82,7 +83,7 @@ export default {
       type: 0,
       sourceType: 0,
       amount: 0,
-      lockDays: 0,
+      lock: 'none',
       sendingDeposit: false,
       showDepositSuccess: false,
       move: false,
@@ -142,10 +143,8 @@ export default {
   methods: {
     sendDeposit() {
       this.sendingDeposit = true
-      this.$mergePay.methods.deposit(
-        this.type,
-        this.contribution.node_id,
-        this.lockDays
+      this.$mergePay.methods.depositEthForIssue(
+        this.contribution.node_id
       ).send({ from: this.account, value: this.$web3.utils.toWei(this.amount, "ether") }).then(tx => {
         this.sendingDeposit = false
         this.showDepositSuccess = true
@@ -155,7 +154,25 @@ export default {
         this.sourceContribution = null
         this.type = 0
         this.sourceType = 0
-        this.lockDays = 0
+        this.lock = 'none'
+        this.amount = 0
+      })
+    },
+    moveDeposit() {
+      this.sendingDeposit = true
+      this.$mergePay.methods.moveIssueDeposit(
+        this.contribution.node_id,
+        this.sourceContribution.node_id
+      ).send({ from: this.account }).then(tx => {
+        this.sendingDeposit = false
+        this.showDepositSuccess = true
+        this.url = ''
+        this.sourceUrl = ''
+        this.contribution = null
+        this.sourceContribution = null
+        this.type = 0
+        this.sourceType = 0
+        this.lock = 'none'
         this.amount = 0
       })
     }

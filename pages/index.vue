@@ -49,7 +49,7 @@ export default {
     githubUser() {
       if (this.githubUser) {
         this.$mergePay.methods._users(this.githubUser.login).call().then(result => {
-          if (result.account !== "0x0000000000000000000000000000000000000000" && Number(result.confirmations)) {
+          if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed) {
             this.$store.commit('setRegisteredAccount', result.account)
           } else {
             this.$store.commit('setRegisteredAccount', null)
