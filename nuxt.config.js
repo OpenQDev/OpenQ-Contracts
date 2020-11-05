@@ -88,7 +88,7 @@ export default {
 
   fontawesome: {
     icons: {
-      regular: ['faCopy', 'faCommentAlt'],
+      regular: ['faCopy', 'faCommentAlt', 'faFlag'],
       solid: [
         'faPlus',
         'faMinus',
@@ -105,7 +105,8 @@ export default {
         'faExternalLinkAlt',
         'faCircleNotch',
         'faCircle',
-        'faThumbtack'
+        'faThumbtack',
+        'faCoins'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub'],
     },
