@@ -1,5 +1,24 @@
 <template>
   <div class="card-body" style="max-width: 360px">
+    <div v-if="accountsUserDeposits.length" class="border-bottom mb-4 pb-2">
+      <small class="text-muted d-block text-center border-bottom pb-2 mb-2">Pending withdrawals:</small>
+      <div v-for="(deposit, index) in accountsUserDeposits" :key="index" class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column">
+          <h4 class="mb-0">
+            {{ Number($web3.utils.fromWei(deposit.amount, 'ether')).toFixed(2) }} <small>ETH</small>
+          </h4>
+          <small class="text-muted">
+            <a :href="'https://github.com/' + deposit.githubUser" target="_blank">
+              {{ deposit.githubUser }}
+            </a>
+          </small>
+        </div>
+        <button class="btn btn-primary shadow-sm" @click="refundUserDeposit(deposit.id)" :disabled="refundingUserDeposit != 0">
+          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="refundingUserDeposit === deposit.id" />
+          {{ refundingUserDeposit === deposit.id ? '' : 'cancel' }}
+        </button>
+      </div>
+    </div>
     <div class="alert alert-success border-0" v-if="showSendSuccess">
       <button type="button" class="close text-success" @click="showSendSuccess = false">
         <span>&times;</span>
@@ -39,10 +58,10 @@
     <small class="text-muted mb-1">
       Amount
     </small>
-    <div class="amount-input mb-2">
-      <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
+    <form class="amount-input mb-2" novalidate>
+      <input type="number" min="0" step="0.01" novalidate class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
       <span>ETH</span>
-    </div>
+    </form>
     <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="address ? send() : deposit()" :disabled="!user || amount == 0 || sending">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
       {{ sending ? 'Waiting for confirmation...' : 'Confirm' }}
@@ -71,7 +90,9 @@ export default {
       lockDays: 0,
       sending: false,
       showSendSuccess: false,
-      loadUserTimeout: null
+      loadUserTimeout: null,
+      accountsUserDeposits: [],
+      refundingUserDeposit: 0
     }
   },
   mounted() {
@@ -79,8 +100,12 @@ export default {
       this.username = this.$route.params.recipient
       this.amount = Number(this.$route.params.amount)
     }
+    this.updateUserDeposits()
   },
   watch: {
+    account() {
+      this.updateUserDeposits()
+    },
     username(newUsername, oldUsername) {
       clearTimeout(this.loadUserTimeout)
       this.loadUserTimeout = setTimeout(() => {
@@ -125,6 +150,7 @@ export default {
       }).then(result => {
         this.amount = 0
         this.showSendSuccess = true
+        this.updateUserDeposits()
       }).catch(e => {
         console.log(e)
       }).finally(() => {
@@ -140,13 +166,35 @@ export default {
       }).then(result => {
         this.amount = 0
         this.showSendSuccess = true
+        this.updateUserDeposits()
       }).catch(e => {
         console.log(e)
       }).finally(() => {
         this.loading = false
         this.sending = false
       })
-    }
+    },
+    updateUserDeposits() {
+      let accountsDeposits = []
+      this.$mergePay.methods.getUserDepositIdsForSender().call({ from: this.account }).then(ids => {
+        ids.forEach(id => {
+          this.$mergePay.methods._userDeposits(id).call().then(deposit => {
+            if (Number(deposit.amount)) {
+              deposit.id = id
+              accountsDeposits.push(deposit)
+            }
+          })
+        })
+      })
+      this.accountsUserDeposits = accountsDeposits
+    },
+    refundUserDeposit(id) {
+      this.refundingUserDeposit = id
+      this.$mergePay.methods.refundUserDeposit(id).send({ from: this.account })
+        .then(() => this.updateUserDeposits())
+        .catch(e => console.log(e))
+        .finally(() => this.refundingUserDeposit = 0)
+    },
   }
 }
 </script>
