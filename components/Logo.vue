@@ -1,24 +1,21 @@
 <template>
-  <div :class="['logo', { 'logo-xl': size == 'xl', 'logo-lg': size == 'lg', 'text-white': color == 'white', 'text-dark': color == 'dark' }]">
-    <div>
-      <img :src="color == 'white' ? '/logo-white-new.png' : '/logo-new.png'" :width="size == 'xl' ? 70 : (size == 'lg' ? 50 : 30)" />
-      OctoPay
-    </div>
+  <div :class="['logo d-flex flex-column align-items-center', { 'logo-xl': size == 'xl', 'logo-lg': size == 'lg', 'text-white': color == 'white', 'text-dark': color == 'dark' }]">
+    <img :src="color == 'white' ? '/logo-white-new.png' : '/logo-new.png'" :width="size == 'xl' ? 70 : (size == 'lg' ? 50 : 30)" />
   </div>
 </template>
 
 <style lang="sass">
 .logo
-  font-family: 'Cinzel', serif
-  font-size: 1.5rem
+  font-family: 'Fredoka', serif
+  font-size: 0.8rem
+  line-height: 1.7rem
   img
-    opacity: 0.8
   &.logo-lg
-    font-size: 2rem
+    font-size: 1.5rem
+    line-height: 2.5rem
   &.logo-xl
-    font-size: 4rem
-    img
-      opacity: 1
+    font-size: 2rem
+    line-height: 3.5rem
 </style>
 
 <script>

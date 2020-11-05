@@ -177,16 +177,18 @@ export default {
     },
     updateUserDeposits() {
       let accountsDeposits = []
-      this.$mergePay.methods.getUserDepositIdsForSender().call({ from: this.account }).then(ids => {
-        ids.forEach(id => {
-          this.$mergePay.methods._userDeposits(id).call().then(deposit => {
-            if (Number(deposit.amount)) {
-              deposit.id = id
-              accountsDeposits.push(deposit)
-            }
+      if (this.$mergePay) {
+        this.$mergePay.methods.getUserDepositIdsForSender().call({ from: this.account }).then(ids => {
+          ids.forEach(id => {
+            this.$mergePay.methods._userDeposits(id).call().then(deposit => {
+              if (Number(deposit.amount)) {
+                deposit.id = id
+                accountsDeposits.push(deposit)
+              }
+            })
           })
         })
-      })
+      }
       this.accountsUserDeposits = accountsDeposits
     },
     refundUserDeposit(id) {

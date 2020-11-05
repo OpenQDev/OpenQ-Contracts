@@ -1,10 +1,10 @@
 <template>
-  <div class="content card border-0 rounded-xl shadow">
-    <div class="d-flex justify-content-around mt-3">
-      <a href="#" :class="'mx-3 text-' + (view === 'send' ? 'primary' : 'muted')" @click="view = 'send'">Send</a>
-      <a href="#" :class="'mx-3 text-' + (view === 'deposit' ? 'primary' : 'muted')" @click="view = 'deposit'">Deposit</a>
-      <a href="#" :class="'mx-3 text-' + (view === 'issues' ? 'primary' : 'muted')" @click="view = 'issues'">Issues</a>
-      <a href="#" :class="'mx-3 text-' + (view === 'withdraw' ? 'primary' : 'muted')" @click="view = 'withdraw'">
+  <div class="content card border-0 rounded-xl">
+    <div class="d-flex justify-content-around mt-4 px-2">
+      <a href="#" :class="'mx-2 text-' + (view === 'send' ? 'primary' : 'muted')" @click="view = 'send'">Send</a>
+      <a href="#" :class="'mx-2 text-' + (view === 'deposit' ? 'primary' : 'muted')" @click="view = 'deposit'">Deposit</a>
+      <a href="#" :class="'mx-2 text-' + (view === 'issues' ? 'primary' : 'muted')" @click="view = 'issues'">Issues</a>
+      <a href="#" :class="'mx-2 text-' + (view === 'withdraw' ? 'primary' : 'muted')" @click="view = 'withdraw'">
         {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
       </a>
     </div>

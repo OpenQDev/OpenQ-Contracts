@@ -1,16 +1,16 @@
 <template>
-  <div class="d-flex justify-content-center">
+  <div class="d-flex justify-content-center text-white-50">
     <transition name="fade" mode="out-in">
       <span v-if="!connected" key="disconnected">
-        <a href="#" class="mx-auto btn btn-sm btn-primary shadow-sm" @click="connect()" v-if="$web3">
+        <a href="#" class="mx-auto btn btn-sm btn-light shadow-sm" @click="connect()" v-if="$web3">
           Connect
         </a>
-        <a href="https://metamask.io" target="_blank" class="mx-auto btn btn-sm btn-primary shadow-sm" v-else>
+        <a href="https://metamask.io" target="_blank" class="mx-auto btn btn-sm btn-light shadow-sm" v-else>
           Install MetaMask
         </a>
       </span>
-      <span v-else key="connected" class="d-flex flex-column align-items-center">
-        <span v-if="githubUser">
+      <span v-else key="connected" class="d-flex align-items-start">
+        <span v-if="githubUser" class="text-nowrap">
           <font-awesome-icon :icon="['fab', 'github']" />
           {{ githubUser.login }}
           <a
@@ -32,18 +32,22 @@
           <font-awesome-icon :icon="['fab', 'github']" />
           Connect
         </a>
-        <div class="d-flex flex-column text-center mt-1">
+        <div class="d-flex flex-column text-right ml-5">
           <div>
-            <b>{{ formattedBalance }} ETH</b>
-            <AddressShort :address="account" class="ml-2" />
+            <AddressShort :address="account" class="mr-2" />
+            <b class="text-nowrap">{{ formattedBalance }} ETH</b>
           </div>
-          <small v-if="networkId != 1" class="text-muted">
-            <small><font-awesome-icon :icon="['fas', 'circle']" class="text-warning" /></small>
-            {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
+          <small v-if="networkId != 1">
+            <small class="text-nowrap">
+              {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
+              <small><font-awesome-icon :icon="['fas', 'circle']" class="text-warning ml-1" style="opacity: 0.7" /></small>
+            </small>
           </small>
-          <small v-else class="text-muted">
-            <small><font-awesome-icon :icon="['fas', 'circle']" class="text-success" /></small>
-            Mainnet
+          <small v-else>
+            <small>
+              Mainnet
+              <small><font-awesome-icon :icon="['fas', 'circle']" class="text-success ml-1" style="opacity: 0.7" /></small>
+            </small>
           </small>
         </div>
       </span>

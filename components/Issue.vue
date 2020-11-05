@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="issueNode" :class="['issue d-flex flex-column px-3 py-2 mt-3', { 'border-left border-right border-primary': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
+    <div v-if="issueNode" :class="['issue d-flex flex-column px-3 py-2 mt-3', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
       <div class="d-flex align-items-center">
         <div class="text-truncate">
           <div class="text-truncate">
@@ -99,8 +99,27 @@
 
 <style lang="sass">
 .issue
-  border-width: 2px !important
+  border-width: 3px !important
   cursor: pointer
+  position: relative
+  &.pinned
+    &:before,
+    &:after
+      position: absolute
+      top: 0
+      content: ''
+      background: #fb0
+      width: 4px
+      height: 100%
+    &:before
+      left: 0
+      border-top-right-radius: 8px
+      border-bottom-right-radius: 8px
+    &:after
+      right: 0
+      border-top-left-radius: 8px
+      border-bottom-left-radius: 8px
+
   &:hover
     background: #f8f8f8
   .details
