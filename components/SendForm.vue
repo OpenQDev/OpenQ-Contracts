@@ -8,6 +8,7 @@
             {{ Number($web3.utils.fromWei(deposit.amount, 'ether')).toFixed(2) }} <small>ETH</small>
           </h4>
           <small class="text-muted">
+            &gt;
             <a :href="'https://github.com/' + deposit.githubUser" target="_blank">
               {{ deposit.githubUser }}
             </a>
