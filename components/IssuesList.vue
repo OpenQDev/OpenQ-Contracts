@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="issue-list mt-3 mb-4">
-      <Issue v-for="issue in issuesLazy" :issueId="issue.id" :depositAmount="issue.depositAmount" :boostAmount="issue.boostAmount" :key="issue.id" />
+      <Issue v-for="issue in issuesLazy" :issue="issue" :key="issue.id" />
     </div>
     <div class="card-body pt-0" v-if="issues.length > showIssuesNum">
       <button class="btn btn-primary text-center btn-block" @click="showIssuesNum += 10">
@@ -29,34 +29,18 @@
 </style>
 
 <script>
+import Vue from "vue"
+
 export default {
   data() {
     return {
-      issueDeposits: [],
+      issues: [],
       showIssuesNum: 10
     }
   },
   computed: {
-    issues() {
-      let issues = []
-      this.issueDeposits.forEach(deposit => {
-        let depositAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
-        let boostAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether')) * Math.floor(Math.random() * 10)
-
-        let existingIssue = issues.find(issue => issue.id == deposit.issueId)
-        if (existingIssue) {
-          existingIssue.depositAmount += depositAmount
-          existingIssue.boostAmount += boostAmount
-        } else {
-          issues.push({
-            id: deposit.issueId,
-            boostAmount,
-            depositAmount
-          })
-        }
-      })
-
-      return issues.sort((a, b) => {
+    issuesSorted() {
+      return this.issues.sort((a, b) => {
         if (a.boostAmount === b.boostAmount) {
           return a.depositAmount < b.depositAmount
         } else {
@@ -65,21 +49,35 @@ export default {
       })
     },
     issuesLazy() {
-      return this.issues.slice(0, this.showIssuesNum)
+      return this.issuesSorted.slice(0, this.showIssuesNum)
     }
   },
   mounted() {
     if (this.$mergePay) {
-      this.$mergePay.methods._nextIssueDepositId().call().then(maxId => {
+      this.$mergePay.methods._nextIssueDepositId().call().then(async maxId => {
         if (maxId) {
-          let id = 1
-          while (id <= maxId) {
-            this.$mergePay.methods._issueDeposits(id).call().then(deposit => {
-              if (Number(this.$web3.utils.fromWei(deposit.amount, 'ether')) > 0) {
-                this.issueDeposits.push(deposit)
+          let id = maxId
+          while (id) {
+            const deposit = await this.$mergePay.methods._issueDeposits(id).call()
+            const depositAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
+            if (depositAmount > 0) {
+              let existingIssue = this.issues.find(issue => issue.id == deposit.issueId)
+              if (existingIssue) {
+                existingIssue.depositAmount += depositAmount
+                existingIssue.deposits.push(deposit)
+              } else {
+                const newIssue = {
+                  id: deposit.issueId,
+                  deposits: [deposit],
+                  depositAmount,
+                  boostAmount: 0
+                }
+                const boostAmount = await this.$mergePay.methods._issueBoosts(newIssue.id).call()
+                newIssue.boostAmount = Number(this.$web3.utils.fromWei(boostAmount, 'ether'))
+                this.issues.push(newIssue)
               }
-            })
-            id++
+            }
+            id--
           }
         }
       })
