@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="issue-list mt-3">
-      <Issue v-for="issue in issues" :issueId="issue.id" :depositAmount="issue.depositAmount" :boostAmount="issue.boostAmount" :key="issue.id" />
+    <div class="issue-list mt-3 mb-4">
+      <Issue v-for="issue in issuesLazy" :issueId="issue.id" :depositAmount="issue.depositAmount" :boostAmount="issue.boostAmount" :key="issue.id" />
     </div>
-    <div class="card-body">
-      <button class="btn btn-primary text-center btn-block" disabled>
-        Comming soon!
+    <div class="card-body pt-0" v-if="issues.length > showIssuesNum">
+      <button class="btn btn-primary text-center btn-block" @click="showIssuesNum += 10">
+        load more
       </button>
     </div>
   </div>
@@ -32,7 +32,8 @@
 export default {
   data() {
     return {
-      issueDeposits: []
+      issueDeposits: [],
+      showIssuesNum: 10
     }
   },
   computed: {
@@ -62,6 +63,9 @@ export default {
           return a.boostAmount < b.boostAmount
         }
       })
+    },
+    issuesLazy() {
+      return this.issues.slice(0, this.showIssuesNum)
     }
   },
   mounted() {

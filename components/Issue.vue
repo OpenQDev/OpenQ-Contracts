@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="issue" :class="['issue d-flex flex-column px-3 py-2 my-2', { 'border-left border-right border-primary': boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
+    <div v-if="issue" :class="['issue d-flex flex-column px-3 py-2 mt-3', { 'border-left border-right border-primary': boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
       <div class="d-flex align-items-center">
         <div class="text-truncate">
           <div class="text-truncate">
