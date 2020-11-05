@@ -100,7 +100,7 @@
               <h4 class="mb-0">
                 {{ $web3.utils.fromWei(deposit.amount, 'ether') }} ETH
               </h4>
-              <small class="text-muted">From: <AddressShort :address="deposit.from" length="medium" /></small>
+              <small class="text-muted">From: <AddressShort :address="deposit.from" /></small>
             </div>
             <button class="btn btn-primary shadow-sm" @click="withdrawUserDeposit(deposit.id)" :disabled="withdrawingUserDeposit != 0">
               <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="withdrawingUserDeposit === deposit.id" />
