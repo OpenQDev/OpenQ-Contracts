@@ -15,7 +15,7 @@
       <div class="container">
         <div class="text-center mt-4 mb-5">
           <a href="#" :class="'mx-2 text-white' + (view == 'about' ? '' : '-50')" @click="view = 'about'">About</a>
-          <a href="#" :class="'mx-2 text-white' + (view == 'merge-token' ? '' : '-50')" @click="view = 'merge-token'">Merge Token</a>
+          <a href="#" :class="'mx-2 text-white' + (view == 'octoken' ? '' : '-50')" @click="view = 'octoken'">Octoken</a>
           <a href="#" :class="'mx-2 text-white' + (view == 'sendreceive' ? '' : '-50')" @click="view = 'sendreceive'">Sending &amp; Receiving</a>
           <a href="#" :class="'mx-2 text-white' + (view == 'depositwithdraw' ? '' : '-50')" @click="view = 'depositwithdraw'">Deposits &amp; Withdrawals</a>
           <a href="#" :class="'mx-2 text-white' + (view == 'promo' ? '' : '-50')" @click="view = 'promo'">Promotions</a>
@@ -27,29 +27,24 @@
               <div class="col text-left">
                 <Logo color="white" size="xl" />
                 <p class="lead mt-4">
-                  MergePay offers an easy and secure way to reward contributors with ETH.
-                  You can send ETH to any GitHub username and anyone can make ETH deposits on any issue or pull request, which contributors can withdraw, if the conditions are met.
+                  OctoPay offers an easy and secure way to reward contributors with ETH and ERC20 Tokens and send them around between GitHub accounts.
+                  Anyone can make a deposit on any issue. The repository owner can decide when to release the funds or to refund the depositers.
+                  Octoken are farmed by developers and used by projects.
                 </p>
-                <p class="lead">
-                  Whenever ETH is transferred using MergePay, Merge Tokens are farmed for everybody involved in the transfer.
-                  Also every new GitHub user that registers on MergePay gets Merge Token in exchange for the registration fee of 0.01 ETH.
-                  Merge Tokens can be used by developers to claim issues or for promotional purposes on the platform, you can stake them
-                  to directly profit from our service fees or simply trade them on the open market.
-                </p>
-              </div>
-              <div class="col d-flex justify-content-center align-items-center flex-column text-center claims">
-                <h1 class="font-weight-normal">Earn by contributing, supporting projects and staking...</h1>
-                <h1 class="font-weight-normal mt-4">...or reach devs with rewards and promotions.</h1>
               </div>
             </div>
           </div>
-          <div v-else-if="view == 'merge-token'" key="merge-token">
+          <div v-else-if="view == 'octoken'" key="octoken">
             <div class="row">
               <div class="col">
-                <h1>Merge Token</h1>
+                <h1>Octoken</h1>
+                <p class="lead mt-4">
+                  Octoken (OCTO) can be minted only by contributors by submitting merged pull requests.
+                  Project owners can use them to pin their issues in the global issue board.
+                </p>
                 <div class="pt-5">
                   <button href="#" class="btn btn-lg btn-light rounded-xl shadow-sm d-flex flex-column px-4 mx-auto">
-                    <span>Buy Merge Tokens</span>
+                    <span>Buy OCTO</span>
                     <small><sup class="text-muted">Presale starts 10/01/20</sup></small>
                   </button>
                 </div>
