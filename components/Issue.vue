@@ -3,13 +3,18 @@
     <div v-if="issue" :class="['issue d-flex flex-column px-3 py-2 my-2', { 'border-left border-right border-primary': boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
       <div class="d-flex align-items-center">
         <div class="text-truncate">
-          <div class="text-truncate">{{ issue.title }}{{ issue.title }}{{ issue.title }}</div>
+          <div class="text-truncate">
+            <svg v-if="issue.closed" height="16" viewBox="0 0 16 16" version="1.1" width="14" aria-hidden="true">
+              <path fill="#c00" d="M1.5 8a6.5 6.5 0 0110.65-5.003.75.75 0 00.959-1.153 8 8 0 102.592 8.33.75.75 0 10-1.444-.407A6.5 6.5 0 011.5 8zM8 12a1 1 0 100-2 1 1 0 000 2zm0-8a.75.75 0 01.75.75v3.5a.75.75 0 11-1.5 0v-3.5A.75.75 0 018 4zm4.78 4.28l3-3a.75.75 0 00-1.06-1.06l-2.47 2.47-.97-.97a.749.749 0 10-1.06 1.06l1.5 1.5a.75.75 0 001.06 0z"></path>
+            </svg>
+            <svg v-else height="16" viewBox="0 0 16 16" version="1.1" width="14" aria-hidden="true">
+              <path fill="#0a0" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm9 3a1 1 0 11-2 0 1 1 0 012 0zm-.25-6.25a.75.75 0 00-1.5 0v3.5a.75.75 0 001.5 0v-3.5z"></path>
+            </svg>
+            {{ issue.title }}{{ issue.title }}{{ issue.title }}
+          </div>
           <small class="text-muted text-truncate">
             {{ issue.owner }}/{{ issue.repository }}/issues/{{ issue.number }}
           </small>
-        </div>
-        <div class="ml-2">
-          <font-awesome-icon :icon="['fas', 'lock']" class="text-muted-light" />
         </div>
         <div class="text-nowrap text-center ml-2">
           <h5 class="mb-0">{{ depositAmount.toFixed(2) }} <small>ETH</small></h5>
@@ -48,7 +53,7 @@
         </div>
       </div>
     </div>
-    <div v-else class="d-flex justify-content-center p-4 m-3 rounded-lg">
+    <div v-else-if="!issue" class="d-flex justify-content-center p-4 m-3 rounded-lg">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" />
     </div>
   </div>
@@ -108,6 +113,7 @@ export default {
     ... on Issue {
       title,
       number,
+      closed,
       labels(first: 100) {
       	edges {
         	node {
@@ -143,7 +149,8 @@ export default {
         owner: data.data.node.repository.owner.login,
         repository: data.data.node.repository.name,
         primaryLanguage: data.data.node.repository.primaryLanguage,
-        labels: data.data.node.labels.edges.map(label => label.node)
+        labels: data.data.node.labels.edges.map(label => label.node),
+        closed: data.data.node.closed
       }
     })
   }
