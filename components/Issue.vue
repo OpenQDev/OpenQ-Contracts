@@ -16,11 +16,13 @@
             {{ issue.owner }}/{{ issue.repository }}/issues/{{ issue.number }}
           </small>
         </div>
-        <div class="text-nowrap text-center ml-2">
+        <div class="text-nowrap text-right ml-2">
           <h5 class="mb-0">{{ depositAmount.toFixed(2) }} <small>ETH</small></h5>
           <small class="d-block text-muted mt-1">
-            <font-awesome-icon :icon="['fas', 'thumbtack']" class="text-muted-light" />
-            {{ boostAmount.toFixed(2) }} MRG
+            <svg style="width:14px;height:14px" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
+            </svg>
+            {{ boostAmount.toFixed(2) }} GTH
           </small>
         </div>
       </div>
@@ -32,19 +34,23 @@
         </span>
       </div>
       <div class="d-flex mt-2 justify-content-end align-items-center details">
-        <div class="border-top w-100 pt-2 text-nowrap">
-          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
-            Deposit
-          </button>
-          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop v-if="issue.owner === githubUser.login">
-            Release
-          </button>
-          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop v-if="issue.owner !== githubUser.login">
-            Withdraw
+        <div class="border-top w-100 pt-2 text-nowrap d-flex">
+          <button class="btn btn-sm my-auto mr-auto btn-light" @click.stop>
+            <font-awesome-icon :icon="['fas', 'coins']" class="mr-1" />
+            <span class="text-muted">Deposits</span>
           </button>
           <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
-            <font-awesome-icon :icon="['fas', 'thumbtack']" />
-            Pin
+            <font-awesome-icon :icon="['far', 'flag']" class="mr-1" />
+          </button>
+          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
+            <svg style="width:18px;height:18px" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
+            </svg>
+          </button>
+          <button class="btn btn-sm my-auto ml-1 btn-light" @click.stop>
+            <svg style="width:18px;height:18px" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M8,6.2V4H7V2H17V4H16V12L18,14V16H17.8L14,12.2V4H10V8.2L8,6.2M20,20.7L18.7,22L12.8,16.1V22H11.2V16H6V14L8,12V11.3L2,5.3L3.3,4L20,20.7M8.8,14H10.6L9.7,13.1L8.8,14Z" />
+            </svg>
           </button>
           <a class="btn btn-sm my-auto ml-1 btn-light" @click.stop :href="'https://github.com/' + issue.owner + '/' + issue.repository + '/issues/' + issue.number" target="_blank">
             <font-awesome-icon :icon="['fab', 'github']" />
