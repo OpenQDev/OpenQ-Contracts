@@ -32,23 +32,19 @@
           <font-awesome-icon :icon="['fab', 'github']" />
           Connect
         </a>
-        <div class="d-flex flex-column text-right ml-5">
-          <div>
-            <AddressShort :address="account" class="mr-2" />
-            <b class="text-nowrap">{{ formattedBalance }} ETH</b>
-          </div>
-          <small v-if="networkId != 1">
-            <small class="text-nowrap">
-              {{ networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
-              <small><font-awesome-icon :icon="['fas', 'circle']" class="text-warning ml-1" style="opacity: 0.7" /></small>
-            </small>
-          </small>
-          <small v-else>
+        <div class="d-flex text-right ml-5">
+          <div class="d-flex flex-column">
+            <AddressShort :address="account" />
             <small>
-              Mainnet
-              <small><font-awesome-icon :icon="['fas', 'circle']" class="text-success ml-1" style="opacity: 0.7" /></small>
+              <sup class="text-nowrap">
+                {{ networkId === 1 ? 'Mainnet' : networkId === 3 ? 'Ropsten' : (networkId === 4 ? 'Rinkeby' : (networkId === 42 ? 'Kovan' : 'Unknown Testnet')) }}
+              </sup>
             </small>
-          </small>
+          </div>
+          <div class="d-flex flex-column ml-2">
+            <b class="text-nowrap">{{ formattedBalance }} ETH</b>
+            <small class="text-nowrap">{{ formattedOctoBalance }} OTK</small>
+          </div>
         </div>
       </span>
     </transition>
@@ -74,10 +70,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account', 'balance', 'registeredAccount', 'networkId']),
+    ...mapGetters(['connected', 'account', 'balance', 'octoBalance', 'registeredAccount', 'networkId']),
     ...mapGetters("github", { githubUser: 'user' }),
     formattedBalance() {
       return Number(this.$web3.utils.fromWei(this.balance.toString(), "ether")).toFixed(2)
+    },
+    formattedOctoBalance() {
+      return Number(this.$web3.utils.fromWei(this.octoBalance.toString(), "ether")).toFixed(2)
     },
   }
 }
