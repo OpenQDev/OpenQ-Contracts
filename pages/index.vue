@@ -1,5 +1,5 @@
 <template>
-  <div class="content card border-0 rounded-xl">
+  <div class="content card border-0 rounded-xl shadow-sm">
     <div class="d-flex justify-content-around mt-4 px-2">
       <a href="#" :class="'mx-2 text-' + (view === 'send' ? 'primary' : 'muted')" @click="view = 'send'">Send</a>
       <a href="#" :class="'mx-2 text-' + (view === 'deposit' ? 'primary' : 'muted')" @click="view = 'deposit'">Deposit</a>
