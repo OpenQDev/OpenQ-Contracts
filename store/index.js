@@ -2,7 +2,8 @@ export const state = () => ({
   networkId: null,
   accounts: [],
   registeredAccount: null,
-  balance: 0
+  balance: 0,
+  octoBalance: 0
 })
 
 export const getters = {
@@ -17,6 +18,9 @@ export const getters = {
   },
   balance(state) {
     return state.balance
+  },
+  octoBalance(state) {
+    return state.octoBalance
   },
   connected(state) {
     return !!state.accounts.length
@@ -36,6 +40,9 @@ export const mutations = {
   setBalance(state, balance) {
     state.balance = balance
   },
+  setOctoBalance(state, balance) {
+    state.octoBalance = balance
+  },
   setRegisteredAccount(state, registeredAccount) {
     state.registeredAccount = registeredAccount
   }
@@ -51,11 +58,12 @@ export const actions = {
           commit("setRegisteredAccount", null)
         })
       }
-      if (this.$web3) {
+      if (this.$web3 && this.$mergePay) {
         this.$web3.eth.getAccounts().then(accounts => {
           if (accounts.length) {
             commit('setAccounts', accounts)
             this.$web3.eth.getBalance(accounts[0]).then(balance => commit('setBalance', balance))
+            this.$mergePay.methods.balanceOf(accounts[0]).call().then(balance => commit('setOctoBalance', balance))
           }
         })
         this.$web3.eth.net.getId().then(result => {
