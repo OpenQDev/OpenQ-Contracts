@@ -5,7 +5,7 @@
       <a href="#" :class="'mx-2 text-' + (view === 'deposit' ? 'primary' : 'muted')" @click="view = 'deposit'">Deposit</a>
       <a href="#" :class="'mx-2 text-' + (view === 'issues' ? 'primary' : 'muted')" @click="view = 'issues'">Issues</a>
       <a href="#" :class="'mx-2 text-' + (view === 'withdraw' ? 'primary' : 'muted')" @click="view = 'withdraw'">
-        {{ registeredAccount === account ? 'Withdraw' : 'Register' }}
+        {{ registeredAccount === account ? 'Claim' : 'Register' }}
       </a>
     </div>
     <transition name="fade" mode="out-in">
