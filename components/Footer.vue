@@ -11,22 +11,9 @@
         <font-awesome-icon :icon="['fab', 'ethereum']" />
       </a>
     </div>
-    <a href="#" class="donate-btn text-white" @click="showDonate = !showDonate">
-      <svg style="width:24px;height:24px" viewBox="0 0 24 24" v-if="showDonate">
-        <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-      </svg>
-      <small v-else>donate</small>
-    </a>
-    <div :class="['donate overflow-hidden text-left text-white mt-2', { show: showDonate }]">
-      <small>
-        Help me to grow and evolve this project and fund more professional development and code audits by sending ETH to the following address:
-      </small>
-      <div class="text-center my-3">
-        <small>0x27711f9c07230632F2EE1A21a967a9AC4729E520</small>
-      </div>
-      <div class="text-center my-4">
-        <img src="/donate-address-qr.png" class="rounded-xl p-2 bg-white" />
-      </div>
+    <div>
+      <nuxt-link to="/about" class="text-white" v-if="$route.path != '/about'">about</nuxt-link>
+      <nuxt-link to="/" class="text-white" v-if="$route.path != '/'">go to app</nuxt-link>
     </div>
   </footer>
 </template>
@@ -34,7 +21,6 @@
 <style lang="sass" scoped>
 footer
   a
-    font-size: 1.2rem
     opacity: 0.5
     &:hover
       opacity: 1
