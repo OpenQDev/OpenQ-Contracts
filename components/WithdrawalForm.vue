@@ -230,15 +230,21 @@ export default {
   methods: {
     register() {
       this.loadingRegistration = true
-      this.$mergePay.methods.register(this.githubUser.login).send({ from: this.account  }).then(result => {
-        this.$mergePay.events.RegistrationConfirmedEvent().on('data', event => {
-          if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
-            this.$store.commit("setRegisteredAccount", event.returnValues.account)
-            this.showRegistrationSuccess = true
-            this.loadingRegistration = false
-          }
-        })
-      }).catch(() => this.loadingRegistration = false)
+      // start listening for confirmation
+      this.$mergePay.events.RegistrationConfirmedEvent().on('data', event => {
+        if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
+          this.$store.commit("setRegisteredAccount", event.returnValues.account)
+          this.showRegistrationSuccess = true
+          this.loadingRegistration = false
+        }
+      })
+      // trigger registration (get gas price first)
+      web3.eth.getGasPrice((error, gasPrice) => {
+        this.$mergePay.methods.register(this.githubUser.login).send({
+          from: this.account,
+          value: process.env.ORACLE_GAS_REGISTRATION * Number(gasPrice) * 1.5
+        }).catch(() => this.loadingRegistration = false)
+      })
     },
     withdraw() {
       this.sendingWithdrawal = true

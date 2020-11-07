@@ -69,7 +69,7 @@ export default {
       'GITHUB_APP_ACCESS_TOKEN',
       'MERGEPAY_ADDRESS',
       'ORACLE_ADDRESS',
-      'ORACLE_KEY'
+      'ORACLE_GAS_REGISTRATION'
     ] }],
     '@nuxtjs/fontawesome',
   ],
