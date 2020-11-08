@@ -53,7 +53,7 @@
         This GitHub user is not registered.
       </div>
       <small>
-        Funds will be held in our smart contract and can be withdrawn by {{ user.login }} once registered.
+        Funds will be held in our smart contract and can be withdrawn by {{ user.login }} once registered. You can cancel at any time as lons as {{ user.login }} has not withdrawn.
       </small>
     </div>
     <small class="text-muted mb-1">
