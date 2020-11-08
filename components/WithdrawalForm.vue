@@ -96,11 +96,16 @@
         </button>
         <div v-if="userDeposits.length" class="border-top mt-3 pt-3">
           <div v-for="(deposit, index) in userDeposits" :key="index" class="d-flex justify-content-between align-items-center">
-            <div>
+            <div class="d-flex flex-column">
               <h4 class="mb-0">
                 {{ $web3.utils.fromWei(deposit.amount, 'ether') }} ETH
               </h4>
-              <small class="text-muted">From: <AddressShort :address="deposit.from" /></small>
+              <small class="text-muted">
+                From: <a href="#">mktcode</a>
+              </small>
+              <small class="text-muted" style="margin-top: -3px">
+                <AddressShort :address="deposit.from" />
+              </small>
             </div>
             <button class="btn btn-primary shadow-sm" @click="withdrawUserDeposit(deposit.id)" :disabled="withdrawingUserDeposit != 0">
               <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="withdrawingUserDeposit === deposit.id" />
