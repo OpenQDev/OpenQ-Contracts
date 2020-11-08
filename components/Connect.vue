@@ -43,7 +43,7 @@
           </div>
           <div class="d-flex flex-column ml-2">
             <b class="text-nowrap">{{ formattedBalance }} ETH</b>
-            <small class="text-nowrap">{{ formattedOctoBalance }} OTK</small>
+            <small class="text-nowrap">{{ formattedOctoBalance }} PIN</small>
           </div>
         </div>
       </span>

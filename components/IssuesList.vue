@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <div class="issue-list mt-3 mb-4">
+  <div class="card-body">
+    <DepositForm class="pb-3 border-bottom" />
+    <div class="issue-list">
       <Issue v-for="issue in issuesLazy" :issue="issue" :key="issue.id" />
     </div>
     <div class="card-body pt-0" v-if="issues.length > showIssuesNum">

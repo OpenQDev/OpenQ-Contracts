@@ -10,7 +10,7 @@
     PINs can only be minted by developers, who submit their merged pull requests.
     They can convert them to reputation or sell them on the market, as projects need them to pin issues on the pin board.
     <h5 class="mt-3 mb-2">Next Steps</h5>
-    Possible improvements are an ENS integration, a better oracle system (maybe chainlink), ERC20 deposits, a governance mechanism for system parameters, a GitHub bot and in general better promotional features for projects and more token use cases.
+    Possible improvements are an ENS integration, a better oracle system (maybe chainlink), ERC20 deposits, a governance mechanism for system parameters, a GitHub and email bot and in general better promotional features for projects and more token use cases.
     Professional security audits and code reviews will happen as soon as possible and viable.
     <h5 class="mt-3 mb-2">Donate</h5>
     Help me to grow and evolve this and other projects and enable a more professional development:

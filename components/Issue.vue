@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="issueNode" :class="['issue d-flex flex-column px-3 py-2 mt-3', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
+    <div v-if="issueNode" :class="['issue border rounded-lg d-flex flex-column px-3 py-2 mt-3', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
       <div class="d-flex align-items-center">
         <div class="text-truncate">
           <div class="text-truncate">
@@ -22,7 +22,7 @@
             <svg style="width:14px;height:14px" viewBox="0 0 24 24">
               <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
             </svg>
-            {{ issue.boostAmount.toFixed(2) }} OCTO
+            {{ issue.boostAmount.toFixed(2) }}
           </small>
         </div>
       </div>
@@ -67,16 +67,16 @@
                     From: <AddressShort :address="deposit.from" />
                   </small>
                 </div>
-                <button class="btn btn-sm btn-primary">refund</button>
+                <button class="btn btn-sm btn-primary shadow-sm">refund</button>
               </div>
             </div>
             <div v-if="action === 'pin'" key="pin">
               <div class="d-flex align-items-center">
                 <form class="amount-input amount-input-sm flex-fill mr-2" novalidate>
                   <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
-                  <span>OCTO</span>
+                  <span>PIN</span>
                 </form>
-                <button class="btn btn-primary" @click="pin()">
+                <button class="btn btn-primary shadow-sm text-nowrap" @click="pin()">
                   <svg style="width:18px;height:18px" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
                   </svg>
@@ -99,26 +99,10 @@
 
 <style lang="sass">
 .issue
-  border-width: 3px !important
   cursor: pointer
   position: relative
   &.pinned
-    &:before,
-    &:after
-      position: absolute
-      top: 0
-      content: ''
-      background: #fb0
-      width: 4px
-      height: 100%
-    &:before
-      left: 0
-      border-top-right-radius: 8px
-      border-bottom-right-radius: 8px
-    &:after
-      right: 0
-      border-top-left-radius: 8px
-      border-bottom-left-radius: 8px
+    border-color: #fb0 !important
 
   &:hover
     background: #f8f8f8

@@ -2,8 +2,8 @@
   <div class="content card border-0 rounded-xl shadow-sm">
     <div class="d-flex justify-content-around mt-4 px-2">
       <a href="#" :class="'mx-2 text-' + (view === 'send' ? 'primary' : 'muted')" @click="view = 'send'">Send</a>
-      <a href="#" :class="'mx-2 text-' + (view === 'deposit' ? 'primary' : 'muted')" @click="view = 'deposit'">Deposit</a>
-      <a href="#" :class="'mx-2 text-' + (view === 'issues' ? 'primary' : 'muted')" @click="view = 'issues'">Issues</a>
+      <a href="#" :class="'mx-2 text-' + (view === 'issues' ? 'primary' : 'muted')" @click="view = 'issues'">Pinboard</a>
+      <a href="#" :class="'mx-2 text-' + (view === 'devs' ? 'primary' : 'muted')" @click="view = 'devs'">Contributors</a>
       <a href="#" :class="'mx-2 text-' + (view === 'withdraw' ? 'primary' : 'muted')" @click="view = 'withdraw'">
         {{ registeredAccount === account ? 'Claim' : 'Register' }}
       </a>
@@ -11,7 +11,6 @@
     <transition name="fade" mode="out-in">
       <keep-alive>
         <SendForm v-if="view == 'send'" />
-        <DepositForm v-else-if="view == 'deposit'" />
         <IssuesList v-else-if="view == 'issues'" />
         <WithdrawalForm v-else-if="view == 'withdraw'" />
       </keep-alive>

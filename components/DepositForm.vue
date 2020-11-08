@@ -1,5 +1,5 @@
 <template>
-  <div class="card-body">
+  <div>
     <div class="alert alert-success border-0" v-if="showDepositSuccess">
       <button type="button" class="close text-success" @click="showDepositSuccess = false">
         <span>&times;</span>
@@ -21,9 +21,9 @@
     </div>
     <small class="text-muted d-flex justify-content-between align-items-end mb-1">
       {{ move ? 'Source deposit' : 'Deposit amount'}}
-      <h4 v-if="move" class="text-muted-light"><font-awesome-icon :icon="['fas', 'long-arrow-alt-up']" /></h4>
+      <!-- <h4 v-if="move" class="text-muted-light"><font-awesome-icon :icon="['fas', 'long-arrow-alt-up']" /></h4>
       <a href="#" class="text-muted font-weight-bold" v-if="move" @click="move = false">new deposit</a>
-      <a href="#" class="text-muted font-weight-bold" v-else @click="move = true">move from existing deposit</a>
+      <a href="#" class="text-muted font-weight-bold" v-else @click="move = true">move from existing deposit</a> -->
     </small>
     <div v-if="move">
       <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="sourceUrl" />
@@ -43,7 +43,7 @@
       <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
       <span>ETH</span>
     </div>
-    <small class="text-muted d-flex justify-content-between">
+    <!-- <small class="text-muted d-flex justify-content-between">
       Lock deposit
       <HelpIcon v-tooltip="'By locking up your deposit you get 1% of your deposit in merge tokens once the deposit got released.<br><a href=\'#\' target=\'_blank\'>Learn more</a>'" width="18px" height="18px" class="mb-1" />
     </small>
@@ -53,7 +53,7 @@
         <option value="closed">until issue is closed</option>
         <option value="closed">until released by project owner</option>
       </select>
-    </div>
+    </div> -->
     <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
       {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
