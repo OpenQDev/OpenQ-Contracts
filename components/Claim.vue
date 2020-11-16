@@ -1,14 +1,18 @@
 <template>
   <div class="card-body">
+    <div class="alert alert-success border-0" v-if="showClaimSuccess">
+      <button type="button" class="close text-success" @click="showClaimSuccess = false">
+        <span>&times;</span>
+      </button>
+      <CheckIcon width="24px" height="24px" />
+      Claim successful!
+    </div>
     <div class="alert alert-success border-0" v-if="showWithdrawalSuccess">
       <button type="button" class="close text-success" @click="showWithdrawalSuccess = false">
         <span>&times;</span>
       </button>
       <CheckIcon width="24px" height="24px" />
-      Withdrawal confirmed! :)<br>
-      <small>
-        We sent 0.5 ETH to you. Also 0.1 MergeCoin were minted and equally split between you and the depositer(s).
-      </small>
+      Withdrawal successful!
     </div>
     <div class="alert alert-success border-0" v-if="showRegistrationSuccess">
       <button type="button" class="close text-success" @click="showRegistrationSuccess = false">
@@ -17,80 +21,32 @@
       <CheckIcon width="24px" height="24px" />
       Registration successfull! :)<br>
       <small>
-        You can now delete the repository again and start withdrawing funds.
+        You can now delete the repository again and start claiming funds.
       </small>
-    </div>
-    <div v-if="registeredAccount === account">
-      <small class="text-muted d-flex justify-content-between">
-        Pull Request
-        <HelpIcon v-tooltip="'Paste the URL of the GitHub pull request you want to withdraw from. The pull request must be merged and submitted by you.'" width="18px" height="18px" class="mb-1 help-icon" />
-      </small>
-      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
-    </div>
-    <div v-if="loadingContribution || contribution">
-      <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingContribution" class="text-muted-light" />
-      <PullRequestEmbed :contribution="contribution" v-if="contribution" />
     </div>
     <div v-if="connected">
       <div v-if="registeredAccount === account">
-        <h2 class="my-3 text-center" v-if="contribution">
-          <div v-if="loadingDepositAmount">
-            <font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" />
-            <small class="d-block text-muted-light"><sup>loading deposit</sup></small>
-          </div>
-          <div v-else>
-            {{ formattedDepositAmount }} ETH
-            <small class="d-block text-muted"><sup>deposited</sup></small>
-          </div>
-        </h2>
-        <div class="alert alert-warning border-0 mt-2 mb-2" v-if="contribution && githubUser && contribution.user.login !== githubUser.login">
+        <small class="text-muted d-flex justify-content-between">
+          Pull Request or Issue URL
+          <HelpIcon v-tooltip="'Paste the URL of a merged pull request or an issue you want to withdraw a deposit from.'" width="18px" height="18px" class="mb-1 help-icon" />
+        </small>
+        <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
+        <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingContribution" class="text-muted-light" />
+        <PullRequestEmbed :contribution="contribution" v-else-if="contribution" />
+        
+        <div class="alert alert-warning border-0 mt-2 mb-2" v-if="contribution && githubUser && contribution.pullRequest.author.login !== githubUser.login">
           <font-awesome-icon :icon="['fas', 'info-circle']" />
           <small>
             This pull request does not belong to you.
           </small>
         </div>
-        <div class="alert alert-warning border-0 mt-2 mb-2" v-if="contribution && githubUser && !contribution.merged">
+        <div class="alert alert-warning border-0 mt-2 mb-2" v-if="contribution && githubUser && !contribution.pullRequest.merged">
           <font-awesome-icon :icon="['fas', 'info-circle']" />
           <small>
             This pull request is not merged yet.
           </small>
         </div>
-        <div v-for="(beneficiary, index) in beneficiaries" :key="beneficiaries.address" class="d-flex beneficiary mb-2" v-if="contribution && contribution.merged && githubUser && contribution.user.login === githubUser.login">
-          <div class="flex-fill d-flex flex-column align-items-end">
-            <input type="text" class="form-control address" placeholder="Address" v-model="beneficiary.address" />
-            <div v-if="beneficiary.address">
-              <small class="text-muted pr-1" v-if="$web3 && $web3.utils.isAddress(beneficiary.address)">
-                <CheckIcon width="12px" height="12px" />
-                valid
-              </small>
-              <small class="text-danger pr-1" v-else>
-                not valid
-              </small>
-            </div>
-          </div>
-          <div class="d-flex flex-column align-items-end">
-            <div class="amount-input amount-input-sm">
-              <input type="number" min="0" max="100" step="1" class="form-control percentage" placeholder="0" v-model="beneficiary.percentage" />
-              <span>%</span>
-            </div>
-            <small class="text-muted pr-1">~0.2 ETH</small>
-          </div>
-          <a href="#" class="btn btn-light mb-auto remove border" @click="removeBeneficiary(beneficiary)">
-            <font-awesome-icon :icon="['fas', 'minus']" />
-          </a>
-        </div>
-        <div class="text-center" v-if="!sendingWithdrawal && contribution && contribution.merged && githubUser && contribution.user.login === githubUser.login">
-          <h5 class="mb-3 font-weight-bold" v-if="beneficiaries.length">
-            {{ formatAmount(totalBeneficiariesAmount) }} ETH<br><small class="text-muted"><sup>goes to beneficiaries.</sup></small>
-          </h5>
-          <a href="#" class="btn btn-sm btn-light" @click="beneficiaries.push({ address: '', percentage: 0 })">
-            <small>
-              <font-awesome-icon :icon="['fas', 'plus']" />
-              add beneficiary
-            </small>
-          </a>
-        </div>
-        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdraw()" :disabled="sendingWithdrawal || !contribution || !contribution.merged || !githubUser || contribution.user.login !== githubUser.login">
+        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdraw()" :disabled="sendingWithdrawal || !contribution || !contribution.pullRequest.merged || !githubUser || contribution.pullRequest.author.login !== githubUser.login">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingWithdrawal" />
           {{ sendingWithdrawal ? 'Waiting for confirmation...' : 'Confirm' }}
         </button>
@@ -157,22 +113,6 @@
   </div>
 </template>
 
-<style lang="sass">
-.beneficiary
-  .address
-    border-top-right-radius: 0
-    border-bottom-right-radius: 0
-  .percentage
-    border-radius: 0
-    border-left: 0
-    border-right: 0
-    width: 100px
-  .remove
-    border-top-left-radius: 0
-    border-bottom-left-radius: 0
-
-</style>
-
 <script>
 import { mapGetters } from "vuex"
 import connect from '@/mixins/connect'
@@ -185,12 +125,14 @@ export default {
       githubClientId: process.env.GITHUB_CLIENT_ID,
       loadingRegistration: false,
       showRegistrationSuccess: false,
+      showClaimSuccess: false,
       url: '',
+      type: null,
       loadingContribution: false,
       contribution: null,
+      score: 0,
       sendingWithdrawal: false,
       showWithdrawalSuccess: false,
-      beneficiaries: [],
       depositAmount: 0,
       loadingDepositAmount: false,
       userDeposits: [],
@@ -201,32 +143,39 @@ export default {
     url(newUrl, oldUrl) {
       this.contribution = null
       this.depositAmount = 0
-      if (newUrl.includes('https://github.com') && newUrl.includes('/pull/')) {
+      // TODO: use regex here
+      if (newUrl.includes('https://github.com')) {
         let urlParts = newUrl.split('/')
         let number = urlParts.pop()
         urlParts.pop()
         let repo = urlParts.pop()
         let owner = urlParts.pop()
-        this.loadingContribution = true
-        this.loadPullRequest(owner, repo, number)
-          .then(pr => {
-            this.contribution = pr
-            this.loadDepositAmount(pr.id)
-          })
-          .finally(() => this.loadingContribution = false)
+        if (newUrl.includes('/pull/')) {
+          this.type = 'pr'
+          this.loadingContribution = true
+          this.loadPullRequest(owner, repo, number, this.githubAccessToken)
+            .then(repo => {
+              this.contribution = repo
+              this.score = this.calculatePRScore(repo)
+            })
+            .finally(() => this.loadingContribution = false)
+        } else if (newUrl.includes('/issue/')) {
+          this.type = 'issue'
+          this.loadingContribution = true
+          this.loadPullRequest(owner, repo, number, this.githubAccessToken)
+            .then(repo => {
+              this.contribution = repo
+            })
+            .finally(() => this.loadingContribution = false)
+        }
       }
     }
   },
   computed: {
     ...mapGetters(['connected', 'account', 'registeredAccount']),
-    ...mapGetters("github", { githubUser: 'user' }),
+    ...mapGetters("github", { githubUser: 'user', githubAccessToken: 'accessToken' }),
     formattedDepositAmount() {
       return this.depositAmount ? Number(this.$web3.utils.fromWei(this.depositAmount.toString(), "ether")).toFixed(2) : "0.00"
-    },
-    totalBeneficiariesAmount() {
-      let totalPercentage = 0
-      this.beneficiaries.forEach(b => totalPercentage += Number(b.percentage))
-      return totalPercentage ? this.depositAmount / 100 * totalPercentage : 0
     }
   },
   mounted() {
@@ -251,6 +200,40 @@ export default {
         }).catch(() => this.loadingRegistration = false)
       })
     },
+    getAge(createdAt) {
+      return (new Date().getTime() - new Date(createdAt).getTime()) / (60 * 60 * 24 * 1000);
+    },
+    calculatePRScore(repo) {
+      const userAge = this.getAge(repo.pullRequest.author.createdAt);
+      const userFollowers = repo.pullRequest.author.followers.totalCount;
+      const repoAge = this.getAge(repo.createdAt);
+      const repoStars = repo.stargazers.totalCount;
+      const repoForks = repo.forkCount;
+
+      let score = 0
+
+      if (userAge > 365) score += 1;
+      if (userAge > 365 * 5) score += 2;
+      if (userAge > 365 * 10) score += 4;
+
+      if (userFollowers > 50) score += 1;
+      if (userFollowers > 250) score += 2;
+      if (userFollowers > 1000) score += 4;
+
+      if (repoAge > 90) score += 1;
+      if (repoAge > 365) score += 2;
+      if (repoAge > 365 * 5) score += 4;
+
+      if (repoStars > 50) score += 1;
+      if (repoStars > 250) score += 2;
+      if (repoStars > 1000) score += 4;
+
+      if (repoForks > 10) score += 1;
+      if (repoForks > 50) score += 2;
+      if (repoForks > 250) score += 4;
+
+      return Math.min(Math.round(Math.round((score / 35) * 100)), 100)
+    },
     withdraw() {
       this.sendingWithdrawal = true
       setTimeout(() => {
@@ -259,7 +242,6 @@ export default {
         this.contribution = null
         this.depositAmount = 0
         this.url = ''
-        this.beneficiaries = []
       }, 2000)
     },
     withdrawUserDeposit(id) {
@@ -284,19 +266,6 @@ export default {
         })
       }
       this.userDeposits = deposits
-    },
-    loadDepositAmount(prId) {
-      this.loadingDepositAmount = true
-      setTimeout(() => {
-        this.loadingDepositAmount = false
-        this.depositAmount = 5000000000000000000
-      }, 3000)
-    },
-    removeBeneficiary(beneficiary) {
-      let existingIndex = this.beneficiaries.findIndex(ben => ben === beneficiary)
-      if (existingIndex != -1) {
-        this.beneficiaries.splice(existingIndex, 1)
-      }
     },
     formatAmount(amount) {
       return Number(this.$web3.utils.fromWei(amount.toString(), "ether")).toFixed(2)
