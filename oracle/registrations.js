@@ -13,6 +13,7 @@ const web3wallet = new Web3(walletProvider)
 const mergepay = new web3wallet.eth.Contract(require('./../MergePay.json').abi, process.env.MERGEPAY_ADDRESS)
 
 // listen for incoming events
+console.log('Listening for Registration events.')
 subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRESS }, (error, result) => {
   if (error) {
     console.log(error)
