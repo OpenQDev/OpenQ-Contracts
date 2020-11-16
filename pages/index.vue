@@ -4,7 +4,7 @@
       <a href="#" :class="'mx-2 text-' + (view === 'send' ? 'primary' : 'muted')" @click="view = 'send'">Send</a>
       <a href="#" :class="'mx-2 text-' + (view === 'issues' ? 'primary' : 'muted')" @click="view = 'issues'">Pinboard</a>
       <a href="#" :class="'mx-2 text-' + (view === 'devs' ? 'primary' : 'muted')" @click="view = 'devs'">Contributors</a>
-      <a href="#" :class="'mx-2 text-' + (view === 'withdraw' ? 'primary' : 'muted')" @click="view = 'withdraw'">
+      <a href="#" :class="'mx-2 text-' + (view === 'claim' ? 'primary' : 'muted')" @click="view = 'claim'">
         {{ registeredAccount === account ? 'Claim' : 'Register' }}
       </a>
     </div>
@@ -12,7 +12,7 @@
       <keep-alive>
         <SendForm v-if="view == 'send'" />
         <IssuesList v-else-if="view == 'issues'" />
-        <WithdrawalForm v-else-if="view == 'withdraw'" />
+        <Claim v-else-if="view == 'claim'" />
       </keep-alive>
     </transition>
   </div>
