@@ -56,6 +56,7 @@ export default {
   mounted() {
     if (this.$mergePay) {
       this.$mergePay.methods._nextIssueDepositId().call().then(async maxId => {
+        maxId = Number(maxId)
         if (maxId) {
           let id = maxId
           while (id) {
