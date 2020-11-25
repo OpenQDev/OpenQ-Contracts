@@ -1,7 +1,7 @@
 <template>
   <div class="embed rounded-bottom p-2 mb-2">
     <div class="d-flex">
-      <span :class="'d-flex align-items-center badge badge-pill pl-1 mr-1 badge-' + (contribution.pullRequest.state === 'open' ? 'success' : (contribution.pullRequest.merged ? 'merged' : 'danger'))">
+      <span :class="'d-flex align-items-center badge badge-pill pl-1 mr-1 badge-' + (contribution.pullRequest.state === 'open' ? 'success' : (contribution.pullRequest.merged ? 'merged' : 'success'))">
         <MergeIcon width="16px" height="16px" class="mr-1" v-if="contribution.pullRequest.merged" />
         <InfoIcon width="16px" height="16px" class="mr-1" v-else />
         {{ contribution.pullRequest.merged ? 'merged' : contribution.pullRequest.state }}
@@ -26,12 +26,6 @@
         {{ contribution.pullRequest.comments.totalCount }}
       </span>
     </small>
-    <small class="d-flex justify-content-between text-muted mt-2">
-      <span>Score:</span>
-      <span>
-        50
-      </span>
-    </small>
   </div>
 </template>
 
@@ -43,19 +37,7 @@ export default {
   props: ['contribution'],
   mixins: [helpers],
   computed: {
-    ...mapGetters("github", { githubUser: 'user' }),
-    repoAge() {
-      return Math.floor(this.getAge(this.contribution.createdAt))
-    },
-    repoAdmin() {
-      return this.contribution.viewerCanAdminister
-    },
-    repoStars() {
-      return this.contribution.stargazers.totalCount
-    },
-    isValid() {
-      return !this.repoAdmin && this.repoAge > 90 && this.repoStars > 50
-    }
+    ...mapGetters("github", { githubUser: 'user' })
   }
 }
 </script>

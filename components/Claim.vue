@@ -32,24 +32,48 @@
         </small>
         <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingContribution" class="text-muted-light" />
-        <PullRequestEmbed :contribution="contribution" v-else-if="contribution" />
-        
-        <div class="alert alert-warning border-0 mt-2 mb-2" v-if="contribution && githubUser && contribution.pullRequest.author.login !== githubUser.login">
-          <font-awesome-icon :icon="['fas', 'info-circle']" />
-          <small>
-            This pull request does not belong to you.
-          </small>
+        <PullRequestEmbed :contribution="contribution" v-else-if="contribution && type == 'pr'" />
+
+        <div v-if="contribution && type == 'pr'">
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && contribution.owner.login === githubUser.login">
+            <font-awesome-icon :icon="['fas', 'info-circle']" />
+            <small>
+              You can only claim pull requests for repositories that are not your own.
+            </small>
+          </div>
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && contribution.pullRequest.author.login !== githubUser.login">
+            <font-awesome-icon :icon="['fas', 'info-circle']" />
+            <small>
+              This pull request does not belong to you.
+            </small>
+          </div>
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && !contribution.pullRequest.merged">
+            <font-awesome-icon :icon="['fas', 'info-circle']" />
+            <small>
+              This pull request is not merged yet.
+            </small>
+          </div>
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && getAge(contribution.pullRequest.mergedAt) > maxClaimPrAge">
+            <font-awesome-icon :icon="['fas', 'info-circle']" />
+            <small>
+              Only pull request merged inside the last {{ maxClaimPrAge }} days can be claimed.
+            </small>
+          </div>
+          <div class="text-center">
+            <small class="text-muted">Score:</small>
+            <h3>{{ score }}</h3>
+          </div>
         </div>
-        <div class="alert alert-warning border-0 mt-2 mb-2" v-if="contribution && githubUser && !contribution.pullRequest.merged">
-          <font-awesome-icon :icon="['fas', 'info-circle']" />
-          <small>
-            This pull request is not merged yet.
-          </small>
-        </div>
-        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdraw()" :disabled="sendingWithdrawal || !contribution || !contribution.pullRequest.merged || !githubUser || contribution.pullRequest.author.login !== githubUser.login">
+
+        <button v-if="type === 'issue'" class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdrawFromIssue()" :disabled="sendingWithdrawal || !contribution || !githubUser">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingWithdrawal" />
           {{ sendingWithdrawal ? 'Waiting for confirmation...' : 'Confirm' }}
         </button>
+        <button v-if="type === 'pr'" class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="claimPullRequest()" :disabled="claimingPullRequest || !contribution || !contribution.pullRequest.merged || !githubUser || contribution.pullRequest.author.login !== githubUser.login || getAge(contribution.pullRequest.mergedAt) > maxClaimPrAge || contribution.owner.login === githubUser.login">
+          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="claimingPullRequest" />
+          {{ claimingPullRequest ? 'Waiting for confirmation...' : 'Claim' }}
+        </button>
+
         <div v-if="userDeposits.length" class="border-top mt-3 pt-3">
           <div v-for="(deposit, index) in userDeposits" :key="index" class="d-flex justify-content-between align-items-center">
             <div class="d-flex flex-column">
@@ -123,20 +147,21 @@ export default {
   data() {
     return {
       githubClientId: process.env.GITHUB_CLIENT_ID,
-      loadingRegistration: false,
-      showRegistrationSuccess: false,
-      showClaimSuccess: false,
+      maxClaimPrAge: process.env.MAX_CLAIMPR_AGE,
       url: '',
       type: null,
       loadingContribution: false,
       contribution: null,
+      loadingRegistration: false,
+      showRegistrationSuccess: false,
       score: 0,
       sendingWithdrawal: false,
       showWithdrawalSuccess: false,
       depositAmount: 0,
-      loadingDepositAmount: false,
       userDeposits: [],
-      withdrawingUserDeposit: 0
+      withdrawingUserDeposit: 0,
+      claimingPullRequest: false,
+      showClaimSuccess: false,
     }
   },
   watch: {
@@ -234,7 +259,27 @@ export default {
 
       return Math.min(Math.round(Math.round((score / 35) * 100)), 100)
     },
-    withdraw() {
+    claimPullRequest() {
+      this.claimingPullRequest = true
+
+      // start listening for confirmation
+      this.$mergePay.events.ClaimPrConfirmEvent().on('data', event => {
+        if (event.returnValues.prId === this.contribution.pullRequest.id && event.returnValues.githubUser === this.githubUser.login) {
+          this.showClaimSuccess = true
+          this.claimingPullRequest = false
+          this.url = ''
+          this.contribution = null
+        }
+      })
+      // trigger claim (get gas price first)
+      web3.eth.getGasPrice((error, gasPrice) => {
+        this.$mergePay.methods.claimPullRequest(this.contribution.pullRequest.id, this.githubUser.login).send({
+          from: this.account,
+          value: process.env.ORACLE_GAS_CLAIMPR * Number(gasPrice) * 1.5
+        }).catch(() => this.loadingRegistration = false)
+      })
+    },
+    withdrawFromIssue() {
       this.sendingWithdrawal = true
       setTimeout(() => {
         this.sendingWithdrawal = false
