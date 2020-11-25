@@ -6,9 +6,6 @@
       </button>
       <CheckIcon width="24px" height="24px" />
       Deposit confirmed! :)<br>
-      <small>
-        See all your deposits <nuxt-link to="/deposits">here</nuxt-link>. You can withdraw any deposit at any time.
-      </small>
     </div>
     <small class="text-muted d-flex justify-content-between">
       Issue URL
