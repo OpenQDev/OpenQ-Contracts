@@ -81,7 +81,7 @@ subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRES
           const repoForks = data.data.data.node.repository.forks.totalCount
           const mergedAt = getAge(data.data.data.node.mergedAt)
 
-          if (repoOwner != githubUser && mergedAt < 90) {
+          if (repoOwner != githubUser && mergedAt < process.env.MAX_CLAIMPR_AGE) {
             if (userAge > 365) score += 1;
             if (userAge > 365 * 5) score += 2;
             if (userAge > 365 * 10) score += 4;
