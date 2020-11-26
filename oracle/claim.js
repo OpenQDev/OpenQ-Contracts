@@ -96,8 +96,8 @@ subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRES
             console.log('Pull Request found. Score: ' + score)
             mergepay.methods.confirmClaimPullRequest(prId, githubUser, score).send({
               from: process.env.ORACLE_ADDRESS
-            }).then(async () => {
-              console.log('Confirmed.')
+            }).then(async ({gasUsed}) => {
+              console.log(`Confirmed. (Gas used: ${gasUsed})`)
               console.log('Oracle balance:', web3.utils.fromWei((await web3.eth.getBalance(process.env.ORACLE_ADDRESS)).toString(), "ether"))
             }).catch(async e => {
               console.log('Confirmation failed!', e)

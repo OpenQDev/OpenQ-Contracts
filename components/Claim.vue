@@ -33,6 +33,7 @@
         <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingContribution" class="text-muted-light" />
         <PullRequestEmbed :contribution="contribution" v-else-if="contribution && type == 'pr'" />
+        <IssueEmbed :contribution="contribution" v-else-if="contribution && type == 'issue'" />
 
         <div v-if="contribution && type == 'pr'">
           <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && contribution.owner.login === githubUser.login">
@@ -65,9 +66,22 @@
           </div>
         </div>
 
-        <button v-if="type === 'issue'" class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdrawFromIssue()" :disabled="sendingWithdrawal || !contribution || !githubUser">
-          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingWithdrawal" />
-          {{ sendingWithdrawal ? 'Waiting for confirmation...' : 'Confirm' }}
+        <div v-if="contribution && type == 'issue'">
+          <div class="text-center">
+            <small class="text-muted">Amount:</small>
+            <h3>{{ issueDepositsAmount.toFixed(2) }} ETH</h3>
+          </div>
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && githubUser.login != issueReleasedTo">
+            <font-awesome-icon :icon="['fas', 'info-circle']" />
+            <small>
+              This issue was not released to you.
+            </small>
+          </div>
+        </div>
+
+        <button v-if="type === 'issue'" class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdrawFromIssue()" :disabled="withdrawingFromIssue || !contribution || !githubUser || !issueDepositsAmount || githubUser.login != issueReleasedTo">
+          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="withdrawingFromIssue" />
+          {{ withdrawingFromIssue ? 'Waiting for confirmation...' : 'Claim' }}
         </button>
         <button v-if="type === 'pr'" class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="claimPullRequest()" :disabled="claimingPullRequest || !contribution || !contribution.pullRequest.merged || !githubUser || contribution.pullRequest.author.login !== githubUser.login || getAge(contribution.pullRequest.mergedAt) > maxClaimPrAge || contribution.owner.login === githubUser.login">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="claimingPullRequest" />
@@ -155,19 +169,19 @@ export default {
       loadingRegistration: false,
       showRegistrationSuccess: false,
       score: 0,
-      sendingWithdrawal: false,
+      withdrawingFromIssue: false,
       showWithdrawalSuccess: false,
-      depositAmount: 0,
       userDeposits: [],
       withdrawingUserDeposit: 0,
       claimingPullRequest: false,
       showClaimSuccess: false,
+      issueDepositsAmount: 0,
+      issueReleasedTo: ''
     }
   },
   watch: {
     url(newUrl, oldUrl) {
       this.contribution = null
-      this.depositAmount = 0
       // TODO: use regex here
       if (newUrl.includes('https://github.com')) {
         let urlParts = newUrl.split('/')
@@ -184,12 +198,24 @@ export default {
               this.score = this.calculatePRScore(repo)
             })
             .finally(() => this.loadingContribution = false)
-        } else if (newUrl.includes('/issue/')) {
+        } else if (newUrl.includes('/issues/')) {
           this.type = 'issue'
           this.loadingContribution = true
-          this.loadPullRequest(owner, repo, number, this.githubAccessToken)
+          this.issueDepositsAmount = 0
+          this.issueReleasedTo = ''
+          this.loadIssue(owner, repo, number)
             .then(repo => {
               this.contribution = repo
+              this.$mergePay.methods.getIssueDepositIdsForIssueId(this.contribution.node_id).call().then(depositIds => {
+                depositIds.forEach(depositId => {
+                  this.$mergePay.methods._issueDeposits(depositId).call().then(deposit => {
+                    this.issueDepositsAmount += Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
+                  })
+                })
+              })
+              this.$mergePay.methods._releasedIssues(this.contribution.node_id).call().then(releasedTo => {
+                this.issueReleasedTo = releasedTo
+              })
             })
             .finally(() => this.loadingContribution = false)
         }
@@ -198,10 +224,7 @@ export default {
   },
   computed: {
     ...mapGetters(['connected', 'account', 'registeredAccount']),
-    ...mapGetters("github", { githubUser: 'user', githubAccessToken: 'accessToken' }),
-    formattedDepositAmount() {
-      return this.depositAmount ? Number(this.$web3.utils.fromWei(this.depositAmount.toString(), "ether")).toFixed(2) : "0.00"
-    }
+    ...mapGetters("github", { githubUser: 'user', githubAccessToken: 'accessToken' })
   },
   mounted() {
     this.updateUserDeposits()
@@ -221,7 +244,7 @@ export default {
       web3.eth.getGasPrice((error, gasPrice) => {
         this.$mergePay.methods.register(this.githubUser.login).send({
           from: this.account,
-          value: process.env.ORACLE_GAS_REGISTRATION * Number(gasPrice) * 1.5
+          value: process.env.ORACLE_GAS_REGISTRATION * Number(gasPrice) * 1.2
         }).catch(() => this.loadingRegistration = false)
       })
     },
@@ -275,19 +298,22 @@ export default {
       web3.eth.getGasPrice((error, gasPrice) => {
         this.$mergePay.methods.claimPullRequest(this.contribution.pullRequest.id, this.githubUser.login).send({
           from: this.account,
-          value: process.env.ORACLE_GAS_CLAIMPR * Number(gasPrice) * 1.5
+          value: process.env.ORACLE_GAS_CLAIMPR * Number(gasPrice) * 1.2
         }).catch(() => this.loadingRegistration = false)
       })
     },
     withdrawFromIssue() {
-      this.sendingWithdrawal = true
-      setTimeout(() => {
-        this.sendingWithdrawal = false
+      this.withdrawingFromIssue = true
+      this.$mergePay.methods.claimReleasedIssueDeposits(this.contribution.node_id).send({
+        from: this.account
+      }).then(() => {
+        this.withdrawingFromIssue = false
         this.showWithdrawalSuccess = true
         this.contribution = null
-        this.depositAmount = 0
         this.url = ''
-      }, 2000)
+        this.issueDepositsAmount = 0
+        this.issueReleasedTo = ''
+      }).catch(e => console.log(e))
     },
     withdrawUserDeposit(id) {
       this.withdrawingUserDeposit = id

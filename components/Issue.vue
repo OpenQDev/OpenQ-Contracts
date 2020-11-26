@@ -67,9 +67,12 @@
                 <CheckIcon width="24px" height="24px" />
                 <small>Release successful! The GitHub user can now claim the deposits.</small>
               </div>
-              <div v-if="issueNode.repositoryOwner === githubUser.login" class="mb-2 d-flex">
+              <div v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount" class="mb-2 d-flex">
                 <input type="text" class="form-control form-control-sm" placeholder="GitHub user" v-model="releaseTo" />
-                <button class="btn btn-sm btn-success ml-1 shadow-sm" @click="release()">release</button>
+                <button class="btn btn-sm btn-success ml-1 shadow-sm" @click="release()" :disabled="releasing">
+                  <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="releasing" />
+                  <span v-else>release</span>
+                </button>
               </div>
               <div v-for="(deposit, index) in issue.deposits" :key="index" class="d-flex justify-content-between align-items-center">
                 <div class="d-flex flex-column">
@@ -149,7 +152,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account']),
+    ...mapGetters(['account', 'registeredAccount']),
     ...mapGetters('github', { githubUser: 'user' })
   },
   methods: {
@@ -211,7 +214,7 @@ export default {
         web3.eth.getGasPrice((error, gasPrice) => {
           this.$mergePay.methods.releaseIssueDeposits(this.issue.id, this.releaseTo).send({
             from: this.account,
-            value: process.env.ORACLE_GAS_RELEASEISSUE * Number(gasPrice) * 1.5
+            value: process.env.ORACLE_GAS_RELEASEISSUE * Number(gasPrice) * 1.2
           }).catch(() => this.releasing = false)
         })
       }
