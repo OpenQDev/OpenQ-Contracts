@@ -89,25 +89,17 @@ export default {
   watch: {
     url(newUrl, oldUrl) {
       this.contribution = null
-      if (newUrl.includes('https://github.com')) {
+      if (newUrl.includes('https://github.com') && newUrl.includes('/issues/')) {
         let urlParts = newUrl.split('/')
         let number = urlParts.pop()
         urlParts.pop()
         let repo = urlParts.pop()
         let owner = urlParts.pop()
-        if (newUrl.includes('/issues/')) {
-          this.loading = true
-          this.type = 1
-          this.loadIssue(owner, repo, number)
-            .then(issue => this.contribution = issue)
-            .finally(() => this.loading = false)
-        } else if (newUrl.includes('/pull/')) {
-          this.loading = true
-          this.type = 2
-          this.loadPullRequest(owner, repo, number)
-            .then(pr => this.contribution = pr)
-            .finally(() => this.loading = false)
-        }
+        this.loading = true
+        this.type = 1
+        this.loadIssue(owner, repo, number)
+          .then(issue => this.contribution = issue)
+          .finally(() => this.loading = false)
       }
     },
     sourceUrl(newUrl, oldUrl) {
