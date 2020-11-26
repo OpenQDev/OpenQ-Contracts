@@ -13,8 +13,7 @@
     <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
     <div v-if="loading || contribution">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loading" class="text-muted-light" />
-      <IssueEmbed :contribution="contribution" v-if="contribution && type == 1" />
-      <PullRequestEmbed :contribution="contribution" v-if="contribution && type == 2" />
+      <IssueEmbed :contribution="contribution" v-if="contribution" />
     </div>
     <small class="text-muted d-flex justify-content-between align-items-end mb-1">
       {{ move ? 'Source deposit' : 'Deposit amount'}}
@@ -32,8 +31,7 @@
       </div>
       <div v-else-if="sourceLoading || sourceContribution">
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sourceLoading" class="text-muted-light" />
-        <IssueEmbed :contribution="sourceContribution" v-if="sourceContribution && sourceType == 1" />
-        <PullRequestEmbed :contribution="sourceContribution" v-if="sourceContribution && sourceType == 2" />
+        <IssueEmbed :contribution="sourceContribution" v-if="sourceContribution" />
       </div>
     </div>
     <div class="amount-input mb-2" v-else>
@@ -77,8 +75,6 @@ export default {
       sourceLoading: false,
       contribution: null,
       sourceContribution: null,
-      type: 0,
-      sourceType: 0,
       amount: 0,
       lock: 'none',
       sendingDeposit: false,
@@ -96,7 +92,6 @@ export default {
         let repo = urlParts.pop()
         let owner = urlParts.pop()
         this.loading = true
-        this.type = 1
         this.loadIssue(owner, repo, number)
           .then(issue => this.contribution = issue)
           .finally(() => this.loading = false)
@@ -112,13 +107,11 @@ export default {
         let owner = urlParts.pop()
         if (newUrl.includes('/issues/')) {
           this.sourceLoading = true
-          this.sourceType = 1
           this.loadIssue(owner, repo, number)
             .then(issue => this.sourceContribution = issue)
             .finally(() => this.sourceLoading = false)
         } else if (newUrl.includes('/pull/')) {
           this.sourceLoading = true
-          this.sourceType = 2
           this.loadPullRequest(owner, repo, number)
             .then(pr => this.sourceContribution = pr)
             .finally(() => this.sourceLoading = false)
@@ -141,8 +134,6 @@ export default {
         this.sourceUrl = ''
         this.contribution = null
         this.sourceContribution = null
-        this.type = 0
-        this.sourceType = 0
         this.lock = 'none'
         this.amount = 0
       })
@@ -159,8 +150,6 @@ export default {
         this.sourceUrl = ''
         this.contribution = null
         this.sourceContribution = null
-        this.type = 0
-        this.sourceType = 0
         this.lock = 'none'
         this.amount = 0
       })
