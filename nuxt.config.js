@@ -71,6 +71,7 @@ export default {
       'ORACLE_ADDRESS',
       'ORACLE_GAS_REGISTRATION',
       'ORACLE_GAS_CLAIMPR',
+      'ORACLE_GAS_RELEASEISSUE',
       'MAX_CLAIMPR_AGE'
     ] }],
     '@nuxtjs/fontawesome',

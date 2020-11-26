@@ -60,6 +60,17 @@
         <div class="w-100">
           <transition name="fade" mode="out-in">
             <div v-if="action === 'deposits'" key="deposits">
+              <div class="alert alert-success border-0" v-if="showReleaseSuccess">
+                <button type="button" class="close text-success" @click="showReleaseSuccess = false">
+                  <span>&times;</span>
+                </button>
+                <CheckIcon width="24px" height="24px" />
+                <small>Release successful! The GitHub user can now claim the deposits.</small>
+              </div>
+              <div v-if="issueNode.repositoryOwner === githubUser.login" class="mb-2 d-flex">
+                <input type="text" class="form-control form-control-sm" placeholder="GitHub user" v-model="releaseTo" />
+                <button class="btn btn-sm btn-success ml-1 shadow-sm" @click="release()">release</button>
+              </div>
               <div v-for="(deposit, index) in issue.deposits" :key="index" class="d-flex justify-content-between align-items-center">
                 <div class="d-flex flex-column">
                   <h5 class="mb-0">{{ Number($web3.utils.fromWei(deposit.amount, 'ether')).toFixed(2) }} <small>ETH</small></h5>
@@ -67,7 +78,7 @@
                     From: <AddressShort :address="deposit.from" />
                   </small>
                 </div>
-                <button class="btn btn-sm btn-primary shadow-sm">refund</button>
+                <button class="btn btn-sm btn-primary shadow-sm" v-if="deposit.from === account" @click="refundIssueDeposit(deposit.id)">refund</button>
               </div>
             </div>
             <div v-if="action === 'pin'" key="pin">
@@ -131,7 +142,10 @@ export default {
       issueNode: null,
       showDetails: false,
       action: null,
-      pinAmount: 0
+      pinAmount: 0,
+      releaseTo: '',
+      releasing: false,
+      showReleaseSuccess: false
     }
   },
   computed: {
@@ -170,6 +184,35 @@ export default {
           console.log(e)
         }).finally(() => {
           this.pinningIssue = false
+        })
+      }
+    },
+    refundIssueDeposit(id) {
+      this.$mergePay.methods.refundIssueDeposit(id).send({
+        from: this.account
+      }).then(() => {
+        const depositIndex = this.issue.deposits.findIndex(deposit => deposit.id === id)
+        if (depositIndex != -1) {
+          this.issue.deposits.splice(depositIndex, 1)
+        }
+      }).catch(e => console.log(e))
+    },
+    release() {
+      if (this.releaseTo) {
+        this.releasing = true
+        // start listening for confirmation
+        this.$mergePay.events.ReleaseIssueDepositsConfirmEvent().on('data', event => {
+          if (event.returnValues.issueId === this.issue.id && event.returnValues.githubUser === this.releaseTo) {
+            this.showReleaseSuccess = true
+            this.releasing = false
+          }
+        })
+        // trigger registration (get gas price first)
+        web3.eth.getGasPrice((error, gasPrice) => {
+          this.$mergePay.methods.releaseIssueDeposits(this.issue.id, this.releaseTo).send({
+            from: this.account,
+            value: process.env.ORACLE_GAS_RELEASEISSUE * Number(gasPrice) * 1.5
+          }).catch(() => this.releasing = false)
         })
       }
     }
@@ -213,14 +256,16 @@ export default {
       }
     )
     .then(data => {
+      const node = data.data.node
       this.issueNode = {
-        number: data.data.node.number,
-        title: data.data.node.title,
-        owner: data.data.node.repository.owner.login,
-        repository: data.data.node.repository.name,
-        primaryLanguage: data.data.node.repository.primaryLanguage,
-        labels: data.data.node.labels.edges.map(label => label.node),
-        closed: data.data.node.closed
+        number: node.number,
+        title: node.title,
+        owner: node.repository.owner.login,
+        repository: node.repository.name,
+        repositoryOwner: node.repository.owner.login,
+        primaryLanguage: node.repository.primaryLanguage,
+        labels: node.labels.edges.map(label => label.node),
+        closed: node.closed
       }
     })
   }

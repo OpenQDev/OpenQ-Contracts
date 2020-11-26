@@ -61,6 +61,7 @@ export default {
           let id = maxId
           while (id) {
             const deposit = await this.$mergePay.methods._issueDeposits(id).call()
+            deposit.id = id
             const depositAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
             if (depositAmount > 0) {
               let existingIssue = this.issues.find(issue => issue.id == deposit.issueId)
