@@ -7,7 +7,7 @@
       <a href="https://github.com/mktcode" target="_blank" class="text-white px-2">
         <font-awesome-icon :icon="['fab', 'github']" />
       </a>
-      <a href="https://etherscan.io" class="text-white px-2">
+      <a href="https://kovan.etherscan.io/address/0x71b6f59B73ACD8C436dAb4EA3003a7E1e05a017e" class="text-white px-2">
         <font-awesome-icon :icon="['fab', 'ethereum']" />
       </a>
     </div>
