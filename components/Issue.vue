@@ -182,7 +182,8 @@ export default {
         this.$octoBay.methods.pinIssue(this.issue.id, this.$web3.utils.toWei(this.pinAmount, 'ether')).send({
           from: this.account
         }).then(result => {
-          console.log(result)
+          this.$store.dispatch('updatePins', this.issue.id)
+          this.pinAmount = 0
         }).catch(e => {
           console.log(e)
         }).finally(() => {

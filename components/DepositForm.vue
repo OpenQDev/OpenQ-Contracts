@@ -128,6 +128,7 @@ export default {
       this.$octoBay.methods.depositEthForIssue(
         this.contribution.node_id
       ).send({ from: this.account, value: this.$web3.utils.toWei(this.amount, "ether") }).then(tx => {
+        this.$store.dispatch('updateIssues')
         this.sendingDeposit = false
         this.showDepositSuccess = true
         this.url = ''

@@ -3,7 +3,8 @@ export const state = () => ({
   accounts: [],
   registeredAccount: null,
   balance: 0,
-  octoBalance: 0
+  octoBalance: 0,
+  issues: []
 })
 
 export const getters = {
@@ -27,6 +28,9 @@ export const getters = {
   },
   registeredAccount(state) {
     return state.registeredAccount
+  },
+  issues(state) {
+    return state.issues
   }
 }
 
@@ -45,6 +49,22 @@ export const mutations = {
   },
   setRegisteredAccount(state, registeredAccount) {
     state.registeredAccount = registeredAccount
+  },
+  addIssue(state, issue) {
+    state.issues.push(issue)
+  },
+  addDeposit(state, { issue, deposit }) {
+    let existingIssue = state.issues.find(i => i.id === issue.id)
+    if (existingIssue) {
+      existingIssue.depositAmount += Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
+      existingIssue.deposits.push(deposit)
+    }
+  },
+  updatePins(state, { issueId, pins }) {
+    let existingIssue = state.issues.find(issue => issue.id === issueId)
+    if (existingIssue) {
+      existingIssue.boostAmount = Number(this.$web3.utils.fromWei(pins, 'ether'))
+    }
   }
 }
 
@@ -72,4 +92,42 @@ export const actions = {
       }
     })
   },
+  updateIssues({ state, commit }) {
+    if (this.$octoBay) {
+      this.$octoBay.methods._nextIssueDepositId().call().then(async maxId => {
+        maxId = Number(maxId)
+        if (maxId) {
+          let id = maxId
+          while (id) {
+            const deposit = await this.$octoBay.methods._issueDeposits(id).call()
+            deposit.id = id
+            if (deposit.amount > 0) {
+              let existingIssue = state.issues.find(issue => issue.id == deposit.issueId)
+              if (existingIssue) {
+                let depositExists = existingIssue.deposits.findIndex(d => d.id == id)
+                if (depositExists === -1) {
+                  commit('addDeposit', { issue: existingIssue, deposit })
+                }
+              } else {
+                const newIssue = {
+                  id: deposit.issueId,
+                  deposits: [deposit],
+                  depositAmount: Number(this.$web3.utils.fromWei(deposit.amount, 'ether')),
+                  boostAmount: 0
+                }
+                const boostAmount = await this.$octoBay.methods._issueBoosts(newIssue.id).call()
+                newIssue.boostAmount = Number(this.$web3.utils.fromWei(boostAmount, 'ether'))
+                commit('addIssue', newIssue)
+              }
+            }
+            id--
+          }
+        }
+      })
+    }
+  },
+  async updatePins({ commit }, issueId) {
+    const pins = await this.$octoBay.methods._issueBoosts(issueId).call()
+    commit('updatePins', { issueId, pins })
+  }
 }

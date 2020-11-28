@@ -31,17 +31,18 @@
 
 <script>
 import Vue from "vue"
+import { mapGetters } from "vuex"
 
 export default {
   data() {
     return {
-      issues: [],
       showIssuesNum: 10
     }
   },
   computed: {
+    ...mapGetters(['issues']),
     issuesSorted() {
-      return this.issues.sort((a, b) => {
+      return this.issues.filter(() => true).sort((a, b) => {
         if (a.boostAmount === b.boostAmount) {
           return a.depositAmount < b.depositAmount
         } else {
@@ -54,37 +55,7 @@ export default {
     }
   },
   mounted() {
-    if (this.$octoBay) {
-      this.$octoBay.methods._nextIssueDepositId().call().then(async maxId => {
-        maxId = Number(maxId)
-        if (maxId) {
-          let id = maxId
-          while (id) {
-            const deposit = await this.$octoBay.methods._issueDeposits(id).call()
-            deposit.id = id
-            const depositAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
-            if (depositAmount > 0) {
-              let existingIssue = this.issues.find(issue => issue.id == deposit.issueId)
-              if (existingIssue) {
-                existingIssue.depositAmount += depositAmount
-                existingIssue.deposits.push(deposit)
-              } else {
-                const newIssue = {
-                  id: deposit.issueId,
-                  deposits: [deposit],
-                  depositAmount,
-                  boostAmount: 0
-                }
-                const boostAmount = await this.$octoBay.methods._issueBoosts(newIssue.id).call()
-                newIssue.boostAmount = Number(this.$web3.utils.fromWei(boostAmount, 'ether'))
-                this.issues.push(newIssue)
-              }
-            }
-            id--
-          }
-        }
-      })
-    }
+    this.$store.dispatch('updateIssues')
   }
 }
 </script>
