@@ -18,7 +18,7 @@ export default {
   serverMiddleware: ["~/api/index"],
 
   env: {
-    MERGEPAY_ABI: JSON.parse(fs.readFileSync("./MergePay.json").toString()).abi
+    OCTOBAY_ABI: JSON.parse(fs.readFileSync("./OctoBay.json").toString()).abi
   },
 
   /*
@@ -26,7 +26,7 @@ export default {
   ** See https://nuxtjs.org/api/configuration-head
   */
   head: {
-    title: process.env.npm_package_name || '',
+    title: 'OctoBay',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -67,7 +67,7 @@ export default {
       'GITHUB_CLIENT_ID',
       'GITHUB_CLIENT_SECRET',
       'GITHUB_APP_ACCESS_TOKEN',
-      'MERGEPAY_ADDRESS',
+      'OCTOBAY_ADDRESS',
       'ORACLE_ADDRESS',
       'ORACLE_GAS_REGISTRATION',
       'ORACLE_GAS_CLAIMPR',

@@ -51,19 +51,19 @@ export const mutations = {
 export const actions = {
   load({ commit, dispatch, state, rootState }) {
     return dispatch("github/login").then((result) => {
-      if (rootState.github.user && this.$mergePay) {
-        this.$mergePay.methods._users(rootState.github.user.login).call().then(result => {
+      if (rootState.github.user && this.$octoBay) {
+        this.$octoBay.methods._users(rootState.github.user.login).call().then(result => {
           commit("setRegisteredAccount", result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed ? result.account : null)
         }).catch(() => {
           commit("setRegisteredAccount", null)
         })
       }
-      if (this.$web3 && this.$mergePay) {
+      if (this.$web3 && this.$octoBay) {
         this.$web3.eth.getAccounts().then(accounts => {
           if (accounts.length) {
             commit('setAccounts', accounts)
             this.$web3.eth.getBalance(accounts[0]).then(balance => commit('setBalance', balance))
-            this.$mergePay.methods.balanceOf(accounts[0]).call().then(balance => commit('setOctoBalance', balance))
+            this.$octoBay.methods.balanceOf(accounts[0]).call().then(balance => commit('setOctoBalance', balance))
           }
         })
         this.$web3.eth.net.getId().then(result => {

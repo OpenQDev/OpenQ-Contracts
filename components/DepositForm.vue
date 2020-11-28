@@ -125,7 +125,7 @@ export default {
   methods: {
     sendDeposit() {
       this.sendingDeposit = true
-      this.$mergePay.methods.depositEthForIssue(
+      this.$octoBay.methods.depositEthForIssue(
         this.contribution.node_id
       ).send({ from: this.account, value: this.$web3.utils.toWei(this.amount, "ether") }).then(tx => {
         this.sendingDeposit = false
@@ -140,7 +140,7 @@ export default {
     },
     moveDeposit() {
       this.sendingDeposit = true
-      this.$mergePay.methods.moveIssueDeposit(
+      this.$octoBay.methods.moveIssueDeposit(
         this.contribution.node_id,
         this.sourceContribution.node_id
       ).send({ from: this.account }).then(tx => {

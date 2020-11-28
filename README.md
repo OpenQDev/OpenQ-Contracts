@@ -1,4 +1,4 @@
-# MergePay Website
+# OctoBay Website
 
 ## Build Setup
 

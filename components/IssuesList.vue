@@ -54,13 +54,13 @@ export default {
     }
   },
   mounted() {
-    if (this.$mergePay) {
-      this.$mergePay.methods._nextIssueDepositId().call().then(async maxId => {
+    if (this.$octoBay) {
+      this.$octoBay.methods._nextIssueDepositId().call().then(async maxId => {
         maxId = Number(maxId)
         if (maxId) {
           let id = maxId
           while (id) {
-            const deposit = await this.$mergePay.methods._issueDeposits(id).call()
+            const deposit = await this.$octoBay.methods._issueDeposits(id).call()
             deposit.id = id
             const depositAmount = Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
             if (depositAmount > 0) {
@@ -75,7 +75,7 @@ export default {
                   depositAmount,
                   boostAmount: 0
                 }
-                const boostAmount = await this.$mergePay.methods._issueBoosts(newIssue.id).call()
+                const boostAmount = await this.$octoBay.methods._issueBoosts(newIssue.id).call()
                 newIssue.boostAmount = Number(this.$web3.utils.fromWei(boostAmount, 'ether'))
                 this.issues.push(newIssue)
               }

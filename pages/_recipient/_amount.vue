@@ -17,7 +17,7 @@ export default {
   watch: {
     githubUser() {
       if (this.githubUser) {
-        this.$mergePay.methods._users(this.githubUser.login).call().then(result => {
+        this.$octoBay.methods._users(this.githubUser.login).call().then(result => {
           if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed) {
             this.$store.commit('setRegistered', true)
           } else {

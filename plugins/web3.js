@@ -2,7 +2,7 @@ const Web3 = require("web3")
 
 export default ({ app }, inject) => {
   const web3 = typeof window.ethereum === 'undefined' ? null : new Web3(Web3.givenProvider || "ws://localhost:8545");
-  const mergePay = web3 ? new web3.eth.Contract(process.env.MERGEPAY_ABI, process.env.MERGEPAY_ADDRESS) : null
+  const octoBay = web3 ? new web3.eth.Contract(process.env.OCTOBAY_ABI, process.env.OCTOBAY_ADDRESS) : null
 
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', accounts => {
@@ -14,6 +14,6 @@ export default ({ app }, inject) => {
     })
   }
 
-  inject('mergePay', mergePay)
+  inject('octoBay', octoBay)
   inject('web3', web3)
 }

@@ -1,4 +1,4 @@
-const { web3, web3wallet, mergepay, axios } = require('./config')
+const { web3, web3wallet, octopay, axios } = require('./config')
 
 const getAge = date => {
   return (new Date().getTime() - new Date(date).getTime()) / (60 * 60 * 24 * 1000)
@@ -6,7 +6,7 @@ const getAge = date => {
 
 // listen for incoming events
 console.log('Listening for Claim events.')
-subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRESS }, (error, result) => {
+subscription = web3.eth.subscribe('logs', { address: process.env.OCTOBAY_ADDRESS }, (error, result) => {
   if (error) {
     console.log(error)
   } else if (result.topics.includes(web3.utils.sha3("ClaimPrRequestEvent(string,string)"))) {
@@ -94,7 +94,7 @@ subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRES
 
             // confirm
             console.log('Pull Request found. Score: ' + score)
-            mergepay.methods.confirmClaimPullRequest(prId, githubUser, score).send({
+            octopay.methods.confirmClaimPullRequest(prId, githubUser, score).send({
               from: process.env.ORACLE_ADDRESS
             }).then(async ({gasUsed}) => {
               console.log(`Confirmed. (Gas used: ${gasUsed})`)

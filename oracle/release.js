@@ -1,8 +1,8 @@
-const { web3, web3wallet, mergepay, axios } = require('./config')
+const { web3, web3wallet, octopay, axios } = require('./config')
 
 // listen for incoming events
 console.log('Listening for Release events.')
-subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRESS }, (error, result) => {
+subscription = web3.eth.subscribe('logs', { address: process.env.OCTOBAY_ADDRESS }, (error, result) => {
   if (error) {
     console.log(error)
   } else if (result.topics.includes(web3.utils.sha3("ReleaseIssueDepositsRequestEvent(string,string,string)"))) {
@@ -42,7 +42,7 @@ subscription = web3.eth.subscribe('logs', { address: process.env.MERGEPAY_ADDRES
           if (repoOwner === owner) {
             // confirm
             console.log('Repository owner confirmed.')
-            mergepay.methods.confirmReleaseIssueDeposits(issueId, githubUser).send({
+            octopay.methods.confirmReleaseIssueDeposits(issueId, githubUser).send({
               from: process.env.ORACLE_ADDRESS
             }).then(async ({gasUsed}) => {
               console.log(`Confirmed. (Gas used: ${gasUsed})`)

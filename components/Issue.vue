@@ -177,9 +177,9 @@ export default {
       }
     },
     pin() {
-      if (this.$mergePay) {
+      if (this.$octoBay) {
         this.pinningIssue = true
-        this.$mergePay.methods.pinIssue(this.issue.id, this.$web3.utils.toWei(this.pinAmount, 'ether')).send({
+        this.$octoBay.methods.pinIssue(this.issue.id, this.$web3.utils.toWei(this.pinAmount, 'ether')).send({
           from: this.account
         }).then(result => {
           console.log(result)
@@ -191,7 +191,7 @@ export default {
       }
     },
     refundIssueDeposit(id) {
-      this.$mergePay.methods.refundIssueDeposit(id).send({
+      this.$octoBay.methods.refundIssueDeposit(id).send({
         from: this.account
       }).then(() => {
         const depositIndex = this.issue.deposits.findIndex(deposit => deposit.id === id)
@@ -204,7 +204,7 @@ export default {
       if (this.releaseTo) {
         this.releasing = true
         // start listening for confirmation
-        this.$mergePay.events.ReleaseIssueDepositsConfirmEvent().on('data', event => {
+        this.$octoBay.events.ReleaseIssueDepositsConfirmEvent().on('data', event => {
           if (event.returnValues.issueId === this.issue.id && event.returnValues.githubUser === this.releaseTo) {
             this.showReleaseSuccess = true
             this.releasing = false
@@ -212,7 +212,7 @@ export default {
         })
         // trigger registration (get gas price first)
         web3.eth.getGasPrice((error, gasPrice) => {
-          this.$mergePay.methods.releaseIssueDeposits(this.issue.id, this.releaseTo).send({
+          this.$octoBay.methods.releaseIssueDeposits(this.issue.id, this.releaseTo).send({
             from: this.account,
             value: process.env.ORACLE_GAS_RELEASEISSUE * Number(gasPrice) * 1.2
           }).catch(() => this.releasing = false)

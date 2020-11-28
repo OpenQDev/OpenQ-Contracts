@@ -206,14 +206,14 @@ export default {
           this.loadIssue(owner, repo, number)
             .then(repo => {
               this.contribution = repo
-              this.$mergePay.methods.getIssueDepositIdsForIssueId(this.contribution.node_id).call().then(depositIds => {
+              this.$octoBay.methods.getIssueDepositIdsForIssueId(this.contribution.node_id).call().then(depositIds => {
                 depositIds.forEach(depositId => {
-                  this.$mergePay.methods._issueDeposits(depositId).call().then(deposit => {
+                  this.$octoBay.methods._issueDeposits(depositId).call().then(deposit => {
                     this.issueDepositsAmount += Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
                   })
                 })
               })
-              this.$mergePay.methods._releasedIssues(this.contribution.node_id).call().then(releasedTo => {
+              this.$octoBay.methods._releasedIssues(this.contribution.node_id).call().then(releasedTo => {
                 this.issueReleasedTo = releasedTo
               })
             })
@@ -233,7 +233,7 @@ export default {
     register() {
       this.loadingRegistration = true
       // start listening for confirmation
-      this.$mergePay.events.RegistrationConfirmedEvent().on('data', event => {
+      this.$octoBay.events.RegistrationConfirmedEvent().on('data', event => {
         if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
           this.$store.commit("setRegisteredAccount", event.returnValues.account)
           this.showRegistrationSuccess = true
@@ -242,7 +242,7 @@ export default {
       })
       // trigger registration (get gas price first)
       web3.eth.getGasPrice((error, gasPrice) => {
-        this.$mergePay.methods.register(this.githubUser.login).send({
+        this.$octoBay.methods.register(this.githubUser.login).send({
           from: this.account,
           value: process.env.ORACLE_GAS_REGISTRATION * Number(gasPrice) * 1.2
         }).catch(() => this.loadingRegistration = false)
@@ -286,7 +286,7 @@ export default {
       this.claimingPullRequest = true
 
       // start listening for confirmation
-      this.$mergePay.events.ClaimPrConfirmEvent().on('data', event => {
+      this.$octoBay.events.ClaimPrConfirmEvent().on('data', event => {
         if (event.returnValues.prId === this.contribution.pullRequest.id && event.returnValues.githubUser === this.githubUser.login) {
           this.showClaimSuccess = true
           this.claimingPullRequest = false
@@ -296,7 +296,7 @@ export default {
       })
       // trigger claim (get gas price first)
       web3.eth.getGasPrice((error, gasPrice) => {
-        this.$mergePay.methods.claimPullRequest(this.contribution.pullRequest.id, this.githubUser.login).send({
+        this.$octoBay.methods.claimPullRequest(this.contribution.pullRequest.id, this.githubUser.login).send({
           from: this.account,
           value: process.env.ORACLE_GAS_CLAIMPR * Number(gasPrice) * 1.2
         }).catch(() => this.loadingRegistration = false)
@@ -304,7 +304,7 @@ export default {
     },
     withdrawFromIssue() {
       this.withdrawingFromIssue = true
-      this.$mergePay.methods.claimReleasedIssueDeposits(this.contribution.node_id).send({
+      this.$octoBay.methods.claimReleasedIssueDeposits(this.contribution.node_id).send({
         from: this.account
       }).then(() => {
         this.withdrawingFromIssue = false
@@ -317,7 +317,7 @@ export default {
     },
     withdrawUserDeposit(id) {
       this.withdrawingUserDeposit = id
-      this.$mergePay.methods.withdrawUserDeposit(id).send({ from: this.account })
+      this.$octoBay.methods.withdrawUserDeposit(id).send({ from: this.account })
         .then(() => this.updateUserDeposits())
         .catch(e => console.log(e))
         .finally(() => this.withdrawingUserDeposit = 0)
@@ -325,9 +325,9 @@ export default {
     updateUserDeposits() {
       let deposits = []
       if (this.githubUser) {
-        this.$mergePay.methods.getUserDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
+        this.$octoBay.methods.getUserDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
           ids.forEach(id => {
-            this.$mergePay.methods._userDeposits(id).call().then(deposit => {
+            this.$octoBay.methods._userDeposits(id).call().then(deposit => {
               if (Number(deposit.amount)) {
                 deposit.id = id
                 deposits.push(deposit)

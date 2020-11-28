@@ -44,7 +44,7 @@
     </div>
     <div class="alert alert-info" v-if="user && address">
       <small>
-        You don't need to use MergePay for the transfer! But, if you do, you and the recipient will receive MergeToken.
+        You don't need to use OctoBay for the transfer!
       </small>
     </div>
     <div class="alert alert-info" v-else-if="user">
@@ -116,8 +116,8 @@ export default {
           this.loadUser(newUsername)
             .then(user => {
               this.user = user
-              if (this.$mergePay) {
-                this.$mergePay.methods._users(newUsername).call().then(result => {
+              if (this.$octoBay) {
+                this.$octoBay.methods._users(newUsername).call().then(result => {
                   if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed) {
                     this.address = result.account
                   } else {
@@ -145,7 +145,7 @@ export default {
   methods: {
     send() {
       this.sending = true
-      this.$mergePay.methods.sendEthToGithubUser(this.username).send({
+      this.$octoBay.methods.sendEthToGithubUser(this.username).send({
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -161,7 +161,7 @@ export default {
     },
     deposit() {
       this.sending = true
-      this.$mergePay.methods.depositEthForGithubUser(this.username).send({
+      this.$octoBay.methods.depositEthForGithubUser(this.username).send({
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -177,10 +177,10 @@ export default {
     },
     updateUserDeposits() {
       let accountsDeposits = []
-      if (this.$mergePay) {
-        this.$mergePay.methods.getUserDepositIdsForSender().call({ from: this.account }).then(ids => {
+      if (this.$octoBay) {
+        this.$octoBay.methods.getUserDepositIdsForSender().call({ from: this.account }).then(ids => {
           ids.forEach(id => {
-            this.$mergePay.methods._userDeposits(id).call().then(deposit => {
+            this.$octoBay.methods._userDeposits(id).call().then(deposit => {
               if (Number(deposit.amount)) {
                 deposit.id = id
                 accountsDeposits.push(deposit)
@@ -193,7 +193,7 @@ export default {
     },
     refundUserDeposit(id) {
       this.refundingUserDeposit = id
-      this.$mergePay.methods.refundUserDeposit(id).send({ from: this.account })
+      this.$octoBay.methods.refundUserDeposit(id).send({ from: this.account })
         .then(() => this.updateUserDeposits())
         .catch(e => console.log(e))
         .finally(() => this.refundingUserDeposit = 0)
