@@ -1,4 +1,4 @@
-const { web3, web3wallet, octopay, axios } = require('./config')
+const { web3, web3wallet, octobay, axios } = require('./config')
 
 // listen for incoming events
 console.log('Listening for Release events.')
@@ -42,7 +42,7 @@ subscription = web3.eth.subscribe('logs', { address: process.env.OCTOBAY_ADDRESS
           if (repoOwner === owner) {
             // confirm
             console.log('Repository owner confirmed.')
-            octopay.methods.confirmReleaseIssueDeposits(issueId, githubUser).send({
+            octobay.methods.confirmReleaseIssueDeposits(issueId, githubUser).send({
               from: process.env.ORACLE_ADDRESS
             }).then(async ({gasUsed}) => {
               console.log(`Confirmed. (Gas used: ${gasUsed})`)

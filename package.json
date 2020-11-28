@@ -6,7 +6,10 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start --hostname ::",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "oracle-register": "node oracle/registrations",
+    "oracle-release": "node oracle/release",
+    "oracle-claim": "node oracle/claim"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",

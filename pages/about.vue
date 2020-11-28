@@ -1,10 +1,10 @@
 <template>
   <div class="content content-wide text-white mt-5 pt-2">
     <nuxt-link to="/" class="text-white"><small class="text-white-50">go to app</small></nuxt-link>
-    <h3 class="mt-2 mb-3">About OctoPay</h3>
+    <h3 class="mt-2 mb-3">About OctoBay</h3>
     This is an experimental project, started at the end of August 2020. The goal was to learn smart contract development and to deploy a somewhat useful one to the Etherem main network, together with an app that makes interaction easy.<br>
     <br>
-    OctoPay offers a simple way to reward contributors on GitHub with ETH and ERC20 tokens and send them around between GitHub accounts.
+    OctoBay offers a simple way to reward contributors on GitHub with ETH and ERC20 tokens and send them around between GitHub accounts.
     Anyone can deposit funds on any issue and the repository owner can decide to release the funds or to refund the depositers.
     <h5 class="mt-3 mb-2">Pin Tokens (PIN)</h5>
     PINs can only be minted by developers, who submit their merged pull requests.

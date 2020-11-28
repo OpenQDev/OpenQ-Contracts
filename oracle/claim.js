@@ -1,4 +1,4 @@
-const { web3, web3wallet, octopay, axios } = require('./config')
+const { web3, web3wallet, octobay, axios } = require('./config')
 
 const getAge = date => {
   return (new Date().getTime() - new Date(date).getTime()) / (60 * 60 * 24 * 1000)
@@ -94,7 +94,7 @@ subscription = web3.eth.subscribe('logs', { address: process.env.OCTOBAY_ADDRESS
 
             // confirm
             console.log('Pull Request found. Score: ' + score)
-            octopay.methods.confirmClaimPullRequest(prId, githubUser, score).send({
+            octobay.methods.confirmClaimPullRequest(prId, githubUser, score).send({
               from: process.env.ORACLE_ADDRESS
             }).then(async ({gasUsed}) => {
               console.log(`Confirmed. (Gas used: ${gasUsed})`)
