@@ -5,8 +5,7 @@ const Web3 = require('web3')
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
-// const node = `wss://kovan.infura.io/ws/v3/${process.env.INFURA_KEY}`
-const node = 'ws://localhost:9545'
+const node = process.env.PROD === 'true' ? `wss://kovan.infura.io/ws/v3/${process.env.INFURA_KEY}` : 'ws://localhost:9545'
 const web3 = new Web3(node)
 const walletProvider = new HDWalletProvider(mnemonic, node)
 const web3wallet = new Web3(walletProvider)
