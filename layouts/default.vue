@@ -10,7 +10,7 @@
       <div class="mt-2">
         This project is experimental!
         No security audits or other quality assuring measures have taken place.
-        Use this service only with money you can afford to lose or when connected to a test network.
+        Use this service only with money you can afford to lose or when connected to the <b>Kovan</b> test network.
         <nuxt-link to="/about">Read more.</nuxt-link>
       </div>
     </div>
