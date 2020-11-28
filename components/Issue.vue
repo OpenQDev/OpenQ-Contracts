@@ -90,11 +90,14 @@
                   <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
                   <span>PIN</span>
                 </form>
-                <button class="btn btn-primary shadow-sm text-nowrap" @click="pin()">
-                  <svg style="width:18px;height:18px" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
-                  </svg>
-                  Pin
+                <button class="btn btn-primary shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue">
+                  <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="pinningIssue" />
+                  <span v-else>
+                    <svg style="width:18px;height:18px" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
+                    </svg>
+                    Pin
+                  </span>
                 </button>
               </div>
             </div>
@@ -148,7 +151,8 @@ export default {
       pinAmount: 0,
       releaseTo: '',
       releasing: false,
-      showReleaseSuccess: false
+      showReleaseSuccess: false,
+      pinningIssue: false
     }
   },
   computed: {
