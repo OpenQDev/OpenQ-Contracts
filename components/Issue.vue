@@ -35,21 +35,13 @@
       </div>
       <div :class="['d-flex flex-column mt-2 justify-content-start align-items-center details', { action: !!action, deposits: action == 'deposits' }]" @click.stop>
         <div class="border-top w-100 pt-2 pb-3 text-nowrap d-flex align-items-center">
-          <button :class="['btn btn-sm btn-light', { active: action === 'deposits' }]" @click="changeAction('deposits')">
+          <button :class="['btn btn-sm btn-light mr-auto', { active: action === 'deposits' }]" @click="changeAction('deposits')">
             <font-awesome-icon :icon="['fas', 'coins']" class="mr-1" />
             <span class="text-muted">Deposits</span>
-          </button>
-          <button :class="['btn btn-sm btn-light ml-auto', { active: action === 'flag' }]" @click="changeAction('flag')" disabled>
-            <font-awesome-icon :icon="['far', 'flag']" class="mr-1" />
           </button>
           <button :class="['btn btn-sm btn-light ml-1', { active: action === 'pin' }]" @click="changeAction('pin')">
             <svg style="width:18px;height:18px" viewBox="0 0 24 24">
               <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
-            </svg>
-          </button>
-          <button :class="['btn btn-sm btn-light ml-1', { active: action === 'unpin' }]" @click="changeAction('unpin')" disabled>
-            <svg style="width:18px;height:18px" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M8,6.2V4H7V2H17V4H16V12L18,14V16H17.8L14,12.2V4H10V8.2L8,6.2M20,20.7L18.7,22L12.8,16.1V22H11.2V16H6V14L8,12V11.3L2,5.3L3.3,4L20,20.7M8.8,14H10.6L9.7,13.1L8.8,14Z" />
             </svg>
           </button>
           <a class="btn btn-sm btn-light ml-1" @click :href="'https://github.com/' + issueNode.owner + '/' + issueNode.repository + '/issues/' + issueNode.number" target="_blank">
@@ -100,9 +92,6 @@
                   </span>
                 </button>
               </div>
-            </div>
-            <div v-if="action === 'unpin'" key="unpin">
-              Unpin
             </div>
           </transition>
         </div>
