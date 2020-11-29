@@ -288,6 +288,8 @@ export default {
       // start listening for confirmation
       this.$octoBay.events.ClaimPrConfirmEvent().on('data', event => {
         if (event.returnValues.prId === this.contribution.pullRequest.id && event.returnValues.githubUser === this.githubUser.login) {
+          this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+          this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
           this.showClaimSuccess = true
           this.claimingPullRequest = false
           this.url = ''

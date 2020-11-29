@@ -152,6 +152,8 @@ export default {
         this.amount = 0
         this.showSendSuccess = true
         this.updateUserDeposits()
+        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
       }).catch(e => {
         console.log(e)
       }).finally(() => {
@@ -168,6 +170,8 @@ export default {
         this.amount = 0
         this.showSendSuccess = true
         this.updateUserDeposits()
+        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
       }).catch(e => {
         console.log(e)
       }).finally(() => {
@@ -194,7 +198,11 @@ export default {
     refundUserDeposit(id) {
       this.refundingUserDeposit = id
       this.$octoBay.methods.refundUserDeposit(id).send({ from: this.account })
-        .then(() => this.updateUserDeposits())
+        .then(() => {
+          this.updateUserDeposits()
+          this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+          this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
+        })
         .catch(e => console.log(e))
         .finally(() => this.refundingUserDeposit = 0)
     },
