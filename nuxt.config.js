@@ -33,8 +33,8 @@ export default {
       { hid: 'description', name: 'description', content: process.env.npm_package_description || '' }
     ],
     link: [
-      { rel: 'icon', type: 'image/png', href: '/logo.png' },
-      { rel: 'shortcut icon', type: 'image/png', href: '/logo.png' },
+      { rel: 'icon', type: 'image/png', href: '/logo-black.png' },
+      { rel: 'shortcut icon', type: 'image/png', href: '/logo-black.png' },
     ],
   },
   /*
