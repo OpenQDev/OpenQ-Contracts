@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div v-if="issueNode" :class="['issue border rounded-lg d-flex flex-column px-2 py-2 mt-3', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
-      <div class="d-flex align-items-center">
+    <div v-if="issueNode" :class="['issue rounded-lg d-flex flex-column px-2 py-2', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
+      <div class="d-flex align-items-top">
         <div class="text-truncate">
           <div class="text-truncate">
             <svg v-if="issueNode.closed" height="16" viewBox="0 0 16 16" version="1.1" width="14" aria-hidden="true">
@@ -18,7 +18,7 @@
         </div>
         <div class="text-nowrap text-right ml-2">
           <h5 class="mb-0">{{ issue.depositAmount.toFixed(2) }} <small>ETH</small></h5>
-          <small class="d-block text-muted mt-1">
+          <small class="d-block text-muted mt-1" v-if="issue.boostAmount">
             <svg style="width:14px;height:14px" viewBox="0 0 24 24">
               <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
             </svg>
