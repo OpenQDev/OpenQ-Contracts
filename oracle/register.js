@@ -47,3 +47,7 @@ subscription = web3.eth.subscribe('logs', { address: process.env.OCTOBAY_ADDRESS
       })
   }
 })
+
+subscription.on('error', () => {
+  process.exit(1)
+})
