@@ -1,6 +1,6 @@
 <template>
   <div class="card-body">
-    <DepositForm :class="[{ 'pb-3 border-bottom': issues.length }]" />
+    <DepositForm />
     <div class="issue-list">
       <Issue v-for="issue in issuesLazy" :issue="issue" :key="issue.id" />
     </div>
