@@ -4,10 +4,10 @@
     <h3 class="mt-2 mb-3">About OctoBay</h3>
     This is an experimental project, started at the end of August 2020. The goal was to learn smart contract development and to deploy a somewhat useful one to the Etherem main network, together with an app that makes interaction easy.<br>
     <br>
-    OctoBay offers a simple way to reward contributors on GitHub with ETH and ERC20 tokens and send them around between GitHub accounts.
+    OctoBay offers a simple way to reward contributors on GitHub with ETH and send them around between GitHub accounts.
     Anyone can deposit funds on any issue and the repository owner can decide to release the funds or to refund the depositers.
-    <h5 class="mt-3 mb-2">Pin Tokens (PIN)</h5>
-    PINs can only be minted by developers, who submit their merged pull requests.
+    <h5 class="mt-3 mb-2">OctoPin Tokens (OPIN)</h5>
+    OPINs can only be minted by developers, who submit their merged pull requests.
     They can convert them to reputation or sell them on the market, as projects need them to pin issues on the pin board.
     <h5 class="mt-3 mb-2">Next Steps</h5>
     Possible improvements are an ENS integration, a better oracle system (maybe chainlink), ERC20 deposits, a governance mechanism for system parameters, a GitHub and email bot and in general better promotional features for projects and more token use cases.
