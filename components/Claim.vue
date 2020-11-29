@@ -185,11 +185,11 @@ export default {
       // TODO: use regex here
       if (newUrl.includes('https://github.com')) {
         let urlParts = newUrl.split('/')
-        let number = urlParts.pop()
+        let number = Number(urlParts.pop())
         urlParts.pop()
         let repo = urlParts.pop()
         let owner = urlParts.pop()
-        if (newUrl.includes('/pull/')) {
+        if (newUrl.includes('/pull/') && number) {
           this.type = 'pr'
           this.loadingContribution = true
           this.loadPullRequest(owner, repo, number, this.githubAccessToken)
@@ -198,7 +198,7 @@ export default {
               this.score = this.calculatePRScore(repo)
             })
             .finally(() => this.loadingContribution = false)
-        } else if (newUrl.includes('/issues/')) {
+        } else if (newUrl.includes('/issues/') && number) {
           this.type = 'issue'
           this.loadingContribution = true
           this.issueDepositsAmount = 0
@@ -307,6 +307,7 @@ export default {
       this.$octoBay.methods.claimReleasedIssueDeposits(this.contribution.node_id).send({
         from: this.account
       }).then(() => {
+        this.$store.commit('removeIssue', this.contribution.node_id)
         this.withdrawingFromIssue = false
         this.showWithdrawalSuccess = true
         this.contribution = null

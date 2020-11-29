@@ -53,11 +53,29 @@ export const mutations = {
   addIssue(state, issue) {
     state.issues.push(issue)
   },
+  removeIssue(state, issueId) {
+    let existingIssueIndex = state.issues.findIndex(i => i.id === issueId)
+    if (existingIssueIndex != -1) {
+      state.issues.splice(existingIssueIndex, 1)
+    }
+  },
   addDeposit(state, { issue, deposit }) {
     let existingIssue = state.issues.find(i => i.id === issue.id)
     if (existingIssue) {
       existingIssue.depositAmount += Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
       existingIssue.deposits.push(deposit)
+    }
+  },
+  removeDeposit(state, { issueId, depositId }) {
+    let existingIssueIndex = state.issues.findIndex(issue => issue.id === issueId)
+    if (existingIssueIndex != -1) {
+      let existingDepositIndex = state.issues[existingIssueIndex].deposits.findIndex(deposit => deposit.id === depositId)
+      if (existingDepositIndex != -1) {
+        state.issues[existingIssueIndex].deposits.splice(existingDepositIndex, 1)
+        if (!state.issues[existingIssueIndex].deposits.length) {
+          state.issues.splice(existingIssueIndex, 1)
+        }
+      }
     }
   },
   updatePins(state, { issueId, pins }) {

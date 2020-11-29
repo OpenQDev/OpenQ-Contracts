@@ -73,7 +73,10 @@
                     From: <AddressShort :address="deposit.from" />
                   </small>
                 </div>
-                <button class="btn btn-sm btn-primary shadow-sm" v-if="deposit.from === account" @click="refundIssueDeposit(deposit.id)">refund</button>
+                <button class="btn btn-sm btn-primary shadow-sm" v-if="deposit.from === account" @click="refundIssueDeposit(deposit.id)" :disabled="refundingDeposit">
+                  <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="refundingDeposit === deposit.id" />
+                  <span v-else>refund</span>
+                </button>
               </div>
             </div>
             <div v-if="action === 'pin'" key="pin">
@@ -141,7 +144,8 @@ export default {
       releaseTo: '',
       releasing: false,
       showReleaseSuccess: false,
-      pinningIssue: false
+      pinningIssue: false,
+      refundingDeposit: false
     }
   },
   computed: {
@@ -185,14 +189,12 @@ export default {
       }
     },
     refundIssueDeposit(id) {
+      this.refundingDeposit = id
       this.$octoBay.methods.refundIssueDeposit(id).send({
         from: this.account
       }).then(() => {
-        const depositIndex = this.issue.deposits.findIndex(deposit => deposit.id === id)
-        if (depositIndex != -1) {
-          this.issue.deposits.splice(depositIndex, 1)
-        }
-      }).catch(e => console.log(e))
+        this.$store.commit('removeDeposit', { issueId: this.issue.id, depositId: id })
+      }).catch(e => console.log(e)).finally(() => this.refundingDeposit = false)
     },
     release() {
       if (this.releaseTo) {
