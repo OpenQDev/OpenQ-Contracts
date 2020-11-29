@@ -60,8 +60,8 @@
                 <small>Release successful! The GitHub user can now claim the deposits.</small>
               </div>
               <div v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount" class="mb-2 d-flex">
-                <input type="text" class="form-control form-control-sm" placeholder="GitHub user" v-model="releaseTo" />
-                <button class="btn btn-sm btn-success ml-1 shadow-sm" @click="release()" :disabled="releasing">
+                <div><input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" /></div>
+                <button class="btn btn-success ml-1 shadow-sm" @click="release()" :disabled="releasing">
                   <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="releasing" />
                   <span v-else>release</span>
                 </button>
