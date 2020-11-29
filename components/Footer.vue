@@ -1,7 +1,7 @@
 <template>
   <footer class="pt-5 pb-5 text-center">
     <div class="mb-3">
-      <a href="https://twitter.com/thecodelander" target="_blank" class="text-white px-2">
+      <a href="https://twitter.com/OctoBayApp" target="_blank" class="text-white px-2">
         <font-awesome-icon :icon="['fab', 'twitter']" />
       </a>
       <a href="https://github.com/mktcode" target="_blank" class="text-white px-2">
