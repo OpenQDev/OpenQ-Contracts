@@ -180,6 +180,8 @@ export default {
           from: this.account
         }).then(result => {
           this.$store.dispatch('updatePins', this.issue.id)
+          this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+          this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
           this.pinAmount = 0
         }).catch(e => {
           console.log(e)
