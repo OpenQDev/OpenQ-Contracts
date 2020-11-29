@@ -26,7 +26,7 @@ export default {
   transition: 'fade',
   data() {
     return {
-      view: 'send',
+      view: 'issues',
     }
   },
   computed: {
