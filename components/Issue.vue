@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="issueNode" :class="['issue border rounded-lg d-flex flex-column px-3 py-2 mt-3', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
+    <div v-if="issueNode" :class="['issue border rounded-lg d-flex flex-column px-2 py-2 mt-3', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
       <div class="d-flex align-items-center">
         <div class="text-truncate">
           <div class="text-truncate">
