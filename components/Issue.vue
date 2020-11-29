@@ -83,7 +83,7 @@
               <div class="d-flex align-items-center">
                 <form class="amount-input amount-input-sm flex-fill mr-2" novalidate>
                   <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
-                  <span>PIN</span>
+                  <span>OPIN</span>
                 </form>
                 <button class="btn btn-primary shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue">
                   <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="pinningIssue" />
