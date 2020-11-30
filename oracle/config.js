@@ -5,9 +5,8 @@ const Web3 = require('web3')
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
-const node = process.env.PROD === 'true' ? `wss://kovan.infura.io/ws/v3/${process.env.INFURA_KEY}` : 'ws://localhost:9545'
-const web3 = new Web3(node)
-const walletProvider = new HDWalletProvider(mnemonic, node)
+const web3 = new Web3(process.env.ETH_NODE)
+const walletProvider = new HDWalletProvider(mnemonic, process.env.ETH_NODE)
 const web3wallet = new Web3(walletProvider)
 const octobay = new web3wallet.eth.Contract(require('./../OctoBay.json').abi, process.env.OCTOBAY_ADDRESS)
 
