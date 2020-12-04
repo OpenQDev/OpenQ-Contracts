@@ -9,7 +9,8 @@
     "generate": "nuxt generate",
     "oracle-register": "node oracle/register",
     "oracle-release": "node oracle/release",
-    "oracle-claim": "node oracle/claim"
+    "oracle-claim": "node oracle/claim",
+    "oracle-deposit": "node oracle/deposit"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
