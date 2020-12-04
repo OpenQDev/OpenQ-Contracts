@@ -19,6 +19,7 @@
     "node-sass": "^4.14.1",
     "nuxt": "^2.14.0",
     "sass-loader": "^10.0.1",
+    "twitter-lite": "^0.14.0",
     "v-tooltip": "^2.0.3",
     "vue-moment": "^4.1.0",
     "web3": "^1.2.11"
