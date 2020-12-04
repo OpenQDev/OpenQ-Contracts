@@ -15,7 +15,7 @@
   subscription = web3.eth.subscribe('logs', { address: process.env.OCTOBAY_ADDRESS }, (error, result) => {
     if (error) {
       console.log(error)
-    } else if (result.topics.includes(web3.utils.sha3("IssueDepositEvent(address, uint256, string)"))) {
+    } else if (result.topics.includes(web3.utils.sha3("IssueDepositEvent(address,uint256,string)"))) {
       // registration event
       const data = web3.eth.abi.decodeParameters(['address', 'uint256', 'string'], result.data)
       const depositer = data[0]
@@ -35,16 +35,16 @@
             }
           }
         )
-        .then(data => {
+        .then(async data => {
           if (data.data.data.node) {
             // tweet
-            twApp.post('statuses/update', {
-              status: `Someone deposited ${amount} ETH on this issue:`,
-              attachment_url: data.data.data.node.url
-            }, error => {
-              if (error) console.log(error)
-              else console.log('Tweet posted.')
-            })
+            const tweet = await twApp.post(
+              'statuses/update',
+              {
+                status: `${Number(web3.utils.fromWei(amount, "ether"))} ETH was deposited on this issue: ${data.data.data.node.url} #eth #ethereum #github #opensource`
+              }
+            )
+            console.log('Tweet ID: ' + tweet.id)
           }
         })
     }
