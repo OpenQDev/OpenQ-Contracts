@@ -7,10 +7,7 @@
     "build": "nuxt build",
     "start": "nuxt start --hostname ::",
     "generate": "nuxt generate",
-    "oracle-register": "node oracle/register",
-    "oracle-release": "node oracle/release",
-    "oracle-claim": "node oracle/claim",
-    "oracle-deposit": "node oracle/deposit"
+    "twitter-bot": "node bots/twitter"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
