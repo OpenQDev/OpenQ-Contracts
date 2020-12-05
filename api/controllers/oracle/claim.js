@@ -107,5 +107,5 @@ export default (req, res) => {
     } else {
       res.json({ error: 3 })
     }
-  })
+  }).catch(() => res.json({ error: 1 }))
 }
