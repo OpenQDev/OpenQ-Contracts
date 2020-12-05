@@ -9,7 +9,7 @@
       <font-awesome-icon :icon="['fas', 'exclamation-triangle']" /> <b>This project is experimental!</b>
       <div class="mt-2 d-flex flex-column">
         <div>
-          Please connect to the <b>Kovan</b> test network, try things out and share your thoughts.
+          Please connect to the <b>Kovan</b> test network, try things out (try to break/abuse it) and share your thoughts.
         </div>
         <div class="d-flex mt-2">
           <nuxt-link to="/about" class="flex-fill btn btn-sm btn-primary">
