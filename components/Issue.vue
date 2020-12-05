@@ -59,6 +59,15 @@
                 <CheckIcon width="24px" height="24px" />
                 <small>Release successful! The GitHub user can now claim the deposits.</small>
               </div>
+              <div class="alert alert-danger border-0" v-if="showReleaseError">
+                <button type="button" class="close text-danger" @click="showReleaseError = false">
+                  <span>&times;</span>
+                </button>
+                <small>
+                  Release failed! You need to be the owner of the repository. If you are, the problem might be on our side.
+                  Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
+                </small>
+              </div>
               <div v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount" class="mb-2 d-flex">
                 <div><input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" /></div>
                 <button class="btn btn-success ml-1 shadow-sm" @click="release()" :disabled="releasing">
@@ -144,6 +153,7 @@ export default {
       releaseTo: '',
       releasing: false,
       showReleaseSuccess: false,
+      showReleaseError: false,
       pinningIssue: false,
       refundingDeposit: false
     }
@@ -201,14 +211,34 @@ export default {
     release() {
       if (this.releaseTo) {
         this.releasing = true
-        // start listening for confirmation
-        this.$octoBay.events.ReleaseIssueDepositsConfirmEvent().on('data', event => {
-          if (event.returnValues.issueId === this.issue.id && event.returnValues.githubUser === this.releaseTo) {
-            this.showReleaseSuccess = true
-            this.releasing = false
+        // start listening for request event
+        const requestListener = this.$octoBay.events.ReleaseIssueDepositsRequestEvent().on('data', event => {
+          if (event.returnValues.githubUser === this.releaseTo && event.returnValues.owner === this.githubUser.login && event.returnValues.issueId === this.issue.id) {
+            // stop listening for request event and start listening for confirm event
+            requestListener.unsubscribe()
+            const confirmListener = this.$octoBay.events.ReleaseIssueDepositsConfirmEvent().on('data', event => {
+              if (event.returnValues.githubUser === this.releaseTo && event.returnValues.owner === this.githubUser.login && event.returnValues.issueId === this.issue.id) {
+                // stop listening and finish process
+                confirmListener.unsubscribe()
+                this.showReleaseSuccess = true
+                this.releasing = false
+              }
+            })
+
+            // trigger oracle confirmation
+            this.$axios.$get(`${process.env.API_URL}/oracle/release/${this.releaseTo}/${this.issue.id}`).then(response => {
+              if (response.error) {
+                this.releasing = false
+                this.showReleaseError = true
+              }
+            }).catch(() => {
+              this.releasing = false
+              this.showReleaseError = true
+            })
           }
         })
-        // trigger registration (get gas price first)
+
+        // trigger release (get gas price first)
         web3.eth.getGasPrice((error, gasPrice) => {
           this.$octoBay.methods.releaseIssueDeposits(this.issue.id, this.releaseTo).send({
             from: this.account,
