@@ -24,6 +24,16 @@
         You can now delete the repository again and start claiming funds.
       </small>
     </div>
+    <div class="alert alert-danger border-0" v-if="showRegistrationError">
+      <button type="button" class="close text-danger" @click="showRegistrationError = false">
+        <span>&times;</span>
+      </button>
+      <CheckIcon width="24px" height="24px" />
+      Registration failed! :(<br>
+      <small>
+        Please check that you created a repository with the correct address as its name. If you did, the problem is on our side. Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
+      </small>
+    </div>
     <div v-if="connected">
       <div v-if="registeredAccount === account">
         <small class="text-muted d-flex justify-content-between">
@@ -168,6 +178,7 @@ export default {
       contribution: null,
       loadingRegistration: false,
       showRegistrationSuccess: false,
+      showRegistrationError: false,
       score: 0,
       withdrawingFromIssue: false,
       showWithdrawalSuccess: false,
@@ -232,15 +243,35 @@ export default {
   methods: {
     register() {
       this.loadingRegistration = true
-      // start listening for confirmation
-      this.$octoBay.events.RegistrationConfirmedEvent().on('data', event => {
+      // start listening for request event
+      const requestListener = this.$octoBay.events.RegistrationRequestEvent().on('data', event => {
         if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
-          this.$store.commit("setRegisteredAccount", event.returnValues.account)
-          this.showRegistrationSuccess = true
-          this.loadingRegistration = false
+          // stop listening for request event and start listening for confirm event
+          requestListener.unsubscribe()
+          const confirmListener = this.$octoBay.events.RegistrationConfirmedEvent().on('data', event => {
+            if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
+              // stop listening and finish process
+              confirmListener.unsubscribe()
+              this.$store.commit("setRegisteredAccount", this.account)
+              this.showRegistrationSuccess = true
+              this.loadingRegistration = false
+            }
+          })
+
+          // trigger oracle confirmation
+          this.$axios.$get(`${process.env.API_URL}/oracle/register/${this.githubUser.login}/${this.account}`).then(response => {
+            if (response.error) {
+              this.loadingRegistration = false
+              this.showRegistrationError = true
+            }
+          }).catch(() => {
+            this.loadingRegistration = false
+            this.showRegistrationError = true
+          })
         }
       })
-      // trigger registration (get gas price first)
+
+      // get gas price, trigger registration
       web3.eth.getGasPrice((error, gasPrice) => {
         this.$octoBay.methods.register(this.githubUser.login).send({
           from: this.account,
