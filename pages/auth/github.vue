@@ -1,5 +1,5 @@
 <template>
-  <h1 class="loader">
+  <h1 class="loader text-white">
     <span class="loader__dot">.</span>
     <span class="loader__dot">.</span>
     <span class="loader__dot">.</span>
