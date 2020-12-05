@@ -39,7 +39,7 @@ export default (req, res) => {
           } else {
             res.json({ error: 1 })
           }
-        })
+        }).catch(() => res.json({ error: 1 }))
     } else {
       res.json({ error: 1 })
     }
