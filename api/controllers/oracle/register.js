@@ -29,7 +29,6 @@ export default (req, res) => {
         .then(data => {
           if (data.data.data.repositoryOwner.repository) {
             // confirm
-            console.log('Repository found.')
             octobay.methods.registerConfirm(githubUser, ethAddress).send({
               from: process.env.ORACLE_ADDRESS
             }).then(() => {
