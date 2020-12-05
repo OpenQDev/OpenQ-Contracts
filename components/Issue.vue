@@ -65,7 +65,7 @@
                 </button>
                 <small>
                   Release failed! You need to be the owner of the repository. If you are, the problem might be on our side.
-                  Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
+                  Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
                 </small>
               </div>
               <div v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount" class="mb-2 d-flex">

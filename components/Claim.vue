@@ -16,7 +16,7 @@
       <small>
         Please make sure your pull request is valid. It must be for a repository you don't have administrative rights for and merged not longer than {{ maxClaimPrAge }} days ago.
         If you did, the problem might be on our side.
-        Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
+        Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
       </small>
     </div>
     <div class="alert alert-success border-0" v-if="showWithdrawalSuccess">
@@ -45,7 +45,7 @@
       <small>
         Please check that you created a repository with the correct address as its name.
         If you did, the problem might be on our side.
-        Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
+        Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
       </small>
     </div>
     <div v-if="connected">

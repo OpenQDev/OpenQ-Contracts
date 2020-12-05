@@ -111,7 +111,7 @@ export default {
         'faThumbtack',
         'faCoins'
       ],
-      brands: ['faEthereum', 'faTwitter', 'faGithub'],
+      brands: ['faEthereum', 'faTwitter', 'faGithub', 'faDiscord'],
     },
   },
 }

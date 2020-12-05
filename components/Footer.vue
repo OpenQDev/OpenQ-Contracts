@@ -4,6 +4,9 @@
       <a href="https://twitter.com/OctoBayApp" target="_blank" class="text-white px-2">
         <font-awesome-icon :icon="['fab', 'twitter']" />
       </a>
+      <a href="https://discord.gg/DhKgHrFeCD" target="_blank" class="text-white px-2">
+        <font-awesome-icon :icon="['fab', 'discord']" />
+      </a>
       <a href="https://github.com/mktcode" target="_blank" class="text-white px-2">
         <font-awesome-icon :icon="['fab', 'github']" />
       </a>
