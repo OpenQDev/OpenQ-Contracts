@@ -7,6 +7,18 @@
       <CheckIcon width="24px" height="24px" />
       Claim successful!
     </div>
+    <div class="alert alert-danger border-0" v-if="showClaimError">
+      <button type="button" class="close text-danger" @click="showClaimError = false">
+        <span>&times;</span>
+      </button>
+      <CheckIcon width="24px" height="24px" />
+      Claim failed! :(<br>
+      <small>
+        Please make sure your pull request is valid. It must be for a repository you don't have administrative rights for and merged not longer than {{ maxClaimPrAge }} days ago.
+        If you did, the problem might be on our side.
+        Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
+      </small>
+    </div>
     <div class="alert alert-success border-0" v-if="showWithdrawalSuccess">
       <button type="button" class="close text-success" @click="showWithdrawalSuccess = false">
         <span>&times;</span>
@@ -31,7 +43,9 @@
       <CheckIcon width="24px" height="24px" />
       Registration failed! :(<br>
       <small>
-        Please check that you created a repository with the correct address as its name. If you did, the problem is on our side. Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
+        Please check that you created a repository with the correct address as its name.
+        If you did, the problem might be on our side.
+        Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/cUxka7TWE5" target="_blank">Discord</a>.
       </small>
     </div>
     <div v-if="connected">
@@ -186,6 +200,7 @@ export default {
       withdrawingUserDeposit: 0,
       claimingPullRequest: false,
       showClaimSuccess: false,
+      showClaimError: false,
       issueDepositsAmount: 0,
       issueReleasedTo: ''
     }
@@ -315,24 +330,43 @@ export default {
     },
     claimPullRequest() {
       this.claimingPullRequest = true
-
-      // start listening for confirmation
-      this.$octoBay.events.ClaimPrConfirmEvent().on('data', event => {
+      // start listening for request event
+      const requestListener = this.$octoBay.events.ClaimPrRequestEvent().on('data', event => {
         if (event.returnValues.prId === this.contribution.pullRequest.id && event.returnValues.githubUser === this.githubUser.login) {
-          this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
-          this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
-          this.showClaimSuccess = true
-          this.claimingPullRequest = false
-          this.url = ''
-          this.contribution = null
+          // stop listening for request event and start listening for confirm event
+          requestListener.unsubscribe()
+          const confirmListener = this.$octoBay.events.ClaimPrConfirmEvent().on('data', event => {
+            if (event.returnValues.prId === this.contribution.pullRequest.id && event.returnValues.githubUser === this.githubUser.login) {
+              // stop listening and finish process
+              confirmListener.unsubscribe()
+              this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+              this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
+              this.showClaimSuccess = true
+              this.claimingPullRequest = false
+              this.url = ''
+              this.contribution = null
+            }
+          })
+
+          // trigger oracle confirmation
+          this.$axios.$get(`${process.env.API_URL}/oracle/claim/${this.githubUser.login}/${this.contribution.pullRequest.id}`).then(response => {
+            if (response.error) {
+              this.claimingPullRequest = false
+              this.showClaimError = true
+            }
+          }).catch(() => {
+            this.claimingPullRequest = false
+            this.showClaimError = true
+          })
         }
       })
+
       // trigger claim (get gas price first)
       web3.eth.getGasPrice((error, gasPrice) => {
         this.$octoBay.methods.claimPullRequest(this.contribution.pullRequest.id, this.githubUser.login).send({
           from: this.account,
           value: process.env.ORACLE_GAS_CLAIMPR * Number(gasPrice) * 1.2
-        }).catch(() => this.loadingRegistration = false)
+        }).catch(() => this.claimingPullRequest = false)
       })
     },
     withdrawFromIssue() {
