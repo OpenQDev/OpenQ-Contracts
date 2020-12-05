@@ -6,12 +6,28 @@
           <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
         </svg>
       </button>
-      <font-awesome-icon :icon="['fas', 'exclamation-triangle']" /> <b>Warning</b>
-      <div class="mt-2">
-        This project is experimental!
-        No security audits or other quality assuring measures have taken place.
-        Use this service only with money you can afford to lose or when connected to the <b>Kovan</b> test network.
-        <nuxt-link to="/about">Read more.</nuxt-link>
+      <font-awesome-icon :icon="['fas', 'exclamation-triangle']" /> <b>This project is experimental!</b>
+      <div class="mt-2 d-flex flex-column">
+        <div>
+          Please connect to the <b>Kovan</b> test network, try things out and share your thoughts.
+        </div>
+        <div class="d-flex mt-2">
+          <nuxt-link to="/about" class="flex-fill btn btn-sm btn-primary">
+            Read more
+          </nuxt-link>
+          <a href="https://faucet.kovan.network" target="_blank" class="flex-fill ml-1 btn btn-sm btn-primary">
+            Get kETH
+          </a>
+          <a href="https://discord.gg/DhKgHrFeCD" target="_blank" class="ml-1 btn btn-sm btn-primary">
+            <font-awesome-icon :icon="['fab', 'discord']" />
+          </a>
+          <a href="https://twitter.com/OctoBayApp" target="_blank" class="ml-1 btn btn-sm btn-primary">
+            <font-awesome-icon :icon="['fab', 'twitter']" />
+          </a>
+          <a href="https://github.com/mktcode" target="_blank" class="ml-1 btn btn-sm btn-primary">
+            <font-awesome-icon :icon="['fab', 'github']" />
+          </a>
+        </div>
       </div>
     </div>
     <Header />

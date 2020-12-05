@@ -52,7 +52,7 @@
       <div v-if="registeredAccount === account">
         <small class="text-muted d-flex justify-content-between">
           Pull Request or Issue URL
-          <HelpIcon v-tooltip="'Paste the URL of a merged pull request or an issue you want to withdraw a deposit from.'" width="18px" height="18px" class="mb-1 help-icon" />
+          <HelpIcon v-tooltip="'Paste the URL of a merged pull request to claim OctoPin tokens or an issue you want to withdraw a deposit from.'" width="18px" height="18px" class="mb-1 help-icon" />
         </small>
         <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingContribution" class="text-muted-light" />

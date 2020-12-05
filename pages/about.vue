@@ -4,16 +4,30 @@
     <h3 class="mt-2 mb-3">About OctoBay</h3>
     This is an experimental project, started at the end of August 2020. The goal was to learn smart contract development and to deploy a somewhat useful one to the Etherem main network, together with an app that makes interaction easy.<br>
     <br>
-    OctoBay offers a simple way to reward contributors on GitHub with ETH and send them around between GitHub accounts.
+    OctoBay offers a simple way to reward contributors on GitHub with ETH or just send it any GitHub account.
     Anyone can deposit funds on any issue and the repository owner can decide to release the funds or to refund the depositers.
     <h5 class="mt-3 mb-2">OctoPin Tokens (OPIN)</h5>
-    OPINs can only be minted by developers, who submit their merged pull requests.
-    They can convert them to reputation or sell them on the market, as projects need them to pin issues on the pin board.
-    <h5 class="mt-3 mb-2">Next Steps</h5>
-    Possible improvements are an ENS integration, a better oracle system (maybe chainlink), ERC20 deposits, a governance mechanism for system parameters, a GitHub and email bot and in general better promotional features for projects and more token use cases.
+    OctoPin tokens can only be minted by developers, who submit their merged pull requests and projects can use them to promote their issues.
+    <h5 class="mt-3 mb-2">Possible Improvements</h5>
+    Possible improvements are ENS integration, a better oracle system (chainlink), ERC20 support, a GitHub and email bot and more promotion features for projects.
+    Ideas are really not the problem.
     Professional security audits and code reviews will happen as soon as possible and viable.
+    <h5 class="mt-3 mb-2">Known Problems</h5>
+    There are several known problems, that render this project anything but professional.
+    <div class="alert alert-primary mt-2">
+      <ul class="m-0 pl-3">
+        <li>naiv centralized <a href="https://github.com/mktcode/octobay-website/tree/master/api/controllers/oracle" target="_blank">oracle implementation</a></li>
+        <li>stupid and unfair <a href="https://github.com/mktcode/octobay-website/blob/master/api/controllers/oracle/claim.js#L59" target="_blank">pull request scores</a></li>
+        <li>cheap <a href="https://uberspace.de" target="_blank">hosting</a> (but actually I like these guys)</li>
+        <li>this nasty <a href="https://github.com/mktcode/octobay-website/issues/5" target="_blank">issue</a>... working on it</li>
+        <li>documentation? ehhh...</li>
+        <li>and probably a lot more.</li>
+        <li>I'm just one guy...</li>
+        <li>...don't know what I'm doing.</li>
+      </ul>
+    </div>
     <h5 class="mt-3 mb-2">Donate</h5>
-    Help me to grow and evolve this and other projects and enable a more professional development:
+    Help me to grow and evolve this project and enable a more professional approach. So far I am just playing around.
     <div class="text-center text-white-50 my-3">
       0x27711f9c07230632F2EE1A21a967a9AC4729E520
     </div>
