@@ -31,8 +31,8 @@ export default (req, res) => {
             // confirm
             octobay.methods.registerConfirm(githubUser, ethAddress).send({
               from: process.env.ORACLE_ADDRESS
-            }).then(() => {
-              res.json({ error: 0 })
+            }).then(({ gasUsed }) => {
+              res.json({ error: 0, gasUsed })
             }).catch(e => {
               res.json({ error: 1 })
             })
