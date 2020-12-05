@@ -11,7 +11,7 @@
       </a>
     </div>
     <div :class="['deposit-form', { open }]">
-      <div class="alert alert-success border-0 mt-2" v-if="showDepositSuccess">
+      <div class="alert alert-success border-0 mt-3" v-if="showDepositSuccess">
         <button type="button" class="close text-success" @click="showDepositSuccess = false">
           <span>&times;</span>
         </button>
