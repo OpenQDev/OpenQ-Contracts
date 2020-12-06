@@ -2,7 +2,7 @@
   <div class="content content-wide text-white mt-5 pt-2">
     <nuxt-link to="/" class="text-white"><small class="text-white-50">go to app</small></nuxt-link>
     <h3 class="mt-2 mb-3">About OctoBay</h3>
-    This is an experimental project, started at the end of August 2020. The goal was to learn smart contract development and to deploy a somewhat useful one to the Etherem main network, together with an app that makes interaction easy.<br>
+    This is an experimental project, started at the end of August 2020. The goal was to learn smart contract development and to deploy a somewhat useful one to the Etherem main network (soon), together with an app that makes interaction easy.<br>
     <br>
     OctoBay offers a simple way to reward contributors on GitHub with ETH or just send it any GitHub account.
     Anyone can deposit funds on any issue and the repository owner can decide to release the funds or to refund the depositers.
