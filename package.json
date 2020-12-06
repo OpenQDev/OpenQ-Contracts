@@ -1,5 +1,6 @@
 {
   "name": "octobay-website",
+  "description": "OctoBay - Ethereum Payment Service for GitHub Users",
   "version": "1.0.0",
   "private": true,
   "scripts": {
