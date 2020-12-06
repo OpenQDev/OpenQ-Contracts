@@ -144,8 +144,11 @@
           </small>
         </div>
         <div v-if="githubUser">
-          <div class="d-flex justify-content-between align-items-center btn btn-light mt-2">
-            <font-awesome-icon :icon="['far', 'copy']" />
+          <div class="d-flex justify-content-between align-items-center btn btn-light mt-2" v-clipboard="account" v-clipboard:success="copiedAddress">
+            <transition name="fade" mode="out-in">>
+              <font-awesome-icon :icon="['fas', 'check']" class="text-success" v-if="copyAddressSuccess" key="check" />
+              <font-awesome-icon :icon="['far', 'copy']" v-else key="copy" />
+            </transition>
             <i class="my-auto"><AddressShort :address="account" length="medium" /></i>
             <i></i>
           </div>
@@ -202,7 +205,8 @@ export default {
       showClaimSuccess: false,
       showClaimError: false,
       issueDepositsAmount: 0,
-      issueReleasedTo: ''
+      issueReleasedTo: '',
+      copyAddressSuccess: false,
     }
   },
   watch: {
@@ -408,6 +412,12 @@ export default {
     },
     formatAmount(amount) {
       return Number(this.$web3.utils.fromWei(amount.toString(), "ether")).toFixed(2)
+    },
+    copiedAddress() {
+      this.copyAddressSuccess = true
+      setTimeout(() => {
+        this.copyAddressSuccess = false
+      }, 1000)
     }
   }
 }

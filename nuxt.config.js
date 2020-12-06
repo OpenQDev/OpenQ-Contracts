@@ -56,6 +56,7 @@ export default {
     '@/plugins/tooltips',
     '@/plugins/web3',
     '@/plugins/load',
+    '@/plugins/clipboard',
   ],
   /*
   ** Auto import components

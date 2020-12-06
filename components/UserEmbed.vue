@@ -19,10 +19,13 @@
         <span>{{ user.updatedAt | moment("MMMM Do YYYY") }}</span>
       </small>
     </div>
-    <div class="btn btn-sm btn-light btn-block mb-2 d-flex align-items-center" v-if="address">
+    <div class="btn btn-sm btn-light btn-block mb-2 d-flex align-items-center" v-if="address" v-clipboard="address" v-clipboard:success="copiedAddress">
       <font-awesome-icon :icon="['fab', 'ethereum']" class="text-muted" />
       <AddressShort :address="address" length="long" class="text-muted mr-auto ml-1" />
-      <font-awesome-icon :icon="['far', 'copy']" class="text-muted" />
+      <transition name="fade" mode="out-in">
+        <font-awesome-icon :icon="['fas', 'check']" class="text-success" v-if="copyAddressSuccess" key="check" />
+        <font-awesome-icon :icon="['far', 'copy']" class="text-muted" v-else key="copy" />
+      </transition>
     </div>
   </div>
 </template>
@@ -45,5 +48,18 @@
 <script>
 export default {
   props: ['user', 'address'],
+  data() {
+    return {
+      copyAddressSuccess: false
+    }
+  },
+  methods: {
+    copiedAddress() {
+      this.copyAddressSuccess = true
+      setTimeout(() => {
+        this.copyAddressSuccess = false
+      }, 1000)
+    }
+  }
 }
 </script>
