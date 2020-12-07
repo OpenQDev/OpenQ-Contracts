@@ -8,7 +8,8 @@
     "build": "nuxt build",
     "start": "nuxt start --hostname ::",
     "generate": "nuxt generate",
-    "twitter-bot": "node bots/twitter"
+    "send-notification": "node bots/send-notification",
+    "deposit-notification": "node bots/deposit-notification"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
