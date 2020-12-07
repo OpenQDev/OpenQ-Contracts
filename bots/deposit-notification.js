@@ -1,7 +1,7 @@
 (async function() {
   const { web3, axios, fs } = require('./config')
 
-  const depositEmailTemplate = fs.readFileSync("./bots/email-deposit.html").toString().trim();
+  const depositEmailTemplate = fs.readFileSync("./bots/deposit-notification.html").toString().trim();
   const nodemailer = require("nodemailer")
   const mailTransporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -29,14 +29,14 @@
     if (error) {
       console.log(error)
     } else if (result.topics.includes(web3.utils.sha3("IssueDepositEvent(address,uint256,string)"))) {
-      // registration event
+      // deposit event
       const data = web3.eth.abi.decodeParameters(['address', 'uint256', 'string'], result.data)
       const depositer = data[0]
       const amount = data[1]
       const amountFormatted = Number(web3.utils.fromWei(amount, "ether"))
       const issueId = data[2]
       console.log(`Deposit: ${depositer} deposits ${amountFormatted} ETH on ${issueId}`)
-      // get issue url
+      // get issue url and owner email
       axios
         .post(
           "https://api.github.com/graphql",
