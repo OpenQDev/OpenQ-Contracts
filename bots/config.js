@@ -10,4 +10,4 @@ const walletProvider = new HDWalletProvider(mnemonic, process.env.ETH_NODE)
 const web3wallet = new Web3(walletProvider)
 const octobay = new web3wallet.eth.Contract(require('./../OctoBay.json').abi, process.env.OCTOBAY_ADDRESS)
 
-module.exports = { web3, web3wallet, octobay, axios }
+module.exports = { web3, web3wallet, octobay, axios, fs }
