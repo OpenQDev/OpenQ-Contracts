@@ -44,7 +44,7 @@
     </div>
     <div class="alert alert-info" v-if="user && address">
       <small>
-        You don't need to use OctoBay for the transfer!
+        You don't need to use OctoBay for the transfer! However, if you do, the user will be notified via email.
       </small>
     </div>
     <div class="alert alert-info" v-else-if="user">
