@@ -15,7 +15,7 @@
           <nuxt-link to="/about" class="flex-fill btn btn-sm btn-primary">
             Read more
           </nuxt-link>
-          <a href="https://faucet.kovan.network" target="_blank" class="flex-fill ml-1 btn btn-sm btn-primary">
+          <a href="https://gitter.im/kovan-testnet/faucet" target="_blank" class="flex-fill ml-1 btn btn-sm btn-primary">
             Get kETH
           </a>
           <a href="https://discord.gg/DhKgHrFeCD" target="_blank" class="ml-1 btn btn-sm btn-primary">
