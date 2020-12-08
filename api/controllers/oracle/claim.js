@@ -101,11 +101,11 @@ export default (req, res) => {
               res.json({ error: 2 })
             }
           } else {
-            res.json({ error: 1 })
+            res.json({ error: 3 })
           }
-        }).catch(() => res.json({ error: 1 }))
+        }).catch(() => res.json({ error: 4 }))
     } else {
-      res.json({ error: 3 })
+      res.json({ error: 5 })
     }
-  }).catch(() => res.json({ error: 1 }))
+  }).catch(() => res.json({ error: 6 }))
 }

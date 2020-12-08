@@ -37,11 +37,11 @@ export default (req, res) => {
               res.json({ error: 1 })
             })
           } else {
-            res.json({ error: 1 })
+            res.json({ error: 2 })
           }
-        }).catch(() => res.json({ error: 1 }))
+        }).catch(() => res.json({ error: 3 }))
     } else {
-      res.json({ error: 1 })
+      res.json({ error: 4 })
     }
-  }).catch(() => res.json({ error: 1 }))
+  }).catch(() => res.json({ error: 5 }))
 }

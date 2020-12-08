@@ -48,12 +48,12 @@ export default (req, res) => {
                 res.json({ error: 2 }) // not the repo owner
               }
             } else {
-              res.json({ error: 1 })
+              res.json({ error: 3 })
             }
-          }).catch(() => res.json({ error: 1 }))
+          }).catch(() => res.json({ error: 4 }))
       } else {
-        res.json({ error: 1 })
+        res.json({ error: 5 })
       }
-    }).catch(() => res.json({ error: 1 }))
-  }).catch(() => res.json({ error: 1 }))
+    }).catch(() => res.json({ error: 6 }))
+  }).catch(() => res.json({ error: 7 }))
 }
