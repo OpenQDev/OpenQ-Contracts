@@ -4,14 +4,20 @@
     <div class="embed rounded-bottom p-2 mb-2">
       <div class="d-flex justify-content-between">
         <b>{{ user.name }}</b>
-        <font-awesome-icon :icon="['fab', 'github']" class="text-muted-light" />
+        <div>
+          <a :href="'mailto:' + user.email" v-if="user.email" class="btn btn-sm btn-light text-muted">
+            <font-awesome-icon :icon="['fas', 'envelope']" />
+          </a>
+          <a :href="'https://twitter.com/' + user.twitterUsername" v-if="user.twitterUsername" target="_blank" class="btn btn-sm btn-light text-muted">
+            <font-awesome-icon :icon="['fab', 'twitter']" />
+          </a>
+          <a :href="user.websiteUrl" v-if="user.websiteUrl" target="_blank" class="btn btn-sm btn-light text-muted">
+            <font-awesome-icon :icon="['fas', 'globe-americas']" />
+          </a>
+        </div>
       </div>
       <small class="d-flex justify-content-between text-muted mt-1">
-        <span>ID:</span>
-        <span>{{ user.id }}</span>
-      </small>
-      <small class="d-flex justify-content-between text-muted mt-1">
-        <span>Signed up:</span>
+        <span>GitHub user since:</span>
         <span>{{ user.createdAt | moment("MMMM Do YYYY") }}</span>
       </small>
       <small class="d-flex justify-content-between text-muted mt-1">

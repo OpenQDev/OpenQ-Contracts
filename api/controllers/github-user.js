@@ -10,15 +10,19 @@ export default (req, res) => {
       {
         query: `query {
                   user(login: "${username}") {
-                    id,
-                    createdAt,
-                    updatedAt,
-                    login,
-                    url,
-                    avatarUrl,
-                    location,
-                    name,
+                    id
+                    createdAt
+                    updatedAt
+                    login
+                    url
+                    avatarUrl
+                    location
+                    name
+                    websiteUrl
                     twitterUsername
+                    email
+                    hasSponsorsListing
+                    isHireable
                   }
                 }`
       },

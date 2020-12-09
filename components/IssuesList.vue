@@ -1,9 +1,10 @@
 <template>
-  <div class="card-body">
+  <div class="card-body pb-0">
     <DepositForm />
-    <div class="issue-list pt-3">
+    <div class="issue-list pt-3" v-if="issuesLazy.length">
       <Issue v-for="issue in issuesLazy" :issue="issue" :key="issue.id" />
     </div>
+    <div v-else class="text-center text-muted mt-2">Currently no pinned issues.</div>
     <div class="card-body pt-0" v-if="issues.length > showIssuesNum">
       <button class="btn btn-primary text-center btn-block" @click="showIssuesNum += 10">
         load more
@@ -14,6 +15,7 @@
 
 <style lang="sass" scoped>
 .issue-list
+  margin: 0 -1.25rem
   > a
     border: solid 1px #eee
     color: #333

@@ -1,85 +1,77 @@
 <template>
   <div>
-    <div>
-      <a href="#" class="d-block text-muted-light text-right" @click="open = !open" v-if="open">
-        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-        </svg>
-      </a>
-      <a href="#" class="btn btn-block btn-lg btn-primary shadow-sm" @click="open = !open" v-else>
+    <transition name="fade" mode="out-in">
+      <a href="#" class="btn btn-block btn-lg btn-primary shadow-sm" @click="open = !open" v-if="!open">
         Deposit
       </a>
-    </div>
-    <div :class="['deposit-form', { open }]">
-      <div class="alert alert-success border-0 mt-3" v-if="showDepositSuccess">
-        <button type="button" class="close text-success" @click="showDepositSuccess = false">
-          <span>&times;</span>
+      <div v-if="open" class="position-relative">
+        <a href="#" class="position-absolute text-muted-light text-right" style="top: -10px; right: 0" @click="open = !open">
+          <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+          </svg>
+        </a>
+        <small class="text-muted d-flex justify-content-between">
+          Issue URL
+        </small>
+        <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
+        <div v-if="loading || contribution">
+          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loading" class="text-muted-light" />
+          <IssueEmbed :contribution="contribution" v-if="contribution" />
+        </div>
+        <small class="text-muted d-flex justify-content-between align-items-end mb-1">
+          {{ move ? 'Source deposit' : 'Deposit amount'}}
+          <!-- <h4 v-if="move" class="text-muted-light"><font-awesome-icon :icon="['fas', 'long-arrow-alt-up']" /></h4>
+          <a href="#" class="text-muted font-weight-bold" v-if="move" @click="move = false">new deposit</a>
+          <a href="#" class="text-muted font-weight-bold" v-else @click="move = true">move from existing deposit</a> -->
+        </small>
+        <div v-if="move">
+          <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="sourceUrl" />
+          <div class="alert alert-warning" v-if="url && sourceUrl && url == sourceUrl">
+            <font-awesome-icon :icon="['fas', 'info-circle']" />
+            <small>
+              Source is same as target.
+            </small>
+          </div>
+          <div v-else-if="sourceLoading || sourceContribution">
+            <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sourceLoading" class="text-muted-light" />
+            <IssueEmbed :contribution="sourceContribution" v-if="sourceContribution" />
+          </div>
+        </div>
+        <div class="amount-input mb-2" v-else>
+          <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
+          <span>ETH</span>
+        </div>
+        <!-- <small class="text-muted d-flex justify-content-between">
+          Lock deposit
+          <HelpIcon v-tooltip="'By locking up your deposit you get 1% of your deposit in merge tokens once the deposit got released.<br><a href=\'#\' target=\'_blank\'>Learn more</a>'" width="18px" height="18px" class="mb-1" />
+        </small>
+        <div class="amount-input mb-2">
+          <select class="form-control form-control-lg mb-2" v-model="lock">
+            <option value="none">no</option>
+            <option value="closed">until issue is closed</option>
+            <option value="closed">until released by project owner</option>
+          </select>
+        </div> -->
+        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 mb-2" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
+          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
+          {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
         </button>
-        <CheckIcon width="24px" height="24px" />
-        Deposit confirmed! :)<br>
+        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
+          Connect
+        </button>
       </div>
-      <small class="text-muted d-flex justify-content-between">
-        Issue URL
-      </small>
-      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
-      <div v-if="loading || contribution">
-        <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loading" class="text-muted-light" />
-        <IssueEmbed :contribution="contribution" v-if="contribution" />
-      </div>
-      <small class="text-muted d-flex justify-content-between align-items-end mb-1">
-        {{ move ? 'Source deposit' : 'Deposit amount'}}
-        <!-- <h4 v-if="move" class="text-muted-light"><font-awesome-icon :icon="['fas', 'long-arrow-alt-up']" /></h4>
-        <a href="#" class="text-muted font-weight-bold" v-if="move" @click="move = false">new deposit</a>
-        <a href="#" class="text-muted font-weight-bold" v-else @click="move = true">move from existing deposit</a> -->
-      </small>
-      <div v-if="move">
-        <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="sourceUrl" />
-        <div class="alert alert-warning" v-if="url && sourceUrl && url == sourceUrl">
-          <font-awesome-icon :icon="['fas', 'info-circle']" />
-          <small>
-            Source is same as target.
-          </small>
-        </div>
-        <div v-else-if="sourceLoading || sourceContribution">
-          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sourceLoading" class="text-muted-light" />
-          <IssueEmbed :contribution="sourceContribution" v-if="sourceContribution" />
-        </div>
-      </div>
-      <div class="amount-input mb-2" v-else>
-        <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
-        <span>ETH</span>
-      </div>
-      <!-- <small class="text-muted d-flex justify-content-between">
-        Lock deposit
-        <HelpIcon v-tooltip="'By locking up your deposit you get 1% of your deposit in merge tokens once the deposit got released.<br><a href=\'#\' target=\'_blank\'>Learn more</a>'" width="18px" height="18px" class="mb-1" />
-      </small>
-      <div class="amount-input mb-2">
-        <select class="form-control form-control-lg mb-2" v-model="lock">
-          <option value="none">no</option>
-          <option value="closed">until issue is closed</option>
-          <option value="closed">until released by project owner</option>
-        </select>
-      </div> -->
-      <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 mb-2" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
-        <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
-        {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
+    </transition>
+    <div class="alert alert-success border-0 mt-3 mb-0" v-if="showDepositSuccess">
+      <button type="button" class="close text-success" @click="showDepositSuccess = false">
+        <svg style="width:20px;height:20px" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+        </svg>
       </button>
-      <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
-        Connect
-      </button>
+      <CheckIcon width="24px" height="24px" />
+      Deposit confirmed! :)<br>
     </div>
   </div>
 </template>
-
-<style lang="sass">
-.deposit-form
-  max-height: 0
-  overflow: hidden
-  transition: max-height .3s ease
-  &.open
-    max-height: 300px
-    margin-top: -15px
-</style>
 
 <script>
 import { mapGetters } from "vuex"
@@ -161,22 +153,7 @@ export default {
         this.sourceContribution = null
         this.lock = 'none'
         this.amount = 0
-      })
-    },
-    moveDeposit() {
-      this.sendingDeposit = true
-      this.$octoBay.methods.moveIssueDeposit(
-        this.contribution.node_id,
-        this.sourceContribution.node_id
-      ).send({ from: this.account }).then(tx => {
-        this.sendingDeposit = false
-        this.showDepositSuccess = true
-        this.url = ''
-        this.sourceUrl = ''
-        this.contribution = null
-        this.sourceContribution = null
-        this.lock = 'none'
-        this.amount = 0
+        this.open = false
       })
     }
   },
