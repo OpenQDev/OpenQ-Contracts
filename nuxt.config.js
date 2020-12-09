@@ -116,7 +116,8 @@ export default {
         'faThumbtack',
         'faCoins',
         'faExclamationCircle',
-        'faCodeBranch'
+        'faCodeBranch',
+        'faFaucet'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub', 'faDiscord'],
     },

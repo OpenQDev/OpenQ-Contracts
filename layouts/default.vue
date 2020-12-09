@@ -9,30 +9,24 @@
       <font-awesome-icon :icon="['fas', 'exclamation-triangle']" /> <b>This project is experimental!</b>
       <div class="mt-2 d-flex flex-column">
         <div>
-          Please connect to the <b>Kovan</b> test network, try things out (try to break/abuse it) and share your thoughts.<br>
+          Please connect to the <b>Kovan</b> test network, try things out (spot the bugs) and share your thoughts.<br>
           This is an open source project, open for ideas of any kind.
         </div>
         <div class="d-flex mt-2">
           <nuxt-link to="/about" class="flex-fill btn btn-sm btn-primary">
             Read more
           </nuxt-link>
-          <a href="https://gitter.im/kovan-testnet/faucet" target="_blank" class="flex-fill ml-1 btn btn-sm btn-primary">
-            Get kETH
-          </a>
           <a href="https://discord.gg/DhKgHrFeCD" target="_blank" class="ml-1 btn btn-sm btn-primary">
             <font-awesome-icon :icon="['fab', 'discord']" />
           </a>
           <a href="https://twitter.com/OctoBayApp" target="_blank" class="ml-1 btn btn-sm btn-primary">
             <font-awesome-icon :icon="['fab', 'twitter']" />
           </a>
-          <a href="https://github.com/mktcode/octobay-website" target="_blank" class="ml-1 btn btn-sm btn-primary">
-            <font-awesome-icon :icon="['fab', 'github']" />
+          <a href="https://gitter.im/kovan-testnet/faucet" target="_blank" class="ml-1 btn btn-sm btn-primary" v-tooltip="{ content: 'Kovan Faucet', trigger: 'hover' }">
+            <font-awesome-icon :icon="['fas', 'faucet']" />
           </a>
-          <a href="https://github.com/mktcode/octobay-website/issues/new" target="_blank" class="ml-1 btn btn-sm btn-primary">
+          <a href="https://github.com/mktcode/octobay-website/issues/new" target="_blank" class="ml-1 btn btn-sm btn-primary" v-tooltip="{ content: 'New Issue', trigger: 'hover' }">
             <font-awesome-icon :icon="['fas', 'exclamation-circle']" />
-          </a>
-          <a href="https://github.com/mktcode/octobay/fork" target="_blank" class="ml-1 btn btn-sm btn-primary">
-            <font-awesome-icon :icon="['fas', 'code-branch']" />
           </a>
         </div>
       </div>
