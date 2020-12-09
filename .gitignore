@@ -71,6 +71,9 @@ typings/
 # Nuxt generate
 dist
 
+# Truffle build
+build
+
 # vuepress build output
 .vuepress/dist
 
