@@ -19,20 +19,24 @@
         <li>naiv centralized <a href="https://github.com/mktcode/octobay-website/tree/master/api/controllers/oracle" target="_blank">oracle implementation</a></li>
         <li>stupid and unfair <a href="https://github.com/mktcode/octobay-website/blob/master/api/controllers/oracle/claim.js#L59" target="_blank">pull request scores</a></li>
         <li>cheap <a href="https://uberspace.de" target="_blank">hosting</a> (but actually I like these guys)</li>
-        <li>this nasty <a href="https://github.com/mktcode/octobay-website/issues/5" target="_blank">issue</a>... working on it</li>
+        <li>this nasty <a href="https://github.com/mktcode/octobay-website/issues/5" target="_blank">issue</a>... working on it...</li>
         <li>documentation? ehhh...</li>
         <li>and probably a lot more.</li>
-        <li>I'm just one guy...</li>
-        <li>...don't know what I'm doing.</li>
       </ul>
     </div>
     <h5 class="mt-3 mb-2">Donate</h5>
-    Help me to grow and evolve this project and enable a more professional approach. So far I am just playing around.
-    <div class="text-center text-white-50 my-3">
-      0x27711f9c07230632F2EE1A21a967a9AC4729E520
-    </div>
-    <div class="text-center my-4">
-      <img src="/donate-address-qr.png" class="rounded-xl p-2 bg-white" />
+    Send some ETH or Tokens, if you'd like to support this idea.
+    <div class="d-flex">
+      <div class="btn btn-light d-flex align-items-center flex-column mt-4 mx-auto p-0 shadow-sm" v-clipboard="'0x27711f9c07230632F2EE1A21a967a9AC4729E520'" v-clipboard:success="copiedAddress">
+        <img src="/donate-address-qr.png" />
+        <div class="mt-1 mb-2">
+          <AddressShort address="0x27711f9c07230632F2EE1A21a967a9AC4729E520" class="text-muted mr-auto ml-1" />
+          <transition name="fade" mode="out-in">
+            <font-awesome-icon :icon="['fas', 'check']" class="text-success" v-if="copyAddressSuccess" key="check" />
+            <font-awesome-icon :icon="['far', 'copy']" class="text-muted" v-else key="copy" />
+          </transition>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -40,6 +44,19 @@
 <script>
 export default {
   transition: 'fade',
-  layout: 'about'
+  layout: 'about',
+  data() {
+    return {
+      copyAddressSuccess: false
+    }
+  },
+  methods: {
+    copiedAddress() {
+      this.copyAddressSuccess = true
+      setTimeout(() => {
+        this.copyAddressSuccess = false
+      }, 1000)
+    }
+  }
 }
 </script>
