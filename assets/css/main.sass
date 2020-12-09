@@ -23,6 +23,12 @@ body
   &.disabled,
   &:disabled
     opacity: 0.25
+  &:focus
+    box-shadow: none !important
+  &.active
+    &:focus
+      box-shadow: none !important
+
 
 .header
   border-bottom-left-radius: 2rem
