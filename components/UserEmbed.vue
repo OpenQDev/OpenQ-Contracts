@@ -21,8 +21,8 @@
         <span>{{ user.createdAt | moment("MMMM Do YYYY") }}</span>
       </small>
       <small class="d-flex justify-content-between text-muted mt-1">
-        <span>Last active:</span>
-        <span>{{ user.updatedAt | moment("MMMM Do YYYY") }}</span>
+        <span>Last seen:</span>
+        <span>{{ $moment(user.updatedAt).fromNow() }}</span>
       </small>
     </div>
     <div class="btn btn-sm btn-light btn-block mb-2 d-flex align-items-center" v-if="address" v-clipboard="address" v-clipboard:success="copiedAddress">
