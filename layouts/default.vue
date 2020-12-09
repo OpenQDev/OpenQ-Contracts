@@ -9,7 +9,8 @@
       <font-awesome-icon :icon="['fas', 'exclamation-triangle']" /> <b>This project is experimental!</b>
       <div class="mt-2 d-flex flex-column">
         <div>
-          Please connect to the <b>Kovan</b> test network, try things out (try to break/abuse it) and share your thoughts.
+          Please connect to the <b>Kovan</b> test network, try things out (try to break/abuse it) and share your thoughts.<br>
+          This is an open source project, open for ideas of any kind.
         </div>
         <div class="d-flex mt-2">
           <nuxt-link to="/about" class="flex-fill btn btn-sm btn-primary">
@@ -24,8 +25,14 @@
           <a href="https://twitter.com/OctoBayApp" target="_blank" class="ml-1 btn btn-sm btn-primary">
             <font-awesome-icon :icon="['fab', 'twitter']" />
           </a>
-          <a href="https://github.com/mktcode" target="_blank" class="ml-1 btn btn-sm btn-primary">
+          <a href="https://github.com/mktcode/octobay-website" target="_blank" class="ml-1 btn btn-sm btn-primary">
             <font-awesome-icon :icon="['fab', 'github']" />
+          </a>
+          <a href="https://github.com/mktcode/octobay-website/issues/new" target="_blank" class="ml-1 btn btn-sm btn-primary">
+            <font-awesome-icon :icon="['fas', 'exclamation-circle']" />
+          </a>
+          <a href="https://github.com/mktcode/octobay/fork" target="_blank" class="ml-1 btn btn-sm btn-primary">
+            <font-awesome-icon :icon="['fas', 'code-branch']" />
           </a>
         </div>
       </div>

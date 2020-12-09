@@ -114,7 +114,9 @@ export default {
         'faCircleNotch',
         'faCircle',
         'faThumbtack',
-        'faCoins'
+        'faCoins',
+        'faExclamationCircle',
+        'faCodeBranch'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub', 'faDiscord'],
     },
