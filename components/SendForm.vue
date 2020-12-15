@@ -43,8 +43,14 @@
       </div>
     </div>
     <div class="alert alert-info" v-if="user && address">
-      <small>
+      <small v-if="user.email">
         You don't need to use OctoBay for the transfer! However, if you do, the user will be notified via email.
+      </small>
+      <small v-else-if="user.twitterUsername">
+        You don't need to use OctoBay for the transfer! However, if you do, the user will be notified on Twitter.
+      </small>
+      <small v-else>
+        You don't need to use OctoBay for the transfer! Since this GitHub user does not provide any contact information, we can't even send a notification. So just copy the address and perform the transaction from your wallet.
       </small>
     </div>
     <div class="alert alert-info" v-else-if="user">
