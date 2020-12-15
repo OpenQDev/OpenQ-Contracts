@@ -27,7 +27,7 @@ export default (req, res) => {
           }
         )
         .then(data => {
-          if (data.data.data.repositoryOwner.repository) {
+          if (data.data.data.repositoryOwner && data.data.data.repositoryOwner.repository) {
             // confirm
             octobay.methods.registerConfirm(githubUser, ethAddress).send({
               from: process.env.ORACLE_ADDRESS

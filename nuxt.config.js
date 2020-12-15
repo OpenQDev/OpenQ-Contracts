@@ -94,7 +94,13 @@ export default {
 
   fontawesome: {
     icons: {
-      regular: ['faCopy', 'faCommentAlt', 'faFlag'],
+      regular: [
+        'faCopy',
+        'faCommentAlt',
+        'faFlag',
+        'faFrown',
+        'faSmile'
+      ],
       solid: [
         'faPlus',
         'faMinus',

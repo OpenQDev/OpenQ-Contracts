@@ -4,15 +4,15 @@
       <button type="button" class="close text-success" @click="showClaimSuccess = false">
         <span>&times;</span>
       </button>
-      <CheckIcon width="24px" height="24px" />
+      <font-awesome-icon :icon="['far', 'smile']" />
       Claim successful!
     </div>
     <div class="alert alert-danger border-0" v-if="showClaimError">
       <button type="button" class="close text-danger" @click="showClaimError = false">
         <span>&times;</span>
       </button>
-      <CheckIcon width="24px" height="24px" />
-      Claim failed! :(<br>
+      <font-awesome-icon :icon="['far', 'frown']" />
+      Claim failed!<br>
       <small>
         Please make sure your pull request is valid. It must be for a repository you don't have administrative rights for and merged not longer than {{ maxClaimPrAge }} days ago.
         If you did, the problem might be on our side.
@@ -23,30 +23,48 @@
       <button type="button" class="close text-success" @click="showWithdrawalSuccess = false">
         <span>&times;</span>
       </button>
-      <CheckIcon width="24px" height="24px" />
+      <font-awesome-icon :icon="['far', 'smile']" />
       Withdrawal successful!
     </div>
     <div class="alert alert-success border-0" v-if="showRegistrationSuccess">
       <button type="button" class="close text-success" @click="showRegistrationSuccess = false">
         <span>&times;</span>
       </button>
-      <CheckIcon width="24px" height="24px" />
+      <font-awesome-icon :icon="['far', 'smile']" />
       Registration successfull! :)<br>
       <small>
         You can now delete the repository again and start claiming funds.
       </small>
     </div>
     <div class="alert alert-danger border-0" v-if="showRegistrationError">
-      <button type="button" class="close text-danger" @click="showRegistrationError = false">
+      <button type="button" class="close text-danger" @click="showRegistrationError = 0">
         <span>&times;</span>
       </button>
-      <CheckIcon width="24px" height="24px" />
-      Registration failed! :(<br>
-      <small>
-        Please check that you created a repository with the correct address as its name.
-        If you did, the problem might be on our side.
-        Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
+      <font-awesome-icon :icon="['far', 'frown']" />
+      Registration failed!<br>
+      <small v-if="showRegistrationError == 1">
+        We were able to confirm that you are the owner of the right repository but sending the confirmation to the Ethereum blockchain failed. Wait a moment and click on "Retry".
+        If the problem still occurs, please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
       </small>
+      <small v-if="showRegistrationError == 2">
+        It seems you did not create the repository with your address as its name. You can create the repository and then click on "Retry".
+        If you did and the error still occurs, please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
+      </small>
+      <small v-if="showRegistrationError == 3">
+        It seems there was a problem with the GitHub API. Check if GitHub is currently available, wait a moment and then click on "Retry".
+        If the error still occurs, please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
+      </small>
+      <small v-if="showRegistrationError == 4">
+        It seems this GitHub account is already registered. If you forgot the Ethereum address you connected to this GitHub account, simply go to the send page and enter your account name.
+        If you still have problems, please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
+      </small>
+      <small v-if="showRegistrationError == 5">
+        It seems there was a problem with the Ethereum network. Please wait a moment and click on "Retry".
+        If the problem still occurs, please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
+      </small>
+      <div class="text-center mt-2" v-if="[1,2,3,5].includes(showRegistrationError)">
+        <button class="btn btn-sm btn-primary" @click="registerRetry()">Retry</button>
+      </div>
     </div>
     <div v-if="connected">
       <div v-if="registeredAccount === account">
@@ -195,7 +213,7 @@ export default {
       contribution: null,
       loadingRegistration: false,
       showRegistrationSuccess: false,
-      showRegistrationError: false,
+      showRegistrationError: 0,
       score: 0,
       withdrawingFromIssue: false,
       showWithdrawalSuccess: false,
@@ -281,11 +299,11 @@ export default {
           this.$axios.$get(`${process.env.API_URL}/oracle/register/${this.githubUser.login}/${this.account}`).then(response => {
             if (response.error) {
               this.loadingRegistration = false
-              this.showRegistrationError = true
+              this.showRegistrationError = response.error
             }
           }).catch(() => {
             this.loadingRegistration = false
-            this.showRegistrationError = true
+            this.showRegistrationError = 0
           })
         }
       })
@@ -296,6 +314,20 @@ export default {
           from: this.account,
           value: process.env.ORACLE_GAS_REGISTRATION * Number(gasPrice) * 1.2
         }).catch(() => this.loadingRegistration = false)
+      })
+    },
+    registerRetry() {
+      this.showRegistrationError = 0
+      this.loadingRegistration = true
+      // trigger oracle confirmation
+      this.$axios.$get(`${process.env.API_URL}/oracle/register/${this.githubUser.login}/${this.account}`).then(response => {
+        if (response.error) {
+          this.loadingRegistration = false
+          this.showRegistrationError = response.error
+        }
+      }).catch(() => {
+        this.loadingRegistration = false
+        this.showRegistrationError = 0
       })
     },
     getAge(createdAt) {
