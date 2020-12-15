@@ -36,7 +36,7 @@
   </div>
 </template>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .avatar
   border: solid 2px #ccc
   border-radius: 50%
