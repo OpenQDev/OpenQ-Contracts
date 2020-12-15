@@ -188,6 +188,7 @@ contract OctoBay is ERC20, Ownable {
   }
 
   function confirmClaimPullRequest(string calldata prId, string calldata githubUser, uint256 score) external onlyOracles {
+    require(1 <= score && score <= 100, "Invalid score: 1 <= score <= 100");
     require(_claimedPullRequests[prId] == 1, "Pull request already claimed.");
     require(_users[githubUser].account != address(0), "This GitHub User is not registered.");
     _claimedPullRequests[prId] = 2;
