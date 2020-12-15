@@ -142,10 +142,12 @@
 </style>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters } from 'vuex'
+import loadFromGithub from '@/mixins/loadFromGithub'
 
 export default {
   props: ['issue'],
+  mixins: [loadFromGithub],
   data() {
     return {
       issueNode: null,
@@ -251,54 +253,16 @@ export default {
     }
   },
   mounted() {
-    this.$axios.$post(
-      "https://api.github.com/graphql",
-      {
-        query: `query {
-  node(id:"${this.issue.id}") {
-    ... on Issue {
-      title,
-      number,
-      closed,
-      labels(first: 100) {
-      	edges {
-        	node {
-          	name,
-            color
-        	}
-      	}
-    	},
-      repository {
-        name,
-        primaryLanguage {
-          name,
-          color
-        },
-        owner {
-          login
-        }
-      }
-    }
-  }
-}`
-      },
-      {
-        headers: {
-          Authorization: "bearer " + process.env.GITHUB_APP_ACCESS_TOKEN
-        }
-      }
-    )
-    .then(data => {
-      const node = data.data.node
+    this.loadIssueById(this.issue.id).then(issue => {
       this.issueNode = {
-        number: node.number,
-        title: node.title,
-        owner: node.repository.owner.login,
-        repository: node.repository.name,
-        repositoryOwner: node.repository.owner.login,
-        primaryLanguage: node.repository.primaryLanguage,
-        labels: node.labels.edges.map(label => label.node),
-        closed: node.closed
+        number: issue.number,
+        title: issue.title,
+        owner: issue.repository.owner.login,
+        repository: issue.repository.name,
+        repositoryOwner: issue.repository.owner.login,
+        primaryLanguage: issue.repository.primaryLanguage,
+        labels: issue.labels.edges.map(label => label.node),
+        closed: issue.closed
       }
     })
   }

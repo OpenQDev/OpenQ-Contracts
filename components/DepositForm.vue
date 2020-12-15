@@ -140,7 +140,7 @@ export default {
     sendDeposit() {
       this.sendingDeposit = true
       this.$octoBay.methods.depositEthForIssue(
-        this.contribution.node_id
+        this.contribution.id
       ).send({ from: this.account, value: this.$web3.utils.toWei(this.amount, "ether") }).then(tx => {
         this.$store.dispatch('updateIssues')
         this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))

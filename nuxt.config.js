@@ -70,8 +70,6 @@ export default {
     ['@nuxtjs/dotenv', { only: [
       'API_URL',
       'GITHUB_CLIENT_ID',
-      'GITHUB_CLIENT_SECRET',
-      'GITHUB_APP_ACCESS_TOKEN',
       'OCTOBAY_ADDRESS',
       'ORACLE_ADDRESS',
       'ORACLE_GAS_REGISTRATION',

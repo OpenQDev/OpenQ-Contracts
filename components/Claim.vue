@@ -236,14 +236,14 @@ export default {
           this.loadIssue(owner, repo, number)
             .then(repo => {
               this.contribution = repo
-              this.$octoBay.methods.getIssueDepositIdsForIssueId(this.contribution.node_id).call().then(depositIds => {
+              this.$octoBay.methods.getIssueDepositIdsForIssueId(this.contribution.id).call().then(depositIds => {
                 depositIds.forEach(depositId => {
                   this.$octoBay.methods._issueDeposits(depositId).call().then(deposit => {
                     this.issueDepositsAmount += Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
                   })
                 })
               })
-              this.$octoBay.methods._releasedIssues(this.contribution.node_id).call().then(releasedTo => {
+              this.$octoBay.methods._releasedIssues(this.contribution.id).call().then(releasedTo => {
                 this.issueReleasedTo = releasedTo
               })
             })
@@ -375,10 +375,10 @@ export default {
     },
     withdrawFromIssue() {
       this.withdrawingFromIssue = true
-      this.$octoBay.methods.claimReleasedIssueDeposits(this.contribution.node_id).send({
+      this.$octoBay.methods.claimReleasedIssueDeposits(this.contribution.id).send({
         from: this.account
       }).then(() => {
-        this.$store.commit('removeIssue', this.contribution.node_id)
+        this.$store.commit('removeIssue', this.contribution.id)
         this.withdrawingFromIssue = false
         this.showWithdrawalSuccess = true
         this.contribution = null

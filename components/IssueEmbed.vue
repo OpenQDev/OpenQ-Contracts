@@ -1,11 +1,11 @@
 <template>
   <div class="embed rounded-bottom pt-3 pb-2 px-2 mb-2">
     <div class="d-flex">
-      <span :class="'d-flex align-items-center badge badge-pill pl-1 mr-1 badge-' + (contribution.state === 'open' ? 'success' : 'danger')">
+      <span :class="'d-flex align-items-center badge badge-pill pl-1 mr-1 badge-' + (contribution.closed ? 'danger' : 'success')">
         <InfoIcon width="16px" height="16px" class="mr-1" />
-        {{ contribution.state }}
+        {{ contribution.closed ? 'closed' : 'open' }}
       </span>
-      <a :href="contribution.html_url" target="_blank" class="text-truncate text-dark" :title="contribution.title">
+      <a :href="contribution.url" target="_blank" class="text-truncate text-dark" :title="contribution.title">
         <b>{{ contribution.title }}></b>
       </a>
       <span class="text-muted ml-1">#{{ contribution.number }}</span>
@@ -14,13 +14,13 @@
       <span>
         {{ contribution.created_at | moment("MMMM Do YYYY") }}
         <span class="text-dark">by</span>
-        <a :href="contribution.user.html_url" target="_blank" class="text-muted">
-          <b>{{ githubUser && githubUser.login === contribution.user.login ? 'you' : contribution.user.login }}</b>
+        <a :href="contribution.author.url" target="_blank" class="text-muted">
+          <b>{{ githubUser && githubUser.login === contribution.author.login ? 'you' : contribution.author.login }}</b>
         </a>
       </span>
       <span>
         <font-awesome-icon :icon="['far', 'comment-alt']" />
-        {{ contribution.comments }}
+        {{ contribution.comments.totalCount }}
       </span>
     </small>
   </div>
