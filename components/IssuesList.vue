@@ -4,7 +4,7 @@
     <div class="issue-list pt-3" v-if="issuesLazy.length">
       <Issue v-for="issue in issuesLazy" :issue="issue" :key="issue.id" />
     </div>
-    <div v-else class="text-center text-muted mt-2">Currently no pinned issues.</div>
+    <div v-else class="text-center text-muted my-3">Currently no pinned issues.</div>
     <div class="card-body pt-0" v-if="issues.length > showIssuesNum">
       <button class="btn btn-primary text-center btn-block" @click="showIssuesNum += 10">
         load more

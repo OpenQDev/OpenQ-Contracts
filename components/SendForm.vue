@@ -63,7 +63,7 @@
       <input type="number" min="0" step="0.01" novalidate class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
       <span>ETH</span>
     </form>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="address ? send() : deposit()" :disabled="!user || amount == 0 || sending">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 rounded-xl" v-if="connected" @click="address ? send() : deposit()" :disabled="!user || amount == 0 || sending">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
       {{ sending ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
