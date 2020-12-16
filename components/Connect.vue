@@ -75,7 +75,7 @@ export default {
     return {
       githubClientId: process.env.GITHUB_CLIENT_ID,
       connectedGithub: false,
-      cssClasses: 'd-flex justify-content-between align-items-center text-muted bg-white shadow-sm rounded-xl p-1'
+      cssClasses: 'd-flex justify-content-between align-items-center text-muted bg-white shadow-sm rounded-xl p-1 connect'
     }
   },
   computed: {

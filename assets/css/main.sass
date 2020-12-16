@@ -10,7 +10,7 @@ $box-shadow-sm: 0 .125rem .3rem rgba(black, .25) !default
 
 body
   background: rgb(0,23,85)
-  background: linear-gradient(90deg, rgba(0,3,65,1) 0%, rgba(0,74,157,1) 40%, rgba(0,74,157,1) 60%, rgba(0,3,65,1) 100%)
+  background: linear-gradient(0deg, rgba(255,0,0,0.15) 0%, rgba(255,0,0,0) 80%), linear-gradient(90deg, rgba(0,3,65,1) 0%, rgba(0,74,157,1) 40%, rgba(0,74,157,1) 60%, rgba(0,3,65,1) 100%)
   background-attachment: fixed
   background-repeat: no-repeat
   background-size: 120%
@@ -33,8 +33,10 @@ body
   border-bottom-left-radius: 2rem
   border-bottom-right-radius: 2rem
 
+  .connect
+    box-shadow: 0 0.125rem 0.3rem rgba(0, 0, 0, 0.25), 0 0 300px rgba(255, 255, 255, 1), 0 0 150px rgba(255, 255, 255, 0.5) !important
+
 .content
-  box-shadow: 0 0.125rem 0.3rem rgba(0, 0, 0, 0.25), 0 0 150px rgba(255, 255, 255, 0.4) !important
   max-width: 360px !important
   &.content-wide
     max-width: 480px !important
