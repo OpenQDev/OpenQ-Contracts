@@ -101,7 +101,7 @@
                     <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
                     <span>OPIN</span>
                   </form>
-                  <button class="btn btn-primary rounded-xl shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue">
+                  <button class="btn btn-primary rounded-xl shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue || !Number(pinAmount)">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="pinningIssue" />
                     <span v-else>
                       <svg style="width:18px;height:18px" viewBox="0 0 24 24">
@@ -132,6 +132,10 @@
     padding-bottom: 1rem !important
   &.pinned
     border-color: #fb0 !important
+    border-bottom: solid 1px
+    box-shadow: inset 0 0 30px rgba(255, 187, 0, 0.1) !important
+    &.showDetails
+      box-shadow: inset 0 0 30px rgba(255, 187, 0, 0.1), inset 0 0 7px rgba(0, 0, 0, 0.2) !important
 
   &:hover
     background: #f8f8f8
