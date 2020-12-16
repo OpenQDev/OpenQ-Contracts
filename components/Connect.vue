@@ -51,7 +51,7 @@
   </transition>
 </template>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .avatar
   width: 46px
   height: 46px

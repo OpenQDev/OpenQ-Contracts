@@ -70,8 +70,14 @@
                   </small>
                 </div>
                 <div v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount" class="mb-2 d-flex">
-                  <input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" />
-                  <button class="btn btn-success rounded-xl ml-1 shadow-sm" @click="release()" :disabled="releasing">
+                  <div class="d-flex flex-fill position-relative">
+                    <input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" />
+                    <div v-if="loadingReleaseToUser || releaseToUser" class="position-absolute" style="right: 0; top: 0;">
+                      <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingReleaseToUser" class="text-muted-light m-2" />
+                      <a :href="releaseToUser.url" target="_blank" class="avatar d-block m-1" :style="'background-image: url(' + releaseToUser.avatarUrl + ')'" v-if="releaseToUser"></a>
+                    </div>
+                  </div>
+                  <button class="btn btn-success rounded-xl ml-1 shadow-sm" @click="release()" :disabled="releasing || !releaseToUser">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="releasing" />
                     <span v-else>release</span>
                   </button>
@@ -117,7 +123,7 @@
   </div>
 </template>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .issue
   border-top: solid 1px #fff
   cursor: pointer
@@ -139,6 +145,15 @@
         max-height: 100px
       &.deposits
         max-height: 350px
+
+.avatar
+  border: solid 2px #ccc
+  border-radius: 50%
+  width: 32px
+  height: 32px
+  background-repeat: no-repeat
+  background-position: center center
+  background-size: 100%
 </style>
 
 <script>
@@ -159,8 +174,33 @@ export default {
       showReleaseSuccess: false,
       showReleaseError: false,
       pinningIssue: false,
-      refundingDeposit: false
+      refundingDeposit: false,
+      loadReleaseToUserTimeout: null,
+      loadingReleaseToUser: false,
+      releaseToUser: null
     }
+  },
+  watch: {
+    releaseTo(newUsername, oldUsername) {
+      clearTimeout(this.loadReleaseToUserTimeout)
+      this.loadReleaseToUserTimeout = setTimeout(() => {
+        if (newUsername) {
+          this.loadingReleaseToUser = true
+          this.releaseToUser = null
+          this.loadUser(newUsername)
+            .then(user => {
+              this.releaseToUser = user
+            })
+            .catch(() => {
+              this.releaseToUser = null
+            })
+            .finally(() => this.loadingReleaseToUser = false)
+        } else {
+          this.releaseToUser = null
+          this.loadingReleaseToUser = false
+        }
+      }, 500)
+    },
   },
   computed: {
     ...mapGetters(['account', 'registeredAccount']),
