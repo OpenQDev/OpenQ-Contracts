@@ -12,15 +12,6 @@ export default (req, res) => {
       {
         query: `query {
   repository(owner: "${owner}", name:"${repo}") {
-    owner {
-      login
-    }
-    createdAt
-    forkCount
-    viewerCanAdminister
-    stargazers {
-      totalCount
-    }
     pullRequest(number: ${number}) {
       id
       number
@@ -41,6 +32,17 @@ export default (req, res) => {
       createdAt
       comments {
         totalCount
+      }
+      repository {
+        owner {
+          login
+        }
+        createdAt
+        forkCount
+        viewerCanAdminister
+        stargazers {
+          totalCount
+        }
       }
     }
   }

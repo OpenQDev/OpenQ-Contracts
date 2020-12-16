@@ -78,25 +78,25 @@
         <IssueEmbed :contribution="contribution" v-else-if="contribution && type == 'issue'" />
 
         <div v-if="contribution && type == 'pr'">
-          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && contribution.owner.login === githubUser.login">
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && contribution.repository.owner.login === githubUser.login">
             <font-awesome-icon :icon="['fas', 'info-circle']" />
             <small>
               You can only claim pull requests for repositories that are not your own.
             </small>
           </div>
-          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && contribution.pullRequest.author.login !== githubUser.login">
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && contribution.author.login !== githubUser.login">
             <font-awesome-icon :icon="['fas', 'info-circle']" />
             <small>
               This pull request does not belong to you.
             </small>
           </div>
-          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && !contribution.pullRequest.merged">
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && !contribution.merged">
             <font-awesome-icon :icon="['fas', 'info-circle']" />
             <small>
               This pull request is not merged yet.
             </small>
           </div>
-          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && getAge(contribution.pullRequest.mergedAt) > maxClaimPrAge">
+          <div class="alert alert-warning border-0 mt-2 mb-2" v-if="githubUser && getAge(contribution.mergedAt) > maxClaimPrAge">
             <font-awesome-icon :icon="['fas', 'info-circle']" />
             <small>
               Only pull request merged inside the last {{ maxClaimPrAge }} days can be claimed.
@@ -125,7 +125,7 @@
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="withdrawingFromIssue" />
           {{ withdrawingFromIssue ? 'Waiting for confirmation...' : 'Claim' }}
         </button>
-        <button v-if="type === 'pr'" class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" @click="claimPullRequest()" :disabled="claimingPullRequest || !contribution || !contribution.pullRequest.merged || !githubUser || contribution.pullRequest.author.login !== githubUser.login || getAge(contribution.pullRequest.mergedAt) > maxClaimPrAge || contribution.owner.login === githubUser.login">
+        <button v-if="type === 'pr'" class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" @click="claimPullRequest()" :disabled="claimingPullRequest || !contribution || !contribution.merged || !githubUser || contribution.author.login !== githubUser.login || getAge(contribution.mergedAt) > maxClaimPrAge || contribution.repository.owner.login === githubUser.login">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="claimingPullRequest" />
           {{ claimingPullRequest ? 'Waiting for confirmation...' : 'Claim' }}
         </button>
@@ -241,9 +241,9 @@ export default {
           this.type = 'pr'
           this.loadingContribution = true
           this.loadPullRequest(owner, repo, number, this.githubAccessToken)
-            .then(repo => {
-              this.contribution = repo
-              this.score = this.calculatePRScore(repo)
+            .then(pr => {
+              this.contribution = pr
+              this.score = this.calculatePRScore(pr)
             })
             .finally(() => this.loadingContribution = false)
         } else if (newUrl.includes('/issues/') && number) {
@@ -333,12 +333,12 @@ export default {
     getAge(createdAt) {
       return (new Date().getTime() - new Date(createdAt).getTime()) / (60 * 60 * 24 * 1000);
     },
-    calculatePRScore(repo) {
-      const userAge = this.getAge(repo.pullRequest.author.createdAt);
-      const userFollowers = repo.pullRequest.author.followers.totalCount;
-      const repoAge = this.getAge(repo.createdAt);
-      const repoStars = repo.stargazers.totalCount;
-      const repoForks = repo.forkCount;
+    calculatePRScore(pr) {
+      const userAge = this.getAge(pr.author.createdAt);
+      const userFollowers = pr.author.followers.totalCount;
+      const repoAge = this.getAge(pr.repository.createdAt);
+      const repoStars = pr.repository.stargazers.totalCount;
+      const repoForks = pr.repository.forkCount;
 
       let score = 0
 
@@ -368,11 +368,11 @@ export default {
       this.claimingPullRequest = true
       // start listening for request event
       const requestListener = this.$octoBay.events.ClaimPrRequestEvent().on('data', event => {
-        if (event.returnValues.prId === this.contribution.pullRequest.id && event.returnValues.githubUser === this.githubUser.login) {
+        if (event.returnValues.prId === this.contribution.id && event.returnValues.githubUser === this.githubUser.login) {
           // stop listening for request event and start listening for confirm event
           requestListener.unsubscribe()
           const confirmListener = this.$octoBay.events.ClaimPrConfirmEvent().on('data', event => {
-            if (event.returnValues.prId === this.contribution.pullRequest.id && event.returnValues.githubUser === this.githubUser.login) {
+            if (event.returnValues.prId === this.contribution.id && event.returnValues.githubUser === this.githubUser.login) {
               // stop listening and finish process
               confirmListener.unsubscribe()
               this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
@@ -385,7 +385,7 @@ export default {
           })
 
           // trigger oracle confirmation
-          this.$axios.$get(`${process.env.API_URL}/oracle/claim/${this.githubUser.login}/${this.contribution.pullRequest.id}`).then(response => {
+          this.$axios.$get(`${process.env.API_URL}/oracle/claim/${this.githubUser.login}/${this.contribution.id}`).then(response => {
             if (response.error) {
               this.claimingPullRequest = false
               this.showClaimError = true
@@ -399,7 +399,7 @@ export default {
 
       // trigger claim (get gas price first)
       web3.eth.getGasPrice((error, gasPrice) => {
-        this.$octoBay.methods.claimPullRequest(this.contribution.pullRequest.id, this.githubUser.login).send({
+        this.$octoBay.methods.claimPullRequest(this.contribution.id, this.githubUser.login).send({
           from: this.account,
           value: process.env.ORACLE_GAS_CLAIMPR * Number(gasPrice) * 1.2
         }).catch(() => this.claimingPullRequest = false)
