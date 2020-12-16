@@ -1,7 +1,7 @@
 <template>
   <div>
     <transition name="fade" mode="out-in">
-      <a href="#" class="btn btn-block btn-lg btn-primary shadow-sm" @click="open = !open" v-if="!open">
+      <a href="#" class="btn btn-block btn-lg rounded-xl btn-primary shadow-sm" @click="open = !open" v-if="!open">
         Deposit
       </a>
       <div v-if="open" class="position-relative">
@@ -52,11 +52,11 @@
             <option value="closed">until released by project owner</option>
           </select>
         </div> -->
-        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 mb-2" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
+        <button class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4 mb-2" v-if="connected" @click="sendDeposit()" :disabled="!contribution || ((move && !sourceContribution) || (!move && amount == 0)) || sendingDeposit">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sendingDeposit" />
           {{ sendingDeposit ? 'Waiting for confirmation...' : 'Confirm' }}
         </button>
-        <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
+        <button class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
           Connect
         </button>
       </div>

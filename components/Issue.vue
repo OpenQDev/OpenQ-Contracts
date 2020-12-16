@@ -36,16 +36,16 @@
       <transition name="fade">
         <div :class="['d-flex flex-column mt-2 justify-content-start align-items-center', { action: !!action, deposits: action == 'deposits' }]" @click.stop v-if="showDetails" style="cursor: default">
           <div class="border-top w-100 pt-2 text-nowrap d-flex align-items-center">
-            <button :class="['btn btn-sm btn-light mr-auto', { active: action === 'deposits' }]" @click="changeAction('deposits')">
+            <button :class="['btn btn-sm rounded-xl btn-light mr-auto', { active: action === 'deposits' }]" @click="changeAction('deposits')">
               <font-awesome-icon :icon="['fas', 'coins']" class="mr-1" />
               <span class="text-muted">Deposits</span>
             </button>
-            <button :class="['btn btn-sm btn-light ml-1', { active: action === 'pin' }]" @click="changeAction('pin')">
+            <button :class="['btn btn-sm rounded-xl btn-light ml-1', { active: action === 'pin' }]" @click="changeAction('pin')">
               <svg style="width:18px;height:18px" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
               </svg>
             </button>
-            <a class="btn btn-sm btn-light ml-1" @click :href="'https://github.com/' + issueNode.owner + '/' + issueNode.repository + '/issues/' + issueNode.number" target="_blank">
+            <a class="btn btn-sm rounded-xl btn-light ml-1" @click :href="'https://github.com/' + issueNode.owner + '/' + issueNode.repository + '/issues/' + issueNode.number" target="_blank">
               <font-awesome-icon :icon="['fab', 'github']" />
               <font-awesome-icon :icon="['fas', 'external-link-alt']" class="text-muted-light ml-1" />
             </a>
@@ -71,7 +71,7 @@
                 </div>
                 <div v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount" class="mb-2 d-flex">
                   <input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" />
-                  <button class="btn btn-success ml-1 shadow-sm" @click="release()" :disabled="releasing">
+                  <button class="btn btn-success rounded-xl ml-1 shadow-sm" @click="release()" :disabled="releasing">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="releasing" />
                     <span v-else>release</span>
                   </button>
@@ -83,7 +83,7 @@
                       From: <AddressShort :address="deposit.from" />
                     </small>
                   </div>
-                  <button class="btn btn-primary shadow-sm" v-if="deposit.from === account" @click="refundIssueDeposit(deposit.id)" :disabled="refundingDeposit">
+                  <button class="btn btn-primary rounded-xl shadow-sm" v-if="deposit.from === account" @click="refundIssueDeposit(deposit.id)" :disabled="refundingDeposit">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="refundingDeposit === deposit.id" />
                     <span v-else>refund</span>
                   </button>
@@ -95,7 +95,7 @@
                     <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
                     <span>OPIN</span>
                   </form>
-                  <button class="btn btn-primary shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue">
+                  <button class="btn btn-primary rounded-xl shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="pinningIssue" />
                     <span v-else>
                       <svg style="width:18px;height:18px" viewBox="0 0 24 24">
