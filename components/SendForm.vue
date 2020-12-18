@@ -14,7 +14,7 @@
             </a>
           </small>
         </div>
-        <button class="btn btn-primary shadow-sm" @click="refundUserDeposit(deposit.id)" :disabled="refundingUserDeposit != 0">
+        <button class="btn btn-primary shadow-sm rounded-xl" @click="refundUserDeposit(deposit.id)" :disabled="refundingUserDeposit != 0">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="refundingUserDeposit === deposit.id" />
           {{ refundingUserDeposit === deposit.id ? '' : 'cancel' }}
         </button>
