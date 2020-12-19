@@ -4,8 +4,9 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
 
-contract OctoBay is ERC20, Ownable {
+contract OctoBay is ERC20, Ownable, ChainlinkClient {
   struct User {
     address account;
     bool confirmed;
@@ -54,6 +55,7 @@ contract OctoBay is ERC20, Ownable {
   mapping(string => uint8) public claimedPullRequests;
 
   constructor() ERC20("OctoPin", "OPIN") public {
+    setPublicChainlinkToken();
   }
 
   function register(string calldata _githubUser) external payable {
