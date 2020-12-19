@@ -33,8 +33,6 @@ contract OctoBay is ERC20, Ownable {
   event ReleaseIssueDepositsRequestEvent(string issueId, string githubUser, string owner);
   event ReleaseIssueDepositsConfirmEvent(string issueId, string githubUser, string owner);
 
-  mapping(address => bool) private oracles;
-
   mapping(string => User) public users;
   mapping(address => string) public usersByAddress;
 
@@ -55,28 +53,10 @@ contract OctoBay is ERC20, Ownable {
   mapping(string => uint256) public issueBoosts;
   mapping(string => uint8) public claimedPullRequests;
 
-  modifier onlyOracles {
-    require(oracles[msg.sender], "Only oracles can confirm operations.");
-    _;
-  }
-
   constructor() ERC20("OctoPin", "OPIN") public {
-    oracles[owner()] = true;
-  }
-
-
-  function enableOracle(address _oracle) external onlyOwner {
-    oracles[_oracle] = true;
-  }
-
-  function disableOracle(address _oracle) external onlyOwner {
-    require(oracles[_oracle], "Oracle does not exists.");
-    require(_oracle != owner(), "Owner oracle can not be removed.");
-    oracles[_oracle] = false;
   }
 
   function register(string calldata _githubUser) external payable {
-    require(msg.value > 35000 * tx.gasprice, "Registration fee (oracle cost) not covered.");
     if (users[_githubUser].account != address(0)) {
       delete usersByAddress[users[_githubUser].account];
     }
@@ -88,7 +68,7 @@ contract OctoBay is ERC20, Ownable {
     emit RegistrationRequestEvent(msg.sender, _githubUser);
   }
 
-  function registerConfirm(string calldata _githubUser, address account) external onlyOracles {
+  function registerConfirm(string calldata _githubUser, address account) external {
     require(
       users[_githubUser].account != address(0) && users[_githubUser].account == account,
       "This account confirmation was never requested."
@@ -165,7 +145,6 @@ contract OctoBay is ERC20, Ownable {
   }
 
   function claimPullRequest(string calldata _prId, string calldata _githubUser) external payable {
-    require(msg.value > 53000 * tx.gasprice, "Claim fee (oracle cost) not covered.");
     require(claimedPullRequests[_prId] != 2, "Pull request already claimed.");
     require(users[_githubUser].account != address(0), "This GitHub User is not registered.");
     payable(owner()).transfer(msg.value);
@@ -173,7 +152,7 @@ contract OctoBay is ERC20, Ownable {
     emit ClaimPrRequestEvent(_prId, _githubUser);
   }
 
-  function confirmClaimPullRequest(string calldata _prId, string calldata _githubUser, uint256 _score) external onlyOracles {
+  function confirmClaimPullRequest(string calldata _prId, string calldata _githubUser, uint256 _score) external {
     require(1 <= _score && _score <= 100, "Invalid score: 1 <= score <= 100");
     require(claimedPullRequests[_prId] == 1, "Pull request already claimed.");
     require(users[_githubUser].account != address(0), "This GitHub User is not registered.");
@@ -183,7 +162,6 @@ contract OctoBay is ERC20, Ownable {
   }
 
   function releaseIssueDeposits(string calldata _issueId, string calldata _githubUser) external payable {
-    require(msg.value > 35000 * tx.gasprice, "Release fee (oracle cost) not covered.");
     require(issueDepositIdsByIssueId[_issueId].length > 0, "Issue has no deposits to release.");
     require(users[usersByAddress[msg.sender]].account == msg.sender, "No GitHub account registered with this Ethereum account.");
     payable(owner()).transfer(msg.value);
@@ -192,7 +170,7 @@ contract OctoBay is ERC20, Ownable {
     emit ReleaseIssueDepositsRequestEvent(_issueId, _githubUser, usersByAddress[msg.sender]);
   }
 
-  function confirmReleaseIssueDeposits(string calldata _issueId, string calldata _githubUser) external onlyOracles {
+  function confirmReleaseIssueDeposits(string calldata _issueId, string calldata _githubUser) external {
     require(issueDepositIdsByIssueId[_issueId].length > 0, "Issue has no deposits to release.");
     require(keccak256(bytes(releasedIssueRequests[_issueId])) == keccak256(bytes(_githubUser)), "This issue release was not requested.");
     emit ReleaseIssueDepositsConfirmEvent(_issueId, _githubUser, releasedIssueRequestsOwnedBy[_issueId]);
