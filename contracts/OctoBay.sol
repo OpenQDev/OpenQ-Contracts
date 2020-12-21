@@ -63,8 +63,13 @@ contract OctoBay is ERC20, Ownable, ChainlinkClient {
   uint256 private registrationFee;
   uint256 private claimFee;
 
-  constructor() ERC20("OctoPin", "OPIN") public {
-    setPublicChainlinkToken();
+  constructor(address _link) ERC20("OctoPin", "OPIN") public {
+    if (_link == address(0)) {
+      setPublicChainlinkToken();
+    } else {
+      setChainlinkToken(_link);
+    }
+
     registrationFee = 0.1 * 10 ** 18; // 0.1 LINK
     claimFee = 0.1 * 10 ** 18; // 0.1 LINK
   }
@@ -72,26 +77,25 @@ contract OctoBay is ERC20, Ownable, ChainlinkClient {
   function register(address _oracle, bytes32 _jobId, string memory _githubUser) public {
     Chainlink.Request memory request = buildChainlinkRequest(_jobId, address(this), this.confirmRegistration.selector);
     request.add("githubUser", _githubUser);
-    request.addBytes("ethAccount", abi.encodePacked(msg.sender));
+    request.add("ethAddress", addressToIntString(msg.sender));
     bytes32 requestId = sendChainlinkRequestTo(_oracle, request, registrationFee);
 
     users[requestId] = User(_githubUser, msg.sender, 1);
   }
 
   function confirmRegistration(bytes32 _requestId) public recordChainlinkFulfillment(_requestId) {
-    users[_requestId].status == 2;
-    userIDsByAddress[users[_requestId].ethAddress] = _requestId;
-    userIDsByGithubUser[users[_requestId].githubUser] = _requestId;
-
     // If githubUser was registered before (changed ethAddress now) look for old
     // ID and delete entry in userIDsByAddress as well as users entry itself (userIDsByGithubUser
     // has been overridden above anyway).
     bytes32 oldId = userIDsByGithubUser[users[_requestId].githubUser];
     delete userIDsByAddress[users[oldId].ethAddress];
     delete users[oldId];
-
     // The scenario where an eth address switches to a new github account
     // (the other way around) does not occur.
+
+    users[_requestId].status = 2;
+    userIDsByAddress[users[_requestId].ethAddress] = _requestId;
+    userIDsByGithubUser[users[_requestId].githubUser] = _requestId;
   }
 
   function sendEthToGithubUser(string calldata _githubUser) external payable {
@@ -211,5 +215,25 @@ contract OctoBay is ERC20, Ownable, ChainlinkClient {
 
     payable(msg.sender).transfer(issueDepositsAmountByIssueId[_issueId]);
     issueDepositsAmountByIssueId[_issueId] = 0;
+  }
+
+  function addressToIntString(address _address) internal pure returns (string memory _string) {
+    uint _i = uint256(_address);
+    if (_i == 0) {
+        return "0";
+    }
+    uint j = _i;
+    uint len;
+    while (j != 0) {
+        len++;
+        j /= 10;
+    }
+    bytes memory bstr = new bytes(len);
+    uint k = len - 1;
+    while (_i != 0) {
+        bstr[k--] = byte(uint8(48 + _i % 10));
+        _i /= 10;
+    }
+    return string(bstr);
   }
 }
