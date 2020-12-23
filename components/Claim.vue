@@ -256,13 +256,17 @@ export default {
               this.contribution = repo
               this.$octoBay.methods.getIssueDepositIdsForIssueId(this.contribution.id).call().then(depositIds => {
                 depositIds.forEach(depositId => {
-                  this.$octoBay.methods._issueDeposits(depositId).call().then(deposit => {
+                  this.$octoBay.methods.issueDeposits(depositId).call().then(deposit => {
                     this.issueDepositsAmount += Number(this.$web3.utils.fromWei(deposit.amount, 'ether'))
                   })
                 })
               })
-              this.$octoBay.methods._releasedIssues(this.contribution.id).call().then(releasedTo => {
-                this.issueReleasedTo = releasedTo
+              this.$octoBay.methods.issueReleaseIDsByIssueId(this.contribution.id).call().then(releaseId => {
+                this.$octoBay.methods.releasedIssues(releaseId).call().then(release => {
+                  if (release.status === '2') {
+                    this.issueReleasedTo = release.githubUser
+                  }
+                })
               })
             })
             .finally(() => this.loadingContribution = false)
@@ -281,38 +285,41 @@ export default {
     register() {
       this.loadingRegistration = true
       // start listening for request event
-      const requestListener = this.$octoBay.events.RegistrationRequestEvent().on('data', event => {
-        if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
-          // stop listening for request event and start listening for confirm event
-          requestListener.unsubscribe()
-          const confirmListener = this.$octoBay.events.RegistrationConfirmedEvent().on('data', event => {
-            if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
-              // stop listening and finish process
-              confirmListener.unsubscribe()
-              this.$store.commit("setRegisteredAccount", this.account)
-              this.showRegistrationSuccess = true
-              this.loadingRegistration = false
-            }
-          })
-
-          // trigger oracle confirmation
-          this.$axios.$get(`${process.env.API_URL}/oracle/register/${this.githubUser.login}/${this.account}`).then(response => {
-            if (response.error) {
-              this.loadingRegistration = false
-              this.showRegistrationError = response.error
-            }
-          }).catch(() => {
-            this.loadingRegistration = false
-            this.showRegistrationError = 0
-          })
-        }
-      })
+      // const requestListener = this.$octoBay.events.RegistrationRequestEvent().on('data', event => {
+      //   if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
+      //     // stop listening for request event and start listening for confirm event
+      //     requestListener.unsubscribe()
+      //     const confirmListener = this.$octoBay.events.RegistrationConfirmedEvent().on('data', event => {
+      //       if (event.returnValues.account === this.account && event.returnValues.githubUser === this.githubUser.login) {
+      //         // stop listening and finish process
+      //         confirmListener.unsubscribe()
+      //         this.$store.commit("setRegisteredAccount", this.account)
+      //         this.showRegistrationSuccess = true
+      //         this.loadingRegistration = false
+      //       }
+      //     })
+      //
+      //     // trigger oracle confirmation
+      //     this.$axios.$get(`${process.env.API_URL}/oracle/register/${this.githubUser.login}/${this.account}`).then(response => {
+      //       if (response.error) {
+      //         this.loadingRegistration = false
+      //         this.showRegistrationError = response.error
+      //       }
+      //     }).catch(() => {
+      //       this.loadingRegistration = false
+      //       this.showRegistrationError = 0
+      //     })
+      //   }
+      // })
 
       // get gas price, trigger registration
       web3.eth.getGasPrice((error, gasPrice) => {
-        this.$octoBay.methods.register(this.githubUser.login).send({
-          from: this.account,
-          value: process.env.ORACLE_GAS_REGISTRATION * Number(gasPrice) * 1.2
+        this.$octoBay.methods.register(
+          process.env.ORACLE_ADDRESS,
+          this.$web3.utils.toHex(process.env.ORACLE_JOB_REGISTER),
+          this.githubUser.login
+        ).send({
+          from: this.account
         }).catch(() => this.loadingRegistration = false)
       })
     },
@@ -367,41 +374,45 @@ export default {
     claimPullRequest() {
       this.claimingPullRequest = true
       // start listening for request event
-      const requestListener = this.$octoBay.events.ClaimPrRequestEvent().on('data', event => {
-        if (event.returnValues.prId === this.contribution.id && event.returnValues.githubUser === this.githubUser.login) {
-          // stop listening for request event and start listening for confirm event
-          requestListener.unsubscribe()
-          const confirmListener = this.$octoBay.events.ClaimPrConfirmEvent().on('data', event => {
-            if (event.returnValues.prId === this.contribution.id && event.returnValues.githubUser === this.githubUser.login) {
-              // stop listening and finish process
-              confirmListener.unsubscribe()
-              this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
-              this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
-              this.showClaimSuccess = true
-              this.claimingPullRequest = false
-              this.url = ''
-              this.contribution = null
-            }
-          })
-
-          // trigger oracle confirmation
-          this.$axios.$get(`${process.env.API_URL}/oracle/claim/${this.githubUser.login}/${this.contribution.id}`).then(response => {
-            if (response.error) {
-              this.claimingPullRequest = false
-              this.showClaimError = true
-            }
-          }).catch(() => {
-            this.claimingPullRequest = false
-            this.showClaimError = true
-          })
-        }
-      })
+      // const requestListener = this.$octoBay.events.ClaimPrRequestEvent().on('data', event => {
+      //   if (event.returnValues.prId === this.contribution.id && event.returnValues.githubUser === this.githubUser.login) {
+      //     // stop listening for request event and start listening for confirm event
+      //     requestListener.unsubscribe()
+      //     const confirmListener = this.$octoBay.events.ClaimPrConfirmEvent().on('data', event => {
+      //       if (event.returnValues.prId === this.contribution.id && event.returnValues.githubUser === this.githubUser.login) {
+      //         // stop listening and finish process
+      //         confirmListener.unsubscribe()
+      //         this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+      //         this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
+      //         this.showClaimSuccess = true
+      //         this.claimingPullRequest = false
+      //         this.url = ''
+      //         this.contribution = null
+      //       }
+      //     })
+      //
+      //     // trigger oracle confirmation
+      //     this.$axios.$get(`${process.env.API_URL}/oracle/claim/${this.githubUser.login}/${this.contribution.id}`).then(response => {
+      //       if (response.error) {
+      //         this.claimingPullRequest = false
+      //         this.showClaimError = true
+      //       }
+      //     }).catch(() => {
+      //       this.claimingPullRequest = false
+      //       this.showClaimError = true
+      //     })
+      //   }
+      // })
 
       // trigger claim (get gas price first)
       web3.eth.getGasPrice((error, gasPrice) => {
-        this.$octoBay.methods.claimPullRequest(this.contribution.id, this.githubUser.login).send({
-          from: this.account,
-          value: process.env.ORACLE_GAS_CLAIMPR * Number(gasPrice) * 1.2
+        this.$octoBay.methods.claimPullRequest(
+          process.env.ORACLE_ADDRESS,
+          this.$web3.utils.toHex(process.env.ORACLE_JOB_CLAIM),
+          this.contribution.id,
+          this.githubUser.login
+        ).send({
+          from: this.account
         }).catch(() => this.claimingPullRequest = false)
       })
     },
@@ -431,7 +442,7 @@ export default {
       if (this.githubUser) {
         this.$octoBay.methods.getUserDepositIdsForGithubUser(this.githubUser.login).call().then(ids => {
           ids.forEach(id => {
-            this.$octoBay.methods._userDeposits(id).call().then(deposit => {
+            this.$octoBay.methods.userDeposits(id).call().then(deposit => {
               if (Number(deposit.amount)) {
                 deposit.id = id
                 deposits.push(deposit)

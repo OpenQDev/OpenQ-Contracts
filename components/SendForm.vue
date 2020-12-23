@@ -123,9 +123,15 @@ export default {
             .then(user => {
               this.user = user
               if (this.$octoBay) {
-                this.$octoBay.methods._users(newUsername).call().then(result => {
-                  if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed) {
-                    this.address = result.account
+                this.$octoBay.methods.userIDsByGithubUser(newUsername).call().then(userId => {
+                  if (userId) {
+                    this.$octoBay.methods.users(userId).call().then(result => {
+                      if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed) {
+                        this.address = result.account
+                      } else {
+                        this.address = null
+                      }
+                    }).catch(e => console.log(e))
                   } else {
                     this.address = null
                   }
@@ -190,7 +196,7 @@ export default {
       if (this.$octoBay) {
         this.$octoBay.methods.getUserDepositIdsForSender().call({ from: this.account }).then(ids => {
           ids.forEach(id => {
-            this.$octoBay.methods._userDeposits(id).call().then(deposit => {
+            this.$octoBay.methods.userDeposits(id).call().then(deposit => {
               if (Number(deposit.amount)) {
                 deposit.id = id
                 accountsDeposits.push(deposit)

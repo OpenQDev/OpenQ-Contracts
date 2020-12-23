@@ -17,17 +17,25 @@ export default {
   watch: {
     githubUser() {
       if (this.githubUser) {
-        this.$octoBay.methods._users(this.githubUser.login).call().then(result => {
-          if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed) {
-            this.$store.commit('setRegistered', true)
+        this.$octoBay.methods.userIDsByGithubUser(this.githubUser.login).call().then(userId => {
+          if (userId) {
+            this.$octoBay.methods.users(userId).call().then(result => {
+              if (result.ethAddress !== "0x0000000000000000000000000000000000000000" && result.status === '2') {
+                this.$store.commit('setRegisteredAccount', result.ethAddress)
+              } else {
+                this.$store.commit('setRegisteredAccount', null)
+              }
+            }).catch(() => {
+              this.$store.commit('setRegisteredAccount', null)
+            })
           } else {
-            this.$store.commit('setRegistered', false)
+            this.$store.commit('setRegisteredAccount', null)
           }
         }).catch(() => {
-          this.$store.commit('setRegistered', false)
+          this.$store.commit('setRegisteredAccount', null)
         })
       } else {
-        this.$store.commit('setRegistered', false)
+        this.$store.commit('setRegisteredAccount', null)
       }
     }
   },

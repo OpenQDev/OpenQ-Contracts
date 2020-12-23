@@ -170,7 +170,7 @@ contract OctoBay is ERC20, Ownable, ChainlinkClient {
 
   function claimPullRequest(address _oracle, bytes32 _jobId, string memory _prId, string memory _githubUser) public {
     require(pullRequestClaims[pullRequestClaimIDsByPrId[_prId]].status != 2, "Pull request already claimed.");
-    require(users[userIDsByGithubUser[_githubUser]].status != 2, "This GitHub user is not registered.");
+    require(users[userIDsByGithubUser[_githubUser]].status == 2, "This GitHub user is not registered.");
 
     Chainlink.Request memory request = buildChainlinkRequest(_jobId, address(this), this.confirmPullRequestClaim.selector);
     request.add("githubUser", _githubUser);

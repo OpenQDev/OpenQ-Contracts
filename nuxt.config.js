@@ -72,9 +72,9 @@ export default {
       'GITHUB_CLIENT_ID',
       'OCTOBAY_ADDRESS',
       'ORACLE_ADDRESS',
-      'ORACLE_GAS_REGISTRATION',
-      'ORACLE_GAS_CLAIMPR',
-      'ORACLE_GAS_RELEASEISSUE',
+      'ORACLE_JOB_REGISTER',
+      'ORACLE_JOB_RELEASE',
+      'ORACLE_JOB_CLAIM',
       'MAX_CLAIMPR_AGE'
     ] }],
     '@nuxtjs/fontawesome',

@@ -90,8 +90,12 @@ export const actions = {
   load({ commit, dispatch, state, rootState }) {
     return dispatch("github/login").then((result) => {
       if (rootState.github.user && this.$octoBay) {
-        this.$octoBay.methods._users(rootState.github.user.login).call().then(result => {
-          commit("setRegisteredAccount", result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed ? result.account : null)
+        this.$octoBay.methods.userIDsByGithubUser(rootState.github.user.login).call().then(userId => {
+          this.$octoBay.methods.users(userId).call().then(result => {
+            commit("setRegisteredAccount", result.ethAddress !== "0x0000000000000000000000000000000000000000" && result.status === '2' ? result.ethAddress : null)
+          }).catch(() => {
+            commit("setRegisteredAccount", null)
+          })
         }).catch(() => {
           commit("setRegisteredAccount", null)
         })
@@ -112,12 +116,12 @@ export const actions = {
   },
   updateIssues({ state, commit }) {
     if (this.$octoBay) {
-      this.$octoBay.methods._nextIssueDepositId().call().then(async maxId => {
+      this.$octoBay.methods.nextIssueDepositId().call().then(async maxId => {
         maxId = Number(maxId)
         if (maxId) {
           let id = maxId
           while (id) {
-            const deposit = await this.$octoBay.methods._issueDeposits(id).call()
+            const deposit = await this.$octoBay.methods.issueDeposits(id).call()
             deposit.id = id
             if (deposit.amount > 0) {
               let existingIssue = state.issues.find(issue => issue.id == deposit.issueId)
@@ -133,7 +137,7 @@ export const actions = {
                   depositAmount: Number(this.$web3.utils.fromWei(deposit.amount, 'ether')),
                   boostAmount: 0
                 }
-                const boostAmount = await this.$octoBay.methods._issueBoosts(newIssue.id).call()
+                const boostAmount = await this.$octoBay.methods.issuePins(newIssue.id).call()
                 newIssue.boostAmount = Number(this.$web3.utils.fromWei(boostAmount, 'ether'))
                 commit('addIssue', newIssue)
               }
@@ -145,7 +149,7 @@ export const actions = {
     }
   },
   async updatePins({ commit }, issueId) {
-    const pins = await this.$octoBay.methods._issueBoosts(issueId).call()
+    const pins = await this.$octoBay.methods.issuePins(issueId).call()
     commit('updatePins', { issueId, pins })
   }
 }
