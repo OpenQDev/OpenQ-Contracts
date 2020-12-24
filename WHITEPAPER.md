@@ -15,11 +15,17 @@ One of the key aspects of the service is the bounty and promotion system. Issues
 
 ### Twitter
 
-The custom token can be used to promote issues (1 token), projects (10 token) and developers (5 TKN) on Twitter. Any of these can be promoted by any user but only at a certain rate, e.g. once per day.
+The custom token can be used to promote issues (1 token), projects (10 token) and developers (5 TKN) on Twitter. Any of these can be promoted by any user but only at a certain rate, e.g. once per day. Hashtags are used to as subcategories, e.g. #octobay-jobs or #octobay-issue-javascript.
 
 ### Leaderboard
 
-The leaderboard keeps track of who minted how many tokens by submitting their merged pull requests.
+The leaderboard keeps track of who minted how many tokens by submitting their merged pull requests. It is public data that other services or reward mechanisms can use.
+
+### Newsletter
+
+- Weekly Issue Updates
+- Monthly Project & Developer Updates
+...
 
 ## Oracles
 
