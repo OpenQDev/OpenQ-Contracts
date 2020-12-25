@@ -176,9 +176,9 @@
             <i></i>
           </a>
         </div>
-        <button class="btn btn-lg btn-primary rounded-xl shadow-sm d-block w-100 mt-3" v-if="githubUser" @click="register()" :disabled="loadingRegistration">
-          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingRegistration" />
-          {{ loadingRegistration ? 'Waiting for confirmation...' : 'Register' }}
+        <button class="btn btn-lg btn-primary rounded-xl shadow-sm d-block w-100 mt-3" v-if="githubUser" @click="register()" :disabled="loadingRegistration || checkingRepo">
+          <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingRegistration || checkingRepo" />
+          {{ loadingRegistration ? 'Waiting for confirmation...' : (checkingRepo ? 'Waiting for repository' : 'Register') }}
         </button>
         <a
           v-else
@@ -225,6 +225,9 @@ export default {
       issueDepositsAmount: 0,
       issueReleasedTo: '',
       copyAddressSuccess: false,
+      checkingRepo: true,
+      repoExists: false,
+      checkRepoInterval: null
     }
   },
   watch: {
@@ -280,9 +283,21 @@ export default {
   },
   mounted() {
     this.updateUserDeposits()
+    this.checkRepo()
+    this.checkRepoInterval = setInterval(() => this.checkRepo(), 10000)
   },
   methods: {
-    register() {
+    checkRepo() {
+      const repoUrl = `https://api.github.com/repos/${this.githubUser.login}/${this.account}?access_token=${this.githubAccessToken}`
+      this.$axios.get(repoUrl).then(res => {
+        this.repoExists = true
+        this.checkingRepo = false
+        clearInterval(this.checkRepoInterval)
+      }).catch(e => {
+        this.repoExists = false
+      })
+    },
+  register() {
       this.loadingRegistration = true
       // start listening for request event
       // const requestListener = this.$octoBay.events.RegistrationRequestEvent().on('data', event => {
