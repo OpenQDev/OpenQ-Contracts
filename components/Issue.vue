@@ -181,7 +181,8 @@ export default {
       refundingDeposit: false,
       loadReleaseToUserTimeout: null,
       loadingReleaseToUser: false,
-      releaseToUser: null
+      releaseToUser: null,
+      releaseRequestID: null
     }
   },
   watch: {
@@ -260,41 +261,27 @@ export default {
       if (this.releaseTo) {
         this.releasing = true
         // start listening for request event
-        // const requestListener = this.$octoBay.events.ReleaseIssueDepositsRequestEvent().on('data', event => {
-        //   if (event.returnValues.githubUser === this.releaseTo && event.returnValues.owner === this.githubUser.login && event.returnValues.issueId === this.issue.id) {
-        //     // stop listening for request event and start listening for confirm event
-        //     requestListener.unsubscribe()
-        //     const confirmListener = this.$octoBay.events.ReleaseIssueDepositsConfirmEvent().on('data', event => {
-        //       if (event.returnValues.githubUser === this.releaseTo && event.returnValues.owner === this.githubUser.login && event.returnValues.issueId === this.issue.id) {
-        //         // stop listening and finish process
-        //         confirmListener.unsubscribe()
-        //         this.showReleaseSuccess = true
-        //         this.releasing = false
-        //       }
-        //     })
-        //
-        //     // trigger oracle confirmation
-        //     this.$axios.$get(`${process.env.API_URL}/oracle/release/${this.releaseTo}/${this.issue.id}`).then(response => {
-        //       if (response.error) {
-        //         this.releasing = false
-        //         this.showReleaseError = true
-        //       }
-        //     }).catch(() => {
-        //       this.releasing = false
-        //       this.showReleaseError = true
-        //     })
-        //   }
-        // })
+        const confirmListener = this.$octoBay.events.ChainlinkFulfilled().on('data', event => {
+          if (event.returnValues.id === this.releaseRequestID) {
+            // stop listening and finish process
+            confirmListener.unsubscribe()
+            this.showReleaseSuccess = true
+            this.releasing = false,
+            this.releaseRequestID = null
+          }
+        })
 
         // trigger release (get gas price first)
         web3.eth.getGasPrice((error, gasPrice) => {
           this.$octoBay.methods.releaseIssueDeposits(
-            process.env.ORACLE_ADDRESS,
-            this.$web3.utils.toHex(process.env.ORACLE_JOB_RELEASE),
+            process.env.ORACLES[0].address,
+            this.$web3.utils.toHex(process.env.ORACLES[0].jobs.release),
             this.issue.id,
             this.releaseTo
           ).send({
             from: this.account,
+          }).then(releaseRequest => {
+            this.releaseRequestID = releaseRequest.events.ChainlinkRequested.returnValues.id
           }).catch(() => this.releasing = false)
         })
       }
