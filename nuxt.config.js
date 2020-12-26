@@ -18,7 +18,8 @@ export default {
   serverMiddleware: ["~/api/index"],
 
   env: {
-    OCTOBAY_ABI: JSON.parse(fs.readFileSync("./build/contracts/OctoBay.json").toString()).abi
+    OCTOBAY_ABI: JSON.parse(fs.readFileSync("./build/contracts/OctoBay.json").toString()).abi,
+    ORACLES: JSON.parse(fs.readFileSync("./oracles.json").toString())
   },
 
   /*
