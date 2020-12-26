@@ -2,11 +2,11 @@
   {
     "name": "OctoBay",
     "url": "http://localhost:6688",
-    "address": "0x909C498b29971ffD44675363b1Ea70af328aE7E4",
+    "address": "0x2c32fea8A2b7F67d53466a2e0e5a9ED37daCdcDD",
     "jobs": {
-      "register": "22c731f60c854f8992c7f1aca89b50d3",
-      "release": "26f4fc3a183c4838aae97f301cbde1b4",
-      "claim": "21f28c4dbb0847f18742109682821102"
+      "register": "eab31bb928c345d9b1c75a13a6349eec",
+      "release": "d69140bb773d4c60b24ae1dbe8b31f1d",
+      "claim": "5089c58848f949a797ca58fba01eb024"
     }
   }
 ]
