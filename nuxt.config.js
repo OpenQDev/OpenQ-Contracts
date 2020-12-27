@@ -19,6 +19,7 @@ export default {
 
   env: {
     OCTOBAY_ABI: JSON.parse(fs.readFileSync("./build/contracts/OctoBay.json").toString()).abi,
+    LINK_TOKEN_ABI: JSON.parse(fs.readFileSync("./build/contracts/LinkToken.json").toString()).abi,
     ORACLES: JSON.parse(fs.readFileSync("./oracles.json").toString())
   },
 
@@ -72,10 +73,8 @@ export default {
       'API_URL',
       'GITHUB_CLIENT_ID',
       'OCTOBAY_ADDRESS',
-      'ORACLE_ADDRESS',
-      'ORACLE_JOB_REGISTER',
-      'ORACLE_JOB_RELEASE',
-      'ORACLE_JOB_CLAIM',
+      'CHAINLINK_NODE_ADDRESS',
+      'LINK_TOKEN_ADDRESS',
       'MAX_CLAIMPR_AGE'
     ] }],
     '@nuxtjs/fontawesome',
