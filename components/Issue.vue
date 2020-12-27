@@ -36,9 +36,11 @@
       <transition name="fade">
         <div :class="['d-flex flex-column mt-2 justify-content-start align-items-center', { action: !!action, deposits: action == 'deposits' }]" @click.stop v-if="showDetails" style="cursor: default">
           <div class="border-top w-100 pt-2 text-nowrap d-flex align-items-center">
-            <button :class="['btn btn-sm rounded-xl btn-light mr-auto', { active: action === 'deposits' }]" @click="changeAction('deposits')">
-              <font-awesome-icon :icon="['fas', 'coins']" class="mr-1" />
-              <span class="text-muted">Deposits</span>
+            <button :class="['btn btn-sm rounded-xl btn-success mr-auto shadow-sm', { active: action === 'release' }]" @click="changeAction('release')" v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount">
+              <font-awesome-icon :icon="['fas', 'gavel']" />
+            </button>
+            <button :class="['btn btn-sm rounded-xl btn-light ml-1', { active: action === 'deposits' }]" @click="changeAction('deposits')">
+              <font-awesome-icon :icon="['fas', 'coins']" />
             </button>
             <button :class="['btn btn-sm rounded-xl btn-light ml-1', { active: action === 'pin' }]" @click="changeAction('pin')">
               <svg style="width:18px;height:18px" viewBox="0 0 24 24">
@@ -52,7 +54,7 @@
           </div>
           <div class="w-100">
             <transition name="fade" mode="out-in">
-              <div v-if="action === 'deposits'" key="deposits" class="pt-3">
+              <div v-if="action === 'release'" key="release" class="pt-3">
                 <div class="alert alert-success border-0" v-if="showReleaseSuccess">
                   <button type="button" class="close text-success" @click="showReleaseSuccess = false">
                     <span>&times;</span>
@@ -69,7 +71,7 @@
                     Please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
                   </small>
                 </div>
-                <div v-if="issueNode.repositoryOwner === githubUser.login && account === registeredAccount" class="mb-2 d-flex">
+                <div class="d-flex">
                   <div class="d-flex flex-fill position-relative">
                     <input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" />
                     <div v-if="loadingReleaseToUser || releaseToUser" class="position-absolute" style="right: 0; top: 0;">
@@ -79,9 +81,14 @@
                   </div>
                   <button class="btn btn-success rounded-xl ml-1 shadow-sm" @click="release()" :disabled="releasing || !releaseToUser">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="releasing" />
-                    <span v-else>release</span>
+                    <span v-else class="text-nowrap">
+                      <font-awesome-icon :icon="['fas', 'gavel']" class="mr-1" />
+                      release
+                    </span>
                   </button>
                 </div>
+              </div>
+              <div v-if="action === 'deposits'" key="deposits" class="pt-3">
                 <div v-for="(deposit, index) in issue.deposits" :key="index" class="d-flex justify-content-between align-items-center">
                   <div class="d-flex flex-column">
                     <h5 class="mb-0">{{ Number($web3.utils.fromWei(deposit.amount, 'ether')) }} <small>ETH</small></h5>

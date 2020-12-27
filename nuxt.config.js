@@ -123,7 +123,8 @@ export default {
         'faCodeBranch',
         'faFaucet',
         'faEnvelope',
-        'faGlobeAmericas'
+        'faGlobeAmericas',
+        'faGavel'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub', 'faDiscord'],
     },
