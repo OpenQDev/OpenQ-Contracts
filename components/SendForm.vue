@@ -31,7 +31,7 @@
       GitHub User
     </small>
     <div class="input-with-embed">
-      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" v-model="username" />
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl" v-model="username" />
       <a href="#" class="position-absolute text-muted-light" style="top: 12px; right: 50px; z-index: 2" v-if="user" @click="username = ''">
         <svg style="width:24px;height:24px" viewBox="0 0 24 24">
           <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
@@ -66,8 +66,12 @@
       Amount
     </small>
     <form class="amount-input mb-2" novalidate>
-      <input type="number" min="0" step="0.01" novalidate class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
-      <span>ETH</span>
+      <input type="number" min="0" step="0.01" novalidate class="form-control form-control-lg mb-2 rounded-xl" placeholder="0.00" v-model="amount" />
+      <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowTokenList', true)">
+        <span v-if="selectedToken">{{ selectedToken.symbol }}</span>
+        <span v-else>ETH</span>
+        <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
+      </span>
     </form>
     <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 rounded-xl" v-if="connected" @click="address ? send() : deposit()" :disabled="!user || amount == 0 || sending">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
@@ -152,7 +156,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['connected', 'account']),
+    ...mapGetters(['connected', 'account', 'selectedToken']),
   },
   methods: {
     send() {

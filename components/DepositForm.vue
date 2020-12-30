@@ -13,7 +13,7 @@
         <small class="text-muted d-flex justify-content-between">
           Issue URL
         </small>
-        <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" placeholder="https://github.com/..." v-model="url" />
+        <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl" placeholder="https://github.com/..." v-model="url" />
         <div v-if="loading || contribution">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loading" class="text-muted-light" />
           <IssueEmbed :contribution="contribution" v-if="contribution" />
@@ -38,8 +38,12 @@
           </div>
         </div>
         <div class="amount-input mb-2" v-else>
-          <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
-          <span>ETH</span>
+          <input type="number" min="0" step="0.01" class="form-control form-control-lg mb-2 rounded-xl" placeholder="0.00" v-model="amount" />
+          <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowTokenList', true)">
+            <span v-if="selectedToken">{{ selectedToken.symbol }}</span>
+            <span v-else>ETH</span>
+            <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
+          </span>
         </div>
         <!-- <small class="text-muted d-flex justify-content-between">
           Lock deposit
@@ -134,7 +138,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account']),
+    ...mapGetters(['connected', 'account', 'selectedToken']),
   },
   methods: {
     sendDeposit() {

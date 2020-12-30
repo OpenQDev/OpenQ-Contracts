@@ -4,7 +4,10 @@ export const state = () => ({
   registeredAccount: null,
   balance: 0,
   octoBalance: 0,
-  issues: []
+  issues: [],
+  tokenList: [],
+  showTokenList: false,
+  selectedToken: null
 })
 
 export const getters = {
@@ -31,6 +34,15 @@ export const getters = {
   },
   issues(state) {
     return state.issues
+  },
+  tokenList(state) {
+    return state.tokenList
+  },
+  showTokenList(state) {
+    return state.showTokenList
+  },
+  selectedToken(state) {
+    return state.selectedToken
   }
 }
 
@@ -83,11 +95,24 @@ export const mutations = {
     if (existingIssue) {
       existingIssue.boostAmount = Number(this.$web3.utils.fromWei(pins, 'ether'))
     }
+  },
+  setTokenList(state, list) {
+    state.tokenList = list
+  },
+  setShowTokenList(state, show) {
+    state.showTokenList = show
+  },
+  setSelectedToken(state, address) {
+    state.selectedToken = address
   }
 }
 
 export const actions = {
   load({ commit, dispatch, state, rootState }) {
+    this.$axios.$get('https://tokens.coingecko.com/uniswap/all.json').then(list => {
+      commit('setTokenList', list)
+    })
+
     return dispatch("github/login").then((result) => {
       if (rootState.github.user && this.$octoBay) {
         this.$octoBay.methods.userIDsByGithubUser(rootState.github.user.login).call().then(userId => {

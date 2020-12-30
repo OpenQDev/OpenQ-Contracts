@@ -34,6 +34,7 @@
     <Header />
     <Nuxt />
     <Footer />
+    <TokenList />
   </div>
 </template>
 
