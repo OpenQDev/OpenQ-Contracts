@@ -12,7 +12,7 @@ ganache-cli -l 8000000
 
 ### Chainlink Node
 
-Run a local Chainlink node (v0.9.4).
+Run a local Chainlink node (v0.9.4). (You need an empty postgres database named "chainlink".)
 
 https://github.com/smartcontractkit/chainlink#install
 
@@ -23,7 +23,15 @@ make install
 chainlink local start
 ```
 
-### App
+### External Adapters
+
+```bash
+git clone https://github.com/mktcode/octobay-chainlink-adapters && cd octobay-chainlink-adapters
+yarn
+yarn start
+```
+
+### Web App
 
 
 ```bash
