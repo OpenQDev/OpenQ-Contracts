@@ -73,7 +73,7 @@
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
       {{ sending ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
+    <button class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
       Connect
     </button>
   </div>
