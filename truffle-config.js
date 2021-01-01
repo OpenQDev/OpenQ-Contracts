@@ -17,7 +17,7 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
-
+require('dotenv').config()
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const fs = require('fs');
@@ -58,7 +58,7 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     kovan: {
-      provider: () => new HDWalletProvider(mnemonic, `wss://eth-kovan.ws.alchemyapi.io/v2/4VfZX8HU17KLNgw_PtL1jRtbj5pFFpBu`),
+      provider: () => new HDWalletProvider(mnemonic, `wss://eth-kovan.ws.alchemyapi.io/v2/${process.env.DEPLOYMENT_API_KEY}` ),
       network_id: 42,       // Ropsten's id
       gas: 5500000,        // Ropsten has a lower block limit than mainnet
       confirmations: 2,    // # of confs to wait between deployments. (default: 0)
