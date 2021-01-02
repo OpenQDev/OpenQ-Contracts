@@ -294,14 +294,16 @@ export default {
   },
   methods: {
     checkRepo() {
-      const repoUrl = `https://api.github.com/repos/${this.githubUser.login}/${this.account}?access_token=${this.githubAccessToken}`
-      this.$axios.get(repoUrl).then(res => {
-        this.repoExists = true
-        this.checkingRepo = false
-        clearInterval(this.checkRepoInterval)
-      }).catch(e => {
-        this.repoExists = false
-      })
+      if (this.connected && this.githubUser) {
+        const repoUrl = `https://api.github.com/repos/${this.githubUser.login}/${this.account}?access_token=${this.githubAccessToken}`
+        this.$axios.get(repoUrl).then(res => {
+          this.repoExists = true
+          this.checkingRepo = false
+          clearInterval(this.checkRepoInterval)
+        }).catch(e => {
+          this.repoExists = false
+        })
+      }
     },
     register() {
       this.loadingRegistration = true
