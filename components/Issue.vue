@@ -104,10 +104,10 @@
               </div>
               <div v-if="action === 'pin'" key="pin" class="pt-3">
                 <div class="d-flex align-items-center">
-                  <form class="amount-input amount-input-sm flex-fill mr-2" novalidate>
+                  <div class="select-input flex-fill mr-2">
                     <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
                     <span>OPIN</span>
-                  </form>
+                  </div>
                   <button class="btn btn-primary rounded-xl shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue || !Number(pinAmount)">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="pinningIssue" />
                     <span v-else>
