@@ -3,16 +3,24 @@
     <a :href="user.url" target="_blank" class="avatar" :style="'background-image: url(' + user.avatarUrl + ')'"></a>
     <div class="embed rounded-top pb-3 px-2">
       <div class="d-flex justify-content-between">
-        <b>{{ user.name }}</b>
-        <div>
+        <b class="text-nowrap text-truncate">{{ user.name }}</b>
+        <div class="text-nowrap">
+          <div class="btn btn-sm btn-light rounded-xl" v-if="address" v-clipboard="address" v-clipboard:success="copiedAddress" v-tooltip="{content: address.substr(0, 12) + '...' + address.substr(32), trigger: 'hover'}">
+            <transition name="fade" mode="out-in">
+              <span v-if="copyAddressSuccess">
+                copied <font-awesome-icon :icon="['fas', 'check']" class="text-success" fixed-width />
+              </span>
+              <font-awesome-icon :icon="['fab', 'ethereum']" class="text-muted" v-else fixed-width />
+            </transition>
+          </div>
           <a :href="'mailto:' + user.email" v-if="user.email" class="btn btn-sm btn-light text-muted rounded-xl">
-            <font-awesome-icon :icon="['fas', 'envelope']" />
+            <font-awesome-icon :icon="['fas', 'envelope']" fixed-width />
           </a>
           <a :href="'https://twitter.com/' + user.twitterUsername" v-if="user.twitterUsername" target="_blank" class="btn btn-sm btn-light text-muted rounded-xl">
-            <font-awesome-icon :icon="['fab', 'twitter']" />
+            <font-awesome-icon :icon="['fab', 'twitter']" fixed-width />
           </a>
           <a :href="user.websiteUrl" v-if="user.websiteUrl" target="_blank" class="btn btn-sm btn-light text-muted rounded-xl">
-            <font-awesome-icon :icon="['fas', 'globe-americas']" />
+            <font-awesome-icon :icon="['fas', 'globe-americas']" fixed-width />
           </a>
         </div>
       </div>
@@ -24,14 +32,6 @@
         <span>Last seen:</span>
         <span>{{ $moment(user.updatedAt).fromNow() }}</span>
       </small>
-    </div>
-    <div class="btn btn-sm btn-light btn-block mb-2 d-flex align-items-center" v-if="address" v-clipboard="address" v-clipboard:success="copiedAddress">
-      <font-awesome-icon :icon="['fab', 'ethereum']" class="text-muted" />
-      <AddressShort :address="address" length="long" class="text-muted mr-auto ml-1" />
-      <transition name="fade" mode="out-in">
-        <font-awesome-icon :icon="['fas', 'check']" class="text-success" v-if="copyAddressSuccess" key="check" />
-        <font-awesome-icon :icon="['far', 'copy']" class="text-muted" v-else key="copy" />
-      </transition>
     </div>
   </div>
 </template>

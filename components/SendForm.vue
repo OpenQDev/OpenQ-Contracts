@@ -197,8 +197,8 @@ export default {
                 this.$octoBay.methods.userIDsByGithubUser(newUsername).call().then(userId => {
                   if (userId) {
                     this.$octoBay.methods.users(userId).call().then(result => {
-                      if (result.account !== "0x0000000000000000000000000000000000000000" && result.confirmed) {
-                        this.address = result.account
+                      if (result.ethAddress !== "0x0000000000000000000000000000000000000000" && result.status == 2) {
+                        this.address = result.ethAddress
                       } else {
                         this.address = null
                       }
