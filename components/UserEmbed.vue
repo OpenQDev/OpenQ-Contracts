@@ -1,17 +1,17 @@
 <template>
-  <div>
+  <div class="border rounded-xl px-1" style="margin-top: -50px; padding-top: 50px; border-color: #f2f2f2 !important">
     <a :href="user.url" target="_blank" class="avatar" :style="'background-image: url(' + user.avatarUrl + ')'"></a>
-    <div class="embed rounded-bottom p-2 mb-2">
+    <div class="embed rounded-top pb-3 px-2">
       <div class="d-flex justify-content-between">
         <b>{{ user.name }}</b>
         <div>
-          <a :href="'mailto:' + user.email" v-if="user.email" class="btn btn-sm btn-light text-muted">
+          <a :href="'mailto:' + user.email" v-if="user.email" class="btn btn-sm btn-light text-muted rounded-xl">
             <font-awesome-icon :icon="['fas', 'envelope']" />
           </a>
-          <a :href="'https://twitter.com/' + user.twitterUsername" v-if="user.twitterUsername" target="_blank" class="btn btn-sm btn-light text-muted">
+          <a :href="'https://twitter.com/' + user.twitterUsername" v-if="user.twitterUsername" target="_blank" class="btn btn-sm btn-light text-muted rounded-xl">
             <font-awesome-icon :icon="['fab', 'twitter']" />
           </a>
-          <a :href="user.websiteUrl" v-if="user.websiteUrl" target="_blank" class="btn btn-sm btn-light text-muted">
+          <a :href="user.websiteUrl" v-if="user.websiteUrl" target="_blank" class="btn btn-sm btn-light text-muted rounded-xl">
             <font-awesome-icon :icon="['fas', 'globe-americas']" />
           </a>
         </div>

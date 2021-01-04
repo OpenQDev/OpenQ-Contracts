@@ -99,7 +99,8 @@ export default {
         'faCommentAlt',
         'faFlag',
         'faFrown',
-        'faSmile'
+        'faSmile',
+        'faCalendarAlt'
       ],
       solid: [
         'faPlus',
@@ -124,7 +125,10 @@ export default {
         'faFaucet',
         'faEnvelope',
         'faGlobeAmericas',
-        'faGavel'
+        'faGavel',
+        'faUser',
+        'faCode',
+        'faTimes'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub', 'faDiscord'],
     },

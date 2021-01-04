@@ -62,7 +62,8 @@ a:hover
 .help-icon
   opacity: 0.6
   cursor: pointer
-.amount-input
+
+.select-input
   position: relative
   input
     -moz-appearance: textfield
@@ -76,22 +77,16 @@ a:hover
     z-index: 3
     right: 6px
     top: 6px
-  &.amount-input-sm
-    span
-      font-size: 1.2rem
-      right: 35px
-      top: 3px
+  &.select-input-left
+    > input
+      padding-left: 110px
+    > span
+      right: auto
+      left: 6px
+      top: 6px
 
 .input-with-embed
   position: relative
-
-.embed
-  background: #f8f8f8
-  position: relative
-  z-index: 1
-  margin-top: -10px
-  .badge
-    font-weight: normal
 
 .form-control
   border: none

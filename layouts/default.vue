@@ -35,6 +35,8 @@
     <Nuxt />
     <Footer />
     <TokenList />
+    <RecipientTypeList />
+    <IntervalSelect />
   </div>
 </template>
 

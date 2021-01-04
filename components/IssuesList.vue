@@ -1,7 +1,6 @@
 <template>
   <div class="card-body pb-0">
-    <DepositForm />
-    <div class="issue-list pt-3" v-if="issuesLazy.length">
+    <div class="issue-list" v-if="issuesLazy.length">
       <Issue v-for="issue in issuesLazy" :issue="issue" :key="issue.id" />
     </div>
     <div v-else class="text-center text-muted my-3">Currently no pinned issues.</div>

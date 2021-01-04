@@ -7,7 +7,11 @@ export const state = () => ({
   issues: [],
   tokenList: [],
   showTokenList: false,
-  selectedToken: null
+  selectedToken: null,
+  showRecipientTypeList: false,
+  selectedRecipientType: 'User',
+  showIntervalSelect: false,
+  selectedInterval: 'Months'
 })
 
 export const getters = {
@@ -43,6 +47,18 @@ export const getters = {
   },
   selectedToken(state) {
     return state.selectedToken
+  },
+  showRecipientTypeList(state) {
+    return state.showRecipientTypeList
+  },
+  selectedRecipientType(state) {
+    return state.selectedRecipientType
+  },
+  showIntervalSelect(state) {
+    return state.showIntervalSelect
+  },
+  selectedInterval(state) {
+    return state.selectedInterval
   }
 }
 
@@ -104,6 +120,18 @@ export const mutations = {
   },
   setSelectedToken(state, address) {
     state.selectedToken = address
+  },
+  setShowRecipientTypeList(state, show) {
+    state.showRecipientTypeList = show
+  },
+  setSelectedRecipientType(state, type) {
+    state.selectedRecipientType = type
+  },
+  setShowIntervalSelect(state, show) {
+    state.showIntervalSelect = show
+  },
+  setSelectedInterval(state, interval) {
+    state.selectedInterval = interval
   }
 }
 
