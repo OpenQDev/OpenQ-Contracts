@@ -1,5 +1,5 @@
 <template>
-  <div class="border rounded-xl px-1" style="margin-top: -50px; padding-top: 50px; border-color: #f2f2f2 !important">
+  <div class="border rounded-xl px-1" style="margin-top: -56px; padding-top: 56px; border-color: #f2f2f2 !important">
     <a :href="user.url" target="_blank" class="avatar" :style="'background-image: url(' + user.avatarUrl + ')'"></a>
     <div class="embed rounded-top pb-3 px-2">
       <div class="d-flex justify-content-between">
@@ -7,7 +7,7 @@
         <div class="text-nowrap">
           <div class="btn btn-sm btn-light rounded-xl" v-if="address" v-clipboard="address" v-clipboard:success="copiedAddress" v-tooltip="{content: address.substr(0, 12) + '...' + address.substr(32), trigger: 'hover'}">
             <transition name="fade" mode="out-in">
-              <span v-if="copyAddressSuccess">
+              <span v-if="copyAddressSuccess" class="text-muted">
                 copied <font-awesome-icon :icon="['fas', 'check']" class="text-success" fixed-width />
               </span>
               <font-awesome-icon :icon="['fab', 'ethereum']" class="text-muted" v-else fixed-width />
