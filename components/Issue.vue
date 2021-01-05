@@ -36,7 +36,7 @@
       <transition name="fade">
         <div :class="['d-flex flex-column mt-2 justify-content-start align-items-center', { action: !!action, deposits: action == 'deposits' }]" @click.stop v-if="showDetails" style="cursor: default">
           <div class="border-top w-100 pt-2 text-nowrap d-flex align-items-center">
-            <button :class="['btn btn-sm rounded-xl btn-success shadow-sm', { active: action === 'release' }]" @click="changeAction('release')" v-if="issueNode.repositoryOwner === githubUser.login">
+            <button :class="['btn btn-sm rounded-xl btn-success shadow-sm', { active: action === 'release' }]" @click="changeAction('release')" v-if="githubUser && issueNode.repositoryOwner === githubUser.login">
               <font-awesome-icon :icon="['fas', 'gavel']" />
             </button>
             <span class="mr-auto"></span>
