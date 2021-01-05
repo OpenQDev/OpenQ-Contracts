@@ -27,20 +27,52 @@
       <CheckIcon width="24px" height="24px" />
       Transfer confirmed! :)
     </div>
-    <div class="input-with-embed select-input select-input-left">
-      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl" v-model="recipientString" :placeholder="recipientInputPlaceholder" />
+    <div class="input-with-embed select-input select-input-left" v-if="selectedRecipientType == 'User'">
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl" style="padding-right: 5rem" v-model="username" placeholder="Username" />
       <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
-        <span>{{ selectedRecipientType }}</span>
+        <span>User</span>
         <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
       </span>
-      <a href="#" class="position-absolute text-muted-light" style="top: 12px; right: 50px; z-index: 2" v-if="user" @click="user = null; recipientString = ''">
+      <a href="#" class="position-absolute text-muted-light" style="top: 12px; right: 50px; z-index: 2" v-if="user" @click="user = null; username = ''">
         <svg style="width:24px;height:24px" viewBox="0 0 24 24">
           <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
         </svg>
       </a>
       <div v-if="loading || user">
         <div class="text-center mb-2" v-if="loading"><font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" /></div>
-        <UserEmbed :user="user" :address="address" v-if="user" class="mb-2" />
+        <UserEmbed :user="user" :address="userEthAddress" v-if="user" class="mb-2" />
+      </div>
+    </div>
+    <div class="input-with-embed select-input select-input-left" v-if="selectedRecipientType == 'Issue'">
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl pr-5" v-model="issueUrl" placeholder="Issue URL" />
+      <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
+        <span>Issue</span>
+        <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
+      </span>
+      <a href="#" class="position-absolute text-muted-light" style="top: 12px; right: 10px; z-index: 2" v-if="issue" @click="issue = null; issueUrl = ''">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+        </svg>
+      </a>
+      <div v-if="loading || issue">
+        <div class="text-center mb-2" v-if="loading"><font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" /></div>
+        <IssueEmbed :issue="issue" v-if="issue" />
+      </div>
+    </div>
+    <div class="input-with-embed select-input select-input-left" v-if="selectedRecipientType == 'Project'">
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl pr-5" v-model="repositoryUrl" placeholder="Repository URL" />
+      <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
+        <span>Project</span>
+        <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
+      </span>
+      <a href="#" class="position-absolute text-muted-light" style="top: 12px; right: 10px; z-index: 2" v-if="repository" @click="repository = null; repositoryUrl = ''">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+        </svg>
+      </a>
+      <div v-if="loading || repository">
+        <div class="text-center mb-2" v-if="loading"><font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" /></div>
+        <RepositoryEmbed :repository="repository" v-if="repository" />
       </div>
     </div>
     <div class="select-input mb-2">
@@ -107,7 +139,7 @@
         </div>
       </transition>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 rounded-xl" v-if="connected" @click="address ? send() : deposit()" :disabled="!user || amount == 0 || sending">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 rounded-xl" v-if="connected" @click="confirm()" :disabled="confirmDisabled">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
       {{ sending ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
@@ -157,15 +189,18 @@ export default {
   components: { Datepicker },
   data() {
     return {
-      recipientString: '',
-      address: null,
-      loading: false,
+      username: '',
       user: null,
+      userEthAddress: null,
+      issueUrl: '',
+      issue: null,
+      repositoryUrl: '',
+      repository: null,
+      loading: false,
       amount: 0,
-      lockDays: 0,
       sending: false,
       showSendSuccess: false,
-      loadUserTimeout: null,
+      loadRecipientTimeout: null,
       accountsUserDeposits: [],
       refundingUserDeposit: 0,
       releaseInstallments: 1,
@@ -174,60 +209,8 @@ export default {
       showDatepicker: false
     }
   },
-  mounted() {
-    if (this.$route.params.recipient) {
-      this.recipientString = this.$route.params.recipient
-      this.amount = Number(this.$route.params.amount)
-    }
-    this.updateUserDeposits()
-  },
-  watch: {
-    account() {
-      this.updateUserDeposits()
-    },
-    recipientString(newUsername, oldUsername) {
-      clearTimeout(this.loadUserTimeout)
-      this.loadUserTimeout = setTimeout(() => {
-        if (newUsername) {
-          this.loading = true
-          this.user = null
-          this.loadUser(newUsername)
-            .then(user => {
-              this.user = user
-              if (this.$octoBay) {
-                this.$octoBay.methods.userIDsByGithubUser(newUsername).call().then(userId => {
-                  if (userId) {
-                    this.$octoBay.methods.users(userId).call().then(result => {
-                      if (result.ethAddress !== "0x0000000000000000000000000000000000000000" && result.status == 2) {
-                        this.address = result.ethAddress
-                      } else {
-                        this.address = null
-                      }
-                    }).catch(e => console.log(e))
-                  } else {
-                    this.address = null
-                  }
-                }).catch(e => console.log(e))
-              }
-            })
-            .catch(() => {
-              this.user = null
-              this.address = null
-            })
-            .finally(() => this.loading = false)
-        } else {
-          this.user = null
-          this.address = null
-          this.loading = false
-        }
-      }, 500)
-    },
-  },
   computed: {
     ...mapGetters(['connected', 'account', 'selectedToken', 'selectedRecipientType', 'selectedInterval']),
-    recipientInputPlaceholder() {
-      return this.selectedRecipientType == 'User' ? 'Username' : (this.selectedRecipientType == 'Issue' ? 'Issue URL' : 'Repository URL')
-    },
     amountPerInstallment() {
       if (this.releaseInstallments) {
         return this.amount / this.releaseInstallments
@@ -242,12 +225,132 @@ export default {
       const prefix = this.releaseInstallments > 1 ? 'Starts: ' : 'Date: '
       const date = this.daysBetween(new Date(), this.releaseDate) === 0 ? 'now' : this.$moment(this.releaseDate).format('MMM. Do YYYY')
       return prefix + date
+    },
+    confirmDisabled() {
+      if (!this.sending && this.amount > 0) {
+        if (this.selectedRecipientType == 'User' && this.user) {
+          return false
+        }
+        if (this.selectedRecipientType == 'Issue' && this.issue) {
+          return false
+        }
+        if (this.selectedRecipientType == 'Project' && this.repository) {
+          return false
+        }
+      }
+      return true
     }
   },
+  mounted() {
+    if (this.$route.params.recipient) {
+      this.username = this.$route.params.recipient
+      this.amount = Number(this.$route.params.amount)
+    }
+    this.updateUserDeposits()
+  },
+  watch: {
+    account() {
+      this.updateUserDeposits()
+    },
+    username(username) {
+      clearTimeout(this.loadRecipientTimeout)
+      this.loadRecipientTimeout = setTimeout(() => {
+        if (username.match(/^[\w\-]+$/)) {
+          this.loading = true
+          this.user = null
+          this.loadUser(username).then(user => {
+            this.user = user
+            if (this.user && this.$octoBay) {
+              this.$octoBay.methods.userIDsByGithubUser(username).call().then(userId => {
+                if (userId) {
+                  this.$octoBay.methods.users(userId).call().then(result => {
+                    if (result.ethAddress !== "0x0000000000000000000000000000000000000000" && result.status == 2) {
+                      this.userEthAddress = result.ethAddress
+                    } else {
+                      this.userEthAddress = null
+                    }
+                  }).catch(e => console.log(e))
+                } else {
+                  this.userEthAddress = null
+                }
+              }).catch(e => console.log(e))
+            } else {
+              this.ethAddress = null
+            }
+          })
+          .catch(() => {
+            this.user = null
+            this.userEthAddress = null
+          })
+          .finally(() => this.loading = false)
+        } else {
+          this.user = null
+          this.userEthAddress = null
+          this.loading = false
+        }
+      }, 500)
+    },
+    issueUrl(url) {
+      clearTimeout(this.loadRecipientTimeout)
+      this.loadRecipientTimeout = setTimeout(() => {
+        const parts = url.match(/^https:\/\/github\.com\/([\w\-]+)\/([\w\-]+)\/issues\/(\d+)$/)
+        if (parts) {
+          let owner = parts[1]
+          let repo = parts[2]
+          let number = parts[3]
+          this.loading = true
+          this.issue = null
+          this.$axios.$get(`${process.env.API_URL}/github-issue/${owner}/${repo}/${number}`).then(issue => {
+            this.issue = issue
+          })
+          .catch(() => {
+            this.issue = null
+          })
+          .finally(() => this.loading = false)
+        } else {
+          this.issue = null
+          this.loading = false
+        }
+      }, 500)
+    },
+    repositoryUrl(url) {
+      clearTimeout(this.loadRecipientTimeout)
+      this.loadRecipientTimeout = setTimeout(() => {
+        const parts = url.match(/^https:\/\/github\.com\/([\w\-]+)\/([\w\-]+)$/)
+        if (parts) {
+          let owner = parts[1]
+          let repo = parts[2]
+          this.loading = true
+          this.repository = null
+          this.$axios.$get(`${process.env.API_URL}/github-repository/${owner}/${repo}`).then(repository => {
+            this.repository = repository
+          })
+          .catch(() => {
+            this.repository = null
+          })
+          .finally(() => this.loading = false)
+        } else {
+          this.repository = null
+          this.loading = false
+        }
+      }, 500)
+    },
+  },
   methods: {
-    send() {
+    confirm() {
+      if (this.selectedRecipientType == 'User') {
+        if (this.userEthAddress) {
+          this.sendToUser()
+        } else {
+          this.depositForUser()
+        }
+      } else if (this.selectedRecipientType == 'Issue') {
+        this.depositForIssue()
+      }
+    },
+    sendToUser() {
       this.sending = true
-      this.$octoBay.methods.sendEthToGithubUser(this.recipientString.toLowerCase()).send({
+      this.$octoBay.methods.sendEthToGithubUser(this.user.login.toLowerCase()).send({
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -263,9 +366,9 @@ export default {
         this.sending = false
       })
     },
-    deposit() {
+    depositForUser() {
       this.sending = true
-      this.$octoBay.methods.depositEthForGithubUser(this.recipientString.toLowerCase()).send({
+      this.$octoBay.methods.depositEthForGithubUser(this.user.login.toLowerCase()).send({
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -279,6 +382,19 @@ export default {
       }).finally(() => {
         this.loading = false
         this.sending = false
+      })
+    },
+    depositForIssue() {
+      this.sending = true
+      this.$octoBay.methods.depositEthForIssue(
+        this.issue.id
+      ).send({ from: this.account, value: this.$web3.utils.toWei(this.amount, "ether") }).then(tx => {
+        this.$store.dispatch('updateIssues')
+        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
+        this.sending = false
+        this.showDepositSuccess = true
+        this.amount = 0
       })
     },
     updateUserDeposits() {
