@@ -149,10 +149,11 @@
 import { mapGetters } from "vuex"
 import connect from '@/mixins/connect'
 import loadFromGithub from '@/mixins/loadFromGithub'
+import helpers from '@/mixins/helpers'
 import Datepicker from 'vuejs-datepicker'
 
 export default {
-  mixins: [connect, loadFromGithub],
+  mixins: [connect, loadFromGithub, helpers],
   components: { Datepicker },
   data() {
     return {
@@ -306,19 +307,6 @@ export default {
         })
         .catch(e => console.log(e))
         .finally(() => this.refundingUserDeposit = 0)
-    },
-    daysBetween(first, second) {
-      // Copy date parts of the timestamps, discarding the time parts.
-      var one = new Date(first.getFullYear(), first.getMonth(), first.getDate());
-      var two = new Date(second.getFullYear(), second.getMonth(), second.getDate());
-
-      // Do the math.
-      var millisecondsPerDay = 1000 * 60 * 60 * 24;
-      var millisBetween = two.getTime() - one.getTime();
-      var days = millisBetween / millisecondsPerDay;
-
-      // Round down.
-      return Math.floor(days);
     }
   }
 }
