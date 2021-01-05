@@ -1,5 +1,5 @@
 <template>
-  <div class="border rounded-xl px-1" style="margin-top: -56px; padding-top: 56px; border-color: #f2f2f2 !important">
+  <div class="border rounded-xl px-1" style="margin-top: -56px; padding-top: 56px;">
     <a :href="user.url" target="_blank" class="avatar" :style="'background-image: url(' + user.avatarUrl + ')'"></a>
     <div class="embed rounded-top pb-3 px-2">
       <div class="d-flex justify-content-between">

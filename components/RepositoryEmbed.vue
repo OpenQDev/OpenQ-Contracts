@@ -1,5 +1,5 @@
 <template>
-  <div class="embed border rounded-xl px-2 pb-3 mb-2" style="margin-top: -56px; padding-top: 56px; border-color: #f2f2f2 !important">
+  <div class="embed border rounded-xl px-2 pb-3 mb-2" style="margin-top: -56px; padding-top: 56px;">
     <div class="d-flex justify-content-between">
       <a :href="repository.url" target="_blank" class="text-truncate text-dark" :title="repository.name">
         <b>{{ repository.owner.login }}/{{ repository.name }}</b>

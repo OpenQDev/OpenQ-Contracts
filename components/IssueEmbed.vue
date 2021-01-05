@@ -1,5 +1,5 @@
 <template>
-  <div class="border rounded-xl px-3 pb-3 mb-2" style="margin-top: -56px; padding-top: 56px; border-color: #f2f2f2 !important">
+  <div class="border rounded-xl px-3 pb-3 mb-2" style="margin-top: -56px; padding-top: 56px;">
     <div class="d-flex">
       <span :class="'d-flex align-items-center badge badge-pill pl-1 mr-1 badge-' + (issue.closed ? 'danger' : 'success')">
         <InfoIcon width="16px" height="16px" class="mr-1" />
