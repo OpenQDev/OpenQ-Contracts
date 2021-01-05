@@ -18,6 +18,7 @@ export default (req, res) => {
       url
       number
       closed
+      createdAt
       comments {
         totalCount
       }
