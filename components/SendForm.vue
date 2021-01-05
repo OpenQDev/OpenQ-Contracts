@@ -57,6 +57,31 @@
       <div v-if="loading || issue">
         <div class="text-center mb-2" v-if="loading"><font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" /></div>
         <IssueEmbed :issue="issue" v-if="issue" />
+        <div v-if="issue" class="border rounded-xl mt-2 px-3 pt-2" style="margin-bottom: -48px; padding-bottom: 52px">
+          <small class="d-block font-weight-bold text-muted text-center">Available repository funds:</small>
+          <div class="d-flex justify-content-between mb-1">
+            <span>
+              <img src="/eth-logo.png" width="18" height="18" class="rounded-circle" />
+              ETH
+            </span>
+            <span>
+              <span v-if="selectedToken == null">{{ (5.31 - amount).toFixed(3) }}</span>
+              <span v-else>5.31</span>
+              <button class="btn btn-sm btn-primary shadow-sm rounded-xl" @click="$store.commit('setSelectedToken', null); amount = 5.31">use</button>
+            </span>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span>
+              <img src="https://assets.coingecko.com/coins/images/877/thumb/chainlink-new-logo.png?1547034700" width="18" height="18" class="rounded-circle" />
+              LINK
+            </span>
+            <span>
+              <span v-if="selectedToken && selectedToken.symbol == 'LINK'">{{ (28.46 - amount).toFixed(3) }}</span>
+              <span v-else>28.46</span>
+              <button class="btn btn-sm btn-primary shadow-sm rounded-xl" @click="$store.commit('setSelectedToken', token('LINK')); amount = 28.46">use</button>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
     <div class="input-with-embed select-input select-input-left" v-if="selectedRecipientType == 'Project'">
@@ -210,7 +235,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account', 'selectedToken', 'selectedRecipientType', 'selectedInterval']),
+    ...mapGetters(['connected', 'account', 'selectedToken', 'selectedRecipientType', 'selectedInterval', 'tokenList']),
     amountPerInstallment() {
       if (this.releaseInstallments) {
         return this.amount / this.releaseInstallments
@@ -423,6 +448,9 @@ export default {
         })
         .catch(e => console.log(e))
         .finally(() => this.refundingUserDeposit = 0)
+    },
+    token(symbol) {
+      return this.tokenList.tokens.find(token => token.symbol === symbol)
     }
   }
 }
