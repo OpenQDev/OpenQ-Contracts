@@ -120,3 +120,18 @@ $ yarn start
 ```
 
 For more detailed explanation check out [Nuxt.js docs](https://nuxtjs.org).
+
+#### Deeplinks
+
+For convenience the following deeplinks are available to prefill the send form:
+
+```
+/u/<username>
+/u/<username>/<amount>
+
+/i/<username>/<repository>/<issue>
+/i/<username>/<repository>/<issue>/<amount>
+
+/r/<username>/<repository>
+/r/<username>/<repository>/<amount>
+```
