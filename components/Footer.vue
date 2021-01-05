@@ -16,7 +16,7 @@
     </div>
     <div>
       <nuxt-link to="/about" class="text-white px-1" v-if="$route.path != '/about'">about</nuxt-link>
-      <nuxt-link to="/" class="text-white px-1" v-if="$route.path != '/'">go to app</nuxt-link>
+      <nuxt-link to="/" class="text-white px-1" v-if="$route.path == '/about'">go to app</nuxt-link>
     </div>
   </footer>
 </template>

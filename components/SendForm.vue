@@ -235,7 +235,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account', 'selectedToken', 'selectedRecipientType', 'selectedInterval', 'tokenList']),
+    ...mapGetters(['connected', 'account', 'selectedToken', 'selectedRecipientType', 'selectedInterval', 'tokenList', 'redirectPrefills']),
     amountPerInstallment() {
       if (this.releaseInstallments) {
         return this.amount / this.releaseInstallments
@@ -267,9 +267,20 @@ export default {
     }
   },
   mounted() {
-    if (this.$route.params.recipient) {
-      this.username = this.$route.params.recipient
-      this.amount = Number(this.$route.params.amount)
+    if (this.redirectPrefills) {
+      if (this.redirectPrefills.type == 'send-user') {
+        this.$store.commit('setSelectedRecipientType', 'User')
+        this.username = this.redirectPrefills.username
+        this.amount = this.redirectPrefills.amount
+      } else if (this.redirectPrefills.type == 'send-repository') {
+        this.$store.commit('setSelectedRecipientType', 'Project')
+        this.repositoryUrl = `https://github.com/${this.redirectPrefills.username}/${this.redirectPrefills.repository}`
+        this.amount = this.redirectPrefills.amount
+      } else if (this.redirectPrefills.type == 'send-issue') {
+        this.$store.commit('setSelectedRecipientType', 'Issue')
+        this.issueUrl = `https://github.com/${this.redirectPrefills.username}/${this.redirectPrefills.repository}/issues/${this.redirectPrefills.issue}`
+        this.amount = this.redirectPrefills.amount
+      }
     }
     this.updateUserDeposits()
   },

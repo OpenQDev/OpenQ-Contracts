@@ -26,12 +26,19 @@ export default {
   transition: 'fade',
   data() {
     return {
-      view: 'issues',
+      view: 'issues'
     }
   },
   computed: {
-    ...mapGetters(['account', 'registeredAccount']),
-    ...mapGetters('github', { githubUser: 'user' }),
+    ...mapGetters(['account', 'registeredAccount', 'redirectPrefills']),
+    ...mapGetters('github', { githubUser: 'user' })
+  },
+  created() {
+    if (this.redirectPrefills) {
+      if (this.redirectPrefills.type.startsWith('send')) {
+        this.view = 'send'
+      }
+    }
   },
   watch: {
     githubUser() {

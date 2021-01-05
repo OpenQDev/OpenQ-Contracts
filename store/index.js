@@ -11,7 +11,8 @@ export const state = () => ({
   showRecipientTypeList: false,
   selectedRecipientType: 'User',
   showIntervalSelect: false,
-  selectedInterval: 'Months'
+  selectedInterval: 'Months',
+  redirectPrefills: null
 })
 
 export const getters = {
@@ -59,6 +60,9 @@ export const getters = {
   },
   selectedInterval(state) {
     return state.selectedInterval
+  },
+  redirectPrefills(state) {
+    return state.redirectPrefills
   }
 }
 
@@ -132,6 +136,9 @@ export const mutations = {
   },
   setSelectedInterval(state, interval) {
     state.selectedInterval = interval
+  },
+  setRedirectPrefills(state, prefills) {
+    state.redirectPrefills = prefills
   }
 }
 
