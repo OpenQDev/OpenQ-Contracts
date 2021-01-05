@@ -26,7 +26,7 @@
           </small>
         </div>
       </div>
-      <div>
+      <div v-if="issueNode.primaryLanguage">
         <span :class="'mr-1 badge badge-pill' + (brightnessByColor(issueNode.primaryLanguage.color) < 180 ? ' text-white' : '')" :style="'background-color: ' + issueNode.primaryLanguage.color">
           {{ issueNode.primaryLanguage.name }}
         </span><span :class="'mr-1 badge badge-pill' + (brightnessByColor('#' + label.color) < 180 ? ' text-white' : '')" v-for="label in issueNode.labels" :style="'background-color: #' + label.color">
