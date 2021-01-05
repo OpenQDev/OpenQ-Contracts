@@ -128,7 +128,9 @@ export default {
         'faGavel',
         'faUser',
         'faCode',
-        'faTimes'
+        'faTimes',
+        'faStar',
+        'faUsers'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub', 'faDiscord'],
     },
