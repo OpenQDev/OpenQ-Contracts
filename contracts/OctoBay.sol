@@ -8,7 +8,7 @@ import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './interfaces/uniswap/IUniswapV2Router02.sol';
-import './Octopin.sol';
+import './OctoPin.sol';
 
 contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     
@@ -82,7 +82,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     address weth;
     address link;
-    Octopin octopin;
+    OctoPin octoPin;
     address octobayPaymaster;
    
     uint256 private registrationFee;
@@ -109,8 +109,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         claimFee = 0.1 * 10**18; // 0.1 LINK
     }
     
-    function setOctopin(address _octopin) external onlyOwner {
-        octopin = Octopin(_octopin);
+    function setOctoPin(address _octoPin) external onlyOwner {
+        octoPin = OctoPin(_octoPin);
     }
     
     function setPaymaster(address _octobayPaymaster) external onlyOwner {
@@ -423,10 +423,10 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         );
 
         pullRequestClaims[_requestId].status = 2;
-        octopin.mintOnPullRequestClaim(
+        octoPin.mintOnPullRequestClaim(
             users[userIDsByGithubUser[pullRequestClaims[_requestId].githubUser]]
                 .ethAddress,
-            _score * uint256(10)**octopin.decimals()
+            _score * uint256(10)**octoPin.decimals()
         );
     }
 

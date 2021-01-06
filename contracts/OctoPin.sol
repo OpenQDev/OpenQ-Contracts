@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract Octopin is ERC20, Ownable {
+contract OctoPin is ERC20, Ownable {
     mapping(string => uint256) public issuePins;
 
     address octobay;

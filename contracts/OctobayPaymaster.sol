@@ -4,18 +4,18 @@ pragma experimental ABIEncoderV2;
 import "@opengsn/gsn/contracts/BasePaymaster.sol";
 import "@0x/contracts-utils/contracts/src/v06/LibBytesV06.sol";
 
-interface Octobay {
+interface OctoBay {
     function getUserClaimAmount(string calldata _githubUser) external returns (uint amount);
     function deductGasFee(string calldata _githubUser, uint amount) external;
 }
 
-contract OctobayPaymaster is BasePaymaster {
+contract OctoBayPaymaster is BasePaymaster {
    
    string public override versionPaymaster = "2.0.0";    // GSN version
   
-   Octobay octobay;
-   constructor(address _octobay) public {
-      octobay = Octobay(_octobay);
+   OctoBay octoBay;
+   constructor(address _octoBay) public {
+      octoBay = OctoBay(_octoBay);
    }
    
    function preRelayedCall(
@@ -28,7 +28,7 @@ contract OctobayPaymaster is BasePaymaster {
     returns (bytes memory context, bool rejectOnRecipientRevert){
         string memory githubUser = string(getBytesParam(relayRequest.request.data, 2));
         require(
-            octobay.getUserClaimAmount(githubUser) >= maxPossibleGas,
+            octoBay.getUserClaimAmount(githubUser) >= maxPossibleGas,
             "Not enough funds to pay for gas"
         );
         context = bytes(githubUser);
@@ -41,7 +41,7 @@ contract OctobayPaymaster is BasePaymaster {
         GsnTypes.RelayData calldata relayData
     ) external override {
         string memory githubUser = string(getBytesParam(context, 2));
-        octobay.deductGasFee(githubUser, gasUseWithoutPost);
+        octoBay.deductGasFee(githubUser, gasUseWithoutPost);
     }
     
     // ------ UTILS -------- //
