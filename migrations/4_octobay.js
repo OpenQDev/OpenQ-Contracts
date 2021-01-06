@@ -4,8 +4,8 @@ const LinkToken = artifacts.require("link-token/LinkToken");
 
 module.exports = function (deployer) {
   if (process.env.DEV) {
-    deployer.deploy(OctoBay, LinkToken.address);
+    deployer.deploy(OctoBay, LinkToken.address, "", "", "", process.env.GSN_FORWARDER_ADDRESS);
   } else {
-    deployer.deploy(OctoBay);
+    deployer.deploy(OctoBay, "", "", "", process.env.GSN_FORWARDER_ADDRESS);
   }
 };
