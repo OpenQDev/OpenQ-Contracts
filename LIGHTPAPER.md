@@ -34,9 +34,21 @@ The leaderboard keeps track of who minted how many tokens by submitting their me
 - Automated Weekly Issue Updates
 - Monthly Project & Developer Updates
 
-### Deeplinking
+### Deeplinks
 
-Each user, issue and repository has a direct donation link following the GitHub url structure: /mktcode, /mktcode/octobay or /mktcode/octobay/issues/10
+For convenience the following deeplinks are available to prefill the send form:
+
+```
+/u/<username>
+/u/<username>/<amount>
+
+/i/<username>/<repository>/<issue>
+/i/<username>/<repository>/<issue>/<amount>
+
+/r/<username>/<repository>
+/r/<username>/<repository>/<amount>
+```
+
 
 ## Oracles
 
