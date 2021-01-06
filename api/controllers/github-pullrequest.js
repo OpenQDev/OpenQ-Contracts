@@ -30,6 +30,13 @@ export default (req, res) => {
       merged
       mergedAt
       createdAt
+      changedFiles
+      reviews {
+        totalCount
+      }
+      commits {
+        totalCount
+      }
       comments {
         totalCount
       }
