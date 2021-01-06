@@ -7,11 +7,11 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
-import './interfaces/uniswap/IUniswapV2Router02.sol';
+import './interfaces/IUniswapV2Router02.sol';
 import './OctoPin.sol';
 
 contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
-    
+
     function _msgSender() internal override(Context, BaseRelayRecipient)
     view returns (address payable) {
         return BaseRelayRecipient._msgSender();
@@ -23,7 +23,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
     string public override versionRecipient = '2.0.0'; // GSN version
-    
+
     IUniswapV2Router02 uniswap;
     // TODO: Add more events related to user withdrawls
     event UserDepositEvent(address account, uint256 amount, string githubUser);
@@ -84,11 +84,11 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     address link;
     OctoPin octoPin;
     address octobayPaymaster;
-   
+
     uint256 private registrationFee;
     uint256 private claimFee;
-    
-    
+
+
     constructor(
         address _link,
         address _weth,
@@ -108,22 +108,22 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         registrationFee = 0.1 * 10**18; // 0.1 LINK
         claimFee = 0.1 * 10**18; // 0.1 LINK
     }
-    
+
     function setOctoPin(address _octoPin) external onlyOwner {
         octoPin = OctoPin(_octoPin);
     }
-    
+
     function setPaymaster(address _octobayPaymaster) external onlyOwner {
         octobayPaymaster = _octobayPaymaster;
     }
-    
+
     function deductGasFee(string memory _githubUser, uint256 _amount)
         external
-    {   
+    {
         // only paymaster, cause paymaster pays for gas fee on behalf of user
-        require(msg.sender == octobayPaymaster);    
+        require(msg.sender == octobayPaymaster);
         require(userClaimAmountByGithbUser[_githubUser] >= _amount, 'Not enough funds to pay gasFee');
-        
+
         userClaimAmountByGithbUser[_githubUser] -= _amount;
     }
 
@@ -146,7 +146,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
     // ------------ USER ONBOARDING ------------ //
-    
+
     function register(
         address _oracle,
         bytes32 _jobId,
@@ -184,23 +184,23 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         userIDsByAddress[users[_requestId].ethAddress] = _requestId;
         userIDsByGithubUser[users[_requestId].githubUser] = _requestId;
     }
-    
+
     // ------------ USER DEPOSITS ------------ //
-    
+
     function depositEthForGithubUser(string calldata _githubUser)
         external
         payable
     {
         require(msg.value > 0, 'You must send ETH.');
         User memory user = users[userIDsByGithubUser[_githubUser]];
-        
+
         if(user.ethAddress != address(0) && user.status == 2) { // Registered and verified user
             payable(users[userIDsByGithubUser[_githubUser]].ethAddress).transfer(
                 msg.value
             );
-            
+
             emit UserSendEvent(msg.sender, msg.value, _githubUser);
-            
+
         } else {    // hold funds in contract
             nextUserDepositId++;
             userDeposits[nextUserDepositId] = UserDeposit(
@@ -210,25 +210,25 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
             );
             userDepositIdsByGithubUser[_githubUser].push(nextUserDepositId);
             userDepositIdsBySender[msg.sender].push(nextUserDepositId);
-            
+
             // increment claim amount
-            userClaimAmountByGithbUser[_githubUser] += msg.value;   
-            
+            userClaimAmountByGithbUser[_githubUser] += msg.value;
+
             emit UserDepositEvent(msg.sender, msg.value, _githubUser);
         }
     }
-    
+
     function _sendDeposit(uint256 _depositId, address _to) internal {
         UserDeposit memory deposit = userDeposits[_depositId];
         payable(_to).transfer(deposit.amount);
-        
+
         // reduce claim amount
         userClaimAmountByGithbUser[deposit.githubUser] -= deposit.amount;
-        
+
         delete userDeposits[_depositId];
     }
-    
-    
+
+
     function refundUserDeposit(uint256 _depositId) external {
         require(
             userDeposits[_depositId].from == msg.sender,
@@ -239,8 +239,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
 
     // ------------ USER WITHDRAWALS ------------ //
-    
-   
+
+
     function withdrawUserDeposit(uint256 _depositId) external {
         require(
             users[userIDsByAddress[msg.sender]].ethAddress == msg.sender,
@@ -291,9 +291,9 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         delete issueDeposits[_depositId];
     }
 
-    
+
     // ------------ ISSUE-DEPOSIT RELEASES ------------ //
-    
+
     function releaseIssueDeposits(
         address _oracle,
         bytes32 _jobId,
@@ -333,11 +333,11 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
             'Isse deposit release was not requested.'
         );
         releasedIssues[_requestId].status = 2;
-        
+
         // add released issue funds to user deposits
-        userClaimAmountByGithbUser[releasedIssues[_requestId].githubUser] += 
+        userClaimAmountByGithbUser[releasedIssues[_requestId].githubUser] +=
             issueDepositsAmountByIssueId[releasedIssues[_requestId].issueId];
-            
+
         emit ReleaseIssueDepositsEvent(
             releasedIssues[_requestId].issueId,
             releasedIssues[_requestId].githubUser
@@ -368,13 +368,13 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
         payable(msg.sender).transfer(issueDepositsAmountByIssueId[_issueId]);
         // subtract released issue funds from user deposits
-        userClaimAmountByGithbUser[users[userIDsByAddress[msg.sender]].githubUser] -= 
+        userClaimAmountByGithbUser[users[userIDsByAddress[msg.sender]].githubUser] -=
             issueDepositsAmountByIssueId[_issueId];
-            
+
         issueDepositsAmountByIssueId[_issueId] = 0;
     }
-    
-    // ------------ PULL REQUESTS ------------ //   
+
+    // ------------ PULL REQUESTS ------------ //
 
     function claimPullRequest(
         address _oracle,
@@ -430,9 +430,9 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         );
     }
 
-    
+
     // ------------ GETTERS ------------ //
-    
+
      function getUserDepositIdsForGithubUser(string calldata _githubUser)
         external
         view
@@ -448,7 +448,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     {
         return userDepositIdsBySender[msg.sender];
     }
-    
+
     function getIssueDepositIdsForIssueId(string calldata _depositId)
         external
         view
@@ -464,7 +464,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     {
         return issueDepositIdsBySender[msg.sender];
     }
-    
+
     function getUserClaimAmount(string memory _githubUser)
         external
         view
