@@ -57,7 +57,7 @@
       <div v-if="loading || issue">
         <div class="text-center mb-2" v-if="loading"><font-awesome-icon :icon="['fas', 'circle-notch']" spin class="text-muted-light" /></div>
         <IssueEmbed :issue="issue" v-if="issue" />
-        <div v-if="issue" class="border rounded-xl mt-2 px-3 pt-2" style="margin-bottom: -48px; padding-bottom: 52px">
+        <div v-if="issue" class="border rounded-xl mt-3 px-3 pt-2" style="margin-bottom: -48px; padding-bottom: 52px">
           <small class="d-block font-weight-bold text-muted text-center">Available repository funds:</small>
           <div class="d-flex justify-content-between mb-1">
             <span>
