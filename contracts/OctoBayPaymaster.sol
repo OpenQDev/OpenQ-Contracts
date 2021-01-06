@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import "@opengsn/gsn/contracts/BasePaymaster.sol";
 import "@0x/contracts-utils/contracts/src/v06/LibBytesV06.sol";
 
-interface OctoBay {
+interface IOctoBay {
     function getUserClaimAmount(string calldata _githubUser) external returns (uint amount);
     function deductGasFee(string calldata _githubUser, uint amount) external;
 }
@@ -14,9 +14,9 @@ contract OctoBayPaymaster is BasePaymaster {
    
    string public override versionPaymaster = "2.0.0";    // GSN version
   
-   OctoBay octoBay;
+   IOctoBay octoBay;
    constructor(address _octoBay) public {
-      octoBay = OctoBay(_octoBay);
+      octoBay = IOctoBay(_octoBay);
    }
    
    function preRelayedCall(
