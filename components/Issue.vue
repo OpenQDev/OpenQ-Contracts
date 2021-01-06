@@ -232,6 +232,7 @@ export default {
       if (this.$octoBay) {
         this.pinningIssue = true
         this.$octoBay.methods.pinIssue(this.issue.id, this.$web3.utils.toWei(this.pinAmount, 'ether')).send({
+          useGSN: false,
           from: this.account
         }).then(result => {
           this.$store.dispatch('updatePins', this.issue.id)
@@ -248,6 +249,7 @@ export default {
     refundIssueDeposit(id) {
       this.refundingDeposit = id
       this.$octoBay.methods.refundIssueDeposit(id).send({
+        useGSN: false,
         from: this.account
       }).then(() => {
         this.$store.commit('removeDeposit', { issueId: this.issue.id, depositId: id })
@@ -275,6 +277,7 @@ export default {
             this.issue.id,
             this.releaseTo
           ).send({
+            useGSN: false,
             from: this.account,
           }).then(releaseRequest => {
             this.releaseRequestID = releaseRequest.events.ChainlinkRequested.returnValues.id

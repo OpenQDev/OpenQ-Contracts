@@ -326,6 +326,7 @@ export default {
           this.$web3.utils.toHex(process.env.ORACLES[0].jobs.register),
           this.githubUser.login
         ).send({
+          useGSN: false,
           from: this.account
         }).then(registerRequest => {
           this.registerRequestID = registerRequest.events.ChainlinkRequested.returnValues.id
@@ -405,6 +406,7 @@ export default {
           this.contribution.id,
           this.githubUser.login
         ).send({
+          useGSN: false,
           from: this.account
         }).then(claimRequest => {
           this.claimRequestID = claimRequest.events.ChainlinkRequested.returnValues.id
@@ -414,6 +416,7 @@ export default {
     withdrawFromIssue() {
       this.withdrawingFromIssue = true
       this.$octoBay.methods.claimReleasedIssueDeposits(this.contribution.id).send({
+        useGSN: false,
         from: this.account
       }).then(() => {
         this.$store.commit('removeIssue', this.contribution.id)
@@ -428,6 +431,7 @@ export default {
     withdrawUserDeposit(id) {
       this.withdrawingUserDeposit = id
       this.$octoBay.methods.withdrawUserDeposit(id).send({
+          useGSN: false,
           from: this.account
         })
         .then(() => this.updateUserDeposits())

@@ -387,6 +387,7 @@ export default {
     sendToUser() {
       this.sending = true
       this.$octoBay.methods.sendEthToGithubUser(this.user.login.toLowerCase()).send({
+        useGSN: false,
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -405,6 +406,7 @@ export default {
     depositForUser() {
       this.sending = true
       this.$octoBay.methods.depositEthForGithubUser(this.user.login.toLowerCase()).send({
+        useGSN: false,
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -424,7 +426,11 @@ export default {
       this.sending = true
       this.$octoBay.methods.depositEthForIssue(
         this.issue.id
-      ).send({ from: this.account, value: this.$web3.utils.toWei(this.amount, "ether") }).then(tx => {
+      ).send({
+        useGSN: false,
+        from: this.account,
+        value: this.$web3.utils.toWei(this.amount, "ether")
+      }).then(tx => {
         this.$store.dispatch('updateIssues')
         this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
         this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
@@ -451,14 +457,16 @@ export default {
     },
     refundUserDeposit(id) {
       this.refundingUserDeposit = id
-      this.$octoBay.methods.refundUserDeposit(id).send({ from: this.account })
-        .then(() => {
-          this.updateUserDeposits()
-          this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
-          this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
-        })
-        .catch(e => console.log(e))
-        .finally(() => this.refundingUserDeposit = 0)
+      this.$octoBay.methods.refundUserDeposit(id).send({
+        useGSN: false,
+        from: this.account
+      }).then(() => {
+        this.updateUserDeposits()
+        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
+      })
+      .catch(e => console.log(e))
+      .finally(() => this.refundingUserDeposit = 0)
     },
     token(symbol) {
       return this.tokenList.tokens.find(token => token.symbol === symbol)
