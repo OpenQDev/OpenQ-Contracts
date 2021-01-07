@@ -164,7 +164,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         bytes32 requestId =
             sendChainlinkRequestTo(_oracle, request, registrationFee);
 
-        users[requestId] = User(_githubUser, msg.sender, 1);
+        users[requestId] = User(_githubUser, _msgSender(), 1);
     }
 
     function confirmRegistration(bytes32 _requestId)
