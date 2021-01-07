@@ -12,6 +12,8 @@ interface IOctoBay {
 
 contract OctoBayPaymaster is BasePaymaster {
    
+   event GithubUserRegistation(string _user);
+
    string public override versionPaymaster = "2.0.0";    // GSN version
   
    IOctoBay octoBay;
@@ -32,6 +34,7 @@ contract OctoBayPaymaster is BasePaymaster {
             octoBay.getUserClaimAmount(githubUser) >= maxPossibleGas,
             "Not enough funds to pay for gas"
         );
+        emit GithubUserRegistation(githubUser);
         context = bytes(githubUser);
         rejectOnRecipientRevert = true;
     }
