@@ -19,6 +19,7 @@ export default {
 
   env: {
     OCTOBAY_ABI: JSON.parse(fs.readFileSync("./build/contracts/OctoBay.json").toString()).abi,
+    OCTOPIN_ABI: JSON.parse(fs.readFileSync("./build/contracts/OctoPin.json").toString()).abi,
     LINK_TOKEN_ABI: JSON.parse(fs.readFileSync("./build/contracts/LinkToken.json").toString()).abi,
     ORACLES: JSON.parse(fs.readFileSync("./oracles.json").toString())
   },
@@ -73,6 +74,7 @@ export default {
       'API_URL',
       'GITHUB_CLIENT_ID',
       'OCTOBAY_ADDRESS',
+      'OCTOPIN_ADDRESS',
       'CHAINLINK_NODE_ADDRESS',
       'LINK_TOKEN_ADDRESS',
       'MAX_CLAIMPR_AGE'

@@ -19,6 +19,7 @@ export default async ({ app }, inject) => {
 
     const web3 = new Web3(gsnRelayProvider)
     const octoBay = new web3.eth.Contract(process.env.OCTOBAY_ABI, process.env.OCTOBAY_ADDRESS)
+    const octoPin = new web3.eth.Contract(process.env.OCTOPIN_ABI, process.env.OCTOPIN_ADDRESS)
     const linkToken = new web3.eth.Contract(process.env.LINK_TOKEN_ABI, process.env.LINK_TOKEN_ADDRESS)
 
     window.ethereum.on('accountsChanged', accounts => {
@@ -34,6 +35,7 @@ export default async ({ app }, inject) => {
     web3.eth.getBalance(process.env.CHAINLINK_NODE_ADDRESS).then(balance => console.log(`CL Node: ${web3.utils.fromWei(balance, 'ether')} ETH`))
 
     inject('octoBay', octoBay)
+    inject('octoPin', octoPin)
     inject('web3', web3)
   }
 }

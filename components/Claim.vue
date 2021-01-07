@@ -388,7 +388,7 @@ export default {
         if (event.returnValues.id === this.claimRequestID) {
           // stop listening and finish process
           confirmListener.unsubscribe()
-          this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+          this.$store.dispatch('updateOctoPinBalance')
           this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
           this.showClaimSuccess = true
           this.claimingPullRequest = false

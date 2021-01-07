@@ -394,7 +394,7 @@ export default {
         this.amount = 0
         this.showSendSuccess = true
         this.updateUserDeposits()
-        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$store.dispatch('updateOctoPinBalance')
         this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
       }).catch(e => {
         console.log(e)
@@ -413,7 +413,7 @@ export default {
         this.amount = 0
         this.showSendSuccess = true
         this.updateUserDeposits()
-        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$store.dispatch('updateOctoPinBalance')
         this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
       }).catch(e => {
         console.log(e)
@@ -432,7 +432,7 @@ export default {
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(tx => {
         this.$store.dispatch('updateIssues')
-        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$store.dispatch('updateOctoPinBalance')
         this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
         this.sending = false
         this.showDepositSuccess = true
@@ -462,7 +462,7 @@ export default {
         from: this.account
       }).then(() => {
         this.updateUserDeposits()
-        this.$octoBay.methods.balanceOf(this.account).call().then(balance => this.$store.commit('setOctoBalance', balance))
+        this.$store.dispatch('updateOctoPinBalance')
         this.$web3.eth.getBalance(this.account).then(balance => this.$store.commit('setBalance', balance))
       })
       .catch(e => console.log(e))

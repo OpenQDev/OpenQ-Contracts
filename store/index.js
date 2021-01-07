@@ -3,7 +3,7 @@ export const state = () => ({
   accounts: [],
   registeredAccount: null,
   balance: 0,
-  octoBalance: 0,
+  octoPinBalance: 0,
   issues: [],
   tokenList: [],
   showTokenList: false,
@@ -28,8 +28,8 @@ export const getters = {
   balance(state) {
     return state.balance
   },
-  octoBalance(state) {
-    return state.octoBalance
+  octoPinBalance(state) {
+    return state.octoPinBalance
   },
   connected(state) {
     return !!state.accounts.length
@@ -76,8 +76,8 @@ export const mutations = {
   setBalance(state, balance) {
     state.balance = balance
   },
-  setOctoBalance(state, balance) {
-    state.octoBalance = balance
+  setOctoPinBalance(state, balance) {
+    state.octoPinBalance = balance
   },
   setRegisteredAccount(state, registeredAccount) {
     state.registeredAccount = registeredAccount
@@ -165,7 +165,7 @@ export const actions = {
           if (accounts.length) {
             commit('setAccounts', accounts)
             this.$web3.eth.getBalance(accounts[0]).then(balance => commit('setBalance', balance))
-            this.$octoBay.methods.balanceOf(accounts[0]).call().then(balance => commit('setOctoBalance', balance))
+            dispatch('updateOctoPinBalance')
           }
         })
         this.$web3.eth.net.getId().then(result => {
@@ -207,6 +207,9 @@ export const actions = {
         }
       })
     }
+  },
+  updateOctoPinBalance({ state, commit }) {
+    this.$octoPin.methods.balanceOf(state.accounts[0]).call().then(balance => commit('setOctoPinBalance', balance))
   },
   async updatePins({ commit }, issueId) {
     const pins = await this.$octoBay.methods.issuePins(issueId).call()

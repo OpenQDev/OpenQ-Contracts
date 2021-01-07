@@ -19,7 +19,7 @@
       </div>
       <div class="d-flex flex-column text-right">
         <b class="text-nowrap">{{ formattedBalance }} ETH</b>
-        <small class="text-nowrap" style="margin-top: -3px">{{ formattedOctoBalance }} OPIN</small>
+        <small class="text-nowrap" style="margin-top: -3px">{{ formattedOctoPinBalance }} OPIN</small>
       </div>
     </div>
 
@@ -79,13 +79,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['connected', 'account', 'balance', 'octoBalance', 'registeredAccount', 'networkId']),
+    ...mapGetters(['connected', 'account', 'balance', 'octoPinBalance', 'registeredAccount', 'networkId']),
     ...mapGetters("github", { githubUser: 'user' }),
     formattedBalance() {
       return Number(this.$web3.utils.fromWei(this.balance.toString(), "ether")).toFixed(2)
     },
-    formattedOctoBalance() {
-      return Number(this.$web3.utils.fromWei(this.octoBalance.toString(), "ether")).toFixed(2)
+    formattedOctoPinBalance() {
+      return Number(this.$web3.utils.fromWei(this.octoPinBalance.toString(), "ether")).toFixed(2)
     },
   }
 }
