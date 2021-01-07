@@ -8,6 +8,7 @@ export default async ({ app }, inject) => {
     const gsnRelayProvider = await RelayProvider.newProvider({
       provider: plainWeb3.currentProvider,
       config: {
+        relayHubAddress: process.env.GSN_RELAYHUB_ADDRESS,
         paymasterAddress: process.env.GSN_PAYMASTER_ADDRESS,
         loggerConfiguration: {
           logLevel: 'debug',
