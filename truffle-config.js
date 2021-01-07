@@ -17,7 +17,7 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
-require('dotenv').config()
+require('dotenv').config({ path: './.env.deploy' })
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const fs = require('fs');
@@ -81,7 +81,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.6.6",
+      version: "^0.6.6",
       settings: {
         optimizer: {
           enabled: true,
