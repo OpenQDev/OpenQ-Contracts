@@ -33,6 +33,7 @@ contract OctoBayPaymaster is BasePaymaster {
             "Not enough funds to pay for gas"
         );
         context = bytes(githubUser);
+        rejectOnRecipientRevert = true;
     }
     
     function postRelayedCall(
