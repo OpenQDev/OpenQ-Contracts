@@ -94,7 +94,7 @@ sw.*
 *.swp
 
 # Contract artifacts
-./contracts/artifacts/
-./contracts/interfaces/artifacts/
+contracts/artifacts/
+contracts/interfaces/artifacts/
 
 .mnemonic
