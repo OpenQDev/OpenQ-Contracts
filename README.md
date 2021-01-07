@@ -55,7 +55,39 @@ You find your Chainlink node's ETH address in the operator dashboard.
 
 ### Deploy Contracts
 
-A LINK token, a Chainlink oracle and the OctoBay contract will be deployed.
+#### Gas Station Network
+
+OctoBay uses the [Gas Station Network](https://opengsn.org/) to enable [gasless meta transactions](https://github.com/ethereum/EIPs/issues/1776).
+When installing the repository's dependcies you also installed `@opengsn/gsn`.
+
+From the octobay directory run `npx gsn start`. It will deploy all the necessary contracts for you to your local ganache instance and start a relay server.
+
+```
+== startGSN: ready.
+GSN started
+
+  RelayHub: 0x78F28dfEb8afAec22d88a5F2007f5f6FeE248645
+  StakeManager: 0x1A6f5059b5F7E129E17Fe3B2aC3A1bDeCa6F7E41
+  Penalizer: 0x9CcCa2894453eFc3559f82dD108A4ebcE497cf03
+  VersionRegistry: 0xf9307923694E9114a0ad9Dc5B0Acf8Ddcf9248F0
+  Forwarder: 0xe5D11c15273B475346d1EBAD709377cBa8e6987f
+  Paymaster : 0x169BAB8aa3e139B9BE9E83120D2157802d6e3947
+Relay is active, URL = http://127.0.0.1:45937 . Press Ctrl-C to abort
+```
+
+Now add the following addresses to your `.env` file:
+
+```
+GSN_RELAYHUB_ADDRESS=0x78F28dfEb8afAec22d88a5F2007f5f6FeE248645
+GSN_FORWARDER_ADDRESS=0xe5D11c15273B475346d1EBAD709377cBa8e6987f
+GSN_PAYMASTER_ADDRESS=0x169BAB8aa3e139B9BE9E83120D2157802d6e3947
+```
+
+You also need to make sure that your paymaster contract is funded with 1 ETH.
+
+#### OctoBay Contracts
+
+A LINK token, a Chainlink oracle and the OctoBay contract will be deployed, with the GSN forwarder and paymaster addresses set.
 
 ```
 truffle migrate --network development
