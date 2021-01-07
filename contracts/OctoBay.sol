@@ -160,7 +160,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
                 this.confirmRegistration.selector
             );
         request.add('githubUser', _githubUser);
-        request.add('ethAddress', addressToIntString(msg.sender));
+        request.add('ethAddress', addressToIntString(_msgSender()));
         bytes32 requestId =
             sendChainlinkRequestTo(_oracle, request, registrationFee);
 
