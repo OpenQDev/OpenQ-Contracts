@@ -386,7 +386,7 @@ export default {
     },
     sendToUser() {
       this.sending = true
-      this.$octoBay.methods.sendEthToGithubUser(this.user.login.toLowerCase()).send({
+      this.$octoBay.methods.depositEthForGithubUser(this.user.login.toLowerCase()).send({
         useGSN: false,
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
