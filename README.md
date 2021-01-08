@@ -9,8 +9,7 @@ You need an empty postgres database named `chainlink-local` with the default `po
 1. Install the repository and its dependencies.
 
 ```bash
-git clone https://github.com/mktcode/octobay && cd octobay
-yarn
+git clone https://github.com/mktcode/octobay && cd octobay && yarn
 ```
 
 2. Start the local Ethereum node.
