@@ -25,7 +25,7 @@ const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
 
 module.exports = {
   contracts_directory: './evm/contracts',
-  contracts_build_directory: './evm/build',
+  contracts_build_directory: './evm/build/octobay',
   migrations_directory: './evm/migrations',
 
   /**

@@ -20,9 +20,9 @@ export default {
   serverMiddleware: ["~/api/index"],
 
   env: {
-    OCTOBAY_ABI: JSON.parse(fs.readFileSync("./evm/build/OctoBay.json").toString()).abi,
-    OCTOPIN_ABI: JSON.parse(fs.readFileSync("./evm/build/OctoPin.json").toString()).abi,
-    LINK_TOKEN_ABI: JSON.parse(fs.readFileSync("./evm/build/LinkToken.json").toString()).abi,
+    OCTOBAY_ABI: JSON.parse(fs.readFileSync("./evm/build/octobay/OctoBay.json").toString()).abi,
+    OCTOPIN_ABI: JSON.parse(fs.readFileSync("./evm/build/octobay/OctoPin.json").toString()).abi,
+    LINK_TOKEN_ABI: JSON.parse(fs.readFileSync("./evm/build/octobay/LinkToken.json").toString()).abi,
     ORACLES: JSON.parse(fs.readFileSync("./oracles.json").toString()) // TODO: fetch from octobay contract
   },
 

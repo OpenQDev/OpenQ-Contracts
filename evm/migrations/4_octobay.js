@@ -1,4 +1,4 @@
-require("dotenv").config({ path: './../.env.deploy' })
+require("dotenv").config({ path: './../../.env' })
 const OctoBay = artifacts.require("OctoBay")
 const LinkToken = artifacts.require("link-token/LinkToken")
 const zeroAddress = "0x0000000000000000000000000000000000000000"
