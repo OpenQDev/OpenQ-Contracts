@@ -1,0 +1,1267 @@
+{
+	"compiler": {
+		"version": "0.6.12+commit.27d51765"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_link",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_weth",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_uniswap",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_forwarder",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					}
+				],
+				"name": "ChainlinkCancelled",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					}
+				],
+				"name": "ChainlinkFulfilled",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					}
+				],
+				"name": "ChainlinkRequested",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "issueId",
+						"type": "string"
+					}
+				],
+				"name": "IssueDepositEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "issueId",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "githubUser",
+						"type": "string"
+					}
+				],
+				"name": "ReleaseIssueDepositsEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "githubUser",
+						"type": "string"
+					}
+				],
+				"name": "UserDepositEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "githubUser",
+						"type": "string"
+					}
+				],
+				"name": "UserSendEvent",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_oracle",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_jobId",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "string",
+						"name": "_prId",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_githubUser",
+						"type": "string"
+					}
+				],
+				"name": "claimPullRequest",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_issueId",
+						"type": "string"
+					}
+				],
+				"name": "claimReleasedIssueDeposits",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "_requestId",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_score",
+						"type": "uint256"
+					}
+				],
+				"name": "confirmPullRequestClaim",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "_requestId",
+						"type": "bytes32"
+					}
+				],
+				"name": "confirmRegistration",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "_requestId",
+						"type": "bytes32"
+					}
+				],
+				"name": "confirmReleaseIssueDeposits",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_githubUser",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "deductGasFee",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_githubUser",
+						"type": "string"
+					}
+				],
+				"name": "depositEthForGithubUser",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_issueId",
+						"type": "string"
+					}
+				],
+				"name": "depositEthForIssue",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_depositId",
+						"type": "string"
+					}
+				],
+				"name": "getIssueDepositIdsForIssueId",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getIssueDepositIdsForSender",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_githubUser",
+						"type": "string"
+					}
+				],
+				"name": "getUserClaimAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_githubUser",
+						"type": "string"
+					}
+				],
+				"name": "getUserDepositIdsForGithubUser",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getUserDepositIdsForSender",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "forwarder",
+						"type": "address"
+					}
+				],
+				"name": "isTrustedForwarder",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "issueDepositIdsByIssueId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "issueDepositIdsBySender",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "issueDeposits",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "from",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "issueId",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "issueDepositsAmountByIssueId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "issuePins",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "issueReleaseIDsByIssueId",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "nextIssueDepositId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "pullRequestClaimIDsByPrId",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"name": "pullRequestClaims",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "githubUser",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "prId",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "status",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_depositId",
+						"type": "uint256"
+					}
+				],
+				"name": "refundIssueDeposit",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_depositId",
+						"type": "uint256"
+					}
+				],
+				"name": "refundUserDeposit",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_oracle",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_jobId",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "string",
+						"name": "_githubUser",
+						"type": "string"
+					}
+				],
+				"name": "register",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_oracle",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_jobId",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "string",
+						"name": "_issueId",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_githubUser",
+						"type": "string"
+					}
+				],
+				"name": "releaseIssueDeposits",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"name": "releasedIssues",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "githubUser",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "issueId",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "status",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_octoPin",
+						"type": "address"
+					}
+				],
+				"name": "setOctoPin",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_octobayPaymaster",
+						"type": "address"
+					}
+				],
+				"name": "setPaymaster",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "trustedForwarder",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "userClaimAmountByGithbUser",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "userDepositIdsByGithubUser",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "userDepositIdsBySender",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "userDeposits",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "from",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "githubUser",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "userIDsByAddress",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "userIDsByGithubUser",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"name": "users",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "githubUser",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "ethAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint8",
+						"name": "status",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "versionRecipient",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_depositId",
+						"type": "uint256"
+					}
+				],
+				"name": "withdrawUserDeposit",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"isTrustedForwarder(address)": {
+					"notice": "return if the forwarder is trusted to forward relayed transactions to us. the forwarder is required to verify the sender's signature, and verify the call is not a replay."
+				}
+			},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"localhost/contracts/OctoBay.sol": "OctoBay"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@chainlink/contracts/src/v0.6/Chainlink.sol": {
+			"keccak256": "0x7048bfd6e6fe4e60ea4af01ed44fc0494cec75df75c6b542a6f08ed34c66d39e",
+			"urls": [
+				"bzz-raw://37efc6a4665b537657283652d75919ec8dd3d48d85150b5285041bc9614fec11",
+				"dweb:/ipfs/QmWKgeJEj222kNefTkauHwM5x58KTxSGgcbLseH9Fq8jed"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/ChainlinkClient.sol": {
+			"keccak256": "0xd06166f7798c4c8cbd0e2dc642450c9bca39157c688ae95dbe079f666cc44dfa",
+			"urls": [
+				"bzz-raw://672af493da8e01492532d7ca8660362d015f317114e405aa55c85cff24aee31c",
+				"dweb:/ipfs/QmNZdB2jVwwswrLFr83toTtHM5MPSugKeUdxrxfCJ4mP4K"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/interfaces/ChainlinkRequestInterface.sol": {
+			"keccak256": "0x4b41b021bf58c429891ff291637de29be54741565105de82238dac9f6ecee374",
+			"urls": [
+				"bzz-raw://84681ff65b31b2e2c6977289661733c0f22409965b9057140f56f8a9ff185048",
+				"dweb:/ipfs/QmS4TQJDSHQiKNwQ4LkSCVp7LjuRQwp6gem3271vtCwz9k"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/interfaces/ENSInterface.sol": {
+			"keccak256": "0xf4998e886147b298eda28b4eacbdc90c58ba63ba475469651f2072e188dd5a64",
+			"urls": [
+				"bzz-raw://c1e2334294a816b7eda9de280e39b9463ebde2db8b242410eb991b2f623b47d4",
+				"dweb:/ipfs/QmNY5bajahfFRmhBgcMVQ7712zHKxc6HkuN7LaiKtpjb7t"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/interfaces/LinkTokenInterface.sol": {
+			"keccak256": "0xdbf46b45a4c9f38ba71a0391aed0e7b108854b619f292d907ae537228868bda6",
+			"urls": [
+				"bzz-raw://3ae40466809630c4731e2e3a697d6885727c577aaf260766c8a2f534ad3f6ee8",
+				"dweb:/ipfs/QmTzpN5yP4Y5jvQ1ohfXFrce3sjzUiSChYJgZj9VvhVohG"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/interfaces/PointerInterface.sol": {
+			"keccak256": "0x6458d82762d4f13c020a13efdbd9bf14500e147df707184a693aea91449c2f4f",
+			"urls": [
+				"bzz-raw://735950f3a544fc6ef2db92405597169bfb5fdb9df83623c0d99fd3d85de8690d",
+				"dweb:/ipfs/QmZHxb5Qr7Kw9DHAg4VwEADue9ffNyyhbiyEZ15A5mANUN"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/vendor/BufferChainlink.sol": {
+			"keccak256": "0xe4aa364f56414c4326ffe12c1121d591be6ad168afb42b24a823f6d76299dd63",
+			"urls": [
+				"bzz-raw://e3e91a0eddb6fc6c53acdfbd59771deff1678330128d3c98014c668763efb45e",
+				"dweb:/ipfs/Qmbt5VNT2W2oCN44536JGNuHqAJdmYGqzEFcHvy8W1tAsY"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/vendor/CBORChainlink.sol": {
+			"keccak256": "0xbb4d8257c1af348cac9828ee531428b148bb726517357fe6a80279ac45b658b5",
+			"urls": [
+				"bzz-raw://8c8c5da0358946437fac595591367066b8d6e5f58414c027a79a093e1f3241c1",
+				"dweb:/ipfs/QmNQ5TPzaPEbj5kaX17YLuZEmhv8NGfoCrUVK3s6gQuHdA"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/vendor/ENSResolver.sol": {
+			"keccak256": "0xdddea29d7407c1dbd1e130d885fc1a0934e98f0a7cc9f4d5bfd002bb2cfbcf82",
+			"urls": [
+				"bzz-raw://c4c764d69c47754d7b219fab558bf4be2a6444470ede7aa0ab1e446aea01dbda",
+				"dweb:/ipfs/QmWp2CNUw9xt8ir2P3LhGHuydUsAXnyZ382U2BUjhoYPvy"
+			]
+		},
+		"@chainlink/contracts/src/v0.6/vendor/SafeMathChainlink.sol": {
+			"keccak256": "0x5e6948bb332468d8ef0704b4259babc8aef7ce5969d5997c16db8ad806222a0a",
+			"urls": [
+				"bzz-raw://8e2bbda1e1168401d0105cc86bf5302000e8555ebb9b235cd68c148916a452e5",
+				"dweb:/ipfs/QmbTjbpJr8VfdWfgBknbQov1MGkXXPMysb7eD8bobGAcBV"
+			]
+		},
+		"@opengsn/gsn/contracts/BasePaymaster.sol": {
+			"keccak256": "0x3d919d37498eedbfb21ccca8570501db480dc884ab9a68e1d8d69062c8efe18d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b9e02e669787213806a6012d710ae4d314f28f4dc176f45ee91eebed20800cad",
+				"dweb:/ipfs/QmcNLLXT7mSD5wFzCF8KNCkSBBmeZa9NfLZe2ah195PZ7X"
+			]
+		},
+		"@opengsn/gsn/contracts/BaseRelayRecipient.sol": {
+			"keccak256": "0xaef2a61eaaf6cbcf4fc96e23416fc3503b61c7d9b6544c0baf8a366bde49c156",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://fa64cd3eb67cf95d475ad3458c644cd226c673bf9ede498bc5d041a62560bf02",
+				"dweb:/ipfs/QmejpKigtRaSJF374NV3gNL4hdzZkRknvmoJd2mgnfaMQ9"
+			]
+		},
+		"@opengsn/gsn/contracts/forwarder/Forwarder.sol": {
+			"keccak256": "0x10b4cbeebab696613fa4123c50db43e8ccc2da031a88638e194777cda792a3cb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://3872a73495ef634e8cedce8718da5e4b8b2faac9b6633cfefdc30c0f90069abc",
+				"dweb:/ipfs/QmSmrciT8wkMXNeDh3dWHRe9JFULeEHNQ652WDPAZkwAVu"
+			]
+		},
+		"@opengsn/gsn/contracts/forwarder/IForwarder.sol": {
+			"keccak256": "0x253fd0f17ff0a73a96d83570b9d6bdc027b64e3ff0aca19d6c0b621bd5156aee",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://fd3169e07849f996eb281bf4700cea430e45eda54a80169f0a360362cc2a8e84",
+				"dweb:/ipfs/QmXa1x3UpA9tAa26Fwf4b4MkVqeEfEFgDPhNfRMtwJuoms"
+			]
+		},
+		"@opengsn/gsn/contracts/interfaces/GsnTypes.sol": {
+			"keccak256": "0xedcb9a8dfeed8c622844c604c5ebdb3a9fb92f859a1530b9327fb85476206062",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5fba2e08a6793d60d41c49c817a8837f7fdec6706950e804f79bac0a88b9bad0",
+				"dweb:/ipfs/QmPnrUNzGvshVLrSmgBN4kB2Z2NXTzCyWuegjHo15292uD"
+			]
+		},
+		"@opengsn/gsn/contracts/interfaces/IPaymaster.sol": {
+			"keccak256": "0x29ce667767ec535da1172bebf6924f24bc254c587fd2c1954a575b3bc06d9dbf",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c243806f0ff756488f7212c7ee652d163b4c59e766274fbf8deb1fa5020b2a28",
+				"dweb:/ipfs/QmZREaXLpsMnzYJjJhvo2T5vRXtinefqy1TwYeuHesaxY8"
+			]
+		},
+		"@opengsn/gsn/contracts/interfaces/IRelayHub.sol": {
+			"keccak256": "0xea80327e2ca933cc697857c5546702c56ad84c4a3ffd92c7a90c980eedf4f79e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6ebdd033b54c1e4701be43e0c12ca163564304c498eab2097d0326cb645ea81c",
+				"dweb:/ipfs/QmWVLAaDmqAiB2EADZBuVojgzjYfX2gYk2o7wBqHm42Tpr"
+			]
+		},
+		"@opengsn/gsn/contracts/interfaces/IRelayRecipient.sol": {
+			"keccak256": "0xbb9d970a466d0155113acc87f0ea403df413e070e0a1ddce66439f2f82ac6d01",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://2a7d40ca09005a8a4598edc292c079be77fa0ba05f3a93514fcbe9349e8a265d",
+				"dweb:/ipfs/QmbY3DJ6jf18Kprx24oadvMqrjguYUHhf2tBVd3kvCVtJc"
+			]
+		},
+		"@opengsn/gsn/contracts/interfaces/IStakeManager.sol": {
+			"keccak256": "0xef5e2a00a9aa741faa94cf828dc060b05566dc87e32f2b41577e7d3a97f2cd8b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://99cc978b676db13da12ef5da9cc509715c3f24896b98cbac1af0f9d2d0ede554",
+				"dweb:/ipfs/QmWBxE1Uxru5j26xBJ9tFzivCtdy5Fe6mZuC8mgLsmubyX"
+			]
+		},
+		"@opengsn/gsn/contracts/utils/GsnEip712Library.sol": {
+			"keccak256": "0x9c380dd0a60ee6a26fb52acdbdd0fce4c9273a33c0e06b57989264820291d863",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://cda18d10adb9f83c113a9184a881e34a7a5e3e7b06cf760c908b7507cac52d9f",
+				"dweb:/ipfs/QmWQjHFmx2QYJzyTig6kzWPG34MQzVNqK2uibAvejuxywJ"
+			]
+		},
+		"@opengsn/gsn/contracts/utils/GsnUtils.sol": {
+			"keccak256": "0x8f13a7751fe2d62056aafcd2492bac22defb01f05aee34e6b7827db66c6578ec",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://28710b609b3066f482cdcbedd4f14255f4363b89dc6052d8da78ecfab4ef1681",
+				"dweb:/ipfs/QmU7v21Qtm1wppx16nxdoh3VMSoaK66vyFYMezMXEZ15Db"
+			]
+		},
+		"@opengsn/gsn/contracts/utils/MinLibBytes.sol": {
+			"keccak256": "0x96c2ad0c80e0db9a849d8f8c9ea865dface3b11983435fcfbd02cd05037293f4",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://643018a775e0d9df91ac9d28c9b5afc586f322eb14cb4cb9bcb0154a9bbf14e6",
+				"dweb:/ipfs/QmPTAEP4VminSwttSwhvT2svenkLkjKsRtXiLpLAPc6ajC"
+			]
+		},
+		"@openzeppelin/contracts/GSN/Context.sol": {
+			"keccak256": "0x8d3cb350f04ff49cfb10aef08d87f19dcbaecc8027b0bed12f3275cd12f38cf0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ded47ec7c96750f9bd04bbbc84f659992d4ba901cb7b532a52cd468272cf378f",
+				"dweb:/ipfs/QmfBrGtQP7rZEqEg6Wz6jh2N2Kukpj1z5v3CGWmAqrzm96"
+			]
+		},
+		"@openzeppelin/contracts/access/Ownable.sol": {
+			"keccak256": "0xf7c39c7e6d06ed3bda90cfefbcbf2ddc32c599c3d6721746546ad64946efccaa",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://cb57a28e189cd8b05748db44bdd51d608e6f1364dd1b35ad921e1bc82c10631e",
+				"dweb:/ipfs/QmaWWTBbVu2pRR9XUbE4iC159NoP59cRF9ZJwhf4ghFN9i"
+			]
+		},
+		"@openzeppelin/contracts/cryptography/ECDSA.sol": {
+			"keccak256": "0x31c48079dab181042e8694201f2783e1388778bc16eaac2bbab04f3cc1871282",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8be3f39ccb5eb6d7f476a28bd8cb26c9dc165624f6377ef2e0943dfd2c633070",
+				"dweb:/ipfs/QmWFZTXaN2kZmnDjGyXuB89fBXVnGF3h6qoEhV4fER9RzC"
+			]
+		},
+		"@openzeppelin/contracts/math/SafeMath.sol": {
+			"keccak256": "0x3b21f2c8d626de3b9925ae33e972d8bf5c8b1bffb3f4ee94daeed7d0679036e6",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://7f8d45329fecbf0836ad7543330c3ecd0f8d0ffa42d4016278c3eb2215fdcdfe",
+				"dweb:/ipfs/QmXWLT7GcnHtA5NiD6MFi2CV3EWJY4wv5mLNnypqYDrxL3"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/ERC20.sol": {
+			"keccak256": "0xcbd85c86627a47fd939f1f4ee3ba626575ff2a182e1804b29f5136394449b538",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://53c6a80c519bb9356aad28efa9a1ec31603860eb759d2dc57f545fcae1dd1aca",
+				"dweb:/ipfs/QmfRS6TtMNUHhvgLHXK21qKNnpn2S7g2Yd1fKaHKyFiJsR"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0x5f02220344881ce43204ae4a6281145a67bc52c2bb1290a791857df3d19d78f5",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://24427744bd3e6cb73c17010119af12a318289c0253a4d9acb8576c9fb3797b08",
+				"dweb:/ipfs/QmTLDqpKRBuxGxRAmjgXt9AkXyACW3MtKzi7PYjm5iMfGC"
+			]
+		},
+		"localhost/contracts/OctoBay.sol": {
+			"keccak256": "0xd2ad06f468b0be449515bf3fabef0e35d4ca536a7e4db524f91441776d426026",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://55ee0b7a3919f5ed08fcab1115425aca65d340f1f47ff42adf9f67889d3a51be",
+				"dweb:/ipfs/QmTCM9LUkbnZLKKmMuqo787sjU6rrKiqw3dvEiEzsTNgm5"
+			]
+		},
+		"localhost/contracts/OctoPin.sol": {
+			"keccak256": "0x69290315f8e6c414ce88bee64b539ab151fdfe9b2fc68cc78481d05abbf72788",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://36cd9aa75ed5ccbf850f5b338cab4a6f29675deb568855ab647f3e9475307c80",
+				"dweb:/ipfs/QmVNfsr377r7as3XkCiFJv6ppn2GLjNZ41vMSjCsQPaPni"
+			]
+		},
+		"localhost/contracts/interfaces/IUniswapV2Router01.sol": {
+			"keccak256": "0x3e9cbeb3b5060c7236e6891b0910d8ba377f28efa932e82a7caa64e86f2f4be4",
+			"urls": [
+				"bzz-raw://dd76a1f332291d720052ebfaafbeef890d2a4c5834e3f0eea7a9e8b438ec1cef",
+				"dweb:/ipfs/QmdNFq4BFTWnw24NFdhaFTwDcRPTybAQ4xkuJJpTbF3bQE"
+			]
+		},
+		"localhost/contracts/interfaces/IUniswapV2Router02.sol": {
+			"keccak256": "0x73443859876316c58c4adbc28d05fc4c58b79abef2d93bae2ff40023b56721a0",
+			"urls": [
+				"bzz-raw://87794c65a0edaf145b8bdff9dd1d9384a0b88d1a4fe1fd6ad090a98b2be9087d",
+				"dweb:/ipfs/QmPy2uACpb84dmkhWg3Q9i9wuj8EsXQmPeBaHoDFo1RHRB"
+			]
+		}
+	},
+	"version": 1
+}

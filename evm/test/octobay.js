@@ -1,7 +1,7 @@
 const OctoBay = artifacts.require("OctoBay")
 
-const oracle = require('../oracles.json')[0]
-const githubUser
+const oracle = require('../../app/oracles.json')[0] // TODO: get those from contract (once they are stored there)
+const githubUser = 'mktcode'
 
 contract("OctoBay", async accounts => {
   it(`${githubUser} should be unregistered`, async () => {

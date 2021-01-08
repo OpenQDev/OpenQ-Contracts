@@ -1,20 +1,17 @@
 {
-  "name": "octobay-website",
+  "name": "octobay",
   "description": "OctoBay - Ethereum Payment Service for GitHub Users",
   "version": "1.0.0",
   "private": true,
   "main": "truffle-config.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start --hostname ::",
-    "generate": "nuxt generate",
-    "send-notification": "node bots/send-notification",
-    "deposit-notification": "node bots/deposit-notification",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "app:dev": "nuxt",
+    "app:build": "nuxt build",
+    "app:start": "nuxt start --hostname ::",
+    "app:generate": "nuxt generate",
+    "evm:deploy:local": "truffle migrate --network development",
+    "evm:deploy:kovan": "truffle migrate --network kovan",
+    "evm:test": "truffle test ./evm/test/*"
   },
   "dependencies": {
     "@0x/contracts-utils": "^4.7.0",

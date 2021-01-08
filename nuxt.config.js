@@ -1,6 +1,8 @@
 const fs = require("fs")
 
 export default {
+  srcDir: 'app',
+
   /*
   ** Nuxt rendering mode
   ** See https://nuxtjs.org/api/configuration-mode
@@ -18,10 +20,10 @@ export default {
   serverMiddleware: ["~/api/index"],
 
   env: {
-    OCTOBAY_ABI: JSON.parse(fs.readFileSync("./build/contracts/OctoBay.json").toString()).abi,
-    OCTOPIN_ABI: JSON.parse(fs.readFileSync("./build/contracts/OctoPin.json").toString()).abi,
-    LINK_TOKEN_ABI: JSON.parse(fs.readFileSync("./build/contracts/LinkToken.json").toString()).abi,
-    ORACLES: JSON.parse(fs.readFileSync("./oracles.json").toString())
+    OCTOBAY_ABI: JSON.parse(fs.readFileSync("./evm/build/OctoBay.json").toString()).abi,
+    OCTOPIN_ABI: JSON.parse(fs.readFileSync("./evm/build/OctoPin.json").toString()).abi,
+    LINK_TOKEN_ABI: JSON.parse(fs.readFileSync("./evm/build/LinkToken.json").toString()).abi,
+    ORACLES: JSON.parse(fs.readFileSync("./oracles.json").toString()) // TODO: fetch from octobay contract
   },
 
   /*
@@ -70,17 +72,23 @@ export default {
   ** Nuxt.js dev-modules
   */
   buildModules: [
-    ['@nuxtjs/dotenv', { only: [
-      'API_URL',
-      'GITHUB_CLIENT_ID',
-      'OCTOBAY_ADDRESS',
-      'OCTOPIN_ADDRESS',
-      'GSN_PAYMASTER_ADDRESS',
-      'GSN_RELAYHUB_ADDRESS',
-      'CHAINLINK_NODE_ADDRESS',
-      'LINK_TOKEN_ADDRESS',
-      'MAX_CLAIMPR_AGE'
-    ] }],
+    [
+      '@nuxtjs/dotenv',
+      {
+        path: './',
+        only: [
+          'API_URL',
+          'GITHUB_CLIENT_ID',
+          'OCTOBAY_ADDRESS',
+          'OCTOPIN_ADDRESS',
+          'GSN_PAYMASTER_ADDRESS',
+          'GSN_RELAYHUB_ADDRESS',
+          'CHAINLINK_NODE_ADDRESS',
+          'LINK_TOKEN_ADDRESS',
+          'MAX_CLAIMPR_AGE'
+        ]
+      }
+    ],
     '@nuxtjs/fontawesome',
   ],
   /*

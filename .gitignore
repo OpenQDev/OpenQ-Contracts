@@ -1,4 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
 ### Node template
 # Logs
 /logs
@@ -73,7 +72,7 @@ typings/
 dist
 
 # Truffle build
-build
+evm/build
 
 # vuepress build output
 .vuepress/dist
@@ -93,8 +92,5 @@ sw.*
 # Vim swap files
 *.swp
 
-# Contract artifacts
-contracts/artifacts/
-contracts/interfaces/artifacts/
-
+# Custom
 .mnemonic
