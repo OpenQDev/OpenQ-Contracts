@@ -6,7 +6,7 @@
         {{ issue.closed ? 'closed' : 'open' }}
       </span>
       <a :href="issue.url" target="_blank" class="text-truncate text-dark" :title="issue.title">
-        <b>{{ issue.title }}></b>
+        <b>{{ issue.title }}</b>
       </a>
       <span class="text-muted ml-1">#{{ issue.number }}</span>
     </div>
