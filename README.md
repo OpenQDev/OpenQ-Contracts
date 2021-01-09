@@ -31,23 +31,14 @@ Now you can deploy the contracts.
 yarn evm:deploy
 ```
 
-The last step is to create the jobs for the Chainlink node. You will have to log in, using your email and password from before.
+Create the jobs for the Chainlink node. You will have to log in, using your email and password from before.
 
 ```bash
 yarn chainlink:jobs:create
 ```
 
-Now you can run the app and open `http://localhost:3000` in your browser.
-
-```bash
-yarn app
-```
-
-### External Services
-
-#### GitHub
-
-You need to set up a GitHub app and provide its credentials.
+For the API to work properly, you also need to set up a GitHub app.
+Go to https://github.com/settings/applications/new, use `http://localhost:3000/auth/github` for the authorization callback URL and copy the credentials to your `.env` file.
 
 ```
 GITHUB_CLIENT_ID=...
@@ -55,24 +46,8 @@ GITHUB_CLIENT_SECRET=...
 GITHUB_APP_ACCESS_TOKEN=...
 ```
 
-#### Twitter
+Now you can run the app and open `http://localhost:3000` in your browser.
 
-To support Twitter posts and notifications you need to set up a Twitter app and provide its credentials.
-
-```
-TWITTER_API_KEY=...
-TWITTER_API_SECRET=...
-TWITTER_APP_ACCESS_TOKEN=...
-TWITTER_APP_SECRET=...
-TWITTER_APP_BEARER_TOKEN=...
-```
-
-#### E-Mail
-
-To support e-mail notifications you need to provide credentials for an SMTP server.
-
-```
-SMTP_HOST=...
-SMTP_USER=...
-SMTP_PASS=...
+```bash
+yarn app
 ```
