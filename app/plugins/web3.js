@@ -5,20 +5,20 @@ export default async ({ app }, inject) => {
   if (window.ethereum) {
     const plainWeb3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
 
-    const gsnRelayProvider = await RelayProvider.newProvider({
-      provider: plainWeb3.currentProvider,
-      config: {
-        relayHubAddress: process.env.GSN_RELAYHUB_ADDRESS,
-        paymasterAddress: process.env.GSN_PAYMASTER_ADDRESS,
-        loggerConfiguration: {
-          logLevel: 'debug',
-          loggerUrl: 'https://logger.opengsn.org',
-          applicationId: 'octobay-dev'
-        }
-      }
-    }).init()
+    // const gsnRelayProvider = await RelayProvider.newProvider({
+    //   provider: plainWeb3.currentProvider,
+    //   config: {
+    //     relayHubAddress: process.env.GSN_RELAYHUB_ADDRESS,
+    //     paymasterAddress: process.env.GSN_PAYMASTER_ADDRESS,
+    //     loggerConfiguration: {
+    //       logLevel: 'debug',
+    //       loggerUrl: 'https://logger.opengsn.org',
+    //       applicationId: 'octobay-dev'
+    //     }
+    //   }
+    // }).init()
 
-    const web3 = new Web3(gsnRelayProvider)
+    const web3 = plainWeb3 // new Web3(gsnRelayProvider)
     const octoBay = new web3.eth.Contract(process.env.OCTOBAY_ABI, process.env.OCTOBAY_ADDRESS)
     const octoPin = new web3.eth.Contract(process.env.OCTOPIN_ABI, process.env.OCTOPIN_ADDRESS)
     const linkToken = new web3.eth.Contract(process.env.LINK_TOKEN_ABI, process.env.LINK_TOKEN_ADDRESS)
