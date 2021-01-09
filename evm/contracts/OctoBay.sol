@@ -80,6 +80,9 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     mapping(string => uint256) public issuePins;
 
+    mapping(address => bool) public activeOracles;
+    address[] public allOracles;
+
     address weth;
     address link;
     OctoPin octoPin;
@@ -115,6 +118,28 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function setPaymaster(address _octobayPaymaster) external onlyOwner {
         octobayPaymaster = _octobayPaymaster;
+    }
+
+    function setOracle(address _oracle) external onlyOwner {
+        activeOracles[_oracle] = true;
+        allOracles.push(_oracle);
+    }
+
+    function removeOracle(address _oracle) external onlyOwner {
+      activeOracles[_oracle] = false;
+      uint i = 0;
+      while (allOracles[i] != _oracle) {
+          i++;
+      }
+      while (i < allOracles.length - 1) {
+            allOracles[i] = allOracles[i + 1];
+            i++;
+        }
+        allOracles.pop();
+    }
+
+    function getOracles() external view returns(address[] memory) {
+      return allOracles;
     }
 
     function deductGasFee(string memory _githubUser, uint256 _amount)
