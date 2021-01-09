@@ -1,5 +1,9 @@
 <template>
-  <footer class="pt-5 pb-5 text-center">
+  <footer class="pt-3 pb-5 text-center">
+    <button class="btn btn-link text-white btn-sm rounded-xl mb-4 oracle-button">
+      <img src="/chainlink-icon.png" width="24px" class="rounded-xl p-1" />
+      random <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
+    </button>
     <div class="mb-3">
       <a href="https://twitter.com/OctoBayApp" target="_blank" class="text-white px-2">
         <font-awesome-icon :icon="['fab', 'twitter']" />
@@ -23,6 +27,14 @@
 
 <style lang="sass" scoped>
 footer
+  .oracle-button
+    opacity: 0.5
+    transition: opacity .2s ease
+    &:hover,
+    &:active,
+    &:focus
+      text-decoration: none
+      opacity: 1
   a
     opacity: 0.5
     &:hover
