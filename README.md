@@ -10,15 +10,16 @@ Install the repository and its dependencies.
 git clone https://github.com/mktcode/octobay && cd octobay && yarn
 ```
 
-Start the local Ethereum node, the Chainlink node and its adapters.
+Start the local Ethereum node, the Gas Station Network, the Chainlink node and its adapters, all in their own terminal sessions.
 
 ```bash
 yarn evm:start
+yarn evm:gsn:start
 yarn chainlink:node
 yarn chainlink:adapters
 ```
 
-Open http://localhost:6688/config in your browser and copy your Chainlink node's `ACCOUNT_ADDRESS` to your `.env` file.
+When running the Chainlink node for the first time, you will be asked to set an email address and a password. When the node is running, open http://localhost:6688/config in your browser, login and copy your Chainlink node's `ACCOUNT_ADDRESS` to your `.env` file.
 
 ```
 CHAINLINK_NODE_ADDRESS=0x...
@@ -30,7 +31,7 @@ Now you can deploy the contracts.
 yarn evm:deploy
 ```
 
-The last step is to create the jobs for the Chainlink node. It will ask you to sign in with the email address and password you set up when first running `yarn chainlink:node` and then use the deployed oracle's address to create the jobs.
+The last step is to create the jobs for the Chainlink node. You will have to log in, using your email and password from before.
 
 ```bash
 yarn chainlink:jobs:create
