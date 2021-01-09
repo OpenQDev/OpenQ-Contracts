@@ -37,7 +37,7 @@ Create the jobs for the Chainlink node. You will have to log in, using your emai
 yarn chainlink:jobs:create
 ```
 
-For the API to work properly, you also need to set up a GitHub app.
+For the API and GitHub login to work, you also need to set up a GitHub app.
 Go to https://github.com/settings/applications/new, use `http://localhost:3000/auth/github` for the authorization callback URL and copy the credentials to your `.env` file.
 
 ```
