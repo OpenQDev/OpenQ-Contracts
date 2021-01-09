@@ -387,7 +387,7 @@ export default {
     sendToUser() {
       this.sending = true
       this.$octoBay.methods.depositEthForGithubUser(this.user.login.toLowerCase()).send({
-        useGSN: false,
+        // useGSN: false,
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -406,7 +406,7 @@ export default {
     depositForUser() {
       this.sending = true
       this.$octoBay.methods.depositEthForGithubUser(this.user.login.toLowerCase()).send({
-        useGSN: false,
+        // useGSN: false,
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(result => {
@@ -427,7 +427,7 @@ export default {
       this.$octoBay.methods.depositEthForIssue(
         this.issue.id
       ).send({
-        useGSN: false,
+        // useGSN: false,
         from: this.account,
         value: this.$web3.utils.toWei(this.amount, "ether")
       }).then(tx => {
@@ -458,7 +458,7 @@ export default {
     refundUserDeposit(id) {
       this.refundingUserDeposit = id
       this.$octoBay.methods.refundUserDeposit(id).send({
-        useGSN: false,
+        // useGSN: false,
         from: this.account
       }).then(() => {
         this.updateUserDeposits()
