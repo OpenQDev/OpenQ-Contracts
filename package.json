@@ -11,7 +11,7 @@
     "app:build": "nuxt build",
     "app:start": "nuxt start --hostname ::",
     "app:generate": "nuxt generate",
-    "evm": "ganache-cli -l 8000000",
+    "evm": "ganache-cli -l 8000000 -m $1",
     "evm:gsn": "npx gsn start -w ./evm/build/gsn",
     "evm:deploy": "node set-gsn && truffle migrate --network development && node set-octobay",
     "evm:compile": "truffle compile",
