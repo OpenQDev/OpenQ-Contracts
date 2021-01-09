@@ -1,9 +1,22 @@
 <template>
   <div>
-    <div v-if="issueNode" :class="['issue d-flex flex-column px-3 py-2', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
-      <div class="d-flex align-items-top">
-        <div class="text-truncate">
-          <div class="text-truncate">
+    <div v-if="issueNode" :class="['issue d-flex flex-column', { 'pinned': issue.boostAmount > 0, showDetails }]" @click="showDetails = !showDetails">
+      <div>
+        <div class="bg-success" :style="`height: 5px; width: ${(issue.depositAmount / 5 * 100).toFixed(2)}%`"></div>
+      </div>
+      <div class="d-flex align-items-top px-3 py-2">
+        <div :class="{ 'text-truncate': !showDetails }">
+          <small class="text-muted text-truncate">
+            <small>
+              <span v-if="issue.boostAmount || true">
+                <svg style="width:14px;height:14px" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
+                </svg>
+              </span>
+              {{ issueNode.owner }}/{{ issueNode.repository }}/issues/{{ issueNode.number }}
+            </small>
+          </small>
+          <div :class="{ 'text-truncate': !showDetails }">
             <svg v-if="issueNode.closed" height="16" viewBox="0 0 16 16" version="1.1" width="14" aria-hidden="true">
               <path fill="#c00" d="M1.5 8a6.5 6.5 0 0110.65-5.003.75.75 0 00.959-1.153 8 8 0 102.592 8.33.75.75 0 10-1.444-.407A6.5 6.5 0 011.5 8zM8 12a1 1 0 100-2 1 1 0 000 2zm0-8a.75.75 0 01.75.75v3.5a.75.75 0 11-1.5 0v-3.5A.75.75 0 018 4zm4.78 4.28l3-3a.75.75 0 00-1.06-1.06l-2.47 2.47-.97-.97a.749.749 0 10-1.06 1.06l1.5 1.5a.75.75 0 001.06 0z"></path>
             </svg>
@@ -12,21 +25,21 @@
             </svg>
             {{ issueNode.title }}
           </div>
-          <small class="text-muted text-truncate">
-            {{ issueNode.owner }}/{{ issueNode.repository }}/issues/{{ issueNode.number }}
-          </small>
         </div>
-        <div class="text-nowrap text-right ml-auto pl-2">
-          <h5 class="mb-0">{{ issue.depositAmount }} <small>ETH</small></h5>
-          <small class="d-block text-muted mt-1" v-if="issue.boostAmount">
-            <svg style="width:14px;height:14px" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
-            </svg>
-            {{ issue.boostAmount }}
-          </small>
+        <div class="text-nowrap text-right ml-auto pl-3">
+          <div class="mb-0 d-flex align-items-center" @click.stop>
+            <div class="text-center d-flex flex-column">
+              <small class="text-muted">
+                <small>5 ETH Goal</small>
+              </small>
+              <div>
+                {{ issue.depositAmount }} ETH
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div v-if="issueNode.primaryLanguage">
+      <div v-if="issueNode.primaryLanguage" :class="['px-3 pb-2', { 'text-truncate': !showDetails }]" style="text-overflow: ' ...'">
         <span :class="'mr-1 badge badge-pill' + (brightnessByColor(issueNode.primaryLanguage.color) < 180 ? ' text-white' : '')" :style="'background-color: ' + issueNode.primaryLanguage.color">
           {{ issueNode.primaryLanguage.name }}
         </span><span :class="'mr-1 badge badge-pill' + (brightnessByColor('#' + label.color) < 180 ? ' text-white' : '')" v-for="label in issueNode.labels" :style="'background-color: #' + label.color">
@@ -34,9 +47,12 @@
         </span>
       </div>
       <transition name="fade">
-        <div :class="['d-flex flex-column mt-2 justify-content-start align-items-center', { action: !!action, deposits: action == 'deposits' }]" @click.stop v-if="showDetails" style="cursor: default">
-          <div class="border-top w-100 pt-2 text-nowrap d-flex align-items-center">
-            <button :class="['btn btn-sm rounded-xl btn-success shadow-sm', { active: action === 'release' }]" @click="changeAction('release')" v-if="githubUser && issueNode.repositoryOwner === githubUser.login">
+        <div :class="['d-flex flex-column justify-content-start align-items-center px-3', { action: !!action, deposits: action == 'deposits' }]" @click.stop v-if="showDetails" style="cursor: default">
+          <div class="border-top w-100 py-2 text-nowrap d-flex align-items-center">
+            <button class="btn btn-sm rounded-xl btn-outline-success" @click="fundIssue(issueNode.owner, issueNode.repository, issueNode.number)">
+              <font-awesome-icon :icon="['fas', 'plus']" />
+            </button>
+            <button :class="['btn btn-sm rounded-xl btn-light ml-2', { active: action === 'release' }]" @click="changeAction('release')" v-if="githubUser && issueNode.repositoryOwner === githubUser.login">
               <font-awesome-icon :icon="['fas', 'gavel']" />
             </button>
             <span class="mr-auto"></span>
@@ -55,7 +71,7 @@
           </div>
           <div class="w-100">
             <transition name="fade" mode="out-in">
-              <div v-if="action === 'release'" key="release" class="pt-3">
+              <div v-if="action === 'release'" key="release" class="py-2">
                 <div class="alert alert-success border-0" v-if="showReleaseSuccess">
                   <button type="button" class="close text-success" @click="showReleaseSuccess = false">
                     <span>&times;</span>
@@ -74,7 +90,7 @@
                 </div>
                 <div class="d-flex">
                   <div class="d-flex flex-fill position-relative">
-                    <input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" />
+                    <input type="text" class="form-control rounded-xl" placeholder="GitHub user" v-model="releaseTo" />
                     <div v-if="loadingReleaseToUser || releaseToUser" class="position-absolute" style="right: 0; top: 0;">
                       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingReleaseToUser" class="text-muted-light m-2" />
                       <a :href="releaseToUser.url" target="_blank" class="avatar d-block m-1" :style="'background-image: url(' + releaseToUser.avatarUrl + ')'" v-if="releaseToUser"></a>
@@ -89,7 +105,7 @@
                   </button>
                 </div>
               </div>
-              <div v-if="action === 'deposits'" key="deposits" class="pt-3">
+              <div v-if="action === 'deposits'" key="deposits" class="py-2">
                 <div v-for="(deposit, index) in issue.deposits" :key="index" class="d-flex justify-content-between align-items-center">
                   <div class="d-flex flex-column">
                     <h5 class="mb-0">{{ Number($web3.utils.fromWei(deposit.amount, 'ether')) }} <small>ETH</small></h5>
@@ -103,11 +119,11 @@
                   </button>
                 </div>
               </div>
-              <div v-if="action === 'pin'" key="pin" class="pt-3">
+              <div v-if="action === 'pin'" key="pin" class="py-2">
                 <div class="d-flex align-items-center">
                   <div class="select-input flex-fill mr-2">
-                    <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
-                    <span>OPIN</span>
+                    <input type="number" min="0" step="0.01" novalidate class="form-control rounded-xl" placeholder="0.00" v-model="pinAmount" />
+                    <span class="text-muted mr-2">OPIN</span>
                   </div>
                   <button class="btn btn-primary rounded-xl shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue || !Number(pinAmount)">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="pinningIssue" />
@@ -136,11 +152,7 @@
   border-top: solid 1px #fff
   cursor: pointer
   position: relative
-  &:last-child
-    padding-bottom: 1rem !important
   &.pinned
-    border-color: #fb0 !important
-    border-bottom: solid 1px
     box-shadow: inset 0 0 30px rgba(255, 187, 0, 0.1) !important
     &.showDetails
       box-shadow: inset 0 0 30px rgba(255, 187, 0, 0.1), inset 0 0 7px rgba(0, 0, 0, 0.2) !important
@@ -181,7 +193,7 @@ export default {
       issueNode: null,
       showDetails: false,
       action: null,
-      pinAmount: 0,
+      pinAmount: 10,
       releaseTo: '',
       releasing: false,
       showReleaseSuccess: false,
@@ -221,6 +233,16 @@ export default {
     ...mapGetters('github', { githubUser: 'user' })
   },
   methods: {
+    fundIssue(username, repository, number) {
+      this.$store.commit('setRedirectPrefills', {
+        type: 'send-issue',
+        username,
+        repository,
+        issue: number,
+        amount: '1.0'
+      })
+      this.$store.commit('setView', 'send')
+    },
     changeAction(action) {
       if (this.action === action) {
         this.action = null

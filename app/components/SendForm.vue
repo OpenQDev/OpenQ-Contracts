@@ -288,6 +288,23 @@ export default {
     account() {
       this.updateUserDeposits()
     },
+    redirectPrefills() {
+      if (this.redirectPrefills) {
+        if (this.redirectPrefills.type == 'send-user') {
+          this.$store.commit('setSelectedRecipientType', 'User')
+          this.username = this.redirectPrefills.username
+          this.amount = this.redirectPrefills.amount
+        } else if (this.redirectPrefills.type == 'send-repository') {
+          this.$store.commit('setSelectedRecipientType', 'Project')
+          this.repositoryUrl = `https://github.com/${this.redirectPrefills.username}/${this.redirectPrefills.repository}`
+          this.amount = this.redirectPrefills.amount
+        } else if (this.redirectPrefills.type == 'send-issue') {
+          this.$store.commit('setSelectedRecipientType', 'Issue')
+          this.issueUrl = `https://github.com/${this.redirectPrefills.username}/${this.redirectPrefills.repository}/issues/${this.redirectPrefills.issue}`
+          this.amount = this.redirectPrefills.amount
+        }
+      }
+    },
     username(username) {
       clearTimeout(this.loadRecipientTimeout)
       this.loadRecipientTimeout = setTimeout(() => {
