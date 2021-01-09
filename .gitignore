@@ -96,3 +96,4 @@ sw.*
 .mnemonic
 chainlink/.adapters/
 chainlink/.node/
+chainlink/.jobs

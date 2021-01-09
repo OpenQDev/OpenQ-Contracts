@@ -18,7 +18,9 @@
     "evm:compile": "truffle compile",
     "evm:test": "truffle test ./evm/test/*",
     "chainlink:node": "cd chainlink/.node && chainlink local start",
-    "chainlink:adapters": "cd chainlink/.adapters && yarn start"
+    "chainlink:adapters": "cd chainlink/.adapters && yarn start",
+    "chainlink:login": "cd chainlink/.node && chainlink admin login",
+    "chainlink:jobs:create": "yarn chainlink:login && node create-chainlink-jobs"
   },
   "dependencies": {
     "@0x/contracts-utils": "^4.7.0",

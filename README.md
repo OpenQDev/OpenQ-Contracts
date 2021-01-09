@@ -24,11 +24,17 @@ Open http://localhost:6688/config in your browser and copy your Chainlink node's
 CHAINLINK_NODE_ADDRESS=0x...
 ```
 
-Now you can deploy the contracts and run the app.
+Now you can deploy the contracts.
 
 ```bash
 yarn evm:deploy
 yarn app:dev
+```
+
+The last step is to create the jobs for the Chainlink node. It will ask you to sign in with the email address and password you set up when first running `yarn chainlink:node` and then use the deployed oracle's address to create the jobs.
+
+```bash
+yarn chainlink:jobs:create
 ```
 
 ### External Services
