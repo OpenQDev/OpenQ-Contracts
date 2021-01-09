@@ -2,7 +2,7 @@
 
 ## Local Development Setup
 
-You need Node 12 and an empty postgres database named `chainlink-local` with the default `postgres:postgres` user and port 5432 (or adjust chainlink/.env.sample).
+You need Node v12.18 and an empty postgres database named `chainlink-local` with the default `postgres:postgres` user and port 5432 (or adjust chainlink/.env.sample).
 
 Install the repository and its dependencies.
 
