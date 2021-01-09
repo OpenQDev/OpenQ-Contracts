@@ -13,8 +13,8 @@ git clone https://github.com/mktcode/octobay && cd octobay && yarn
 Start the local Ethereum node, the Gas Station Network, the Chainlink node and its adapters, all in their own terminal sessions.
 
 ```bash
-yarn evm:start
-yarn evm:gsn:start
+yarn evm
+yarn evm:gsn
 yarn chainlink:node
 yarn chainlink:adapters
 ```
@@ -40,7 +40,7 @@ yarn chainlink:jobs:create
 Now you can run the app and open `http://localhost:3000` in your browser.
 
 ```bash
-yarn app:dev
+yarn app
 ```
 
 ### External Services
