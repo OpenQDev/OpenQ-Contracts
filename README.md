@@ -1,44 +1,33 @@
 # OctoBay
 
-## Local Setup
-
-0. Database
+## Local Development Setup
 
 You need an empty postgres database named `chainlink-local` with the default `postgres:postgres` user and port 5432 (or adjust chainlink/.env.sample).
 
-1. Install the repository and its dependencies.
+Install the repository and its dependencies.
 
 ```bash
 git clone https://github.com/mktcode/octobay && cd octobay && yarn
 ```
 
-2. Start the local Ethereum node.
+Start the local Ethereum node, the Chainlink node and its adapters.
 
 ```bash
 yarn evm:start
-```
-
-3. Start chainlink node.
-
-```bash
 yarn chainlink:node
-```
-
-4. Start chainlink adapters.
-
-```bash
 yarn chainlink:adapters
 ```
 
-5. Deploy the contracts.
+Open http://localhost:6688/config in your browser and copy your Chainlink node's `ACCOUNT_ADDRESS` to your `.env` file.
+
+```
+CHAINLINK_NODE_ADDRESS=0x...
+```
+
+Now you can deploy the contracts and run the app.
 
 ```bash
 yarn evm:deploy
-```
-
-6. Run app.
-
-```bash
 yarn app:dev
 ```
 
