@@ -15,6 +15,7 @@
     "evm:deploy": "yarn evm:deploy:gsn && yarn evm:deploy:octobay",
     "evm:deploy:gsn": "npx gsn deploy --yes -w ./evm/build/gsn && node set-gsn",
     "evm:deploy:octobay": "truffle migrate --network development && node set-octobay",
+    "evm:compile": "truffle compile",
     "evm:test": "truffle test ./evm/test/*",
     "chainlink:node": "cd chainlink/.node && chainlink local start",
     "chainlink:adapters": "cd chainlink/.adapters && yarn start"
