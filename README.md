@@ -2,7 +2,7 @@
 
 ## Local Development Setup
 
-You need an empty postgres database named `chainlink-local` with the default `postgres:postgres` user and port 5432 (or adjust chainlink/.env.sample).
+You need Node 12 and an empty postgres database named `chainlink-local` with the default `postgres:postgres` user and port 5432 (or adjust chainlink/.env.sample).
 
 Install the repository and its dependencies.
 
@@ -28,13 +28,18 @@ Now you can deploy the contracts.
 
 ```bash
 yarn evm:deploy
-yarn app:dev
 ```
 
 The last step is to create the jobs for the Chainlink node. It will ask you to sign in with the email address and password you set up when first running `yarn chainlink:node` and then use the deployed oracle's address to create the jobs.
 
 ```bash
 yarn chainlink:jobs:create
+```
+
+Now you can run the app and open `http://localhost:3000` in your browser.
+
+```bash
+yarn app:dev
 ```
 
 ### External Services
