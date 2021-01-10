@@ -12,8 +12,6 @@ sh.exec('chainlink bridges create ./chainlink/.adapters/bridges/graphql.json')
 sh.echo('Creating Chainlink Jobs...')
 
 // copying spec templates
-sh.rm('-rf', './chainlink/.jobs')
-sh.cp('-rf', './chainlink/.adapters/jobs', './chainlink/.jobs')
 sh.sed('-i', 'YOUR_ORACLE_CONTRACT_ADDRESS', oracleAddress, './chainlink/.jobs/register.json')
 sh.sed('-i', 'YOUR_ORACLE_CONTRACT_ADDRESS', oracleAddress, './chainlink/.jobs/release.json')
 sh.sed('-i', 'YOUR_ORACLE_CONTRACT_ADDRESS', oracleAddress, './chainlink/.jobs/claim.json')
