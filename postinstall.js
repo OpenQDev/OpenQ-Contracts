@@ -35,11 +35,6 @@ if (sh.test('-e', 'chainlink/.node')) {
             if (sh.exec('yarn').code !== 0) {
               sh.echo('ERROR: Building chainlink node failed!')
               sh.exit(1)
-            } else {
-              // create env files from samples
-              sh.cd('../..')
-              sh.cp('./.env.sample', './.env')
-              sh.cp('./chainlink/.env.sample', './chainlink/.node/.env')
             }
           }
         }

@@ -5,7 +5,7 @@
   "private": true,
   "main": "truffle-config.js",
   "scripts": {
-    "postinstall": "node postinstall",
+    "postinstall": "node postinstall && cp .env.sample .env && chainlink/.env.sample chainlinke/.env",
     "app": "nuxt",
     "app:relayer": "npx gsn relayer-run",
     "app:build": "nuxt build",
