@@ -31,7 +31,7 @@ Now you can deploy the contracts. During deployment you will be asked to log in 
 yarn evm:deploy
 ```
 
-For the API and GitHub login to work, you also need to set up a GitHub app.
+For the API and GitHub login to work, a GitHub app is required. Temporary test credentials are included but you can also create your own test app.
 Go to https://github.com/settings/applications/new, use `http://localhost:3000/auth/github` for the authorization callback URL and copy the credentials to your `.env` file.
 
 ```
