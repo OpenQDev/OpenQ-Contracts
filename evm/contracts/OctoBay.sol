@@ -80,7 +80,17 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     mapping(string => uint256) public issuePins;
 
-    mapping(address => bool) public activeOracles;
+    struct Oracle {
+      string name;
+      bytes32 registerJobId;
+      bytes32 releaseJobId;
+      bytes32 claimJobId;
+      bytes32 graphqlBoolJobId;
+      bytes32 graphqlBytes32JobId;
+      bytes32 graphqlInt256JobId;
+      bytes32 graphqlUint256JobId;
+    }
+    mapping(address => Oracle) public activeOracles;
     address[] public allOracles;
 
     address weth;
@@ -120,13 +130,32 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         octobayPaymaster = _octobayPaymaster;
     }
 
-    function setOracle(address _oracle) external onlyOwner {
-        activeOracles[_oracle] = true;
+    function setOracle(
+      address _oracle,
+      string calldata name,
+      bytes32 registerJobId,
+      bytes32 releaseJobId,
+      bytes32 claimJobId,
+      bytes32 graphqlBoolJobId,
+      bytes32 graphqlBytes32JobId,
+      bytes32 graphqlInt256JobId,
+      bytes32 graphqlUint256JobId
+    ) external onlyOwner {
+        activeOracles[_oracle] = Oracle(
+          name,
+          registerJobId,
+          releaseJobId,
+          claimJobId,
+          graphqlBoolJobId,
+          graphqlBytes32JobId,
+          graphqlInt256JobId,
+          graphqlUint256JobId
+        );
         allOracles.push(_oracle);
     }
 
     function removeOracle(address _oracle) external onlyOwner {
-      activeOracles[_oracle] = false;
+      delete activeOracles[_oracle];
       uint i = 0;
       while (allOracles[i] != _oracle) {
           i++;

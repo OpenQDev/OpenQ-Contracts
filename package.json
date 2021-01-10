@@ -13,7 +13,7 @@
     "app:generate": "nuxt generate",
     "evm": "ganache-cli -l 8000000 -m $1",
     "evm:gsn": "npx gsn start -w ./evm/build/gsn",
-    "evm:deploy": "node set-gsn && truffle migrate --network development && node set-octobay",
+    "evm:deploy": "node set-gsn && truffle migrate --f 1 --to 3 --network development && yarn chainlink:jobs:create && truffle migrate --f 4 --to 6 --network development && node set-octobay",
     "evm:compile": "truffle compile",
     "evm:test": "truffle test ./evm/test/*",
     "chainlink:node": "cd chainlink/.node && chainlink local start",
