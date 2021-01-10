@@ -13,7 +13,10 @@ export const state = () => ({
   showIntervalSelect: false,
   selectedInterval: 'Months',
   redirectPrefills: null,
-  view: 'issues'
+  view: 'issues',
+  oracles: [],
+  activeOracle: null,
+  showOracleList: false
 })
 
 export const getters = {
@@ -67,6 +70,22 @@ export const getters = {
   },
   view(state) {
     return state.view
+  },
+  oracles(state) {
+    return state.oracles
+  },
+  activeOracle(state) {
+    return state.activeOracle
+  },
+  getOracle(state) {
+    if (state.activeOracle) {
+      return state.activeOracle
+    }
+
+    return state.oracles[Math.floor(Math.random() * (state.oracles.length - 0 + 1) + 0)]
+  },
+  showOracleList(state) {
+    return state.showOracleList
   }
 }
 
@@ -146,6 +165,15 @@ export const mutations = {
   },
   setView(state, view) {
     state.view = view
+  },
+  setOracle(state, oracle) {
+    state.oracles.push(oracle)
+  },
+  setActiveOracle(state, oracle) {
+    state.activeOracle = oracle
+  },
+  setShowOracleList(state, show) {
+    state.showOracleList = show
   }
 }
 
@@ -154,6 +182,17 @@ export const actions = {
     this.$axios.$get('https://tokens.coingecko.com/uniswap/all.json').then(list => {
       commit('setTokenList', list)
     })
+
+    if (this.$octoBay) {
+      this.$octoBay.methods.getOracles().call().then(oracleAddresses => {
+        oracleAddresses.forEach(oracleAddress => {
+          this.$octoBay.methods.activeOracles(oracleAddress).call().then(oracle => {
+            oracle.address = oracleAddress
+            commit('setOracle', oracle)
+          })
+        })
+      })
+    }
 
     return dispatch("github/login").then((result) => {
       if (rootState.github.user && this.$octoBay) {
