@@ -57,7 +57,7 @@ export default (req, res) => {
       },
       {
         headers: {
-          Authorization: "bearer " + process.env.GITHUB_APP_ACCESS_TOKEN
+          Authorization: "bearer " + process.env.GITHUB_PERSONAL_ACCESS_TOKEN
         }
       }
     )
