@@ -25,16 +25,10 @@ When running the Chainlink node for the first time, you will be asked to set an 
 CHAINLINK_NODE_ADDRESS=0x...
 ```
 
-Now you can deploy the contracts.
+Now you can deploy the contracts. During deployment you will be asked to log in to your Chainlink node, using your email and password from before, so that the jobs can be created for you.
 
 ```bash
 yarn evm:deploy
-```
-
-Create the jobs for the Chainlink node. You will have to log in, using your email and password from before.
-
-```bash
-yarn chainlink:jobs:create
 ```
 
 For the API and GitHub login to work, you also need to set up a GitHub app.
