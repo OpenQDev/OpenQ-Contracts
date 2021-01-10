@@ -129,7 +129,10 @@ export default {
         'faCheck',
         'faBan',
         'faInfoCircle',
+        'faQuestion',
+        'faExclamation',
         'faExclamationTriangle',
+        'faExclamationCircle',
         'faSignInAlt',
         'faSignOutAlt',
         'faAngleDoubleRight',
@@ -138,7 +141,6 @@ export default {
         'faCircle',
         'faThumbtack',
         'faCoins',
-        'faExclamationCircle',
         'faCodeBranch',
         'faFaucet',
         'faEnvelope',
@@ -148,7 +150,8 @@ export default {
         'faCode',
         'faTimes',
         'faStar',
-        'faUsers'
+        'faUsers',
+        'faDice'
       ],
       brands: ['faEthereum', 'faTwitter', 'faGithub', 'faDiscord'],
     },
