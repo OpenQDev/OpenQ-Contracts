@@ -37,6 +37,7 @@
     <TokenList />
     <RecipientTypeList />
     <IntervalSelect />
+    <OracleList />
   </div>
 </template>
 

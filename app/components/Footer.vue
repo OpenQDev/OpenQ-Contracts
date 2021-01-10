@@ -1,8 +1,9 @@
 <template>
   <footer class="pt-3 pb-5 text-center">
-    <button class="btn btn-link text-white btn-sm rounded-xl mb-4 oracle-button">
+    <button class="d-flex mx-auto align-items-center btn btn-link text-white btn-sm rounded-xl mb-4 oracle-button" @click="$store.commit('setShowOracleList', true)">
       <img src="/chainlink-icon.png" width="24px" class="rounded-xl p-1" />
-      random <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
+      {{ activeOracle ? activeOracle.name : 'Random' }}
+      <small class="ml-1"><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
     </button>
     <div class="mb-3">
       <a href="https://twitter.com/OctoBayApp" target="_blank" class="text-white px-2">
@@ -55,11 +56,16 @@ footer
 </style>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   data() {
     return {
       showDonate: false
     }
+  },
+  computed: {
+    ...mapGetters(['activeOracle'])
   }
 }
 </script>
