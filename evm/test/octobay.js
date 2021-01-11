@@ -73,4 +73,13 @@ contract("OctoBay", async accounts => {
   //
   //   assert.equal(user.status.toString(), '2')
   // })
+
+  it("deposits 1 ETH for user", async () => {
+    const octobay = await OctoBay.deployed()
+    const sendValue = '1000000000000000000'
+    await octobay.depositEthForGithubUser(someGithubUser, { from: accounts[0], value: sendValue })
+    const claimAmount = await octobay.userClaimAmountByGithbUser(someGithubUser)
+
+    assert.equal(claimAmount, sendValue)
+  })
 })
