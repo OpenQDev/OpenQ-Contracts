@@ -95,7 +95,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     address weth;
     address link;
-    OctoPin octoPin;
+    OctoPin public octoPin;
     address octobayPaymaster;
 
     uint256 private registrationFee;
