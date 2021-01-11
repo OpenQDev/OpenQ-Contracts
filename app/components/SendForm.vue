@@ -14,7 +14,7 @@
             </a>
           </small>
         </div>
-        <button class="btn btn-primary shadow-sm rounded-xl" @click="refundUserDeposit(deposit.id)" :disabled="refundingUserDeposit != 0">
+        <button class="btn btn-primary shadow-sm" @click="refundUserDeposit(deposit.id)" :disabled="refundingUserDeposit != 0">
           <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="refundingUserDeposit === deposit.id" />
           {{ refundingUserDeposit === deposit.id ? '' : 'cancel' }}
         </button>
@@ -28,8 +28,8 @@
       Transfer confirmed! :)
     </div>
     <div class="input-with-embed select-input select-input-left" v-if="selectedRecipientType == 'User'">
-      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl" style="padding-right: 5rem" v-model="username" placeholder="Username" />
-      <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2" style="padding-right: 5rem" v-model="username" placeholder="Username" />
+      <span class="btn btn-primary shadow-sm" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
         <span>User</span>
         <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
       </span>
@@ -44,8 +44,8 @@
       </div>
     </div>
     <div class="input-with-embed select-input select-input-left" v-if="selectedRecipientType == 'Issue'">
-      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl pr-5" v-model="issueUrl" placeholder="Issue URL" />
-      <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 pr-5" v-model="issueUrl" placeholder="Issue URL" />
+      <span class="btn btn-primary shadow-sm" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
         <span>Issue</span>
         <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
       </span>
@@ -67,7 +67,7 @@
             <span>
               <span v-if="selectedToken == null">{{ (5.31 - amount).toFixed(3) }}</span>
               <span v-else>5.31</span>
-              <button class="btn btn-sm btn-primary shadow-sm rounded-xl" @click="$store.commit('setSelectedToken', null); amount = 5.31">use</button>
+              <button class="btn btn-sm btn-primary shadow-sm" @click="$store.commit('setSelectedToken', null); amount = 5.31">use</button>
             </span>
           </div>
           <div class="d-flex justify-content-between mb-1">
@@ -78,15 +78,15 @@
             <span>
               <span v-if="selectedToken && selectedToken.symbol == 'LINK'">{{ (28.46 - amount).toFixed(3) }}</span>
               <span v-else>28.46</span>
-              <button class="btn btn-sm btn-primary shadow-sm rounded-xl" @click="$store.commit('setSelectedToken', token('LINK')); amount = 28.46">use</button>
+              <button class="btn btn-sm btn-primary shadow-sm" @click="$store.commit('setSelectedToken', token('LINK')); amount = 28.46">use</button>
             </span>
           </div>
         </div>
       </div>
     </div>
     <div class="input-with-embed select-input select-input-left" v-if="selectedRecipientType == 'Project'">
-      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 rounded-xl pr-5" v-model="repositoryUrl" placeholder="Repository URL" />
-      <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
+      <input type="text" class="form-control form-control-lg form-control-with-embed mb-2 pr-5" v-model="repositoryUrl" placeholder="Repository URL" />
+      <span class="btn btn-primary shadow-sm" @click="$store.commit('setShowRecipientTypeList', true)" style="width: 95px">
         <span>Project</span>
         <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
       </span>
@@ -101,8 +101,8 @@
       </div>
     </div>
     <div class="select-input mb-2">
-      <input type="number" min="0" step="0.01" novalidate class="form-control form-control-lg mb-2 rounded-xl" placeholder="0.00" v-model="amount" />
-      <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowTokenList', true)">
+      <input type="number" min="0" step="0.01" novalidate class="form-control form-control-lg mb-2" placeholder="0.00" v-model="amount" />
+      <span class="btn btn-primary shadow-sm" @click="$store.commit('setShowTokenList', true)">
         <span v-if="selectedToken">{{ selectedToken.symbol }}</span>
         <span v-else>ETH</span>
         <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
@@ -110,7 +110,7 @@
     </div>
     <div>
       <div class="text-center">
-        <button class="btn btn-outline-primary btn-sm rounded-xl font-weight-bold px-3" @click="showSchedule = !showSchedule">
+        <button class="btn btn-outline-primary btn-sm font-weight-bold px-3" @click="showSchedule = !showSchedule">
           schedule
           <small><font-awesome-icon :icon="['fas', showSchedule ? 'times' : 'chevron-down']" style="opacity: 0.5" /></small>
         </button>
@@ -119,12 +119,12 @@
         <div v-if="showSchedule">
           <div class="d-flex align-items-center mt-2">
             <div class="select-input w-50">
-              <input type="number" min="1" step="1" novalidate class="form-control form-control-lg rounded-xl" placeholder="0" v-model="releaseInstallments" />
-              <span class="btn btn-primary shadow-sm rounded-xl" @click="$store.commit('setShowIntervalSelect', true)" v-if="releaseInstallments > 1">
+              <input type="number" min="1" step="1" novalidate class="form-control form-control-lg" placeholder="0" v-model="releaseInstallments" />
+              <span class="btn btn-primary shadow-sm" @click="$store.commit('setShowIntervalSelect', true)" v-if="releaseInstallments > 1">
                 <span>{{ selectedInterval }}</span>
                 <small><font-awesome-icon :icon="['fas', 'chevron-down']" style="opacity: 0.5" /></small>
               </span>
-              <span class="btn btn-primary rounded-xl disabled" v-else>
+              <span class="btn btn-primary disabled" v-else>
                 <span>payment</span>
               </span>
             </div>
@@ -144,8 +144,8 @@
           </small>
           <div class="mt-2" v-else>
             <div class="select-input">
-              <input type="text" readonly novalidate class="form-control form-control-lg rounded-xl border bg-white" placeholder="0" :value="formattedReleaseDate" />
-              <span class="btn btn-primary shadow-sm rounded-xl" @click="showDatepicker = !showDatepicker">
+              <input type="text" readonly novalidate class="form-control form-control-lg border bg-white" placeholder="0" :value="formattedReleaseDate" />
+              <span class="btn btn-primary shadow-sm" @click="showDatepicker = !showDatepicker">
                 <small><font-awesome-icon :icon="['far', 'calendar-alt']" /></small>
               </span>
             </div>
@@ -164,11 +164,11 @@
         </div>
       </transition>
     </div>
-    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4 rounded-xl" v-if="connected" @click="confirm()" :disabled="confirmDisabled">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-if="connected" @click="confirm()" :disabled="confirmDisabled">
       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="sending" />
       {{ sending ? 'Waiting for confirmation...' : 'Confirm' }}
     </button>
-    <button class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
+    <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
       Connect
     </button>
   </div>

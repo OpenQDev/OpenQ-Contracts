@@ -1,24 +1,24 @@
 <template>
   <transition name="fade" mode="in-out">
     <div class="overlay" v-if="showRecipientTypeList" @click="$store.commit('setShowRecipientTypeList', false);">
-      <div class="card shadow-sm rounded-xl recipient-list" @click.stop>
+      <div class="card shadow-sm recipient-list" @click.stop>
         <div class="card-body p-2">
           <h5 class="text-center text-muted-light py-3 px-5">Where do you want to send funds?</h5>
-          <div :class="'mt-2 text-left rounded-xl d-flex align-items-center btn btn-' + (selectedRecipientType == 'User' ? 'primary' : 'outline-light text-dark')" @click="$store.commit('setSelectedRecipientType', 'User'); $store.commit('setShowRecipientTypeList', false)">
+          <div :class="'mt-2 text-left d-flex align-items-center btn btn-' + (selectedRecipientType == 'User' ? 'primary' : 'outline-light text-dark')" @click="$store.commit('setSelectedRecipientType', 'User'); $store.commit('setShowRecipientTypeList', false)">
             <font-awesome-icon :icon="['fas', 'user']" class="fa-2x mx-2" />
             <div class="ml-2 d-flex flex-column">
               User
               <small :class="'text-' + (selectedRecipientType == 'User' ? 'white' : 'muted')">Send funds to any GitHub account and oboard new users to Ethereum.</small>
             </div>
           </div>
-          <div :class="'mt-2 text-left rounded-xl d-flex align-items-center btn btn-' + (selectedRecipientType == 'Issue' ? 'primary' : 'outline-light text-dark')" @click="$store.commit('setSelectedRecipientType', 'Issue'); $store.commit('setShowRecipientTypeList', false);">
+          <div :class="'mt-2 text-left d-flex align-items-center btn btn-' + (selectedRecipientType == 'Issue' ? 'primary' : 'outline-light text-dark')" @click="$store.commit('setSelectedRecipientType', 'Issue'); $store.commit('setShowRecipientTypeList', false);">
             <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="fa-2x mx-2" />
             <div class="ml-2 d-flex flex-column">
               Issue
               <small :class="'text-' + (selectedRecipientType == 'Issue' ? 'white' : 'muted')">Deposit funds on GitHub issues. Either on your own ones or support others and onboard new projects.</small>
             </div>
           </div>
-          <div :class="'mt-2 text-left rounded-xl d-flex align-items-center btn btn-' + (selectedRecipientType == 'Project' ? 'primary' : 'outline-light text-dark')" @click="$store.commit('setSelectedRecipientType', 'Project'); $store.commit('setShowRecipientTypeList', false);">
+          <div :class="'mt-2 text-left d-flex align-items-center btn btn-' + (selectedRecipientType == 'Project' ? 'primary' : 'outline-light text-dark')" @click="$store.commit('setSelectedRecipientType', 'Project'); $store.commit('setShowRecipientTypeList', false);">
             <font-awesome-icon :icon="['fas', 'code']" class="fa-2x mx-2" />
             <div class="ml-2 d-flex flex-column">
               Project

@@ -31,7 +31,7 @@
           'https://github.com/login/oauth/authorize?scope=user:email&client_id=' +
             githubClientId
         "
-        class="ml-2 btn btn-lg rounded-xl btn-light shadow-sm"
+        class="ml-2 btn btn-lg btn-light shadow-sm"
       >
         Connect GitHub
       </a>
@@ -40,10 +40,10 @@
     <div v-else :class="cssClasses">
       <Logo color="white" class="mr-2" size="md" style="background-color: #004A9D; border-radius: 50%;" />
       <span v-if="!connected" key="disconnected" class="d-flex align-items-center">
-        <a href="#" class="ml-2 btn btn-lg btn-light shadow-sm rounded-xl" @click="connect()" v-if="$web3">
+        <a href="#" class="ml-2 btn btn-lg btn-light shadow-sm" @click="connect()" v-if="$web3">
           Connect Wallet
         </a>
-        <a href="https://metamask.io" target="_blank" class="ml-2 btn btn-lg btn-light shadow-sm rounded-xl" v-else>
+        <a href="https://metamask.io" target="_blank" class="ml-2 btn btn-lg btn-light shadow-sm" v-else>
           Install MetaMask
         </a>
       </span>

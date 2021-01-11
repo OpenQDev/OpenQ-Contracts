@@ -63,7 +63,7 @@
       If the problem still occurs, please let us know on <a href="https://twitter.com/OctoBayApp" target="_blank">Twitter</a> or <a href="https://discord.gg/DhKgHrFeCD" target="_blank">Discord</a>.
     </small>
     <div class="text-center mt-2" v-if="[1,2,3,5].includes(showRegistrationError)">
-      <button class="btn btn-sm rounded-xl btn-primary" @click="registerRetry()">Retry</button>
+      <button class="btn btn-sm btn-primary" @click="registerRetry()">Retry</button>
     </div>
   </div>
   <div v-if="connected">
@@ -121,12 +121,12 @@
         </div>
       </div>
 
-      <button v-if="type === 'issue'" class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" @click="withdrawFromIssue()"
+      <button v-if="type === 'issue'" class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="withdrawFromIssue()"
         :disabled="withdrawingFromIssue || !contribution || !githubUser || !issueDepositsAmount || githubUser.login != issueReleasedTo">
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="withdrawingFromIssue" />
         {{ withdrawingFromIssue ? 'Waiting for confirmation...' : 'Claim' }}
       </button>
-      <button v-if="type === 'pr'" class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" @click="claimPullRequest()"
+      <button v-if="type === 'pr'" class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" @click="claimPullRequest()"
         :disabled="claimingPullRequest || !contribution || !contribution.merged || !githubUser || contribution.author.login !== githubUser.login || getAge(contribution.mergedAt) > maxClaimPrAge || contribution.repository.owner.login === githubUser.login">
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="claimingPullRequest" />
         {{ claimingPullRequest ? 'Waiting for confirmation...' : 'Claim' }}
@@ -145,7 +145,7 @@
               <AddressShort :address="deposit.from" />
             </small>
           </div>
-          <button class="btn rounded-xl btn-primary shadow-sm" @click="withdrawUserDeposit(deposit.id)" :disabled="withdrawingUserDeposit != 0">
+          <button class="btn btn-primary shadow-sm" @click="withdrawUserDeposit(deposit.id)" :disabled="withdrawingUserDeposit != 0">
             <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="withdrawingUserDeposit === deposit.id" />
             {{ withdrawingUserDeposit === deposit.id ? '' : 'Withdraw' }}
           </button>
@@ -164,7 +164,7 @@
         </small>
       </div>
       <div v-if="githubUser">
-        <div class="d-flex justify-content-between align-items-center btn rounded-xl btn-light mt-2" v-clipboard="account" v-clipboard:success="copiedAddress">
+        <div class="d-flex justify-content-between align-items-center btn btn-light mt-2" v-clipboard="account" v-clipboard:success="copiedAddress">
           <transition name="fade" mode="out-in">>
             <font-awesome-icon :icon="['fas', 'check']" class="text-success" v-if="copyAddressSuccess" key="check" />
             <font-awesome-icon :icon="['far', 'copy']" v-else key="copy" />
@@ -173,23 +173,23 @@
             <AddressShort :address="account" length="medium" /></i>
           <i></i>
         </div>
-        <a href="https://github.com/new" target="_blank" class="d-flex justify-content-between align-items-center btn rounded-xl btn-dark btn-block mt-2">
+        <a href="https://github.com/new" target="_blank" class="d-flex justify-content-between align-items-center btn btn-dark btn-block mt-2">
           <font-awesome-icon :icon="['fab', 'github']" />
           Create Repository
           <i></i>
         </a>
       </div>
-      <button class="btn btn-lg btn-primary rounded-xl shadow-sm d-block w-100 mt-3" v-if="githubUser" @click="register()" :disabled="loadingRegistration || checkingRepo">
+      <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-3" v-if="githubUser" @click="register()" :disabled="loadingRegistration || checkingRepo">
         <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingRegistration || checkingRepo" />
         {{ loadingRegistration ? 'Waiting for confirmation...' : (checkingRepo ? 'Waiting for repository' : 'Register') }}
       </button>
-      <a v-else :href="'https://github.com/login/oauth/authorize?scope=user:email&client_id=' + githubClientId" class="btn btn-lg rounded-xl btn-dark shadow-sm d-block mt-4">
+      <a v-else :href="'https://github.com/login/oauth/authorize?scope=user:email&client_id=' + githubClientId" class="btn btn-lg btn-dark shadow-sm d-block mt-4">
         <font-awesome-icon :icon="['fab', 'github']" />
         Connect
       </a>
     </div>
   </div>
-  <button class="btn btn-lg rounded-xl btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
+  <button class="btn btn-lg btn-primary shadow-sm d-block w-100 mt-4" v-else-if="$web3" @click="connect()">
     Connect
   </button>
 </div>

@@ -49,22 +49,22 @@
       <transition name="fade">
         <div :class="['d-flex flex-column justify-content-start align-items-center px-3', { action: !!action, deposits: action == 'deposits' }]" @click.stop v-if="showDetails" style="cursor: default">
           <div class="border-top w-100 py-2 text-nowrap d-flex align-items-center">
-            <button class="btn btn-sm rounded-xl btn-outline-success" @click="fundIssue(issueNode.owner, issueNode.repository, issueNode.number)">
+            <button class="btn btn-sm btn-outline-success" @click="fundIssue(issueNode.owner, issueNode.repository, issueNode.number)">
               <font-awesome-icon :icon="['fas', 'plus']" />
             </button>
-            <button :class="['btn btn-sm rounded-xl btn-light ml-2', { active: action === 'release' }]" @click="changeAction('release')" v-if="githubUser && issueNode.repositoryOwner === githubUser.login">
+            <button :class="['btn btn-sm btn-light ml-2', { active: action === 'release' }]" @click="changeAction('release')" v-if="githubUser && issueNode.repositoryOwner === githubUser.login">
               <font-awesome-icon :icon="['fas', 'gavel']" />
             </button>
             <span class="mr-auto"></span>
-            <button :class="['btn btn-sm rounded-xl btn-light ml-1', { active: action === 'deposits' }]" @click="changeAction('deposits')">
+            <button :class="['btn btn-sm btn-light ml-1', { active: action === 'deposits' }]" @click="changeAction('deposits')">
               <font-awesome-icon :icon="['fas', 'coins']" />
             </button>
-            <button :class="['btn btn-sm rounded-xl btn-light ml-1', { active: action === 'pin' }]" @click="changeAction('pin')">
+            <button :class="['btn btn-sm btn-light ml-1', { active: action === 'pin' }]" @click="changeAction('pin')">
               <svg style="width:18px;height:18px" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12M8.8,14L10,12.8V4H14V12.8L15.2,14H8.8Z" />
               </svg>
             </button>
-            <a class="btn btn-sm rounded-xl btn-light ml-1" @click :href="'https://github.com/' + issueNode.owner + '/' + issueNode.repository + '/issues/' + issueNode.number" target="_blank">
+            <a class="btn btn-sm btn-light ml-1" @click :href="'https://github.com/' + issueNode.owner + '/' + issueNode.repository + '/issues/' + issueNode.number" target="_blank">
               <font-awesome-icon :icon="['fab', 'github']" />
               <font-awesome-icon :icon="['fas', 'external-link-alt']" class="text-muted-light ml-1" />
             </a>
@@ -90,13 +90,13 @@
                 </div>
                 <div class="d-flex">
                   <div class="d-flex flex-fill position-relative">
-                    <input type="text" class="form-control rounded-xl" placeholder="GitHub user" v-model="releaseTo" />
+                    <input type="text" class="form-control" placeholder="GitHub user" v-model="releaseTo" />
                     <div v-if="loadingReleaseToUser || releaseToUser" class="position-absolute" style="right: 0; top: 0;">
                       <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="loadingReleaseToUser" class="text-muted-light m-2" />
                       <a :href="releaseToUser.url" target="_blank" class="avatar d-block m-1" :style="'background-image: url(' + releaseToUser.avatarUrl + ')'" v-if="releaseToUser"></a>
                     </div>
                   </div>
-                  <button class="btn btn-success rounded-xl ml-1 shadow-sm" @click="release()" :disabled="releasing || !releaseToUser">
+                  <button class="btn btn-success ml-1 shadow-sm" @click="release()" :disabled="releasing || !releaseToUser">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="releasing" />
                     <span v-else class="text-nowrap">
                       <font-awesome-icon :icon="['fas', 'gavel']" class="mr-1" />
@@ -113,7 +113,7 @@
                       From: <AddressShort :address="deposit.from" />
                     </small>
                   </div>
-                  <button class="btn btn-primary rounded-xl shadow-sm" v-if="deposit.from === account" @click="refundIssueDeposit(deposit.id)" :disabled="refundingDeposit">
+                  <button class="btn btn-primary shadow-sm" v-if="deposit.from === account" @click="refundIssueDeposit(deposit.id)" :disabled="refundingDeposit">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="refundingDeposit === deposit.id" />
                     <span v-else>refund</span>
                   </button>
@@ -122,10 +122,10 @@
               <div v-if="action === 'pin'" key="pin" class="py-2">
                 <div class="d-flex align-items-center">
                   <div class="select-input flex-fill mr-2">
-                    <input type="number" min="0" step="0.01" novalidate class="form-control rounded-xl" placeholder="0.00" v-model="pinAmount" />
+                    <input type="number" min="0" step="0.01" novalidate class="form-control" placeholder="0.00" v-model="pinAmount" />
                     <span class="text-muted mr-2">OPIN</span>
                   </div>
-                  <button class="btn btn-primary rounded-xl shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue || !Number(pinAmount)">
+                  <button class="btn btn-primary shadow-sm text-nowrap" @click="pin()" :disabled="pinningIssue || !Number(pinAmount)">
                     <font-awesome-icon :icon="['fas', 'circle-notch']" spin v-if="pinningIssue" />
                     <span v-else>
                       <svg style="width:18px;height:18px" viewBox="0 0 24 24">
