@@ -14,6 +14,7 @@
     "app:build": "nuxt build",
     "app:start": "nuxt start --hostname ::",
     "app:generate": "nuxt generate",
+    "app:deploy": "push-dir --dir=dist --branch=gh-pages --cleanup",
     "evm": "ganache-cli -l 8000000 -m $1",
     "evm:gsn": "npx gsn start -w ./evm/build/gsn",
     "evm:deploy": "node set-gsn && truffle migrate --f 1 --to 3 --network development && yarn chainlink:jobs:create && truffle migrate --f 4 --to 5 --network development && node set-octobay",
@@ -56,6 +57,7 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "ganache-cli": "^6.12.1",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "push-dir": "^0.4.1"
   }
 }
