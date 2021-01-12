@@ -12,7 +12,10 @@ export default {
   ** Nuxt target
   ** See https://nuxtjs.org/api/configuration-target
   */
-  target: 'server',
+  target: 'static',
+  router: {
+    base: '/octobay/'
+  },
 
   /*
   ** API
