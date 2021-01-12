@@ -4,6 +4,7 @@ const Oracle = artifacts.require("Oracle")
 const LinkToken = artifacts.require("LinkToken")
 const someAddress = "0xE781857C5b55ff0551Df167D0B0A4C53BFD08e1D"
 const someGithubUser = "mktcode"
+const someOtherGithubUser = "wehmoen"
 const someIssueId = 'MDU6SXNzdWU3NjA2NDYzNjg='
 
 contract("OctoBay", async accounts => {
@@ -66,20 +67,27 @@ contract("OctoBay", async accounts => {
     assert.equal(user.status.toString(), '1')
   })
 
-  // it("confirms the user", async () => {
-  //   const octobay = await OctoBay.deployed()
-  //   const oracle = await Oracle.deployed()
-  //   await octobay.confirmRegistration(registerRequestId, { from: accounts[0] })
-  //   const user = await octobay.users(registerRequestId)
-  //
-  //   assert.equal(user.status.toString(), '2')
-  // })
+  it("confirms the user", async () => {
+    const octobay = await OctoBay.deployed()
+    const oracle = await Oracle.deployed()
+    await oracle.fulfillOracleRequest(
+      registerRequestId,
+      '100000000000000000',
+      octobay.address,
+      web3.eth.abi.encodeFunctionSignature("confirmRegistration(bytes32)"),
+      Math.floor(Date.now() / 1000) + (5 * 60),
+      web3.utils.toHex("")
+    )
+    const user = await octobay.users(registerRequestId)
+
+    assert.equal(user.status.toString(), '2')
+  })
 
   it("deposits 1 ETH for user", async () => {
     const octobay = await OctoBay.deployed()
     const sendValue = '1000000000000000000'
-    await octobay.depositEthForGithubUser(someGithubUser, { from: accounts[0], value: sendValue })
-    const claimAmount = await octobay.userClaimAmountByGithbUser(someGithubUser)
+    await octobay.depositEthForGithubUser(someOtherGithubUser, { from: accounts[0], value: sendValue })
+    const claimAmount = await octobay.userClaimAmountByGithbUser(someOtherGithubUser)
 
     assert.equal(claimAmount, sendValue)
   })
@@ -111,4 +119,21 @@ contract("OctoBay", async accounts => {
 
     assert.equal(depositAmount.toString(), '0')
   })
+
+  // let releaseRequestId
+  // it("releases an issue deposit", async () => {
+  //   const octobay = await OctoBay.deployed()
+  //   // make deposit
+  //   const sendValue = '1000000000000000000'
+  //   await octobay.depositEthForIssue(someIssueId, { from: accounts[0], value: sendValue })
+  //
+  //   // make request
+  //   const oracles = await octobay.getOracles()
+  //   const oracle = await octobay.activeOracles(oracles[0])
+  //   const releaseRequest = await octobay.releaseIssueDeposits(oracles[0], oracle.releaseJobId, someIssueId, someGithubUser)
+  //   releaseRequestId = releaseRequest.logs[0].args.id
+  //   const issue = await octobay.releasedIssues(releaseRequestId)
+  //
+  //   assert.equal(issue.status.toString(), '1')
+  // })
 })
