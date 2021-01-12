@@ -24,10 +24,6 @@
 // const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
 
 module.exports = {
-  contracts_directory: './evm/contracts',
-  contracts_build_directory: './evm/build/octobay',
-  migrations_directory: './evm/migrations',
-
   /**
    * Networks define how you connect to your ethereum client and let you set the
    * defaults web3 uses to send transactions. If you don't specify one truffle

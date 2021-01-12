@@ -1,4 +1,4 @@
-require("dotenv").config({ path: './../../.env' })
+require("dotenv").config({ path: './../.env' })
 const OctoBay = artifacts.require("OctoBay")
 const OctoBayPaymaster = artifacts.require("OctoBayPaymaster")
 
