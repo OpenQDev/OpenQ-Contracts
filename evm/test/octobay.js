@@ -121,20 +121,37 @@ contract("OctoBay", async accounts => {
     assert.equal(depositAmount.toString(), '0')
   })
 
-  // let releaseRequestId
-  // it("releases an issue deposit", async () => {
-  //   const octobay = await OctoBay.deployed()
-  //   // make deposit
-  //   const sendValue = '1000000000000000000'
-  //   await octobay.depositEthForIssue(someIssueId, { from: accounts[0], value: sendValue })
-  //
-  //   // make request
-  //   const oracles = await octobay.getOracles()
-  //   const oracle = await octobay.activeOracles(oracles[0])
-  //   const releaseRequest = await octobay.releaseIssueDeposits(oracles[0], oracle.releaseJobId, someIssueId, someGithubUser)
-  //   releaseRequestId = releaseRequest.logs[0].args.id
-  //   const issue = await octobay.releasedIssues(releaseRequestId)
-  //
-  //   assert.equal(issue.status.toString(), '1')
-  // })
+  let releaseRequestId, releaseRequestTimestamp
+  it("releases an issue deposit", async () => {
+    const octobay = await OctoBay.deployed()
+    // make deposit
+    const sendValue = '1000000000000000000'
+    await octobay.depositEthForIssue(someIssueId, { from: accounts[0], value: sendValue })
+
+    // make request
+    const oracles = await octobay.getOracles()
+    const oracle = await octobay.activeOracles(oracles[0])
+    releaseRequestTimestamp = Math.floor(Date.now() / 1000) + (5 * 60)
+    const releaseRequest = await octobay.releaseIssueDeposits(oracles[0], oracle.releaseJobId, someIssueId, someGithubUser)
+    releaseRequestId = releaseRequest.logs[0].args.id
+    const issue = await octobay.releasedIssues(releaseRequestId)
+
+    assert.equal(issue.status.toString(), '1')
+  })
+
+  it("confirms issue release", async () => {
+    const octobay = await OctoBay.deployed()
+    const oracle = await Oracle.deployed()
+    await oracle.fulfillOracleRequest(
+      releaseRequestId,
+      '100000000000000000',
+      octobay.address,
+      web3.eth.abi.encodeFunctionSignature("confirmReleaseIssueDeposits(bytes32)"),
+      releaseRequestTimestamp,
+      web3.utils.toHex("")
+    )
+    const issue = await octobay.releasedIssues(releaseRequestId)
+
+    assert.equal(issue.status.toString(), '2')
+  })
 })
