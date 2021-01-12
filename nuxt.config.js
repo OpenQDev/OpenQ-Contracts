@@ -17,11 +17,6 @@ export default {
     base: '/octobay/'
   },
 
-  /*
-  ** API
-  */
-  serverMiddleware: ["~/api/index"],
-
   env: {
     OCTOBAY_ABI: JSON.parse(fs.readFileSync("./evm/build/octobay/OctoBay.json").toString()).abi,
     OCTOPIN_ABI: JSON.parse(fs.readFileSync("./evm/build/octobay/OctoPin.json").toString()).abi,
