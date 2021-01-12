@@ -4,6 +4,7 @@ const Oracle = artifacts.require("Oracle")
 const LinkToken = artifacts.require("LinkToken")
 const someAddress = "0xE781857C5b55ff0551Df167D0B0A4C53BFD08e1D"
 const someGithubUser = "mktcode"
+const someIssueId = 'MDU6SXNzdWU3NjA2NDYzNjg='
 
 contract("OctoBay", async accounts => {
   it("sets OctoPin token", async () => {
@@ -81,5 +82,33 @@ contract("OctoBay", async accounts => {
     const claimAmount = await octobay.userClaimAmountByGithbUser(someGithubUser)
 
     assert.equal(claimAmount, sendValue)
+  })
+
+  it("refunds 1 ETH to depositer", async () => {
+    const octobay = await OctoBay.deployed()
+    const depositIds = await octobay.getUserDepositIdsForSender()
+    await octobay.refundUserDeposit(depositIds[0])
+    const claimAmount = await octobay.userClaimAmountByGithbUser(someGithubUser)
+
+    assert.equal(claimAmount.toString(), '0')
+  })
+
+  it("deposits 1 ETH for issue", async () => {
+    const octobay = await OctoBay.deployed()
+    const sendValue = '1000000000000000000'
+    const tx = await octobay.depositEthForIssue(someIssueId, { from: accounts[0], value: sendValue })
+    const event = tx.logs[0]
+    const correctEventName = event.event === 'IssueDepositEvent'
+    const correctArgs = event.args.account === accounts[0] && event.args.amount.toString() === sendValue && event.args.issueId === someIssueId
+    assert.equal(correctEventName && correctArgs, true)
+  })
+
+  it("refunds 1 ETH to depositer", async () => {
+    const octobay = await OctoBay.deployed()
+    const depositIds = await octobay.getIssueDepositIdsForIssueId(someIssueId)
+    await octobay.refundIssueDeposit(depositIds[0])
+    const depositAmount = await octobay.issueDepositsAmountByIssueId(someIssueId)
+
+    assert.equal(depositAmount.toString(), '0')
   })
 })
