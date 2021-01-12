@@ -45,8 +45,8 @@ export default {
       { property: 'twitter:image', content: 'https://octobay.uber.space/cover.png' },
     ],
     link: [
-      { rel: 'icon', type: 'image/png', href: '/icon.png' },
-      { rel: 'shortcut icon', type: 'image/png', href: '/icon.png' },
+      { rel: 'icon', type: 'image/png', href: './icon.png' },
+      { rel: 'shortcut icon', type: 'image/png', href: './icon.png' },
     ],
   },
   /*
