@@ -55,11 +55,12 @@ contract("OctoBay", async accounts => {
     assert.equal(balance.toString(), transferBalance)
   })
 
-  let registerRequestId
+  let registerRequestId, registerRequestTimestamp
   it("registers a user", async () => {
     const octobay = await OctoBay.deployed()
     const oracles = await octobay.getOracles()
     const oracle = await octobay.activeOracles(oracles[0])
+    registerRequestTimestamp = Math.floor(Date.now() / 1000) + (5 * 60)
     const registerRequest = await octobay.register(oracles[0], oracle.registerJobId, someGithubUser)
     registerRequestId = registerRequest.logs[0].args.id
     const user = await octobay.users(registerRequestId)
@@ -75,7 +76,7 @@ contract("OctoBay", async accounts => {
       '100000000000000000',
       octobay.address,
       web3.eth.abi.encodeFunctionSignature("confirmRegistration(bytes32)"),
-      Math.floor(Date.now() / 1000) + (5 * 60),
+      registerRequestTimestamp,
       web3.utils.toHex("")
     )
     const user = await octobay.users(registerRequestId)
