@@ -7,7 +7,7 @@
         </div>
         <div class="card-body p-2">
           <div class="btn btn-outline-light text-dark mt-2 text-left d-flex align-items-center" @click="$store.commit('setSelectedToken', null); $store.commit('setShowTokenList', false); showNum = 25">
-            <img src="/eth-logo.png" width="25" height="25" class="rounded-circle" />
+            <img :src="'./eth-logo.png'" width="25" height="25" class="rounded-circle" />
             <div class="ml-2 text-truncate d-flex flex-column">
               Ether (ETH)
             </div>
