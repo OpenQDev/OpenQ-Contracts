@@ -7,7 +7,7 @@ const LinkToken = artifacts.require("link-token/LinkToken")
 const Oracle = artifacts.require("Oracle")
 const zeroAddress = "0x0000000000000000000000000000000000000000"
 
-module.exports = function (deployer) {
+module.exports = function (deployer, network, accounts) {
   if (process.env.LOCAL == 'true') {
     deployer.deploy(OctoBay, LinkToken.address, zeroAddress, zeroAddress, process.env.GSN_FORWARDER_ADDRESS).then(octoBayInstance => {
       octoBayInstance.setPaymaster(process.env.GSN_PAYMASTER_ADDRESS)
@@ -21,6 +21,9 @@ module.exports = function (deployer) {
         process.env.CHAINLINK_RELEASE_JOB_FEE,
         process.env.CHAINLINK_CLAIM_JOB_FEE,
       )
+      LinkToken.deployed().then(linkTokenInstance => {
+        linkTokenInstance.transfer(octoBayInstance.address, "10000000000000000000")
+      })
     })
   } else {
     deployer.deploy(OctoBay, zeroAddress, zeroAddress, zeroAddress, process.env.GSN_FORWARDER_ADDRESS)
