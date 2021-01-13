@@ -14,9 +14,9 @@ module.exports = function (deployer, network, accounts) {
       octoBayInstance.setOracle(
         Oracle.address,
         "Main",
-        process.env.CHAINLINK_REGISTER_JOB_ID,
-        process.env.CHAINLINK_RELEASE_JOB_ID,
-        process.env.CHAINLINK_CLAIM_JOB_ID,
+        web3.utils.toHex(process.env.CHAINLINK_REGISTER_JOB_ID),
+        web3.utils.toHex(process.env.CHAINLINK_RELEASE_JOB_ID),
+        web3.utils.toHex(process.env.CHAINLINK_CLAIM_JOB_ID),
         process.env.CHAINLINK_REGISTER_JOB_FEE,
         process.env.CHAINLINK_RELEASE_JOB_FEE,
         process.env.CHAINLINK_CLAIM_JOB_FEE,
