@@ -85,10 +85,9 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
       bytes32 registerJobId;
       bytes32 releaseJobId;
       bytes32 claimJobId;
-      bytes32 graphqlBoolJobId;
-      bytes32 graphqlBytes32JobId;
-      bytes32 graphqlInt256JobId;
-      bytes32 graphqlUint256JobId;
+      uint256 registerJobFee;
+      uint256 releaseJobFee;
+      uint256 claimJobFee;
     }
     mapping(address => Oracle) public activeOracles;
     address[] public allOracles;
@@ -97,10 +96,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     address link;
     OctoPin public octoPin;
     address octobayPaymaster;
-
-    uint256 private registrationFee;
-    uint256 private claimFee;
-
 
     constructor(
         address _link,
@@ -117,9 +112,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         weth = _weth;
         trustedForwarder = _forwarder; // GSN trusted forwarder
         uniswap = IUniswapV2Router02(_uniswap);
-
-        registrationFee = 0.1 * 10**18; // 0.1 LINK
-        claimFee = 0.1 * 10**18; // 0.1 LINK
     }
 
     function setOctoPin(address _octoPin) external onlyOwner {
@@ -130,26 +122,29 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         octobayPaymaster = _octobayPaymaster;
     }
 
+    modifier onlyActiveOracles(address _oracle) {
+      require(bytes(activeOracles[_oracle].name).length > 0, "Only whitelisted oracles can be used for this request.");
+      _;
+    }
+
     function setOracle(
       address _oracle,
       string calldata name,
       bytes32 registerJobId,
       bytes32 releaseJobId,
       bytes32 claimJobId,
-      bytes32 graphqlBoolJobId,
-      bytes32 graphqlBytes32JobId,
-      bytes32 graphqlInt256JobId,
-      bytes32 graphqlUint256JobId
+      uint256 registerJobFee,
+      uint256 releaseJobFee,
+      uint256 claimJobFee
     ) external onlyOwner {
         activeOracles[_oracle] = Oracle(
           name,
           registerJobId,
           releaseJobId,
           claimJobId,
-          graphqlBoolJobId,
-          graphqlBytes32JobId,
-          graphqlInt256JobId,
-          graphqlUint256JobId
+          registerJobFee,
+          releaseJobFee,
+          claimJobFee
         );
         allOracles.push(_oracle);
     }
@@ -203,20 +198,19 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function register(
         address _oracle,
-        bytes32 _jobId,
         string memory _githubUser
-    ) public {
+    ) public onlyActiveOracles(_oracle) {
         // Trusted and free oracle
         Chainlink.Request memory request =
             buildChainlinkRequest(
-                _jobId,
+                activeOracles[_oracle].registerJobId,
                 address(this),
                 this.confirmRegistration.selector
             );
         request.add('githubUser', _githubUser);
         request.add('ethAddress', addressToIntString(_msgSender()));
         bytes32 requestId =
-            sendChainlinkRequestTo(_oracle, request, registrationFee);
+            sendChainlinkRequestTo(_oracle, request, activeOracles[_oracle].registerJobFee);
 
         users[requestId] = User(_githubUser, _msgSender(), 1);
     }
@@ -350,10 +344,9 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function releaseIssueDeposits(
         address _oracle,
-        bytes32 _jobId,
         string memory _issueId,
         string memory _githubUser
-    ) public {
+    ) public onlyActiveOracles(_oracle) {
         require(
             issueDepositsAmountByIssueId[_issueId] > 0,
             'Issue has no deposits to release.'
@@ -365,14 +358,14 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
         Chainlink.Request memory request =
             buildChainlinkRequest(
-                _jobId,
+                activeOracles[_oracle].releaseJobId,
                 address(this),
                 this.confirmReleaseIssueDeposits.selector
             );
         request.add('githubUser', _githubUser);
         request.add('issueId', _issueId);
         bytes32 requestId =
-            sendChainlinkRequestTo(_oracle, request, registrationFee);
+            sendChainlinkRequestTo(_oracle, request, activeOracles[_oracle].releaseJobFee);
 
         releasedIssues[requestId] = ReleasedIssue(_githubUser, _issueId, 1);
         issueReleaseIDsByIssueId[_issueId] = requestId;
@@ -432,10 +425,9 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function claimPullRequest(
         address _oracle,
-        bytes32 _jobId,
         string memory _prId,
         string memory _githubUser
-    ) public {
+    ) public onlyActiveOracles(_oracle) {
         require(
             pullRequestClaims[pullRequestClaimIDsByPrId[_prId]].status != 2,
             'Pull request already claimed.'
@@ -447,13 +439,13 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
         Chainlink.Request memory request =
             buildChainlinkRequest(
-                _jobId,
+                activeOracles[_oracle].claimJobId,
                 address(this),
                 this.confirmPullRequestClaim.selector
             );
         request.add('githubUser', _githubUser);
         request.add('prId', _prId);
-        bytes32 requestId = sendChainlinkRequestTo(_oracle, request, claimFee);
+        bytes32 requestId = sendChainlinkRequestTo(_oracle, request, activeOracles[_oracle].claimJobFee);
 
         pullRequestClaims[requestId] = PullRequestClaim(_githubUser, _prId, 1);
     }

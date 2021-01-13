@@ -14,13 +14,12 @@ module.exports = function (deployer) {
       octoBayInstance.setOracle(
         Oracle.address,
         "Main",
-        web3.utils.toHex(process.env.CHAINLINK_REGISTER_JOB_ID),
-        web3.utils.toHex(process.env.CHAINLINK_RELEASE_JOB_ID),
-        web3.utils.toHex(process.env.CHAINLINK_CLAIM_JOB_ID),
-        web3.utils.toHex(process.env.CHAINLINK_GRAPHQL_BOOL_JOB_ID),
-        web3.utils.toHex(process.env.CHAINLINK_GRAPHQL_BYTES32_JOB_ID),
-        web3.utils.toHex(process.env.CHAINLINK_GRAPHQL_INT256_JOB_ID),
-        web3.utils.toHex(process.env.CHAINLINK_GRAPHQL_UINT256_JOB_ID)
+        process.env.CHAINLINK_REGISTER_JOB_ID,
+        process.env.CHAINLINK_RELEASE_JOB_ID,
+        process.env.CHAINLINK_CLAIM_JOB_ID,
+        process.env.CHAINLINK_REGISTER_JOB_FEE,
+        process.env.CHAINLINK_RELEASE_JOB_FEE,
+        process.env.CHAINLINK_CLAIM_JOB_FEE,
       )
     })
   } else {
