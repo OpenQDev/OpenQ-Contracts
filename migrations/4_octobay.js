@@ -10,7 +10,6 @@ const zeroAddress = "0x0000000000000000000000000000000000000000"
 module.exports = function (deployer, network, accounts) {
   if (process.env.LOCAL == 'true') {
     deployer.deploy(OctoBay, LinkToken.address, zeroAddress, zeroAddress, process.env.GSN_FORWARDER_ADDRESS).then(octoBayInstance => {
-      octoBayInstance.setPaymaster(process.env.GSN_PAYMASTER_ADDRESS)
       octoBayInstance.setOracle(
         Oracle.address,
         "Main",
