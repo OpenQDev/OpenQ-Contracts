@@ -271,6 +271,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
                 this.twitterPostConfirm.selector
             );
         request.add('issueId', _issueId);
+        request.addUint('amount', issueDepositsAmountByIssueId[_issueId]);
         requestId = sendChainlinkRequestTo(_oracle, request, twitterPostJobFees[_oracle]);
     }
 
