@@ -101,7 +101,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     address octobayPaymaster;
 
     string twitterAccountId;
-    uint256 twitterFollowers;
+    uint256 public twitterFollowers;
+    mapping(bytes32 => string) public pendingTwitterPostsIssueIds;
 
     constructor(
         address _link,
@@ -262,7 +263,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function twitterPost(
         address _oracle,
         string memory _issueId
-    ) public onlyActiveOracles(_oracle) returns(bytes32 requestId) {
+    ) internal onlyActiveOracles(_oracle) returns(bytes32 requestId) {
         // Trusted and free oracle
         Chainlink.Request memory request =
             buildChainlinkRequest(
@@ -284,8 +285,9 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ TWITTER FOLLOWERS ------------ //
 
-    function updateTwitterFollowers(
-        address _oracle
+    function updateTwitterFollowersAndPost(
+        address _oracle,
+        string memory _issueId
     ) public onlyActiveOracles(_oracle) returns(bytes32 requestId) {
         // Trusted and free oracle
         Chainlink.Request memory request =
@@ -296,6 +298,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
             );
         request.add('accountId', twitterAccountId);
         requestId = sendChainlinkRequestTo(_oracle, request, twitterFollowersJobFees[_oracle]);
+        pendingTwitterPostsIssueIds[requestId] = _issueId;
     }
 
     function updateTwitterFollowersConfirm(bytes32 _requestId, uint256 _followers)
@@ -303,6 +306,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         recordChainlinkFulfillment(_requestId)
     {
         twitterFollowers = _followers;
+        twitterPost(msg.sender, pendingTwitterPostsIssueIds[_requestId]);
+        delete pendingTwitterPostsIssueIds[_requestId];
     }
 
     // ------------ USER DEPOSITS ------------ //
