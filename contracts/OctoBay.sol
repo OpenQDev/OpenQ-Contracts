@@ -30,7 +30,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     event UserSendEvent(address account, uint256 amount, string githubUser);
     event IssueDepositEvent(address account, uint256 amount, string issueId);
     event ReleaseIssueDepositsEvent(string issueId, string githubUser);
-    event TwitterPost(bytes32 requestId, bytes32 tweetId);
+    event TwitterPost(string issueId, bytes32 tweetId);
 
     struct User {
         string githubUser;
@@ -280,7 +280,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        emit TwitterPost(_requestId, _tweetId);
+        emit TwitterPost(pendingTwitterPostsIssueIds[_requestId], _tweetId);
     }
 
     // ------------ TWITTER FOLLOWERS ------------ //
@@ -306,7 +306,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         recordChainlinkFulfillment(_requestId)
     {
         twitterFollowers = _followers;
-        twitterPost(msg.sender, pendingTwitterPostsIssueIds[_requestId]);
+        bytes32 postRequestId = twitterPost(msg.sender, pendingTwitterPostsIssueIds[_requestId]);
+        pendingTwitterPostsIssueIds[postRequestId] = pendingTwitterPostsIssueIds[_requestId];
         delete pendingTwitterPostsIssueIds[_requestId];
     }
 
