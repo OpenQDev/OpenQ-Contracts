@@ -100,7 +100,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     OctoPin public octoPin;
     address octobayPaymaster;
 
-    string twitterAccountId;
+    string public twitterAccountId;
     uint256 public twitterFollowers;
     mapping(bytes32 => string) public pendingTwitterPostsIssueIds;
 
