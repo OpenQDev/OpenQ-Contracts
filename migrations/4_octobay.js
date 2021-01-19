@@ -8,7 +8,7 @@ const Oracle = artifacts.require("Oracle")
 const zeroAddress = "0x0000000000000000000000000000000000000000"
 
 module.exports = function (deployer, network, accounts) {
-  if (process.env.LOCAL == 'true') {
+  if (network == 'development') {
     deployer.deploy(OctoBay, LinkToken.address, zeroAddress, zeroAddress, process.env.GSN_FORWARDER_ADDRESS).then(octoBayInstance => {
       octoBayInstance.setTwitterAccountId(process.env.OCTOBAY_TWITTER_ACCOUNT_ID)
       octoBayInstance.setOracle(Oracle.address, "Main")
