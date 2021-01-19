@@ -18,10 +18,15 @@
  *
  */
 
-// require('dotenv').config({ path: './.env' })
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".mnemonic").toString().trim();
+require('dotenv').config({ path: './.env' })
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const fs = require('fs');
+let mnemonic = ''
+try {
+  mnemonic = fs.readFileSync(".mnemonic").toString().trim();
+} catch {
+  console.log('No mnemonic file found. Using random one.')
+}
 
 module.exports = {
   /**
@@ -57,14 +62,14 @@ module.exports = {
     // },
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
-    // kovan: {
-    //   provider: () => new HDWalletProvider(mnemonic, `wss://kovan.infura.io/ws/v3/${process.env.KOVAN_API_KEY}` ),
-    //   network_id: 42,       // Ropsten's id
-    //   gas: 5500000,        // Ropsten has a lower block limit than mainnet
-    //   confirmations: 2,    // # of confs to wait between deployments. (default: 0)
-    //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
+    kovan: {
+      provider: () => new HDWalletProvider(mnemonic, `wss://kovan.infura.io/ws/v3/${process.env.KOVAN_API_KEY}` ),
+      network_id: 42,       // Ropsten's id
+      gas: 5500000,        // Ropsten has a lower block limit than mainnet
+      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
     // Useful for private networks
     // private: {
     // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
