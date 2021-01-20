@@ -140,7 +140,16 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
     function setOracle(address _oracle, string calldata name) external onlyOwner {
-      oracleAddresses.push(_oracle);
+      bool exists = false;
+      for (uint i = 0; i < oracleAddresses.length; i++) {
+        if (oracleAddresses[i] == _oracle) {
+          exists = true;
+          break;
+        }
+      }
+      if (!exists) {
+        oracleAddresses.push(_oracle);
+      }
       oracleNames[_oracle] = name;
     }
 
