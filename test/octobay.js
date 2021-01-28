@@ -16,30 +16,6 @@ contract("OctoBay", async accounts => {
     assert.equal(octopin.address, newAddress)
   })
 
-  it("sets Oracle", async () => {
-    const octobay = await OctoBay.deployed()
-    await octobay.setOracle(
-      someAddress,
-      "Main",
-      web3.utils.toHex("0"),
-      web3.utils.toHex("0"),
-      web3.utils.toHex("0"),
-      web3.utils.toHex("0"),
-      web3.utils.toHex("0"),
-      web3.utils.toHex("0"),
-      web3.utils.toHex("0")
-    )
-    const oracles = await octobay.getOracles()
-    assert.equal(oracles.includes(someAddress), true)
-  })
-
-  it("removes Oracle", async () => {
-    const octobay = await OctoBay.deployed()
-    await octobay.removeOracle(someAddress)
-    const oracles = await octobay.getOracles()
-    assert.equal(oracles.includes(someAddress), false)
-  })
-
   it("sets Oracle fulfill permission", async () => {
     const oracle = await Oracle.deployed()
     const tx = await oracle.setFulfillmentPermission(accounts[0], true)
