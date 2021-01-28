@@ -17,8 +17,6 @@ module.exports = function (deployer, network, accounts) {
       })
     })
   } else if (network == 'kovan') {
-    deployer.deploy(OctoBay, '0xa36085F69e2889c224210F603D836748e7dC0088', zeroAddress, zeroAddress, process.env.GSN_FORWARDER_ADDRESS).then(octoBayInstance => {
-      octoBayInstance.setTwitterAccountId(process.env.OCTOBAY_TWITTER_ACCOUNT_ID)
-    })
+    deployer.deploy(OctoBay, '0xa36085F69e2889c224210F603D836748e7dC0088', zeroAddress, zeroAddress, process.env.GSN_FORWARDER_ADDRESS)
   }
 }

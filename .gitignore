@@ -3,3 +3,4 @@ build
 .env
 package-lock.json
 .mnemonic
+*.swp
