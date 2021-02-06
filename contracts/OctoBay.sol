@@ -28,7 +28,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // TODO: Add more events related to user withdrawls
     event UserDepositEvent(address account, uint256 amount, string githubUser);
     event UserSendEvent(address account, uint256 amount, string githubUser);
-    event IssueDepositEvent(address account, uint256 amount, string issueId);
+    event IssueDepositEvent(uint256 depositId, address account, uint256 amount, string issueId);
     event ReleaseIssueDepositsEvent(string issueId, string githubUser);
     event TwitterPost(string issueId, bytes32 tweetId);
 
@@ -410,7 +410,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         issueDepositIdsByIssueId[_issueId].push(nextIssueDepositId);
         issueDepositIdsBySender[msg.sender].push(nextIssueDepositId);
         issueDepositsAmountByIssueId[_issueId] += msg.value;
-        emit IssueDepositEvent(msg.sender, msg.value, _issueId);
+        emit IssueDepositEvent(nextIssueDepositId, msg.sender, msg.value, _issueId);
     }
 
     function refundIssueDeposit(uint256 _depositId) external {
