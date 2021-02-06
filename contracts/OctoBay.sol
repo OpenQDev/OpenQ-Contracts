@@ -10,7 +10,7 @@ import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './interfaces/IUniswapV2Router02.sol';
 import './OctoPin.sol';
 
-contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {  
+contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function _msgSender() internal override(Context, BaseRelayRecipient)
     view returns (address payable) {
@@ -78,7 +78,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
     mapping(bytes32 => PullRequestClaim) public pullRequestClaims;
     mapping(string => bytes32) public pullRequestClaimIDsByPrId;
-    
+
     mapping(string => uint256) public issuePins;
 
     address weth;
@@ -119,24 +119,24 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         twitterAccountId = _accountId;
         twitterFollowers = 0;
     }
-    
+
      // ------------ ORACLES ------------ //
-     
+
     event OracleAdded(address _oracle, string name);
     event OracleRemoved(address _oracle);
-    
+
     enum jobName { register, release, claim, twitterPost, twitterFollowers }
-    
+
     struct Job {
         bytes32 id;
         uint256 fee;
     }
-    
+
     struct Oracle{
         string name;
         mapping(jobName => Job) jobs;
     }
-    
+
     address[] public registeredOracles;
     mapping(address => Oracle) public oracles;
 
@@ -144,18 +144,18 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
       require(bytes(oracles[_oracle].name).length > 0, "Unregistered oracle");
       _;
     }
-    
+
     modifier oracleHandlesJob(address _oracle, jobName _jobName) {
         require(bytes(oracles[_oracle].name).length > 0, "Unregistered oracle");
         require(oracles[_oracle].jobs[_jobName].id > 0, "Oracle doesn't do this job");
         _;
     }
-    
+
     function addOracle(address _oracle, string calldata _name, jobName[] memory _jobNames, Job[] memory _jobs) external onlyOwner {
       require(bytes(oracles[_oracle].name).length == 0, 'Oracle already exists');
       require(_jobs.length > 0, 'No Jobs');
       require(_jobNames.length == _jobs.length, '_jobNames and _jobs should be of same length');
-    
+
       oracles[_oracle] = Oracle({
           name: _name
       });
@@ -163,10 +163,10 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
           oracles[_oracle].jobs[_jobNames[i]] = _jobs[i];   // modifies the stroage
       }
       registeredOracles.push(_oracle);
-      
+
       emit OracleAdded(_oracle, _name);
     }
-    
+
     function removeOracle(address _oracle) external onlyOwner onlyRegisteredOracle(_oracle) {
         delete oracles[_oracle];
         for(uint i = 0; i < registeredOracles.length; i++ ) {
@@ -182,28 +182,28 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can change name');
         oracles[_oracle].name = _name;
     }
-    
+
     function addOracleJob(address _oracle, jobName _jobName, Job memory _job) external onlyRegisteredOracle(_oracle) {
         require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
         oracles[_oracle].jobs[_jobName] = _job;
     }
-    
+
     function removeOracleJob(address _oracle, jobName _jobName) external onlyRegisteredOracle(_oracle) {
         require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
         delete oracles[_oracle].jobs[_jobName];
     }
-    
+
     function getOracleName(address _oracle) external view returns (string memory) {
         return oracles[_oracle].name;
     }
-    
+
     function getOracleJob(address _oracle, jobName _job) external view returns (bytes32, uint256) {
         Job memory job = oracles[_oracle].jobs[_job];
-        return (job.id, job.fee); 
+        return (job.id, job.fee);
     }
-    
+
     // ------------ PAYMASTER ------------ //
-    
+
     function deductGasFee(string memory _githubUser, uint256 _amount)
         external
     {
@@ -613,7 +613,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function getOracles() external view returns(address[] memory) {
         return registeredOracles;
     }
-    
+
     // ------------ UTILS ------------ //
 
     function addressToIntString(address _address)
