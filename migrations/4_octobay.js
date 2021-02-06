@@ -17,6 +17,12 @@ module.exports = function (deployer, network, accounts) {
       })
     })
   } else if (network == 'kovan') {
-    deployer.deploy(OctoBay, '0xa36085F69e2889c224210F603D836748e7dC0088', zeroAddress, zeroAddress, process.env.GSN_FORWARDER_ADDRESS)
+    deployer.deploy(
+      OctoBay,
+      '0xa36085F69e2889c224210F603D836748e7dC0088',
+      zeroAddress,
+      zeroAddress,
+      '0x0842Ad6B8cb64364761C7c170D0002CC56b1c498'
+    )
   }
 }
