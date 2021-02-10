@@ -31,7 +31,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event ReleaseIssueDepositsEvent(string issueId, string githubUser);
     event TwitterPostEvent(string issueId, bytes32 tweetId);
-    event UserAddedEvent(string githubUser, address ethAddress, uint8 status);
+    event UserAddedEvent(bytes32 id, string name, address ethAddress, uint8 status);
 
     struct User {
         string githubUser;
@@ -277,7 +277,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         userIDsByAddress[users[_requestId].ethAddress] = _requestId;
         userIDsByGithubUser[users[_requestId].githubUser] = _requestId;
 
-        emit UserAddedEvent(users[_requestId].githubUser, users[_requestId].ethAddress, users[_requestId].status);
+        emit UserAddedEvent(_requestId, users[_requestId].githubUser, users[_requestId].ethAddress, users[_requestId].status);
     }
 
     // ------------ TWITTER POST ------------ //
