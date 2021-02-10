@@ -30,7 +30,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     event UserSendEvent(address from, uint256 amount, string githubUser);
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event ReleaseIssueDepositsEvent(string issueId, string githubUser);
-    event TwitterPost(string issueId, bytes32 tweetId);
+    event TwitterPostEvent(string issueId, bytes32 tweetId);
+    event UserAddedEvent(string githubUser, address ethAddress, uint8 status);
 
     struct User {
         string githubUser;
@@ -122,8 +123,11 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
      // ------------ ORACLES ------------ //
 
-    event OracleAdded(address _oracle, string name);
-    event OracleRemoved(address _oracle);
+    event OracleAddedEvent(address oracle, string name);
+    event OracleRemovedEvent(address oracle);
+    event OracleNameChangedEvent(address oracle, string name);
+    event OracleJobAddedEvent(address oracle, jobName name);
+    event OracleJobRemovedEvent(address oracle, jobName name);
 
     enum jobName { register, release, claim, twitterPost, twitterFollowers }
 
@@ -164,7 +168,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
       }
       registeredOracles.push(_oracle);
 
-      emit OracleAdded(_oracle, _name);
+      emit OracleAddedEvent(_oracle, _name);
     }
 
     function removeOracle(address _oracle) external onlyOwner onlyRegisteredOracle(_oracle) {
@@ -175,22 +179,25 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
                 registeredOracles.pop();
             }
         }
-        emit OracleRemoved(_oracle);
+        emit OracleRemovedEvent(_oracle);
     }
 
     function changeOracleName(address _oracle, string calldata _name) external onlyRegisteredOracle(_oracle) {
         require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can change name');
         oracles[_oracle].name = _name;
+        emit OracleNameChangedEvent(_oracle, _name);
     }
 
     function addOracleJob(address _oracle, jobName _jobName, Job memory _job) external onlyRegisteredOracle(_oracle) {
         require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
         oracles[_oracle].jobs[_jobName] = _job;
+        emit OracleJobAddedEvent(_oracle, _jobName);
     }
 
     function removeOracleJob(address _oracle, jobName _jobName) external onlyRegisteredOracle(_oracle) {
         require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
         delete oracles[_oracle].jobs[_jobName];
+        emit OracleJobRemovedEvent(_oracle, _jobName);
     }
 
     function getOracleName(address _oracle) external view returns (string memory) {
@@ -269,6 +276,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         users[_requestId].status = 2;
         userIDsByAddress[users[_requestId].ethAddress] = _requestId;
         userIDsByGithubUser[users[_requestId].githubUser] = _requestId;
+
+        emit UserAddedEvent(users[_requestId].githubUser, users[_requestId].ethAddress, users[_requestId].status);
     }
 
     // ------------ TWITTER POST ------------ //
@@ -293,7 +302,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        emit TwitterPost(pendingTwitterPostsIssueIds[_requestId], _tweetId);
+        emit TwitterPostEvent(pendingTwitterPostsIssueIds[_requestId], _tweetId);
     }
 
     // ------------ TWITTER FOLLOWERS ------------ //
