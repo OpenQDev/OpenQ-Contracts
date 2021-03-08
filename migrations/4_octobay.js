@@ -4,7 +4,6 @@ const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545")
 
 const OctoBay = artifacts.require("OctoBay")
 const LinkToken = artifacts.require("link-token/LinkToken")
-const Oracle = artifacts.require("Oracle")
 const zeroAddress = "0x0000000000000000000000000000000000000000"
 
 module.exports = function (deployer, network, accounts) {
