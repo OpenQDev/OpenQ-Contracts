@@ -9,6 +9,7 @@ import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './interfaces/IUniswapV2Router02.sol';
 import './OctoPin.sol';
+import './UserAddresses.sol';
 
 contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
@@ -27,30 +28,27 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     IUniswapV2Router02 uniswap;
     // TODO: Add more events related to user withdrawls
     event UserDepositEvent(address from, uint256 amount, string githubUser);
-    event UserSendEvent(address from, uint256 amount, string githubUser);
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event ReleaseIssueDepositsEvent(string issueId, string githubUser);
     event TwitterPostEvent(string issueId, bytes32 tweetId);
-    event UserAddedEvent(bytes32 id, string name, address ethAddress, uint8 status);
+    event UserAddressRegisteredEvent(string githubUserId, string addressName, address ethAddress);
 
-    struct User {
-        string githubUser;
+    UserAddresses userAddresses;
+    struct UserAddressRegistration {
+        string githubUserId;
         address ethAddress;
-        uint8 status; // 1 = requested, 2 = confirmed
     }
-    mapping(bytes32 => User) public users;
-    mapping(address => bytes32) public userIDsByAddress;
-    mapping(string => bytes32) public userIDsByGithubUser;
-    mapping(string => uint256) public userClaimAmountByGithbUser;
+    mapping(bytes32 => UserAddressRegistration) public userAddressRegistrations;
+    mapping(string => uint256) public userClaimAmountByGithbUserId;
 
     struct UserDeposit {
         address from;
         uint256 amount;
-        string githubUser;
+        string githubUserId;
     }
     uint256 private nextUserDepositId = 0;
     mapping(uint256 => UserDeposit) public userDeposits;
-    mapping(string => uint256[]) public userDepositIdsByGithubUser;
+    mapping(string => uint256[]) public userDepositIdsByGithubUserId;
     mapping(address => uint256[]) public userDepositIdsBySender;
 
     struct IssueDeposit {
@@ -95,7 +93,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _link,
         address _weth,
         address _uniswap,
-        address _forwarder
+        address _forwarder,
+        address _userAddresses
     ) public {
         if (_link == address(0)) {
             setPublicChainlinkToken();
@@ -106,6 +105,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         weth = _weth;
         trustedForwarder = _forwarder; // GSN trusted forwarder
         uniswap = IUniswapV2Router02(_uniswap);
+        userAddresses = UserAddresses(_userAddresses);
     }
 
     function setOctoPin(address _octoPin) external onlyOwner {
@@ -216,68 +216,45 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     {
         // only paymaster, cause paymaster pays for gas fee on behalf of user
         require(msg.sender == octobayPaymaster);
-        require(userClaimAmountByGithbUser[_githubUser] >= _amount, 'Not enough funds to pay gasFee');
+        require(userClaimAmountByGithbUserId[_githubUser] >= _amount, 'Not enough funds to pay gasFee');
 
-        userClaimAmountByGithbUser[_githubUser] -= _amount;
-    }
-
-
-    function _swapETHforLink(uint256 _ethAmount, uint256 _linkAmount)
-        internal
-        returns (uint256 _ethOut)
-    {
-        address[] memory path = new address[](2);
-        path[0] = weth;
-        path[1] = link;
-
-        uint256[] memory amounts =
-            uniswap.swapETHForExactTokens{value: _ethAmount}(
-                _linkAmount, // amountOut
-                path,
-                address(this),
-                now
-            );
+        userClaimAmountByGithbUserId[_githubUser] -= _amount;
     }
 
     // ------------ USER ONBOARDING ------------ //
 
-    function register(
+    function registerUserAddress(
         address _oracle,
-        string memory _githubUser
+        string calldata _githubUserId
     ) public oracleHandlesJob(_oracle, jobName.register) returns(bytes32 requestId) {
-        // Trusted and free oracle
         Chainlink.Request memory request =
             buildChainlinkRequest(
                 oracles[_oracle].jobs[jobName.register].id,
                 address(this),
-                this.confirmRegistration.selector
+                this.confirmRegisterUserAddress.selector
             );
-        request.add('githubUser', _githubUser);
+        request.add('githubUserId', _githubUserId);
         request.add('ethAddress', addressToIntString(_msgSender()));
-        bytes32 requestId =
-            sendChainlinkRequestTo(_oracle, request, oracles[_oracle].jobs[jobName.register].fee);
+        requestId = sendChainlinkRequestTo(_oracle, request, oracles[_oracle].jobs[jobName.register].fee);
 
-        users[requestId] = User(_githubUser, _msgSender(), 1);
+        userAddressRegistrations[requestId] = UserAddressRegistration(_githubUserId, _msgSender());
     }
 
-    function confirmRegistration(bytes32 _requestId)
+    function confirmRegisterUserAddress(bytes32 _requestId, string calldata _addressName)
         public
         recordChainlinkFulfillment(_requestId)
     {
-        // If githubUser was registered before (changed ethAddress now) look for old
-        // ID and delete entry in userIDsByAddress as well as users entry itself (userIDsByGithubUser
-        // has been overridden above anyway).
-        bytes32 oldId = userIDsByGithubUser[users[_requestId].githubUser];
-        delete userIDsByAddress[users[oldId].ethAddress];
-        delete users[oldId];
-        // The scenario where an eth address switches to a new github account
-        // (the other way around) does not occur.
+        userAddresses.addUserAddress(
+            userAddressRegistrations[_requestId].githubUserId,
+            _addressName,
+            userAddressRegistrations[_requestId].ethAddress
+        );
 
-        users[_requestId].status = 2;
-        userIDsByAddress[users[_requestId].ethAddress] = _requestId;
-        userIDsByGithubUser[users[_requestId].githubUser] = _requestId;
-
-        emit UserAddedEvent(_requestId, users[_requestId].githubUser, users[_requestId].ethAddress, users[_requestId].status);
+        emit UserAddressRegisteredEvent(
+            userAddressRegistrations[_requestId].githubUserId,
+            _addressName,
+            userAddressRegistrations[_requestId].ethAddress
+        );
     }
 
     // ------------ TWITTER POST ------------ //
@@ -286,7 +263,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string memory _issueId
     ) internal oracleHandlesJob(_oracle, jobName.twitterPost) returns(bytes32 requestId) {
-        // Trusted and free oracle
         Chainlink.Request memory request =
             buildChainlinkRequest(
                 oracles[_oracle].jobs[jobName.twitterPost].id,
@@ -335,35 +311,25 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ USER DEPOSITS ------------ //
 
-    function depositEthForGithubUser(string calldata _githubUser)
+    function depositEthForGithubUser(string calldata _githubUserId)
         external
         payable
     {
         require(msg.value > 0, 'You must send ETH.');
-        User memory user = users[userIDsByGithubUser[_githubUser]];
 
-        if(user.ethAddress != address(0) && user.status == 2) { // Registered and verified user
-            payable(users[userIDsByGithubUser[_githubUser]].ethAddress).transfer(
-                msg.value
-            );
+        nextUserDepositId++;
+        userDeposits[nextUserDepositId] = UserDeposit(
+            msg.sender,
+            msg.value,
+            _githubUserId
+        );
+        userDepositIdsByGithubUserId[_githubUserId].push(nextUserDepositId);
+        userDepositIdsBySender[msg.sender].push(nextUserDepositId);
 
-            emit UserSendEvent(msg.sender, msg.value, _githubUser);
+        // increment claim amount
+        userClaimAmountByGithbUserId[_githubUserId] += msg.value;
 
-        } else {    // hold funds in contract
-            nextUserDepositId++;
-            userDeposits[nextUserDepositId] = UserDeposit(
-                msg.sender,
-                msg.value,
-                _githubUser
-            );
-            userDepositIdsByGithubUser[_githubUser].push(nextUserDepositId);
-            userDepositIdsBySender[msg.sender].push(nextUserDepositId);
-
-            // increment claim amount
-            userClaimAmountByGithbUser[_githubUser] += msg.value;
-
-            emit UserDepositEvent(msg.sender, msg.value, _githubUser);
-        }
+        emit UserDepositEvent(msg.sender, msg.value, _githubUserId);
     }
 
     function _sendDeposit(uint256 _depositId, address _to) internal {
@@ -371,7 +337,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         payable(_to).transfer(deposit.amount);
 
         // reduce claim amount
-        userClaimAmountByGithbUser[deposit.githubUser] -= deposit.amount;
+        userClaimAmountByGithbUserId[deposit.githubUserId] -= deposit.amount;
 
         delete userDeposits[_depositId];
     }
@@ -388,22 +354,16 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ USER WITHDRAWALS ------------ //
 
-
     function withdrawUserDeposit(uint256 _depositId) external {
         require(
-            users[userIDsByAddress[msg.sender]].ethAddress == msg.sender,
-            'This Ethereum address is not registered with any GitHub user.'
-        );
-        require(
-            keccak256(bytes(userDeposits[_depositId].githubUser)) ==
+            keccak256(bytes(userDeposits[_depositId].githubUserId)) ==
                 keccak256(
-                    bytes(users[userIDsByAddress[msg.sender]].githubUser)
+                    bytes(userAddresses.userIdsByAddress(msg.sender))
                 ),
             'Deposit is not for this GitHub account.'
         );
         _sendDeposit(_depositId, msg.sender);   // msg.sender is user
     }
-
 
 
     // ------------ ISSUE DEPOSITS ------------ //
@@ -440,143 +400,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
 
-    // ------------ ISSUE-DEPOSIT RELEASES ------------ //
-
-    function releaseIssueDeposits(
-        address _oracle,
-        string memory _issueId,
-        string memory _githubUser
-    ) public oracleHandlesJob(_oracle, jobName.release) {
-        require(
-            issueDepositsAmountByIssueId[_issueId] > 0,
-            'Issue has no deposits to release.'
-        );
-        require(
-            users[userIDsByAddress[msg.sender]].ethAddress == msg.sender,
-            'Only registered GitHub users can release issue deposits.'
-        );
-
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                oracles[_oracle].jobs[jobName.release].id,
-                address(this),
-                this.confirmReleaseIssueDeposits.selector
-            );
-        request.add('githubUser', _githubUser);
-        request.add('issueId', _issueId);
-        bytes32 requestId =
-            sendChainlinkRequestTo(_oracle, request, oracles[_oracle].jobs[jobName.release].fee);
-
-        releasedIssues[requestId] = ReleasedIssue(_githubUser, _issueId, 1);
-        issueReleaseIDsByIssueId[_issueId] = requestId;
-    }
-
-    function confirmReleaseIssueDeposits(bytes32 _requestId)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        require(
-            releasedIssues[_requestId].status == 1,
-            'Isse deposit release was not requested.'
-        );
-        releasedIssues[_requestId].status = 2;
-
-        // add released issue funds to user deposits
-        userClaimAmountByGithbUser[releasedIssues[_requestId].githubUser] +=
-            issueDepositsAmountByIssueId[releasedIssues[_requestId].issueId];
-
-        emit ReleaseIssueDepositsEvent(
-            releasedIssues[_requestId].issueId,
-            releasedIssues[_requestId].githubUser
-        );
-    }
-
-    function claimReleasedIssueDeposits(string calldata _issueId) external {
-        require(
-            users[userIDsByAddress[msg.sender]].ethAddress == msg.sender,
-            'No GitHub account registered with this Ethereum account.'
-        );
-        require(
-            keccak256(
-                bytes(
-                    releasedIssues[issueReleaseIDsByIssueId[_issueId]]
-                        .githubUser
-                )
-            ) ==
-                keccak256(
-                    bytes(users[userIDsByAddress[msg.sender]].githubUser)
-                ),
-            'The GitHub account this issue was released to does not belong to this Ethereum account.'
-        );
-        require(
-            issueDepositsAmountByIssueId[_issueId] > 0,
-            'Issue deposits already claimed.'
-        );
-
-        payable(msg.sender).transfer(issueDepositsAmountByIssueId[_issueId]);
-        // subtract released issue funds from user deposits
-        userClaimAmountByGithbUser[users[userIDsByAddress[msg.sender]].githubUser] -=
-            issueDepositsAmountByIssueId[_issueId];
-
-        issueDepositsAmountByIssueId[_issueId] = 0;
-    }
-
-    // ------------ PULL REQUESTS ------------ //
-
-    function claimPullRequest(
-        address _oracle,
-        string memory _prId,
-        string memory _githubUser
-    ) public oracleHandlesJob(_oracle, jobName.release) {
-        require(
-            pullRequestClaims[pullRequestClaimIDsByPrId[_prId]].status != 2,
-            'Pull request already claimed.'
-        );
-        require(
-            users[userIDsByGithubUser[_githubUser]].status == 2,
-            'This GitHub user is not registered.'
-        );
-
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                oracles[_oracle].jobs[jobName.claim].id,
-                address(this),
-                this.confirmPullRequestClaim.selector
-            );
-        request.add('githubUser', _githubUser);
-        request.add('prId', _prId);
-        bytes32 requestId = sendChainlinkRequestTo(_oracle, request, oracles[_oracle].jobs[jobName.claim].fee);
-
-        pullRequestClaims[requestId] = PullRequestClaim(_githubUser, _prId, 1);
-    }
-
-    function confirmPullRequestClaim(bytes32 _requestId, uint256 _score)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        require(
-            1 <= _score && _score <= 100,
-            'Invalid score: 1 <= score <= 100'
-        );
-        require(
-            pullRequestClaims[_requestId].status == 1,
-            'Pull request claim was not requested.'
-        );
-        require(
-            users[userIDsByGithubUser[pullRequestClaims[_requestId].githubUser]]
-                .ethAddress != address(0),
-            'This GitHub user is not registered.'
-        );
-
-        pullRequestClaims[_requestId].status = 2;
-        octoPin.mintOnPullRequestClaim(
-            users[userIDsByGithubUser[pullRequestClaims[_requestId].githubUser]]
-                .ethAddress,
-            _score * uint256(10)**octoPin.decimals()
-        );
-    }
-
-
     // ------------ GETTERS ------------ //
 
      function getUserDepositIdsForGithubUser(string calldata _githubUser)
@@ -584,7 +407,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         view
         returns (uint256[] memory)
     {
-        return userDepositIdsByGithubUser[_githubUser];
+        return userDepositIdsByGithubUserId[_githubUser];
     }
 
     function getUserDepositIdsForSender()
@@ -595,12 +418,12 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         return userDepositIdsBySender[msg.sender];
     }
 
-    function getIssueDepositIdsForIssueId(string calldata _depositId)
+    function getIssueDepositIdsForIssueId(string calldata _issueId)
         external
         view
         returns (uint256[] memory)
     {
-        return issueDepositIdsByIssueId[_depositId];
+        return issueDepositIdsByIssueId[_issueId];
     }
 
     function getIssueDepositIdsForSender()
@@ -616,7 +439,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         view
         returns (uint256)
     {
-        return userClaimAmountByGithbUser[_githubUser];
+        return userClaimAmountByGithbUserId[_githubUser];
     }
 
     function getOracles() external view returns(address[] memory) {
