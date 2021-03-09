@@ -10,6 +10,7 @@ import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './interfaces/IUniswapV2Router02.sol';
 import './OctoPin.sol';
 import './UserAddresses.sol';
+import './Oracles.sol';
 
 contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
@@ -31,7 +32,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event ReleaseIssueDepositsEvent(string issueId, string githubUser);
     event TwitterPostEvent(string issueId, bytes32 tweetId);
-    event UserAddressRegisteredEvent(string githubUserId, string addressName, address ethAddress);
 
     UserAddresses userAddresses;
     struct UserAddressRegistration {
@@ -94,7 +94,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _weth,
         address _uniswap,
         address _forwarder,
-        address _userAddresses
+        address _userAddresses,
+        address _oracles
     ) public {
         if (_link == address(0)) {
             setPublicChainlinkToken();
@@ -106,6 +107,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         trustedForwarder = _forwarder; // GSN trusted forwarder
         uniswap = IUniswapV2Router02(_uniswap);
         userAddresses = UserAddresses(_userAddresses);
+        oracles = Oracles(_oracles);
     }
 
     function setOctoPin(address _octoPin) external onlyOwner {
@@ -121,93 +123,17 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         twitterFollowers = 0;
     }
 
-     // ------------ ORACLES ------------ //
 
-    event OracleAddedEvent(address oracle, string name);
-    event OracleRemovedEvent(address oracle);
-    event OracleNameChangedEvent(address oracle, string name);
-    event OracleJobAddedEvent(address oracle, jobName name);
-    event OracleJobRemovedEvent(address oracle, jobName name);
+    // ------------ ORACLES ------------ //
 
-    enum jobName { register, release, claim, twitterPost, twitterFollowers }
+    Oracles oracles;
 
-    struct Job {
-        bytes32 id;
-        uint256 fee;
-    }
-
-    struct Oracle{
-        string name;
-        mapping(jobName => Job) jobs;
-    }
-
-    address[] public registeredOracles;
-    mapping(address => Oracle) public oracles;
-
-    modifier onlyRegisteredOracle(address _oracle) {
-      require(bytes(oracles[_oracle].name).length > 0, "Unregistered oracle");
-      _;
-    }
-
-    modifier oracleHandlesJob(address _oracle, jobName _jobName) {
-        require(bytes(oracles[_oracle].name).length > 0, "Unregistered oracle");
-        require(oracles[_oracle].jobs[_jobName].id > 0, "Oracle doesn't do this job");
+    modifier oracleHandlesJob(address _oracle, string memory _jobName) {
+        require(oracles.oracleExists(_oracle), "Oracle does not exist.");
+        require(oracles.oracleJobExists(_oracle, _jobName), "Oracle job does not exist.");
         _;
     }
-
-    function addOracle(address _oracle, string calldata _name, jobName[] memory _jobNames, Job[] memory _jobs) external onlyOwner {
-      require(bytes(oracles[_oracle].name).length == 0, 'Oracle already exists');
-      require(_jobs.length > 0, 'No Jobs');
-      require(_jobNames.length == _jobs.length, '_jobNames and _jobs should be of same length');
-
-      oracles[_oracle] = Oracle({
-          name: _name
-      });
-      for(uint i = 0; i < _jobNames.length; i++) {
-          oracles[_oracle].jobs[_jobNames[i]] = _jobs[i];   // modifies the stroage
-      }
-      registeredOracles.push(_oracle);
-
-      emit OracleAddedEvent(_oracle, _name);
-    }
-
-    function removeOracle(address _oracle) external onlyOwner onlyRegisteredOracle(_oracle) {
-        delete oracles[_oracle];
-        for(uint i = 0; i < registeredOracles.length; i++ ) {
-            if(registeredOracles[i] == _oracle) {
-                registeredOracles[i] = registeredOracles[registeredOracles.length -1];
-                registeredOracles.pop();
-            }
-        }
-        emit OracleRemovedEvent(_oracle);
-    }
-
-    function changeOracleName(address _oracle, string calldata _name) external onlyRegisteredOracle(_oracle) {
-        require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can change name');
-        oracles[_oracle].name = _name;
-        emit OracleNameChangedEvent(_oracle, _name);
-    }
-
-    function addOracleJob(address _oracle, jobName _jobName, Job memory _job) external onlyRegisteredOracle(_oracle) {
-        require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
-        oracles[_oracle].jobs[_jobName] = _job;
-        emit OracleJobAddedEvent(_oracle, _jobName);
-    }
-
-    function removeOracleJob(address _oracle, jobName _jobName) external onlyRegisteredOracle(_oracle) {
-        require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
-        delete oracles[_oracle].jobs[_jobName];
-        emit OracleJobRemovedEvent(_oracle, _jobName);
-    }
-
-    function getOracleName(address _oracle) external view returns (string memory) {
-        return oracles[_oracle].name;
-    }
-
-    function getOracleJob(address _oracle, jobName _job) external view returns (bytes32, uint256) {
-        Job memory job = oracles[_oracle].jobs[_job];
-        return (job.id, job.fee);
-    }
+    
 
     // ------------ PAYMASTER ------------ //
 
@@ -226,16 +152,17 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function registerUserAddress(
         address _oracle,
         string calldata _githubUserId
-    ) public oracleHandlesJob(_oracle, jobName.register) returns(bytes32 requestId) {
+    ) public oracleHandlesJob(_oracle, 'register') returns(bytes32 requestId) {
+        (bytes32 jobId, uint256 jobFee) = oracles.getOracleJob(_oracle, 'register');
         Chainlink.Request memory request =
             buildChainlinkRequest(
-                oracles[_oracle].jobs[jobName.register].id,
+                jobId,
                 address(this),
                 this.confirmRegisterUserAddress.selector
             );
         request.add('githubUserId', _githubUserId);
         request.add('ethAddress', addressToIntString(_msgSender()));
-        requestId = sendChainlinkRequestTo(_oracle, request, oracles[_oracle].jobs[jobName.register].fee);
+        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
 
         userAddressRegistrations[requestId] = UserAddressRegistration(_githubUserId, _msgSender());
     }
@@ -249,12 +176,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
             _addressName,
             userAddressRegistrations[_requestId].ethAddress
         );
-
-        emit UserAddressRegisteredEvent(
-            userAddressRegistrations[_requestId].githubUserId,
-            _addressName,
-            userAddressRegistrations[_requestId].ethAddress
-        );
     }
 
     // ------------ TWITTER POST ------------ //
@@ -262,16 +183,17 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function twitterPost(
         address _oracle,
         string memory _issueId
-    ) internal oracleHandlesJob(_oracle, jobName.twitterPost) returns(bytes32 requestId) {
+    ) internal oracleHandlesJob(_oracle, 'twitterPost') returns(bytes32 requestId) {
+        (bytes32 jobId, uint256 jobFee) = oracles.getOracleJob(_oracle, 'twitterPost');
         Chainlink.Request memory request =
             buildChainlinkRequest(
-                oracles[_oracle].jobs[jobName.twitterPost].id,
+                jobId,
                 address(this),
                 this.twitterPostConfirm.selector
             );
         request.add('issueId', _issueId);
         request.addUint('amount', issueDepositsAmountByIssueId[_issueId]);
-        requestId = sendChainlinkRequestTo(_oracle, request, oracles[_oracle].jobs[jobName.twitterPost].fee);
+        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
     }
 
     function twitterPostConfirm(bytes32 _requestId, bytes32 _tweetId)
@@ -286,16 +208,16 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function updateTwitterFollowersAndPost(
         address _oracle,
         string memory _issueId
-    ) public oracleHandlesJob(_oracle, jobName.twitterFollowers) returns(bytes32 requestId) {
-        // Trusted and free oracle
+    ) public oracleHandlesJob(_oracle, 'twitterFollowers') returns(bytes32 requestId) {
+        (bytes32 jobId, uint256 jobFee) = oracles.getOracleJob(_oracle, 'twitterFollowers');
         Chainlink.Request memory request =
             buildChainlinkRequest(
-                oracles[_oracle].jobs[jobName.twitterFollowers].id,
+                jobId,
                 address(this),
                 this.updateTwitterFollowersConfirm.selector
             );
         request.add('accountId', twitterAccountId);
-        requestId = sendChainlinkRequestTo(_oracle, request, oracles[_oracle].jobs[jobName.twitterFollowers].fee);
+        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
         pendingTwitterPostsIssueIds[requestId] = _issueId;
     }
 
@@ -440,10 +362,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         returns (uint256)
     {
         return userClaimAmountByGithbUserId[_githubUser];
-    }
-
-    function getOracles() external view returns(address[] memory) {
-        return registeredOracles;
     }
 
     // ------------ UTILS ------------ //
