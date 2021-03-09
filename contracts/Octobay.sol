@@ -7,7 +7,6 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
-import './interfaces/IUniswapV2Router02.sol';
 import './OctobayVisibilityToken.sol';
 import './UserAddresses.sol';
 import './Oracles.sol';
@@ -42,7 +41,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     constructor(
         address _link,
         address _weth,
-        address _uniswap,
         address _forwarder,
         address _userAddresses,
         address _oracles
@@ -55,7 +53,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         link = _link;
         weth = _weth;
         trustedForwarder = _forwarder; // GSN trusted forwarder
-        uniswap = IUniswapV2Router02(_uniswap);
         userAddresses = UserAddresses(_userAddresses);
         oracles = Oracles(_oracles);
     }
@@ -94,7 +91,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string calldata _name,
         string[] memory _jobNames,
-        Job[] memory _jobs
+        Oracles.Job[] memory _jobs
     ) external onlyOwner {
         oracles.addOracle(_oracle, _name, _jobNames, _jobs);
     }
@@ -107,7 +104,11 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         oracles.changeOracleName(_oracle, _name);
     }
 
-    function addOracleJob(address _oracle, string calldata _jobName, Job memory _job) external onlyOwner {
+    function addOracleJob(
+        address _oracle,
+        string calldata _jobName,
+        Oracles.Job memory _job
+    ) external onlyOwner {
         oracles.addOracleJob(_oracle, _jobName, _job);
     }
 
@@ -194,7 +195,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             userAddressRegistrations[_requestId].ethAddress
         );
 
-        delete userAddressRegistrations[requestId];
+        delete userAddressRegistrations[_requestId];
     }
 
 
