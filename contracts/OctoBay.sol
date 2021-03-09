@@ -19,7 +19,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         return BaseRelayRecipient._msgSender();
     }
 
-    function _msgData() internal override(Context,BaseRelayRecipient)
+    function _msgData() internal override(Context, BaseRelayRecipient)
     view returns (bytes memory ret) {
         return BaseRelayRecipient._msgData();
     }
@@ -30,7 +30,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // TODO: Add more events related to user withdrawls
     event UserDepositEvent(address from, uint256 amount, string githubUser);
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
-    event ReleaseIssueDepositsEvent(string issueId, string githubUser);
     event TwitterPostEvent(string issueId, bytes32 tweetId);
 
     UserAddresses userAddresses;
@@ -61,14 +60,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     mapping(string => uint256[]) public issueDepositIdsByIssueId;
     mapping(address => uint256[]) public issueDepositIdsBySender;
     mapping(string => uint256) public issueDepositsAmountByIssueId;
-
-    struct ReleasedIssue {
-        string githubUser;
-        string issueId;
-        uint256 status;
-    }
-    mapping(bytes32 => ReleasedIssue) public releasedIssues;
-    mapping(string => bytes32) public issueReleaseIDsByIssueId;
 
     mapping(string => uint256) public issuePins;
 
