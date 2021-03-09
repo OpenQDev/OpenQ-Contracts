@@ -120,14 +120,14 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ PAYMASTER ------------ //
 
-    function deductGasFee(string memory _githubUser, uint256 _amount)
+    function deductGasFee(string memory _githubUserId, uint256 _amount)
         external
     {
         // only paymaster, cause paymaster pays for gas fee on behalf of user
         require(msg.sender == octobayPaymaster);
-        require(userClaimAmountByGithbUserId[_githubUser] >= _amount, 'Not enough funds to pay gasFee');
+        require(userClaimAmountByGithbUserId[_githubUserId] >= _amount, 'Not enough funds to pay gasFee');
 
-        userClaimAmountByGithbUserId[_githubUser] -= _amount;
+        userClaimAmountByGithbUserId[_githubUserId] -= _amount;
     }
 
     // ------------ USER ONBOARDING ------------ //
@@ -307,12 +307,12 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ GETTERS ------------ //
 
-     function getUserDepositIdsForGithubUser(string calldata _githubUser)
+     function getUserDepositIdsForGithubUserId(string calldata _githubUserId)
         external
         view
         returns (uint256[] memory)
     {
-        return userDepositIdsByGithubUserId[_githubUser];
+        return userDepositIdsByGithubUserId[_githubUserId];
     }
 
     function getUserDepositIdsForSender()
@@ -339,12 +339,12 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         return issueDepositIdsBySender[msg.sender];
     }
 
-    function getUserClaimAmount(string memory _githubUser)
+    function getUserClaimAmount(string memory _githubUserId)
         external
         view
         returns (uint256)
     {
-        return userClaimAmountByGithbUserId[_githubUser];
+        return userClaimAmountByGithbUserId[_githubUserId];
     }
 
     // ------------ UTILS ------------ //
