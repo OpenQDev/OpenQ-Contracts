@@ -6,20 +6,20 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 
 // This contract is a base for different modules,
 // that can be passed on to new Octobay versions.
-contract Module is Ownable {
+contract OctobayClient is Ownable {
   
   // the contract that can change the module's data
-  address client;
+  address octobayClient;
 
   // allow only current client
-  modifier onlyClient() {
-    require(msg.sender == client, 'Only the current client can use this function.');
+  modifier onlyOctobayClient() {
+    require(msg.sender == octobayClient, 'Only the current client can use this function.');
     _;
   }
 
   // change current client
-  function changeClient(address _client) onlyOwner public {
-    client = _client;
+  function changeOctobayClient(address _client) onlyOwner public {
+    octobayClient = _client;
   }
 
 }

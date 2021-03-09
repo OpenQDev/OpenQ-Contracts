@@ -8,47 +8,15 @@ import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './interfaces/IUniswapV2Router02.sol';
-import './OctoPin.sol';
+import './OctobayVisibilityToken.sol';
 import './UserAddresses.sol';
 import './Oracles.sol';
 
-contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
+contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
-    function _msgSender() internal override(Context, BaseRelayRecipient)
-    view returns (address payable) {
-        return BaseRelayRecipient._msgSender();
-    }
-
-    function _msgData() internal override(Context, BaseRelayRecipient)
-    view returns (bytes memory ret) {
-        return BaseRelayRecipient._msgData();
-    }
-
-    string public override versionRecipient = '2.0.0'; // GSN version
-
-    IUniswapV2Router02 uniswap;
     // TODO: Add more events related to user withdrawls
-    event UserDepositEvent(address from, uint256 amount, string githubUser);
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event TwitterPostEvent(string issueId, bytes32 tweetId);
-
-    UserAddresses userAddresses;
-    struct UserAddressRegistration {
-        string githubUserId;
-        address ethAddress;
-    }
-    mapping(bytes32 => UserAddressRegistration) public userAddressRegistrations;
-    mapping(string => uint256) public userClaimAmountByGithbUserId;
-
-    struct UserDeposit {
-        address from;
-        uint256 amount;
-        string githubUserId;
-    }
-    uint256 private nextUserDepositId = 0;
-    mapping(uint256 => UserDeposit) public userDeposits;
-    mapping(string => uint256[]) public userDepositIdsByGithubUserId;
-    mapping(address => uint256[]) public userDepositIdsBySender;
 
     struct IssueDeposit {
         address from;
@@ -65,8 +33,7 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     address weth;
     address link;
-    OctoPin public octoPin;
-    address octobayPaymaster;
+    OctobayVisibilityToken public ovt;
 
     string public twitterAccountId;
     uint256 public twitterFollowers;
@@ -93,12 +60,8 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         oracles = Oracles(_oracles);
     }
 
-    function setOctoPin(address _octoPin) external onlyOwner {
-        octoPin = OctoPin(_octoPin);
-    }
-
-    function setPaymaster(address _octobayPaymaster) external onlyOwner {
-        octobayPaymaster = _octobayPaymaster;
+    function setOctobayVisibilityToken(address _ovt) external onlyOwner {
+        ovt = OctobayVisibilityToken(_ovt);
     }
 
     function setTwitterAccountId(string memory _accountId) external onlyOwner {
@@ -106,8 +69,18 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         twitterFollowers = 0;
     }
 
+    function pinIssue(string memory _issueId, uint256 _amount) public {
+        require(_amount > 0, 'Amount must be greater zero.');
+        ovt.burn(msg.sender, _amount);
+        issuePins[_issueId] += _amount;
+    }
 
-    // ------------ ORACLES ------------ //
+
+
+
+
+    // ------------ Oracles ------------ //
+
 
     Oracles oracles;
 
@@ -116,9 +89,56 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         require(oracles.oracleJobExists(_oracle, _jobName), "Oracle job does not exist.");
         _;
     }
+
+    function addOracle(
+        address _oracle,
+        string calldata _name,
+        string[] memory _jobNames,
+        Job[] memory _jobs
+    ) external onlyOwner {
+        oracles.addOracle(_oracle, _name, _jobNames, _jobs);
+    }
+
+    function removeOracle(address _oracle) external onlyOwner {
+        oracles.removeOracle(_oracle);
+    }
+
+    function changeOracleName(address _oracle, string calldata _name) external onlyOwner {
+        oracles.changeOracleName(_oracle, _name);
+    }
+
+    function addOracleJob(address _oracle, string calldata _jobName, Job memory _job) external onlyOwner {
+        oracles.addOracleJob(_oracle, _jobName, _job);
+    }
+
+    function removeOracleJob(address _oracle, string calldata _jobName) external onlyOwner {
+        oracles.removeOracleJob(_oracle, _jobName);
+    }
     
 
-    // ------------ PAYMASTER ------------ //
+
+
+
+    // ------------ GSN ------------ //
+
+
+    address octobayPaymaster;
+
+    function setPaymaster(address _octobayPaymaster) external onlyOwner {
+        octobayPaymaster = _octobayPaymaster;
+    }
+
+    function _msgSender() internal override(Context, BaseRelayRecipient)
+    view returns (address payable) {
+        return BaseRelayRecipient._msgSender();
+    }
+
+    function _msgData() internal override(Context, BaseRelayRecipient)
+    view returns (bytes memory ret) {
+        return BaseRelayRecipient._msgData();
+    }
+
+    string public override versionRecipient = '2.0.0'; // GSN version
 
     function deductGasFee(string memory _githubUserId, uint256 _amount)
         external
@@ -130,7 +150,21 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         userClaimAmountByGithbUserId[_githubUserId] -= _amount;
     }
 
-    // ------------ USER ONBOARDING ------------ //
+
+
+
+
+    // ------------ REGISTRATION ------------ //
+
+
+    UserAddresses userAddresses;
+
+    struct UserAddressRegistration {
+        string githubUserId;
+        address ethAddress;
+    }
+
+    mapping(bytes32 => UserAddressRegistration) public userAddressRegistrations;
 
     function registerUserAddress(
         address _oracle,
@@ -159,9 +193,16 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
             _addressName,
             userAddressRegistrations[_requestId].ethAddress
         );
+
+        delete userAddressRegistrations[requestId];
     }
 
-    // ------------ TWITTER POST ------------ //
+
+
+
+
+    // ------------ TWITTER ------------ //
+
 
     function twitterPost(
         address _oracle,
@@ -185,8 +226,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     {
         emit TwitterPostEvent(pendingTwitterPostsIssueIds[_requestId], _tweetId);
     }
-
-    // ------------ TWITTER FOLLOWERS ------------ //
 
     function updateTwitterFollowersAndPost(
         address _oracle,
@@ -214,7 +253,30 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         delete pendingTwitterPostsIssueIds[_requestId];
     }
 
+
+
+
+
     // ------------ USER DEPOSITS ------------ //
+
+
+    event UserDepositEvent(address from, uint256 amount, string githubUser);
+
+    mapping(string => uint256) public userClaimAmountByGithbUserId;
+
+    struct UserDeposit {
+        address from;
+        uint256 amount;
+        string githubUserId;
+    }
+
+    uint256 private nextUserDepositId = 0;
+
+    mapping(uint256 => UserDeposit) public userDeposits;
+
+    mapping(string => uint256[]) public userDepositIdsByGithubUserId;
+
+    mapping(address => uint256[]) public userDepositIdsBySender;
 
     function depositEthForGithubUser(string calldata _githubUserId)
         external
@@ -247,7 +309,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         delete userDeposits[_depositId];
     }
 
-
     function refundUserDeposit(uint256 _depositId) external {
         require(
             userDeposits[_depositId].from == msg.sender,
@@ -255,9 +316,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         );
         _sendDeposit(_depositId, msg.sender);   // msg.sender is depositor
     }
-
-
-    // ------------ USER WITHDRAWALS ------------ //
 
     function withdrawUserDeposit(uint256 _depositId) external {
         require(
@@ -271,7 +329,11 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
 
+
+
+
     // ------------ ISSUE DEPOSITS ------------ //
+
 
     function depositEthForIssue(string calldata _issueId) external payable {
         require(msg.value > 0, 'You must send ETH.');
@@ -305,7 +367,11 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
 
+
+
+
     // ------------ GETTERS ------------ //
+
 
      function getUserDepositIdsForGithubUserId(string calldata _githubUserId)
         external
@@ -347,7 +413,12 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
         return userClaimAmountByGithbUserId[_githubUserId];
     }
 
+    
+
+
+
     // ------------ UTILS ------------ //
+
 
     function addressToIntString(address _address)
         internal
