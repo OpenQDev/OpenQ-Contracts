@@ -70,14 +70,6 @@ contract OctoBay is Ownable, ChainlinkClient, BaseRelayRecipient {
     mapping(bytes32 => ReleasedIssue) public releasedIssues;
     mapping(string => bytes32) public issueReleaseIDsByIssueId;
 
-    struct PullRequestClaim {
-        string githubUser;
-        string prId;
-        uint256 status; // 1 = requested, 2 = confirmed
-    }
-    mapping(bytes32 => PullRequestClaim) public pullRequestClaims;
-    mapping(string => bytes32) public pullRequestClaimIDsByPrId;
-
     mapping(string => uint256) public issuePins;
 
     address weth;
