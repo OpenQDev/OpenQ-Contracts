@@ -174,7 +174,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         userAddressRegistrations[requestId] = UserAddressRegistration(_githubUserId, _msgSender());
     }
 
-    function confirmRegisterUserAddress(bytes32 _requestId, string calldata _addressName)
+    function confirmRegisterUserAddress(bytes32 _requestId, bytes32 _addressName)
         public
         recordChainlinkFulfillment(_requestId)
     {
