@@ -5,20 +5,18 @@ pragma experimental ABIEncoderV2;
 import "@opengsn/gsn/contracts/BasePaymaster.sol";
 import "@0x/contracts-utils/contracts/src/v06/LibBytesV06.sol";
 
-interface IOctoBay {
-    function getUserClaimAmount(string calldata _githubUser) external returns (uint amount);
-    function deductGasFee(string calldata _githubUser, uint amount) external;
+interface IOctobay {
+    function getUserClaimAmount(string calldata _githubUserId) external returns (uint amount);
+    function deductGasFee(string calldata _githubUserId, uint amount) external;
 }
 
-contract OctoBayPaymaster is BasePaymaster {
-   
-   event GithubUserRegistation(string _user);
+contract OctobayPaymaster is BasePaymaster {
 
-   string public override versionPaymaster = "2.0.0";    // GSN version
+   string public override versionPaymaster = "2.0.0"; // GSN version
   
-   IOctoBay octoBay;
-   constructor(address _octoBay) public {
-      octoBay = IOctoBay(_octoBay);
+   IOctobay octobay;
+   constructor(address _octobay) public {
+      octobay = IOctobay(_octobay);
    }
    
    function preRelayedCall(
@@ -29,13 +27,12 @@ contract OctoBayPaymaster is BasePaymaster {
     )
     external override
     returns (bytes memory context, bool rejectOnRecipientRevert){
-        string memory githubUser = string(getBytesParam(relayRequest.request.data, 2));
+        string memory githubUserId = string(getBytesParam(relayRequest.request.data, 2));
         require(
-            octoBay.getUserClaimAmount(githubUser) >= maxPossibleGas,
+            octobay.getUserClaimAmount(githubUserId) >= maxPossibleGas,
             "Not enough funds to pay for gas"
         );
-        emit GithubUserRegistation(githubUser);
-        context = bytes(githubUser);
+        context = bytes(githubUserId);
         rejectOnRecipientRevert = true;
     }
     
@@ -45,8 +42,8 @@ contract OctoBayPaymaster is BasePaymaster {
         uint256 gasUseWithoutPost,
         GsnTypes.RelayData calldata relayData
     ) external override {
-        string memory githubUser = string(getBytesParam(context, 2));
-        octoBay.deductGasFee(githubUser, gasUseWithoutPost);
+        string memory githubUserId = string(getBytesParam(context, 2));
+        octobay.deductGasFee(githubUserId, gasUseWithoutPost);
     }
     
     // ------ UTILS -------- //

@@ -2,10 +2,10 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import './OctobayClient.sol';
+import './OctobayStorage.sol';
 
 // This contract acts as Octobay's user storage.
-contract UserAddresses is OctobayClient {
+contract UserAddressStorage is OctobayStorage {
   // GitHub user's eth addresses
   // A user can have multiple (named) addresses.
   // GitHub GraphQL ID => (name => address)
@@ -19,7 +19,7 @@ contract UserAddresses is OctobayClient {
     string calldata _userId,
     string calldata _addressName,
     address _address
-  ) public onlyOctobayClient {
+  ) public onlyOctobay {
     addresses[_userId][_addressName] = _address;
     userIdsByAddress[_address] = _userId;
 
@@ -33,7 +33,7 @@ contract UserAddresses is OctobayClient {
   function deleteUserAddress(
     string calldata _userId,
     string calldata _addressName
-  ) public onlyOctobayClient {
+  ) public onlyOctobay {
     emit UserAddressAddedEvent(
       _userId,
       _addressName,

@@ -2,10 +2,10 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import './OctobayClient.sol';
+import './OctobayStorage.sol';
 
 // This contract acts as Octobay's oracle storage.
-contract Oracles is OctobayClient {
+contract OracleStorage is OctobayStorage {
 
   struct Job {
     bytes32 id;
@@ -36,7 +36,7 @@ contract Oracles is OctobayClient {
     string calldata _name,
     string[] memory _jobNames,
     Job[] memory _jobs
-  ) external onlyOctobayClient {
+  ) external onlyOctobay {
     require(bytes(oracles[_oracle].name).length == 0, 'Oracle already exists');
     require(_jobs.length > 0, 'No Jobs');
     require(_jobNames.length == _jobs.length, '_jobNames and _jobs should be of same length');
@@ -52,7 +52,7 @@ contract Oracles is OctobayClient {
     emit OracleAddedEvent(_oracle, _name);
   }
 
-  function removeOracle(address _oracle) external onlyOctobayClient onlyRegisteredOracle(_oracle) {
+  function removeOracle(address _oracle) external onlyOctobay onlyRegisteredOracle(_oracle) {
       delete oracles[_oracle];
       for(uint i = 0; i < registeredOracles.length; i++ ) {
           if(registeredOracles[i] == _oracle) {
@@ -63,19 +63,19 @@ contract Oracles is OctobayClient {
       emit OracleRemovedEvent(_oracle);
   }
 
-  function changeOracleName(address _oracle, string calldata _name) external onlyOctobayClient onlyRegisteredOracle(_oracle) {
+  function changeOracleName(address _oracle, string calldata _name) external onlyOctobay onlyRegisteredOracle(_oracle) {
       require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can change name');
       oracles[_oracle].name = _name;
       emit OracleNameChangedEvent(_oracle, _name);
   }
 
-  function addOracleJob(address _oracle, string calldata _jobName, Job memory _job) external onlyOctobayClient onlyRegisteredOracle(_oracle) {
+  function addOracleJob(address _oracle, string calldata _jobName, Job memory _job) external onlyOctobay onlyRegisteredOracle(_oracle) {
       require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
       oracles[_oracle].jobs[_jobName] = _job;
       emit OracleJobAddedEvent(_oracle, _jobName);
   }
 
-  function removeOracleJob(address _oracle, string calldata _jobName) external onlyOctobayClient onlyRegisteredOracle(_oracle) {
+  function removeOracleJob(address _oracle, string calldata _jobName) external onlyOctobay onlyRegisteredOracle(_oracle) {
       require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
       delete oracles[_oracle].jobs[_jobName];
       emit OracleJobRemovedEvent(_oracle, _jobName);

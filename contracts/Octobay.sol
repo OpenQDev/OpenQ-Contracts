@@ -8,8 +8,8 @@ import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './OctobayVisibilityToken.sol';
-import './UserAddresses.sol';
-import './Oracles.sol';
+import './UserAddressStorage.sol';
+import './OracleStorage.sol';
 
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
@@ -30,8 +30,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     mapping(string => uint256) public issuePins;
 
-    address weth;
-    address link;
     OctobayVisibilityToken public ovt;
 
     string public twitterAccountId;
@@ -40,24 +38,15 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     constructor(
         address _link,
-        address _weth,
         address _forwarder,
-        address _userAddresses,
-        address _oracles
+        address _ovt,
+        address _userAddressStorage,
+        address _oracleStorage
     ) public {
-        if (_link == address(0)) {
-            setPublicChainlinkToken();
-        } else {
-            setChainlinkToken(_link);
-        }
-        link = _link;
-        weth = _weth;
+        setChainlinkToken(_link);
         trustedForwarder = _forwarder; // GSN trusted forwarder
-        userAddresses = UserAddresses(_userAddresses);
-        oracles = Oracles(_oracles);
-    }
-
-    function setOctobayVisibilityToken(address _ovt) external onlyOwner {
+        userAddressStorage = UserAddressStorage(_userAddressStorage);
+        oracleStorage = OracleStorage(_oracleStorage);
         ovt = OctobayVisibilityToken(_ovt);
     }
 
@@ -79,11 +68,11 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // ------------ Oracles ------------ //
 
 
-    Oracles oracles;
+    OracleStorage oracleStorage;
 
     modifier oracleHandlesJob(address _oracle, string memory _jobName) {
-        require(oracles.oracleExists(_oracle), "Oracle does not exist.");
-        require(oracles.oracleJobExists(_oracle, _jobName), "Oracle job does not exist.");
+        require(oracleStorage.oracleExists(_oracle), "Oracle does not exist.");
+        require(oracleStorage.oracleJobExists(_oracle, _jobName), "Oracle job does not exist.");
         _;
     }
 
@@ -91,29 +80,29 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string calldata _name,
         string[] memory _jobNames,
-        Oracles.Job[] memory _jobs
+        OracleStorage.Job[] memory _jobs
     ) external onlyOwner {
-        oracles.addOracle(_oracle, _name, _jobNames, _jobs);
+        oracleStorage.addOracle(_oracle, _name, _jobNames, _jobs);
     }
 
     function removeOracle(address _oracle) external onlyOwner {
-        oracles.removeOracle(_oracle);
+        oracleStorage.removeOracle(_oracle);
     }
 
     function changeOracleName(address _oracle, string calldata _name) external onlyOwner {
-        oracles.changeOracleName(_oracle, _name);
+        oracleStorage.changeOracleName(_oracle, _name);
     }
 
     function addOracleJob(
         address _oracle,
         string calldata _jobName,
-        Oracles.Job memory _job
+        OracleStorage.Job memory _job
     ) external onlyOwner {
-        oracles.addOracleJob(_oracle, _jobName, _job);
+        oracleStorage.addOracleJob(_oracle, _jobName, _job);
     }
 
     function removeOracleJob(address _oracle, string calldata _jobName) external onlyOwner {
-        oracles.removeOracleJob(_oracle, _jobName);
+        oracleStorage.removeOracleJob(_oracle, _jobName);
     }
     
 
@@ -141,7 +130,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     string public override versionRecipient = '2.0.0'; // GSN version
 
-    function deductGasFee(string memory _githubUserId, uint256 _amount)
+    function deductGasFee(string calldata _githubUserId, uint256 _amount)
         external
     {
         // only paymaster, cause paymaster pays for gas fee on behalf of user
@@ -158,7 +147,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // ------------ REGISTRATION ------------ //
 
 
-    UserAddresses userAddresses;
+    UserAddressStorage userAddressStorage;
 
     struct UserAddressRegistration {
         string githubUserId;
@@ -171,7 +160,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string calldata _githubUserId
     ) public oracleHandlesJob(_oracle, 'register') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracles.getOracleJob(_oracle, 'register');
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'register');
         Chainlink.Request memory request =
             buildChainlinkRequest(
                 jobId,
@@ -189,7 +178,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        userAddresses.addUserAddress(
+        userAddressStorage.addUserAddress(
             userAddressRegistrations[_requestId].githubUserId,
             _addressName,
             userAddressRegistrations[_requestId].ethAddress
@@ -209,7 +198,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string memory _issueId
     ) internal oracleHandlesJob(_oracle, 'twitterPost') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracles.getOracleJob(_oracle, 'twitterPost');
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterPost');
         Chainlink.Request memory request =
             buildChainlinkRequest(
                 jobId,
@@ -232,7 +221,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string memory _issueId
     ) public oracleHandlesJob(_oracle, 'twitterFollowers') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracles.getOracleJob(_oracle, 'twitterFollowers');
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterFollowers');
         Chainlink.Request memory request =
             buildChainlinkRequest(
                 jobId,
@@ -322,7 +311,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         require(
             keccak256(bytes(userDeposits[_depositId].githubUserId)) ==
                 keccak256(
-                    bytes(userAddresses.userIdsByAddress(msg.sender))
+                    bytes(userAddressStorage.userIdsByAddress(msg.sender))
                 ),
             'Deposit is not for this GitHub account.'
         );
@@ -406,7 +395,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         return issueDepositIdsBySender[msg.sender];
     }
 
-    function getUserClaimAmount(string memory _githubUserId)
+    function getUserClaimAmount(string calldata _githubUserId)
         external
         view
         returns (uint256)
