@@ -68,7 +68,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // ------------ Oracles ------------ //
 
 
-    OracleStorage oracleStorage;
+    OracleStorage public oracleStorage;
 
     modifier oracleHandlesJob(address _oracle, string memory _jobName) {
         require(oracleStorage.oracleExists(_oracle), "Oracle does not exist.");
@@ -147,7 +147,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // ------------ REGISTRATION ------------ //
 
 
-    UserAddressStorage userAddressStorage;
+    UserAddressStorage public userAddressStorage;
 
     struct UserAddressRegistration {
         string githubUserId;
