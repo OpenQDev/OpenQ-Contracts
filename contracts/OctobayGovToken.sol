@@ -32,7 +32,7 @@ contract OctobayGovToken is OctobayStorage, ERC20 {
     }
 
     /// @notice Explicitly disabling transfers by individual owners 
-    function transfer(address recipient, uint256 amount) public override returns (bool) {
+    function transfer(address, uint256) public override returns (bool) {
         require(false, "Transfers are only allowed by the Octobay contract");
     }
 }

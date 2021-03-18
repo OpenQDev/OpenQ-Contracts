@@ -7,7 +7,7 @@ import './OctobayGovToken.sol';
 
 contract OctobayGovTokenFactory is OctobayStorage {
 
-    event NewTokenEvent(string name, string symbol);
+    event NewTokenEvent(string name, string symbol, address tokenAddr);
 
     /// @param _name Name of the new token
     /// @param _symbol Token Symbol for the new token
@@ -15,7 +15,7 @@ contract OctobayGovTokenFactory is OctobayStorage {
     function createToken(string memory _name, string memory _symbol) external onlyOctobay returns (OctobayGovToken) {
         OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
         newToken.setOctobay(msg.sender);
-        emit NewTokenEvent(_name, _symbol);
+        emit NewTokenEvent(_name, _symbol, address(newToken));
         return newToken;
     }    
 }
