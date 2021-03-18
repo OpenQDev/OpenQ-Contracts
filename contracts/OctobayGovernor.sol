@@ -53,9 +53,11 @@ contract OctobayGovernor is OctobayStorage {
         governorsByProjectId[_projectId] = newGovernor;
     }
 
-    function createProposal(string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum, ERC20 _votingToken) external onlyOctobay {
+    function createProposal(string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum, ERC20 _votingToken) external {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");
         Governor storage governor = governorsByProjectId[_projectId];
+        //TODO: Look up correct _votingToken for _projectId in the Token Factory
+        require(_votingToken.balanceOf(msg.sender) > governor.newProposalReq);
 
         Proposal memory newProposal = Proposal({
             isValue: true,
@@ -88,6 +90,7 @@ contract OctobayGovernor is OctobayStorage {
     function castVote(string memory _projectId, uint256 _proposalId, int16 _vote) external proposalExists(_projectId, _proposalId) {
         Proposal storage proposal = governorsByProjectId[_projectId].proposalList[_proposalId];
         require(proposalState(_projectId, _proposalId) == ProposalState.Active, "Proposal is not Active");
+        require(!proposal.votesBySubmitter[msg.sender].hasVoted, "Sender has already voted");
         uint voteAmt = _vote < 0 ? uint(-1 * _vote) : uint(_vote);
         require(proposal.votingToken.balanceOf(msg.sender) > voteAmt, "Sender doesn't have enough governance tokens to make that vote");
 
