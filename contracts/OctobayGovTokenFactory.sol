@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
+
+import './OctobayStorage.sol';
+import './OctobayGovToken.sol';
+
+contract OctobayGovTokenFactory is OctobayStorage {
+
+    event NewTokenEvent(string name, string symbol, address tokenAddr);
+    event UpdatedProjectId(string oldProjectId, string newProjectId);
+    mapping (string => address) public tokensByProjectId;
+
+    /// @param _name Name of the new token
+    /// @param _symbol Token Symbol for the new token
+    /// @param _projectId Path of the org or repo which maps to the new token
+    /// @return The address of the new token contract
+    function createToken(string memory _name, string memory _symbol, string memory _projectId) external onlyOctobay returns (OctobayGovToken) {
+        OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
+        newToken.setOctobay(msg.sender);
+        tokensByProjectId[_projectId] = address(newToken);
+        emit NewTokenEvent(_name, _symbol, address(newToken));
+        return newToken;
+    }
+
+    /// @notice Used in case a project wants to transfer tokens from a repo to an org in the future for example
+    /// @param _oldProjectId Path of the old org or repo which should be updated
+    /// @param _newProjectId Path of the new org or repo which should be used
+    function updateProjectId(string memory _oldProjectId, string memory _newProjectId) external onlyOctobay {
+        require(tokensByProjectId[_oldProjectId] != address(0), "Existing repo or org does not exist");
+        address tokenAddr = tokensByProjectId[_oldProjectId];
+        delete tokensByProjectId[_oldProjectId];
+        tokensByProjectId[_newProjectId] = tokenAddr;
+        emit UpdatedProjectId(_oldProjectId, _newProjectId);
+    }    
+}
