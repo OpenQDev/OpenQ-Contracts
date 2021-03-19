@@ -18,6 +18,7 @@ contract OctobayGovernor is OctobayStorage {
 
     struct Proposal {
         bool isValue; // Ensure we have a valid value in the map
+        address creator; // Creator of this proposal
         string discussionId; // GitHub Graph ID
         uint256 startDate; // timestamp from when proposal is Active
         uint256 endDate; // timestamp for when voting closes on proposal, can be 0 (open ended)
@@ -39,6 +40,10 @@ contract OctobayGovernor is OctobayStorage {
         Succeeded
     }
 
+    event ProposalCreated(string _projectId, string _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum, address _creator, uint256 _proposalId);
+
+    event VoteCast(string _projectId, uint256 _proposalId, int16 _vote, address _voter);
+
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
     OctobayGovTokenFactory public octobayGovTokenFactory;
@@ -49,6 +54,7 @@ contract OctobayGovernor is OctobayStorage {
         octobayGovTokenFactory = OctobayGovTokenFactory(_octobayGovTokenFactory);
     }
 
+    /// @dev Necessary to set the newProposalReq for new proposals and to know if we've already initialized a governor
     function createGovernor(string memory _projectId, uint16 _newProposalReq) external onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
         Governor memory newGovernor = Governor({
@@ -59,15 +65,17 @@ contract OctobayGovernor is OctobayStorage {
         governorsByProjectId[_projectId] = newGovernor;
     }
 
+    /// @dev Anyone with at least newProposalReq share of tokens can create a new proposal here
     function createProposal(string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");
         Governor storage governor = governorsByProjectId[_projectId];
         OctobayGovToken govToken = octobayGovTokenFactory.tokensByProjectId(_projectId);
         require(address(govToken) != address(0), "No governance token for that _projectId");
-        require(govToken.balanceOfAsPercent(msg.sender) > governor.newProposalReq);
+        require(govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalReq);
 
         Proposal memory newProposal = Proposal({
             isValue: true,
+            creator: msg.sender,
             discussionId: _discussionId,
             startDate: _startDate,
             endDate: _endDate,
@@ -79,6 +87,7 @@ contract OctobayGovernor is OctobayStorage {
         governor.proposalCount++;
         governor.proposalList[governor.proposalCount] = newProposal;
 
+        emit ProposalCreated(_projectId, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount);
     }
 
     function proposalState(string memory _projectId, uint256 _proposalId) public view proposalExists(_projectId, _proposalId) returns(ProposalState) {
@@ -94,12 +103,14 @@ contract OctobayGovernor is OctobayStorage {
         }
     }
 
+    /// @dev Anyone with > 0 amount of tokens can vote. They can vote up to and including their share (but not necessarily all).
+    ///      A positive _vote is considered in favour of the proposal and a negative is considered against it.   
     function castVote(string memory _projectId, uint256 _proposalId, int16 _vote) external proposalExists(_projectId, _proposalId) {
         Proposal storage proposal = governorsByProjectId[_projectId].proposalList[_proposalId];
         require(proposalState(_projectId, _proposalId) == ProposalState.Active, "Proposal is not Active");
         require(!proposal.votesBySubmitter[msg.sender].hasVoted, "Sender has already voted");
         uint voteAmt = _vote < 0 ? uint(-1 * _vote) : uint(_vote);
-        require(proposal.votingToken.balanceOfAsPercent(msg.sender) > voteAmt, "Sender doesn't have enough governance tokens to make that vote");
+        require(proposal.votingToken.balanceOfAsPercent(msg.sender) >= voteAmt, "Sender doesn't have enough governance tokens to make that vote");
 
         proposal.voteCount += _vote;
         Vote memory newVote = Vote({
@@ -108,7 +119,10 @@ contract OctobayGovernor is OctobayStorage {
         });
         proposal.votesBySubmitter[msg.sender] = newVote;
 
+        emit VoteCast(_projectId, _proposalId, _vote, msg.sender);
     }
+
+    //TODO: Include a castVoteBySignature to avoid gas costs for voters
 
     modifier proposalExists(string memory _projectId, uint256 _proposalId) {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");

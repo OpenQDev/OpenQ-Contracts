@@ -26,6 +26,7 @@ contract OctobayGovToken is OctobayStorage, ERC20 {
     /// @param _sender Address from whose tokens will be taken
     /// @param _recipient Address of who will receive the tokens
     /// @param _amount Amount of tokens to send
+    /// @return Whether the transfer was successful
     function transferFrom(address _sender, address _recipient, uint256 _amount) public override onlyOctobay returns (bool) {
         _transfer(_sender, _recipient, _amount);
         return true;
@@ -36,8 +37,9 @@ contract OctobayGovToken is OctobayStorage, ERC20 {
         require(false, "Transfers are only allowed by the Octobay contract");
     }
 
-    /// @param _account Address for whose balance we're asking 
+    /// @param _account Address for whose balance we're asking
+    /// @return The balance of the given account as a percentage of total supply (0 - 10000) 
     function balanceOfAsPercent(address _account) public view returns (uint16) {
-        return uint16((balanceOf(_account) / totalSupply()) * 100);
+        return uint16((balanceOf(_account) / totalSupply()) * 10000);
     }    
 }
