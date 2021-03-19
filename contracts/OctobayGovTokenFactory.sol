@@ -9,7 +9,7 @@ contract OctobayGovTokenFactory is OctobayStorage {
 
     event NewTokenEvent(string name, string symbol, address tokenAddr);
     event UpdatedProjectId(string oldProjectId, string newProjectId);
-    mapping (string => address) public tokensByProjectId;
+    mapping (string => OctobayGovToken) public tokensByProjectId;
 
     /// @param _name Name of the new token
     /// @param _symbol Token Symbol for the new token
@@ -18,7 +18,7 @@ contract OctobayGovTokenFactory is OctobayStorage {
     function createToken(string memory _name, string memory _symbol, string memory _projectId) external onlyOctobay returns (OctobayGovToken) {
         OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
         newToken.setOctobay(msg.sender);
-        tokensByProjectId[_projectId] = address(newToken);
+        tokensByProjectId[_projectId] = newToken;
         emit NewTokenEvent(_name, _symbol, address(newToken));
         return newToken;
     }
@@ -27,10 +27,10 @@ contract OctobayGovTokenFactory is OctobayStorage {
     /// @param _oldProjectId Path of the old org or repo which should be updated
     /// @param _newProjectId Path of the new org or repo which should be used
     function updateProjectId(string memory _oldProjectId, string memory _newProjectId) external onlyOctobay {
-        require(tokensByProjectId[_oldProjectId] != address(0), "Existing repo or org does not exist");
-        address tokenAddr = tokensByProjectId[_oldProjectId];
+        OctobayGovToken token = tokensByProjectId[_oldProjectId];
+        require(address(token) != address(0), "Existing repo or org does not exist");
         delete tokensByProjectId[_oldProjectId];
-        tokensByProjectId[_newProjectId] = tokenAddr;
+        tokensByProjectId[_newProjectId] = token;
         emit UpdatedProjectId(_oldProjectId, _newProjectId);
     }    
 }

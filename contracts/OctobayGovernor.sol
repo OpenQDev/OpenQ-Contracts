@@ -3,9 +3,8 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import './OctobayStorage.sol';
-
-// TODO: Replace this with OctobayGovToken when it's merged
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import './OctobayGovTokenFactory.sol';
+import './OctobayGovToken.sol';
 
 // This contract acts as Octobay's storage of all Governors which are used for voting on proposals
 contract OctobayGovernor is OctobayStorage {
@@ -24,7 +23,7 @@ contract OctobayGovernor is OctobayStorage {
         uint256 endDate; // timestamp for when voting closes on proposal, can be 0 (open ended)
         uint16 quorum; // min percentage (0 - 10000)
         int16 voteCount; // the current vote count as a percent of supply
-        ERC20 votingToken; // governance token required to vote
+        OctobayGovToken votingToken; // governance token required to vote
         mapping (address => Vote) votesBySubmitter; // map of votes submitted for proposal by submitter
     }
 
@@ -42,6 +41,13 @@ contract OctobayGovernor is OctobayStorage {
 
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
+    OctobayGovTokenFactory public octobayGovTokenFactory;
+
+    constructor(
+        address _octobayGovTokenFactory
+    ) public {
+        octobayGovTokenFactory = OctobayGovTokenFactory(_octobayGovTokenFactory);
+    }
 
     function createGovernor(string memory _projectId, uint16 _newProposalReq) external onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
@@ -53,11 +59,12 @@ contract OctobayGovernor is OctobayStorage {
         governorsByProjectId[_projectId] = newGovernor;
     }
 
-    function createProposal(string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum, ERC20 _votingToken) external {
+    function createProposal(string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");
         Governor storage governor = governorsByProjectId[_projectId];
-        //TODO: Look up correct _votingToken for _projectId in the Token Factory
-        require(_votingToken.balanceOf(msg.sender) > governor.newProposalReq);
+        OctobayGovToken govToken = octobayGovTokenFactory.tokensByProjectId(_projectId);
+        require(address(govToken) != address(0), "No governance token for that _projectId");
+        require(govToken.balanceOfAsPercent(msg.sender) > governor.newProposalReq);
 
         Proposal memory newProposal = Proposal({
             isValue: true,
@@ -66,7 +73,7 @@ contract OctobayGovernor is OctobayStorage {
             endDate: _endDate,
             quorum: _quorum,
             voteCount: 0,
-            votingToken: _votingToken
+            votingToken: govToken 
         });
 
         governor.proposalCount++;
@@ -92,7 +99,7 @@ contract OctobayGovernor is OctobayStorage {
         require(proposalState(_projectId, _proposalId) == ProposalState.Active, "Proposal is not Active");
         require(!proposal.votesBySubmitter[msg.sender].hasVoted, "Sender has already voted");
         uint voteAmt = _vote < 0 ? uint(-1 * _vote) : uint(_vote);
-        require(proposal.votingToken.balanceOf(msg.sender) > voteAmt, "Sender doesn't have enough governance tokens to make that vote");
+        require(proposal.votingToken.balanceOfAsPercent(msg.sender) > voteAmt, "Sender doesn't have enough governance tokens to make that vote");
 
         proposal.voteCount += _vote;
         Vote memory newVote = Vote({
