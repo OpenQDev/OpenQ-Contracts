@@ -10,6 +10,8 @@ import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './OctobayVisibilityToken.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
+import './OctobayGovernor.sol';
+import './OctobayGovTokenFactory.sol';
 
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
@@ -41,13 +43,17 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _forwarder,
         address _ovt,
         address _userAddressStorage,
-        address _oracleStorage
+        address _oracleStorage,
+        address _octobayGovernor,
+        address _octobayGovTokenFactory
     ) public {
         setChainlinkToken(_link);
         trustedForwarder = _forwarder; // GSN trusted forwarder
         userAddressStorage = UserAddressStorage(_userAddressStorage);
         oracleStorage = OracleStorage(_oracleStorage);
         ovt = OctobayVisibilityToken(_ovt);
+        octobayGovernor = OctobayGovernor(_octobayGovernor);
+        octobayGovTokenFactory = OctobayGovTokenFactory(_octobayGovTokenFactory);
     }
 
     function setTwitterAccountId(string memory _accountId) external onlyOwner {
@@ -360,6 +366,59 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
 
 
+    // ------------ GOVERNANCE ------------ //
+
+
+    OctobayGovernor public octobayGovernor;
+    OctobayGovTokenFactory public octobayGovTokenFactory;
+
+    struct NewGovernanceToken {
+        bool isValue;
+        string githubUserId;
+        string name;
+        string symbol;
+        string projectId;
+        uint16 newProposalReq;
+    }
+
+    mapping(bytes32 => NewGovernanceToken) public newGovernanceTokenReqs;
+
+    // Using a struct as arg here otherwise we get stack too deep errors
+    function createGovernanceToken(
+        address _oracle,
+        NewGovernanceToken memory _newToken
+    ) public oracleHandlesJob(_oracle, 'check-ownership') returns(bytes32 requestId) {
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'check-ownership');
+        Chainlink.Request memory request =
+            buildChainlinkRequest(
+                jobId,
+                address(this),
+                this.confirmCreateGovernanceToken.selector
+            );
+        request.add('githubUserId', _newToken.githubUserId);
+        request.add('repoOrgId', _newToken.projectId); // Which one should we use to keep these in sync? 
+        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
+
+        newGovernanceTokenReqs[requestId] = _newToken;
+    }
+
+    function confirmCreateGovernanceToken(bytes32 _requestId, bool _result)
+        public
+        recordChainlinkFulfillment(_requestId)
+    {
+        require(_result, "User is not owner of organization or repository");
+        NewGovernanceToken memory newToken = newGovernanceTokenReqs[_requestId];
+        require(newToken.isValue, "No such request");
+        delete newGovernanceTokenReqs[_requestId];
+
+        octobayGovTokenFactory.createToken(newToken.name, newToken.symbol, newToken.projectId);
+        octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalReq);
+    }
+
+
+
+
+
     // ------------ GETTERS ------------ //
 
 
@@ -403,7 +462,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         return userClaimAmountByGithbUserId[_githubUserId];
     }
 
-    
+
 
 
 

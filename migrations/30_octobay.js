@@ -5,6 +5,8 @@ const LinkToken = artifacts.require("link-token/LinkToken")
 const OctobayVisibilityToken = artifacts.require("OctobayVisibilityToken")
 const UserAddressStorage = artifacts.require("UserAddressStorage")
 const OracleStorage = artifacts.require("OracleStorage")
+const OctobayGovernor = artifacts.require("OctobayGovernor")
+const OctobayGovTokenFactory = artifacts.require("OctobayGovTokenFactory")
 const zeroAddress = "0x0000000000000000000000000000000000000000"
 
 module.exports = function (deployer, network) {
@@ -16,7 +18,9 @@ module.exports = function (deployer, network) {
       zeroAddress,
       OctobayVisibilityToken.address,
       UserAddressStorage.address,
-      OracleStorage.address
+      OracleStorage.address,
+      OctobayGovernor.address,
+      OctobayGovTokenFactory.address
     ).then(octobayInstance => {
       octobayInstance.setTwitterAccountId(process.env.OCTOBAY_TWITTER_ACCOUNT_ID)
       LinkToken.deployed().then(linkTokenInstance => {
@@ -32,6 +36,12 @@ module.exports = function (deployer, network) {
       OracleStorage.deployed(OracleStorageInstance => {
         OracleStorageInstance.setOctobay(octobayInstance.address)
       })
+      OctobayGovernor.deployed(OctobayGovernorInstance => {
+        OctobayGovernorInstance.setOctobay(octobayInstance.address)
+      })
+      OctobayGovTokenFactory.deployed(OctobayGovTokenFactoryInstance => {
+        OctobayGovTokenFactoryInstance.setOctobay(octobayInstance.address)
+      })      
     })
   } else if (network == 'kovan') {
     deployer.deploy(
@@ -40,7 +50,9 @@ module.exports = function (deployer, network) {
       zeroAddress,
       '0x0842Ad6B8cb64364761C7c170D0002CC56b1c498',
       UserAddresses.address,
-      Oracles.address
+      Oracles.address,
+      OctobayGovernor.address,
+      OctobayGovTokenFactory.address      
     )
   }
 }

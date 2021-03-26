@@ -45,6 +45,8 @@ contract OctobayGovernor is OctobayStorage {
 
     event VoteCast(string _projectId, uint256 _proposalId, int16 _vote, address _voter);
 
+    event GovernorCreated(string _projectId, uint16 _newProposalReq);
+
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
     OctobayGovTokenFactory public octobayGovTokenFactory;
@@ -64,6 +66,8 @@ contract OctobayGovernor is OctobayStorage {
             newProposalReq: _newProposalReq
         });
         governorsByProjectId[_projectId] = newGovernor;
+
+        emit GovernorCreated(_projectId, _newProposalReq);
     }
 
     /// @dev Anyone with at least newProposalReq share of tokens can create a new proposal here
