@@ -8,7 +8,7 @@ import './OctobayGovToken.sol';
 contract OctobayGovTokenFactory is OctobayStorage {
 
     event NewTokenEvent(string name, string symbol, address tokenAddr);
-    event UpdatedProjectId(string oldProjectId, string newProjectId);
+    event UpdatedProjectId(string oldProjectId, string newProjectId, address tokenAddr);
     mapping (string => OctobayGovToken) public tokensByProjectId;
 
     /// @param _name Name of the new token
@@ -31,6 +31,6 @@ contract OctobayGovTokenFactory is OctobayStorage {
         require(address(token) != address(0), "Existing repo or org does not exist");
         delete tokensByProjectId[_oldProjectId];
         tokensByProjectId[_newProjectId] = token;
-        emit UpdatedProjectId(_oldProjectId, _newProjectId);
+        emit UpdatedProjectId(_oldProjectId, _newProjectId, address(token));
     }    
 }
