@@ -24,6 +24,7 @@ contract OctobayGovernor is OctobayStorage {
         uint256 endDate; // timestamp for when voting closes on proposal, can be 0 (open ended)
         uint16 quorum; // min percentage (0 - 10000)
         int16 voteCount; // the current vote count as a percent of supply
+        uint256 snapshotId; // ID of the snapshot of balances for the token, taken at proposal creation
         OctobayGovToken votingToken; // governance token required to vote
         mapping (address => Vote) votesBySubmitter; // map of votes submitted for proposal by submitter
     }
@@ -72,6 +73,7 @@ contract OctobayGovernor is OctobayStorage {
         OctobayGovToken govToken = octobayGovTokenFactory.tokensByProjectId(_projectId);
         require(address(govToken) != address(0), "No governance token for that _projectId");
         require(govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalReq);
+        uint256 _snapshotId = govToken.snapshot();
 
         Proposal memory newProposal = Proposal({
             isValue: true,
@@ -81,6 +83,7 @@ contract OctobayGovernor is OctobayStorage {
             endDate: _endDate,
             quorum: _quorum,
             voteCount: 0,
+            snapshotId: _snapshotId,
             votingToken: govToken 
         });
 
@@ -110,7 +113,7 @@ contract OctobayGovernor is OctobayStorage {
         require(proposalState(_projectId, _proposalId) == ProposalState.Active, "Proposal is not Active");
         require(!proposal.votesBySubmitter[msg.sender].hasVoted, "Sender has already voted");
         uint voteAmt = _vote < 0 ? uint(-1 * _vote) : uint(_vote);
-        require(proposal.votingToken.balanceOfAsPercent(msg.sender) >= voteAmt, "Sender doesn't have enough governance tokens to make that vote");
+        require(proposal.votingToken.balanceOfAsPercentAt(msg.sender, proposal.snapshotId) >= voteAmt, "Sender doesn't have enough governance tokens to make that vote");
 
         proposal.voteCount += _vote;
         Vote memory newVote = Vote({

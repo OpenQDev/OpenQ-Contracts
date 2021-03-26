@@ -2,10 +2,10 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol';
 import './OctobayStorage.sol';
 
-contract OctobayGovToken is OctobayStorage, ERC20 {
+contract OctobayGovToken is OctobayStorage, ERC20Snapshot {
 
     /// @param _name Name of the new token
     /// @param _symbol Token Symbol for the new token
@@ -41,5 +41,18 @@ contract OctobayGovToken is OctobayStorage, ERC20 {
     /// @return The balance of the given account as a percentage of total supply (0 - 10000) 
     function balanceOfAsPercent(address _account) public view returns (uint16) {
         return uint16((balanceOf(_account) / totalSupply()) * 10000);
-    }    
+    }
+
+    /// @param _account Address for whose balance we're asking
+    /// @param _snapshotId Snapshot ID for the block at whose balance we'd like to check
+    /// @return The balance of the given account as a percentage of total supply (0 - 10000) 
+    function balanceOfAsPercentAt(address _account, uint256 _snapshotId) public view returns (uint16) {
+        return uint16((balanceOfAt(_account, _snapshotId) / totalSupplyAt(_snapshotId)) * 10000);
+    }
+
+    /// @notice Open to all at the moment, but we could limit this to only the governor if needed
+    /// @return The ID of the snapshot, used later to look up balances and totalSupply at a certain block
+    function snapshot() external returns (uint256) {
+        return _snapshot();
+    }        
 }
