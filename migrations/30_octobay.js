@@ -18,7 +18,8 @@ module.exports = function (deployer, network) {
       OctobayVisibilityToken.address,
       UserAddressStorage.address,
       OracleStorage.address,
-      OctobayGovernor.address
+      OctobayGovernor.address,
+      zeroAddress
     ).then(octobayInstance => {
       octobayInstance.setTwitterAccountId(process.env.OCTOBAY_TWITTER_ACCOUNT_ID)
       LinkToken.deployed().then(linkTokenInstance => {
@@ -46,7 +47,8 @@ module.exports = function (deployer, network) {
       '0x0842Ad6B8cb64364761C7c170D0002CC56b1c498',
       UserAddresses.address,
       Oracles.address,
-      OctobayGovernor.address
+      OctobayGovernor.address,
+      '0x9326BFA02ADD2366b30bacB125260Af641031331'
     )
   }
 }
