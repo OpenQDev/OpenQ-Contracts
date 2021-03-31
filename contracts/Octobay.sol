@@ -11,7 +11,6 @@ import './OctobayVisibilityToken.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
 import './OctobayGovernor.sol';
-import './OctobayGovTokenFactory.sol';
 
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
@@ -44,8 +43,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _ovt,
         address _userAddressStorage,
         address _oracleStorage,
-        address _octobayGovernor,
-        address _octobayGovTokenFactory
+        address _octobayGovernor
     ) public {
         setChainlinkToken(_link);
         trustedForwarder = _forwarder; // GSN trusted forwarder
@@ -53,7 +51,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         oracleStorage = OracleStorage(_oracleStorage);
         ovt = OctobayVisibilityToken(_ovt);
         octobayGovernor = OctobayGovernor(_octobayGovernor);
-        octobayGovTokenFactory = OctobayGovTokenFactory(_octobayGovTokenFactory);
     }
 
     function setTwitterAccountId(string memory _accountId) external onlyOwner {
@@ -370,7 +367,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
 
     OctobayGovernor public octobayGovernor;
-    OctobayGovTokenFactory public octobayGovTokenFactory;
 
     struct NewGovernanceToken {
         bool isValue;
@@ -411,7 +407,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         require(newToken.isValue, "No such request");
         delete newGovernanceTokenReqs[_requestId];
 
-        octobayGovTokenFactory.createToken(newToken.name, newToken.symbol, newToken.projectId);
+        octobayGovernor.createToken(newToken.name, newToken.symbol, newToken.projectId);
         octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalShare);
     }
 
