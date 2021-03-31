@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
+import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './OctobayVisibilityToken.sol';
@@ -24,6 +25,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     string public twitterAccountId;
     uint256 public twitterFollowers;
     mapping(bytes32 => string) public pendingTwitterPostsIssueIds;
+    AggregatorV3Interface internal ethUSDPriceFeed;
 
     constructor(
         address _link,
@@ -31,7 +33,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _ovt,
         address _userAddressStorage,
         address _oracleStorage,
-        address _octobayGovernor
+        address _octobayGovernor,
+        address _ethUSDPriceFeed
     ) public {
         setChainlinkToken(_link);
         trustedForwarder = _forwarder; // GSN trusted forwarder
@@ -39,6 +42,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         oracleStorage = OracleStorage(_oracleStorage);
         ovt = OctobayVisibilityToken(_ovt);
         octobayGovernor = OctobayGovernor(_octobayGovernor);
+        ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
     }
 
     function setTwitterAccountId(string memory _accountId) external onlyOwner {
@@ -316,6 +320,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // ------------ ISSUE DEPOSITS ------------ //
 
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
+    event RefundIssueDepositEvent(address to, uint256 amount, string issueId, uint256 depositId);
 
     enum IssueStatus {
         // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
@@ -362,7 +367,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         issueDepositsAmountByIssueId[
             issueDeposits[_depositId].issueId
         ] -= payoutAmt;
-        delete issueDeposits[_depositId];        
+        emit RefundIssueDepositEvent(msg.sender, payoutAmt, issueDeposits[_depositId].issueId, _depositId);
+        delete issueDeposits[_depositId];
         payable(msg.sender).transfer(payoutAmt);
     }
 
@@ -370,6 +376,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ ISSUE CLAIMING ------------ //
 
+    event WithdrawIssueDepositEvent(string issueId, address recipient, uint256 amount);
 
     struct IssueWithdrawRequest {
         string issueId;
@@ -405,17 +412,22 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         recordChainlinkFulfillment(_requestId)
     {
         require(issueWithdrawRequests[_requestId].payoutAddress != address(0) );
+        address payoutAddr = issueWithdrawRequests[_requestId].payoutAddress;
         uint256 payoutAmt = issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId];
         issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId] = 0;
         issueStatusByIssueId[issueWithdrawRequests[_requestId].issueId] = IssueStatus.CLAIMED;
-        payable(issueWithdrawRequests[_requestId].payoutAddress).transfer(payoutAmt);
+        emit WithdrawIssueDepositEvent(issueWithdrawRequests[_requestId].issueId, payoutAddr, payoutAmt);
+        delete issueWithdrawRequests[_requestId];
         // delete issueDeposits[_depositId]; ??? loop through issueDepositIdsByIssueId ???
+        // awardGovernanceTokens(payoutAddr, payoutAmt, tokenAddr); // How do we go from issueId => tokenAddr ?
+        payable(payoutAddr).transfer(payoutAmt);
     }
 
 
 
     // ------------ GOVERNANCE ------------ //
 
+    event AwardGovernanceTokensEvent(address recipient, uint256 amount, address tokenAddr);
 
     OctobayGovernor public octobayGovernor;
 
@@ -462,7 +474,18 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalShare);
     }
 
-
+    function awardGovernanceTokens(address recipient, uint256 payoutEth, OctobayGovToken tokenAddr) internal {
+        (
+            , //uint80 roundID, 
+            int price,
+            , //uint startedAt,
+            , //uint timeStamp,
+            //uint80 answeredInRound
+        ) = ethUSDPriceFeed.latestRoundData();
+        uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
+        emit AwardGovernanceTokensEvent(recipient, amount, address(tokenAddr));
+        tokenAddr.mint(recipient, amount);
+    }
 
 
 
