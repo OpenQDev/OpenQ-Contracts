@@ -28,7 +28,7 @@ contract OctobayGovTokenFactory is OctobayStorage {
     /// @param _newProjectId Path of the new org or repo which should be used
     function updateProjectId(string memory _oldProjectId, string memory _newProjectId) external onlyOctobay {
         OctobayGovToken token = tokensByProjectId[_oldProjectId];
-        require(address(token) != address(0), "Existing repo or org does not exist");
+        require(address(token) != address(0), "There is no token associated with _oldProjectId");
         delete tokensByProjectId[_oldProjectId];
         tokensByProjectId[_newProjectId] = token;
         emit UpdatedProjectId(_oldProjectId, _newProjectId, address(token));

@@ -378,7 +378,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         string name;
         string symbol;
         string projectId;
-        uint16 newProposalReq;
+        uint16 newProposalShare;
     }
 
     mapping(bytes32 => NewGovernanceToken) public newGovernanceTokenReqs;
@@ -412,7 +412,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         delete newGovernanceTokenReqs[_requestId];
 
         octobayGovTokenFactory.createToken(newToken.name, newToken.symbol, newToken.projectId);
-        octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalReq);
+        octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalShare);
     }
 
 
