@@ -15,19 +15,7 @@ import './OctobayGovernor.sol';
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // TODO: Add more events related to user withdrawls
-    event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event TwitterPostEvent(string issueId, bytes32 tweetId);
-
-    struct IssueDeposit {
-        address from;
-        uint256 amount;
-        string issueId;
-    }
-    mapping(uint256 => IssueDeposit) public issueDeposits;
-    uint256 public nextIssueDepositId = 0;
-    mapping(string => uint256[]) public issueDepositIdsByIssueId;
-    mapping(address => uint256[]) public issueDepositIdsBySender;
-    mapping(string => uint256) public issueDepositsAmountByIssueId;
 
     mapping(string => uint256) public issuePins;
 
@@ -327,9 +315,30 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ ISSUE DEPOSITS ------------ //
 
+    event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
+
+    enum IssueStatus {
+        // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
+        OPEN,
+        CLAIMED
+    }
+
+    struct IssueDeposit {
+        address from;
+        uint256 amount;
+        string issueId;
+    }
+    mapping(uint256 => IssueDeposit) public issueDeposits;
+    uint256 public nextIssueDepositId = 0;
+    mapping(string => uint256[]) public issueDepositIdsByIssueId; // Consider removing this? Can be derived from issueDeposits. Unless we need it for deletion.
+    mapping(address => uint256[]) public issueDepositIdsBySender;
+    mapping(string => uint256) public issueDepositsAmountByIssueId;
+    mapping(string => IssueStatus) public issueStatusByIssueId;
 
     function depositEthForIssue(string calldata _issueId) external payable {
         require(msg.value > 0, 'You must send ETH.');
+        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
+
         nextIssueDepositId++;
         issueDeposits[nextIssueDepositId] = IssueDeposit(
             msg.sender,
@@ -347,19 +356,61 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             issueDeposits[_depositId].from == msg.sender,
             'Deposit did not come from this Ethereum address or does not exist.'
         );
-        require(
-            issueDepositsAmountByIssueId[issueDeposits[_depositId].issueId] >=
-                issueDeposits[_depositId].amount,
-            'This issue deposit has been withdrawn already.'
-        );
-        payable(msg.sender).transfer(issueDeposits[_depositId].amount);
+        require(issueStatusByIssueId[issueDeposits[_depositId].issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
+
+        uint256 payoutAmt = issueDeposits[_depositId].amount;
         issueDepositsAmountByIssueId[
             issueDeposits[_depositId].issueId
-        ] -= issueDeposits[_depositId].amount;
-        delete issueDeposits[_depositId];
+        ] -= payoutAmt;
+        delete issueDeposits[_depositId];        
+        payable(msg.sender).transfer(payoutAmt);
     }
 
 
+
+    // ------------ ISSUE CLAIMING ------------ //
+
+
+    struct IssueWithdrawRequest {
+        string issueId;
+        address payoutAddress;
+    }
+
+    mapping(bytes32 => IssueWithdrawRequest) public issueWithdrawRequests;
+
+    function withdrawIssueDeposit(
+        address _oracle,
+        string calldata _issueId
+    ) public oracleHandlesJob(_oracle, 'claim') returns(bytes32 requestId) {
+        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.'); 
+
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'claim');
+        Chainlink.Request memory request =
+            buildChainlinkRequest(
+                jobId,
+                address(this),
+                this.confirmWithdrawIssueDeposit.selector
+            );
+        request.add('githubUserId', userAddressStorage.userIdsByAddress(msg.sender));
+        request.add('issueId', _issueId);
+        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
+        issueWithdrawRequests[requestId] = IssueWithdrawRequest({
+            issueId: _issueId,
+            payoutAddress: msg.sender
+        });
+    }
+
+    function confirmWithdrawIssueDeposit(bytes32 _requestId)
+        public
+        recordChainlinkFulfillment(_requestId)
+    {
+        require(issueWithdrawRequests[_requestId].payoutAddress != address(0) );
+        uint256 payoutAmt = issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId];
+        issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId] = 0;
+        issueStatusByIssueId[issueWithdrawRequests[_requestId].issueId] = IssueStatus.CLAIMED;
+        payable(issueWithdrawRequests[_requestId].payoutAddress).transfer(payoutAmt);
+        // delete issueDeposits[_depositId]; ??? loop through issueDepositIdsByIssueId ???
+    }
 
 
 
