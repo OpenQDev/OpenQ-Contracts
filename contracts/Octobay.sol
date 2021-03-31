@@ -5,28 +5,18 @@ pragma experimental ABIEncoderV2;
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
+import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
 import '@opengsn/gsn/contracts/BasePaymaster.sol';
 import './OctobayVisibilityToken.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
+import './OctobayGovernor.sol';
 
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // TODO: Add more events related to user withdrawls
-    event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event TwitterPostEvent(string issueId, bytes32 tweetId);
-
-    struct IssueDeposit {
-        address from;
-        uint256 amount;
-        string issueId;
-    }
-    mapping(uint256 => IssueDeposit) public issueDeposits;
-    uint256 public nextIssueDepositId = 0;
-    mapping(string => uint256[]) public issueDepositIdsByIssueId;
-    mapping(address => uint256[]) public issueDepositIdsBySender;
-    mapping(string => uint256) public issueDepositsAmountByIssueId;
 
     mapping(string => uint256) public issuePins;
 
@@ -35,19 +25,24 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     string public twitterAccountId;
     uint256 public twitterFollowers;
     mapping(bytes32 => string) public pendingTwitterPostsIssueIds;
+    AggregatorV3Interface internal ethUSDPriceFeed;
 
     constructor(
         address _link,
         address _forwarder,
         address _ovt,
         address _userAddressStorage,
-        address _oracleStorage
+        address _oracleStorage,
+        address _octobayGovernor,
+        address _ethUSDPriceFeed
     ) public {
         setChainlinkToken(_link);
         trustedForwarder = _forwarder; // GSN trusted forwarder
         userAddressStorage = UserAddressStorage(_userAddressStorage);
         oracleStorage = OracleStorage(_oracleStorage);
         ovt = OctobayVisibilityToken(_ovt);
+        octobayGovernor = OctobayGovernor(_octobayGovernor);
+        ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
     }
 
     function setTwitterAccountId(string memory _accountId) external onlyOwner {
@@ -324,9 +319,31 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ ISSUE DEPOSITS ------------ //
 
+    event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
+    event RefundIssueDepositEvent(address to, uint256 amount, string issueId, uint256 depositId);
+
+    enum IssueStatus {
+        // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
+        OPEN,
+        CLAIMED
+    }
+
+    struct IssueDeposit {
+        address from;
+        uint256 amount;
+        string issueId;
+    }
+    mapping(uint256 => IssueDeposit) public issueDeposits;
+    uint256 public nextIssueDepositId = 0;
+    mapping(string => uint256[]) public issueDepositIdsByIssueId; // Consider removing this? Can be derived from issueDeposits. Unless we need it for deletion.
+    mapping(address => uint256[]) public issueDepositIdsBySender;
+    mapping(string => uint256) public issueDepositsAmountByIssueId;
+    mapping(string => IssueStatus) public issueStatusByIssueId;
 
     function depositEthForIssue(string calldata _issueId) external payable {
         require(msg.value > 0, 'You must send ETH.');
+        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
+
         nextIssueDepositId++;
         issueDeposits[nextIssueDepositId] = IssueDeposit(
             msg.sender,
@@ -344,19 +361,131 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             issueDeposits[_depositId].from == msg.sender,
             'Deposit did not come from this Ethereum address or does not exist.'
         );
-        require(
-            issueDepositsAmountByIssueId[issueDeposits[_depositId].issueId] >=
-                issueDeposits[_depositId].amount,
-            'This issue deposit has been withdrawn already.'
-        );
-        payable(msg.sender).transfer(issueDeposits[_depositId].amount);
+        require(issueStatusByIssueId[issueDeposits[_depositId].issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
+
+        uint256 payoutAmt = issueDeposits[_depositId].amount;
         issueDepositsAmountByIssueId[
             issueDeposits[_depositId].issueId
-        ] -= issueDeposits[_depositId].amount;
+        ] -= payoutAmt;
+        emit RefundIssueDepositEvent(msg.sender, payoutAmt, issueDeposits[_depositId].issueId, _depositId);
         delete issueDeposits[_depositId];
+        payable(msg.sender).transfer(payoutAmt);
     }
 
 
+
+    // ------------ ISSUE CLAIMING ------------ //
+
+    event WithdrawIssueDepositEvent(string issueId, address recipient, uint256 amount);
+
+    struct IssueWithdrawRequest {
+        string issueId;
+        address payoutAddress;
+    }
+
+    mapping(bytes32 => IssueWithdrawRequest) public issueWithdrawRequests;
+
+    function withdrawIssueDeposit(
+        address _oracle,
+        string calldata _issueId
+    ) public oracleHandlesJob(_oracle, 'claim') returns(bytes32 requestId) {
+        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.'); 
+
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'claim');
+        Chainlink.Request memory request =
+            buildChainlinkRequest(
+                jobId,
+                address(this),
+                this.confirmWithdrawIssueDeposit.selector
+            );
+        request.add('githubUserId', userAddressStorage.userIdsByAddress(msg.sender));
+        request.add('issueId', _issueId);
+        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
+        issueWithdrawRequests[requestId] = IssueWithdrawRequest({
+            issueId: _issueId,
+            payoutAddress: msg.sender
+        });
+    }
+
+    function confirmWithdrawIssueDeposit(bytes32 _requestId)
+        public
+        recordChainlinkFulfillment(_requestId)
+    {
+        require(issueWithdrawRequests[_requestId].payoutAddress != address(0) );
+        address payoutAddr = issueWithdrawRequests[_requestId].payoutAddress;
+        uint256 payoutAmt = issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId];
+        issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId] = 0;
+        issueStatusByIssueId[issueWithdrawRequests[_requestId].issueId] = IssueStatus.CLAIMED;
+        emit WithdrawIssueDepositEvent(issueWithdrawRequests[_requestId].issueId, payoutAddr, payoutAmt);
+        delete issueWithdrawRequests[_requestId];
+        // delete issueDeposits[_depositId]; ??? loop through issueDepositIdsByIssueId ???
+        // awardGovernanceTokens(payoutAddr, payoutAmt, tokenAddr); // How do we go from issueId => tokenAddr ?
+        payable(payoutAddr).transfer(payoutAmt);
+    }
+
+
+
+    // ------------ GOVERNANCE ------------ //
+
+    event AwardGovernanceTokensEvent(address recipient, uint256 amount, address tokenAddr);
+
+    OctobayGovernor public octobayGovernor;
+
+    struct NewGovernanceToken {
+        bool isValue;
+        string githubUserId;
+        string name;
+        string symbol;
+        string projectId;
+        uint16 newProposalShare;
+    }
+
+    mapping(bytes32 => NewGovernanceToken) public newGovernanceTokenReqs;
+
+    // Using a struct as arg here otherwise we get stack too deep errors
+    function createGovernanceToken(
+        address _oracle,
+        NewGovernanceToken memory _newToken
+    ) public oracleHandlesJob(_oracle, 'check-ownership') returns(bytes32 requestId) {
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'check-ownership');
+        Chainlink.Request memory request =
+            buildChainlinkRequest(
+                jobId,
+                address(this),
+                this.confirmCreateGovernanceToken.selector
+            );
+        request.add('githubUserId', _newToken.githubUserId);
+        request.add('repoOrgId', _newToken.projectId); // Which one should we use to keep these in sync? 
+        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
+
+        newGovernanceTokenReqs[requestId] = _newToken;
+    }
+
+    function confirmCreateGovernanceToken(bytes32 _requestId, bool _result)
+        public
+        recordChainlinkFulfillment(_requestId)
+    {
+        require(_result, "User is not owner of organization or repository");
+        NewGovernanceToken memory newToken = newGovernanceTokenReqs[_requestId];
+        require(newToken.isValue, "No such request");
+        delete newGovernanceTokenReqs[_requestId];
+
+        octobayGovernor.createToken(newToken.name, newToken.symbol, newToken.projectId);
+        octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalShare);
+    }
+
+    function awardGovernanceTokens(address recipient, uint256 payoutEth, OctobayGovToken tokenAddr) internal {
+        (
+            , //uint80 roundID, 
+            int price,
+            , //uint startedAt,
+            , //uint timeStamp,
+            //uint80 answeredInRound
+        ) = ethUSDPriceFeed.latestRoundData();
+        uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
+        emit AwardGovernanceTokensEvent(recipient, amount, address(tokenAddr));
+        tokenAddr.mint(recipient, amount);
+    }
 
 
 
@@ -403,7 +532,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         return userClaimAmountByGithbUserId[_githubUserId];
     }
 
-    
+
 
 
 

@@ -3,7 +3,6 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import './OctobayStorage.sol';
-import './OctobayGovTokenFactory.sol';
 import './OctobayGovToken.sol';
 
 // This contract acts as Octobay's storage of all Governors which are used for voting on proposals
@@ -12,7 +11,7 @@ contract OctobayGovernor is OctobayStorage {
     struct Governor {
         bool isValue; // Ensure we have a valid value in the map
         uint256 proposalCount; // Number of proposals
-        uint16 newProposalReq; // min percentage required for a token holder to create a new proposal
+        uint16 newProposalShare; // min percentage required for a token holder to create a new proposal
         mapping (uint => Proposal) proposalList; // List of proposals
     }
 
@@ -41,38 +40,35 @@ contract OctobayGovernor is OctobayStorage {
         Succeeded
     }
 
-    event ProposalCreated(string _projectId, string _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum, address _creator, uint256 _proposalId);
+    event ProposalCreated(string projectId, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId);
 
-    event VoteCast(string _projectId, uint256 _proposalId, int16 _vote, address _voter);
+    event VoteCast(string projectId, uint256 proposalId, int16 vote, address voter);
+
+    event GovernorCreated(string projectId, uint16 newProposalShare);
 
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
-    OctobayGovTokenFactory public octobayGovTokenFactory;
 
-    constructor(
-        address _octobayGovTokenFactory
-    ) public {
-        octobayGovTokenFactory = OctobayGovTokenFactory(_octobayGovTokenFactory);
-    }
-
-    /// @dev Necessary to set the newProposalReq for new proposals and to know if we've already initialized a governor
-    function createGovernor(string memory _projectId, uint16 _newProposalReq) external onlyOctobay {
+    /// @dev Necessary to set the newProposalShare for new proposals and to know if we've already initialized a governor
+    function createGovernor(string memory _projectId, uint16 _newProposalShare) external onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
         Governor memory newGovernor = Governor({
             isValue: true,
             proposalCount: 0,
-            newProposalReq: _newProposalReq
+            newProposalShare: _newProposalShare
         });
         governorsByProjectId[_projectId] = newGovernor;
+
+        emit GovernorCreated(_projectId, _newProposalShare);
     }
 
-    /// @dev Anyone with at least newProposalReq share of tokens can create a new proposal here
+    /// @dev Anyone with at least newProposalShare share of tokens can create a new proposal here
     function createProposal(string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");
         Governor storage governor = governorsByProjectId[_projectId];
-        OctobayGovToken govToken = octobayGovTokenFactory.tokensByProjectId(_projectId);
+        OctobayGovToken govToken = tokensByProjectId[_projectId];
         require(address(govToken) != address(0), "No governance token for that _projectId");
-        require(govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalReq);
+        require(govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare, "Token share not high enough for new proposals");
         uint256 _snapshotId = govToken.snapshot();
 
         Proposal memory newProposal = Proposal({
@@ -132,4 +128,33 @@ contract OctobayGovernor is OctobayStorage {
         require(governorsByProjectId[_projectId].proposalList[_proposalId].isValue, "Proposal for that _proposalId doesn't exist");
         _;
     }
+
+    // ------------ Token Factory ------------ //
+
+    event NewTokenEvent(string name, string symbol, address tokenAddr);
+    event UpdatedProjectId(string oldProjectId, string newProjectId, address tokenAddr);
+    mapping (string => OctobayGovToken) public tokensByProjectId;
+
+    /// @param _name Name of the new token
+    /// @param _symbol Token Symbol for the new token
+    /// @param _projectId Path of the org or repo which maps to the new token
+    /// @return The address of the new token contract
+    function createToken(string memory _name, string memory _symbol, string memory _projectId) external onlyOctobay returns (OctobayGovToken) {
+        OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
+        newToken.setOctobay(msg.sender);
+        tokensByProjectId[_projectId] = newToken;
+        emit NewTokenEvent(_name, _symbol, address(newToken));
+        return newToken;
+    }
+
+    /// @notice Used in case a project wants to transfer tokens from a repo to an org in the future for example
+    /// @param _oldProjectId Path of the old org or repo which should be updated
+    /// @param _newProjectId Path of the new org or repo which should be used
+    function updateProjectId(string memory _oldProjectId, string memory _newProjectId) external onlyOctobay {
+        OctobayGovToken token = tokensByProjectId[_oldProjectId];
+        require(address(token) != address(0), "There is no token associated with _oldProjectId");
+        delete tokensByProjectId[_oldProjectId];
+        tokensByProjectId[_newProjectId] = token;
+        emit UpdatedProjectId(_oldProjectId, _newProjectId, address(token));
+    }     
 }
