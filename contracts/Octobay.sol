@@ -12,6 +12,7 @@ import './OctobayVisibilityToken.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
 import './OctobayGovernor.sol';
+import './OctobayGovNFT.sol';
 
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
@@ -34,7 +35,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _userAddressStorage,
         address _oracleStorage,
         address _octobayGovernor,
-        address _ethUSDPriceFeed
+        address _ethUSDPriceFeed,
+        address _octobayGovNFT
     ) public {
         setChainlinkToken(_link);
         trustedForwarder = _forwarder; // GSN trusted forwarder
@@ -43,6 +45,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         ovt = OctobayVisibilityToken(_ovt);
         octobayGovernor = OctobayGovernor(_octobayGovernor);
         ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
+        octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
     }
 
     function setTwitterAccountId(string memory _accountId) external onlyOwner {
@@ -319,6 +322,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     // ------------ ISSUE DEPOSITS ------------ //
 
+    OctobayGovNFT public octobayGovNFT;
+
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event RefundIssueDepositEvent(address to, uint256 amount, string issueId, uint256 depositId);
 
@@ -339,6 +344,22 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     mapping(address => uint256[]) public issueDepositIdsBySender;
     mapping(string => uint256) public issueDepositsAmountByIssueId;
     mapping(string => IssueStatus) public issueStatusByIssueId;
+    mapping(string => OctobayGovToken) public govTokenByIssueId;
+
+    function setGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external {
+        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
+        // Ensure they're giving us a valid gov token
+        require(address(octobayGovernor.tokensByProjectId(_projectId)) == _govTokenAddress, "_projectId is not associated with _govTokenAddress");
+        bool hasPermission = false;
+        uint256 govNFTId = octobayGovNFT.getTokenIDForUserInProject(msg.sender, _projectId);
+        if (govNFTId != 0 && octobayGovNFT.hasPermission(govNFTId, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN)) {
+            hasPermission = true;
+        } else {
+            // Do other permission checks here, e.g. oracle calls
+        }
+        require(hasPermission, "You don't have permission to set governance tokens for issues");
+        govTokenByIssueId[_issueId] = OctobayGovToken(_govTokenAddress);
+    }
 
     function depositEthForIssue(string calldata _issueId) external payable {
         require(msg.value > 0, 'You must send ETH.');
@@ -416,10 +437,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         uint256 payoutAmt = issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId];
         issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId] = 0;
         issueStatusByIssueId[issueWithdrawRequests[_requestId].issueId] = IssueStatus.CLAIMED;
+        awardGovernanceTokens(payoutAddr, payoutAmt, govTokenByIssueId[issueWithdrawRequests[_requestId].issueId]);
         emit WithdrawIssueDepositEvent(issueWithdrawRequests[_requestId].issueId, payoutAddr, payoutAmt);
         delete issueWithdrawRequests[_requestId];
         // delete issueDeposits[_depositId]; ??? loop through issueDepositIdsByIssueId ???
-        // awardGovernanceTokens(payoutAddr, payoutAmt, tokenAddr); // How do we go from issueId => tokenAddr ?
         payable(payoutAddr).transfer(payoutAmt);
     }
 
@@ -438,6 +459,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         string symbol;
         string projectId;
         uint16 newProposalShare;
+        address creator;
     }
 
     mapping(bytes32 => NewGovernanceToken) public newGovernanceTokenReqs;
@@ -458,6 +480,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         request.add('repoOrgId', _newToken.projectId); // Which one should we use to keep these in sync? 
         requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
 
+        _newToken.creator = msg.sender;
         newGovernanceTokenReqs[requestId] = _newToken;
     }
 
@@ -472,6 +495,9 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
         octobayGovernor.createToken(newToken.name, newToken.symbol, newToken.projectId);
         octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalShare);
+        uint256 nftId = octobayGovNFT.mintTokenForProject(newToken.creator, newToken.projectId);
+        // Can set other permissions here
+        octobayGovNFT.grantPermission(nftId, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN);
     }
 
     function awardGovernanceTokens(address recipient, uint256 payoutEth, OctobayGovToken tokenAddr) internal {
