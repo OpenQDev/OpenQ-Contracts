@@ -498,6 +498,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         uint256 nftId = octobayGovNFT.mintTokenForProject(newToken.creator, newToken.projectId);
         // Can set other permissions here
         octobayGovNFT.grantPermission(nftId, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN);
+        octobayGovNFT.grantPermission(nftId, OctobayGovNFT.Permission.CREATE_PROPOSAL);
     }
 
     function awardGovernanceTokens(address recipient, uint256 payoutEth, OctobayGovToken tokenAddr) internal {
