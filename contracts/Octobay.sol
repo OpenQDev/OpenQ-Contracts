@@ -346,7 +346,12 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     mapping(string => IssueStatus) public issueStatusByIssueId;
     mapping(string => OctobayGovToken) public govTokenByIssueId;
 
-    function setGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external {
+    function depositAndSetGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external {
+        depositEthForIssue(_issueId);
+        setGovTokenForIssue(_issueId, _govTokenAddress, _projectId);
+    }
+
+    function setGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) public {
         require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
         // Ensure they're giving us a valid gov token
         require(address(octobayGovernor.tokensByProjectId(_projectId)) == _govTokenAddress, "_projectId is not associated with _govTokenAddress");
@@ -361,7 +366,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         govTokenByIssueId[_issueId] = OctobayGovToken(_govTokenAddress);
     }
 
-    function depositEthForIssue(string calldata _issueId) external payable {
+    function depositEthForIssue(string calldata _issueId) public payable {
         require(msg.value > 0, 'You must send ETH.');
         require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
 
