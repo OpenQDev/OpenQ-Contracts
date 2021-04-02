@@ -83,4 +83,8 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
             _grantPermission(newTokenId, _perms[i]);
         }
     }
+
+    function burn(uint256 _tokenId) public {
+        _burn(_tokenId);
+    }
 }
