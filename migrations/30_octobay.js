@@ -40,7 +40,7 @@ module.exports = function (deployer, network) {
       OctobayGovernor.deployed().then(OctobayGovernorInstance => {
         OctobayGovernorInstance.setOctobay(octobayInstance.address)
       })     
-      OctobayGovNFT.deployed(OctobayGovNFTInstance => {
+      OctobayGovNFT.deployed().then(OctobayGovNFTInstance => {
         OctobayGovNFTInstance.setOctobay(octobayInstance.address)
       })       
     })
