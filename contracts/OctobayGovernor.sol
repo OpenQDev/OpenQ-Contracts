@@ -56,8 +56,13 @@ contract OctobayGovernor is OctobayStorage {
         octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
     }
 
+    function createGovernorAndToken(string memory _projectId, uint16 _newProposalShare, string memory _name, string memory _symbol) external onlyOctobay {
+        createGovernor(_projectId, _newProposalShare);
+        createToken(_name, _symbol, _projectId);
+    } 
+
     /// @dev Necessary to set the newProposalShare for new proposals and to know if we've already initialized a governor
-    function createGovernor(string memory _projectId, uint16 _newProposalShare) external onlyOctobay {
+    function createGovernor(string memory _projectId, uint16 _newProposalShare) public onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
         Governor memory newGovernor = Governor({
             isValue: true,
@@ -155,7 +160,7 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _symbol Token Symbol for the new token
     /// @param _projectId Path of the org or repo which maps to the new token
     /// @return The address of the new token contract
-    function createToken(string memory _name, string memory _symbol, string memory _projectId) external onlyOctobay returns (OctobayGovToken) {
+    function createToken(string memory _name, string memory _symbol, string memory _projectId) public onlyOctobay returns (OctobayGovToken) {
         OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
         newToken.setOctobay(msg.sender);
         tokensByProjectId[_projectId] = newToken;

@@ -498,8 +498,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         require(newToken.isValue, "No such request");
         delete newGovernanceTokenReqs[_requestId];
 
-        octobayGovernor.createToken(newToken.name, newToken.symbol, newToken.projectId);
-        octobayGovernor.createGovernor(newToken.projectId, newToken.newProposalShare);
+        octobayGovernor.createGovernorAndToken(newToken.projectId, newToken.newProposalShare, newToken.name, newToken.symbol);
         uint256 nftId = octobayGovNFT.mintTokenForProject(newToken.creator, newToken.projectId);
         octobayGovNFT.grantAllPermissions(nftId);
     }
