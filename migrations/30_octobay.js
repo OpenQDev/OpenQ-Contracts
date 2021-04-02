@@ -28,16 +28,16 @@ module.exports = function (deployer, network) {
         linkTokenInstance.transfer(octobayInstance.address, "10000000000000000000")
       })
 
-      OctobayVisibilityToken.deployed(OctobayVisibilityTokenInstance => {
+      OctobayVisibilityToken.deployed().then(OctobayVisibilityTokenInstance => {
         OctobayVisibilityTokenInstance.setOctobay(octobayInstance.address)
       })
-      UserAddressStorage.deployed(UserAddressStorageInstance => {
+      UserAddressStorage.deployed().then(UserAddressStorageInstance => {
         UserAddressStorageInstance.setOctobay(octobayInstance.address)
       })
-      OracleStorage.deployed(OracleStorageInstance => {
+      OracleStorage.deployed().then(OracleStorageInstance => {
         OracleStorageInstance.setOctobay(octobayInstance.address)
       })
-      OctobayGovernor.deployed(OctobayGovernorInstance => {
+      OctobayGovernor.deployed().then(OctobayGovernorInstance => {
         OctobayGovernorInstance.setOctobay(octobayInstance.address)
       })     
       OctobayGovNFT.deployed(OctobayGovNFTInstance => {
