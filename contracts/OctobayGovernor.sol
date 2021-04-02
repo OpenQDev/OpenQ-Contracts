@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import './OctobayStorage.sol';
 import './OctobayGovToken.sol';
+import './OctobayGovNFT.sol';
 
 // This contract acts as Octobay's storage of all Governors which are used for voting on proposals
 contract OctobayGovernor is OctobayStorage {
@@ -49,8 +50,19 @@ contract OctobayGovernor is OctobayStorage {
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
 
+    OctobayGovNFT public octobayGovNFT;
+
+    constructor(address _octobayGovNFT) public {
+        octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
+    }
+
+    function createGovernorAndToken(string memory _projectId, uint16 _newProposalShare, string memory _name, string memory _symbol) external onlyOctobay {
+        createGovernor(_projectId, _newProposalShare);
+        createToken(_name, _symbol, _projectId);
+    } 
+
     /// @dev Necessary to set the newProposalShare for new proposals and to know if we've already initialized a governor
-    function createGovernor(string memory _projectId, uint16 _newProposalShare) external onlyOctobay {
+    function createGovernor(string memory _projectId, uint16 _newProposalShare) public onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
         Governor memory newGovernor = Governor({
             isValue: true,
@@ -68,9 +80,18 @@ contract OctobayGovernor is OctobayStorage {
         Governor storage governor = governorsByProjectId[_projectId];
         OctobayGovToken govToken = tokensByProjectId[_projectId];
         require(address(govToken) != address(0), "No governance token for that _projectId");
-        require(govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare, "Token share not high enough for new proposals");
-        uint256 _snapshotId = govToken.snapshot();
 
+        bool hasPermission = false;
+        if (govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare) {
+            hasPermission = true;
+        } else {
+            uint256 govNFTId = octobayGovNFT.getTokenIDForUserInProject(msg.sender, _projectId);
+            if (govNFTId != 0 && octobayGovNFT.hasPermission(govNFTId, OctobayGovNFT.Permission.CREATE_PROPOSAL)) {
+                hasPermission = true;
+            }
+        }
+        require(hasPermission, "Token share not high enough and no NFT permission for new proposals");
+        
         Proposal memory newProposal = Proposal({
             isValue: true,
             creator: msg.sender,
@@ -79,7 +100,7 @@ contract OctobayGovernor is OctobayStorage {
             endDate: _endDate,
             quorum: _quorum,
             voteCount: 0,
-            snapshotId: _snapshotId,
+            snapshotId: govToken.snapshot(),
             votingToken: govToken 
         });
 
@@ -139,7 +160,7 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _symbol Token Symbol for the new token
     /// @param _projectId Path of the org or repo which maps to the new token
     /// @return The address of the new token contract
-    function createToken(string memory _name, string memory _symbol, string memory _projectId) external onlyOctobay returns (OctobayGovToken) {
+    function createToken(string memory _name, string memory _symbol, string memory _projectId) public onlyOctobay returns (OctobayGovToken) {
         OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
         newToken.setOctobay(msg.sender);
         tokensByProjectId[_projectId] = newToken;
