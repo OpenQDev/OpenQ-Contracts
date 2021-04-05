@@ -70,19 +70,16 @@ contract OracleStorage is OctobayStorage {
   }
 
   function changeOracleName(address _oracle, string calldata _name) external onlyOctobay onlyRegisteredOracle(_oracle) {
-      require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can change name');
       oracles[_oracle].name = _name;
       emit OracleNameChangedEvent(_oracle, _name);
   }
 
   function addOracleJob(address _oracle, string calldata _jobName, Job memory _job) external onlyOctobay onlyRegisteredOracle(_oracle) {
-      require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
       oracles[_oracle].jobs[_jobName] = _job;
       emit OracleJobAddedEvent(_oracle, _jobName, _job.id);
   }
 
   function removeOracleJob(address _oracle, string calldata _jobName) external onlyOctobay onlyRegisteredOracle(_oracle) {
-      require(msg.sender == owner() || msg.sender == _oracle, 'Only oracle or owner can add job');
       emit OracleJobRemovedEvent(_oracle, _jobName, oracles[_oracle].jobs[_jobName].id);
       delete oracles[_oracle].jobs[_jobName];
   }
