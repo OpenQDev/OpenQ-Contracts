@@ -13,6 +13,7 @@ contract OctobayGovernor is OctobayStorage {
         bool isValue; // Ensure we have a valid value in the map
         uint256 proposalCount; // Number of proposals
         uint16 newProposalShare; // min percentage required for a token holder to create a new proposal
+        uint16 minQuorum; // min quorum for all new proposals made in this governance department
         mapping (uint => Proposal) proposalList; // List of proposals
     }
 
@@ -45,7 +46,7 @@ contract OctobayGovernor is OctobayStorage {
 
     event VoteCast(string projectId, uint256 proposalId, int16 vote, address voter);
 
-    event GovernorCreated(string projectId, uint16 newProposalShare);
+    event GovernorCreated(string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
 
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
@@ -56,22 +57,29 @@ contract OctobayGovernor is OctobayStorage {
         octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
     }
 
-    function createGovernorAndToken(string memory _projectId, uint16 _newProposalShare, string memory _name, string memory _symbol) external onlyOctobay {
-        createGovernor(_projectId, _newProposalShare);
-        createToken(_name, _symbol, _projectId);
+    function createGovernorAndToken(
+        string memory _projectId,
+        uint16 _newProposalShare,
+        uint16 _minQuorum,
+        string memory _name,
+        string memory _symbol
+    ) external onlyOctobay {
+        createGovernor(_projectId, _newProposalShare, _minQuorum);
+        OctobayGovToken newToken = createToken(_name, _symbol, _projectId);
+
+        emit GovernorCreated(_projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
     } 
 
     /// @dev Necessary to set the newProposalShare for new proposals and to know if we've already initialized a governor
-    function createGovernor(string memory _projectId, uint16 _newProposalShare) public onlyOctobay {
+    function createGovernor(string memory _projectId, uint16 _newProposalShare, uint16 _minQuorum) public onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
         Governor memory newGovernor = Governor({
             isValue: true,
             proposalCount: 0,
-            newProposalShare: _newProposalShare
+            newProposalShare: _newProposalShare,
+            minQuorum: _minQuorum
         });
         governorsByProjectId[_projectId] = newGovernor;
-
-        emit GovernorCreated(_projectId, _newProposalShare);
     }
 
     /// @dev Anyone with at least newProposalShare share of tokens can create a new proposal here
@@ -152,7 +160,6 @@ contract OctobayGovernor is OctobayStorage {
 
     // ------------ Token Factory ------------ //
 
-    event NewTokenEvent(string name, string symbol, address tokenAddr);
     event UpdatedProjectId(string oldProjectId, string newProjectId, address tokenAddr);
     mapping (string => OctobayGovToken) public tokensByProjectId;
 
@@ -164,7 +171,6 @@ contract OctobayGovernor is OctobayStorage {
         OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
         newToken.setOctobay(msg.sender);
         tokensByProjectId[_projectId] = newToken;
-        emit NewTokenEvent(_name, _symbol, address(newToken));
         return newToken;
     }
 
