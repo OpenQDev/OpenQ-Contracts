@@ -326,6 +326,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event RefundIssueDepositEvent(address to, uint256 amount, string issueId, uint256 depositId);
+    event SetGovTokenForIssueEvent(address from, string  issueId, address govTokenAddress, string projectId);
 
     enum IssueStatus {
         // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
@@ -364,6 +365,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         }
         require(hasPermission, "You don't have permission to set governance tokens for issues");
         govTokenByIssueId[_issueId] = OctobayGovToken(_govTokenAddress);
+        emit SetGovTokenForIssueEvent(msg.sender, _issueId, _govTokenAddress, _projectId);
     }
 
     function depositEthForIssue(string calldata _issueId) public payable {
