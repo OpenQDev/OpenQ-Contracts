@@ -14,6 +14,9 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         // e.t.c.
     }
 
+    event MintTokenForProjectEvent(address to, string projectId, uint256 tokenId);
+    event BurnTokenEvent(uint256 tokenId);
+
     mapping (uint256 => mapping (uint => bool) ) public permissionsByTokenID;
     mapping (uint256 => string) public projectIdsByTokenID;
 
@@ -54,6 +57,7 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         uint256 tokenId = totalSupply() + 1;
         _safeMint(_to, tokenId);
         projectIdsByTokenID[tokenId] = _projectId;
+        emit MintTokenForProjectEvent(_to, _projectId, tokenId);
         return tokenId;
     }
 
@@ -86,5 +90,6 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
 
     function burn(uint256 _tokenId) public {
         _burn(_tokenId);
+        emit BurnTokenEvent(_tokenId);
     }
 }
