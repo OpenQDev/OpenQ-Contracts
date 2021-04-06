@@ -42,11 +42,11 @@ contract OctobayGovernor is OctobayStorage {
         Succeeded
     }
 
-    event ProposalCreated(string projectId, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId);
+    event ProposalCreatedEvent(string projectId, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId);
 
-    event VoteCast(string projectId, uint256 proposalId, int16 vote, address voter);
+    event VoteCastEvent(string projectId, uint256 proposalId, int16 vote, address voter);
 
-    event GovernorCreated(string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
+    event DepartmentCreatedEvent(string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
 
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
@@ -67,7 +67,7 @@ contract OctobayGovernor is OctobayStorage {
         createGovernor(_projectId, _newProposalShare, _minQuorum);
         OctobayGovToken newToken = createToken(_name, _symbol, _projectId);
 
-        emit GovernorCreated(_projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
+        emit DepartmentCreatedEvent(_projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
     } 
 
     /// @dev Necessary to set the newProposalShare for new proposals and to know if we've already initialized a governor
@@ -115,7 +115,7 @@ contract OctobayGovernor is OctobayStorage {
         governor.proposalCount++;
         governor.proposalList[governor.proposalCount] = newProposal;
 
-        emit ProposalCreated(_projectId, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount);
+        emit ProposalCreatedEvent(_projectId, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount);
     }
 
     function proposalState(string memory _projectId, uint256 _proposalId) public view proposalExists(_projectId, _proposalId) returns(ProposalState) {
@@ -147,7 +147,7 @@ contract OctobayGovernor is OctobayStorage {
         });
         proposal.votesBySubmitter[msg.sender] = newVote;
 
-        emit VoteCast(_projectId, _proposalId, _vote, msg.sender);
+        emit VoteCastEvent(_projectId, _proposalId, _vote, msg.sender);
     }
 
     //TODO: Include a castVoteBySignature to avoid gas costs for voters
