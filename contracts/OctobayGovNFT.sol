@@ -55,7 +55,9 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
 
     function _mintTokenForProject(address _to, string memory _projectId) internal returns(uint256) {
         uint256 tokenId = totalSupply() + 1;
+        _unpause();
         _safeMint(_to, tokenId);
+        _pause();
         projectIdsByTokenID[tokenId] = _projectId;
         emit MintTokenForProjectEvent(_to, _projectId, tokenId);
         return tokenId;
