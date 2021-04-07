@@ -63,13 +63,11 @@ contract OctobayGovernor is OctobayStorage {
         uint16 _minQuorum,
         string memory _name,
         string memory _symbol
-    ) external onlyOctobay returns(address) {
+    ) external onlyOctobay returns(OctobayGovToken newToken) {
         createGovernor(_projectId, _newProposalShare, _minQuorum);
-        OctobayGovToken newToken = createToken(_name, _symbol, _projectId);
+        newToken = createToken(_name, _symbol, _projectId);
 
         emit DepartmentCreatedEvent(_projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
-
-        return address(newToken);
     } 
 
     /// @dev Necessary to set the newProposalShare for new proposals and to know if we've already initialized a governor
