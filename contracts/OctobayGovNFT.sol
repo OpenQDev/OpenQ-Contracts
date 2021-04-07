@@ -14,7 +14,7 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         // e.t.c.
     }
 
-    event MintTokenForProjectEvent(address to, string projectId, uint256 tokenId);
+    event MintTokenForProjectEvent(address to, string projectId, uint256 tokenId, address govTokenAddress);
     event BurnTokenEvent(uint256 tokenId);
 
     mapping (uint256 => mapping (uint => bool) ) public permissionsByTokenID;
@@ -49,17 +49,17 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         permissionsByTokenID[_tokenId][uint(_perm)] = false;
     }
 
-    function mintTokenForProject(address _to, string memory _projectId) external onlyOctobay returns(uint256) {
-        return _mintTokenForProject(_to, _projectId);
+    function mintTokenForProject(address _to, string memory _projectId, address _govTokenAddress) external onlyOctobay returns(uint256) {
+        return _mintTokenForProject(_to, _projectId, _govTokenAddress);
     }
 
-    function _mintTokenForProject(address _to, string memory _projectId) internal returns(uint256) {
+    function _mintTokenForProject(address _to, string memory _projectId, address _govTokenAddress) internal returns(uint256) {
         uint256 tokenId = totalSupply() + 1;
         _unpause();
         _safeMint(_to, tokenId);
         _pause();
         projectIdsByTokenID[tokenId] = _projectId;
-        emit MintTokenForProjectEvent(_to, _projectId, tokenId);
+        emit MintTokenForProjectEvent(_to, _projectId, tokenId, _govTokenAddress);
         return tokenId;
     }
 
@@ -80,15 +80,15 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         _pause();
     }
 
-    function mintTokenWithPermissions(address _to, uint256 _tokenId, Permission[] memory _perms) public {
-        require(hasPermission(_tokenId, Permission.MINT), "Not allowed to mint new tokens");
-        require(ownerOf(_tokenId) == msg.sender, "Not the owner of _tokenId");
+    // function mintTokenWithPermissions(address _to, uint256 _tokenId, Permission[] memory _perms) public {
+    //     require(hasPermission(_tokenId, Permission.MINT), "Not allowed to mint new tokens");
+    //     require(ownerOf(_tokenId) == msg.sender, "Not the owner of _tokenId");
 
-        uint256 newTokenId = _mintTokenForProject(_to, projectIdsByTokenID[_tokenId]);
-        for (uint i=0; i < _perms.length; i++) {
-            _grantPermission(newTokenId, _perms[i]);
-        }
-    }
+    //     uint256 newTokenId = _mintTokenForProject(_to, projectIdsByTokenID[_tokenId]);
+    //     for (uint i=0; i < _perms.length; i++) {
+    //         _grantPermission(newTokenId, _perms[i]);
+    //     }
+    // }
 
     function burn(uint256 _tokenId) public {
         _burn(_tokenId);
