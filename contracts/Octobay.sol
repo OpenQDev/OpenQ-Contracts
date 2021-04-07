@@ -59,9 +59,35 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         issuePins[_issueId] += _amount;
     }
 
+    // ------------ Set contract addresses ------------ //
 
+    function setTrustedForwarder(address _forwarder) external onlyOwner {
+        trustedForwarder = _forwarder; // GSN trusted forwarder
+    }
 
+    function setUserAddressStorage(address _userAddressStorage) external onlyOwner {
+        userAddressStorage = UserAddressStorage(_userAddressStorage);
+    }
 
+    function setOracleStorage(address _oracleStorage) external onlyOwner {
+        oracleStorage = OracleStorage(_oracleStorage);
+    }
+
+    function setOctobayVisibilityToken(address _ovt) external onlyOwner {
+        ovt = OctobayVisibilityToken(_ovt);
+    }
+
+    function setOctobayGovernor(address _octobayGovernor) external onlyOwner {
+        octobayGovernor = OctobayGovernor(_octobayGovernor);
+    }
+
+    function setEthUSDPriceFeed(address _ethUSDPriceFeed) external onlyOwner {
+        ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
+    }
+
+    function setOctobayGovNFT(address _octobayGovNFT) external onlyOwner {
+        octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
+    }                    
 
     // ------------ Oracles ------------ //
 
