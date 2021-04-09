@@ -219,54 +219,54 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     // ------------ TWITTER ------------ //
 
 
-    function twitterPost(
-        address _oracle,
-        string memory _issueId
-    ) internal oracleHandlesJob(_oracle, 'twitterPost') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterPost');
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                jobId,
-                address(this),
-                this.twitterPostConfirm.selector
-            );
-        request.add('issueId', _issueId);
-        request.addUint('amount', issueDepositsAmountByIssueId[_issueId]);
-        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
-    }
+    // function twitterPost(
+    //     address _oracle,
+    //     string memory _issueId
+    // ) internal oracleHandlesJob(_oracle, 'twitterPost') returns(bytes32 requestId) {
+    //     (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterPost');
+    //     Chainlink.Request memory request =
+    //         buildChainlinkRequest(
+    //             jobId,
+    //             address(this),
+    //             this.twitterPostConfirm.selector
+    //         );
+    //     request.add('issueId', _issueId);
+    //     request.addUint('amount', issueDepositsAmountByIssueId[_issueId]);
+    //     requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
+    // }
 
-    function twitterPostConfirm(bytes32 _requestId, bytes32 _tweetId)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        emit TwitterPostEvent(pendingTwitterPostsIssueIds[_requestId], _tweetId);
-    }
+    // function twitterPostConfirm(bytes32 _requestId, bytes32 _tweetId)
+    //     public
+    //     recordChainlinkFulfillment(_requestId)
+    // {
+    //     emit TwitterPostEvent(pendingTwitterPostsIssueIds[_requestId], _tweetId);
+    // }
 
-    function updateTwitterFollowersAndPost(
-        address _oracle,
-        string memory _issueId
-    ) public oracleHandlesJob(_oracle, 'twitterFollowers') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterFollowers');
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                jobId,
-                address(this),
-                this.updateTwitterFollowersConfirm.selector
-            );
-        request.add('accountId', twitterAccountId);
-        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
-        pendingTwitterPostsIssueIds[requestId] = _issueId;
-    }
+    // function updateTwitterFollowersAndPost(
+    //     address _oracle,
+    //     string memory _issueId
+    // ) public oracleHandlesJob(_oracle, 'twitterFollowers') returns(bytes32 requestId) {
+    //     (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterFollowers');
+    //     Chainlink.Request memory request =
+    //         buildChainlinkRequest(
+    //             jobId,
+    //             address(this),
+    //             this.updateTwitterFollowersConfirm.selector
+    //         );
+    //     request.add('accountId', twitterAccountId);
+    //     requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
+    //     pendingTwitterPostsIssueIds[requestId] = _issueId;
+    // }
 
-    function updateTwitterFollowersConfirm(bytes32 _requestId, uint256 _followers)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        twitterFollowers = _followers;
-        bytes32 postRequestId = twitterPost(msg.sender, pendingTwitterPostsIssueIds[_requestId]);
-        pendingTwitterPostsIssueIds[postRequestId] = pendingTwitterPostsIssueIds[_requestId];
-        delete pendingTwitterPostsIssueIds[_requestId];
-    }
+    // function updateTwitterFollowersConfirm(bytes32 _requestId, uint256 _followers)
+    //     public
+    //     recordChainlinkFulfillment(_requestId)
+    // {
+    //     twitterFollowers = _followers;
+    //     bytes32 postRequestId = twitterPost(msg.sender, pendingTwitterPostsIssueIds[_requestId]);
+    //     pendingTwitterPostsIssueIds[postRequestId] = pendingTwitterPostsIssueIds[_requestId];
+    //     delete pendingTwitterPostsIssueIds[_requestId];
+    // }
 
 
 
