@@ -7,6 +7,7 @@ const UserAddressStorage = artifacts.require("UserAddressStorage")
 const OracleStorage = artifacts.require("OracleStorage")
 const OctobayGovernor = artifacts.require("OctobayGovernor")
 const OctobayGovNFT = artifacts.require("OctobayGovNFT")
+const IssueDepositStorage = artifacts.require("IssueDepositStorage")
 const zeroAddress = "0x0000000000000000000000000000000000000000"
 
 module.exports = function (deployer, network) {
@@ -21,7 +22,9 @@ module.exports = function (deployer, network) {
       OracleStorage.address,
       OctobayGovernor.address,
       zeroAddress,
-      OctobayGovNFT.address
+      OctobayGovNFT.address,
+      IssueDepositStorage.address
+
     ).then(octobayInstance => {
       octobayInstance.setTwitterAccountId(process.env.OCTOBAY_TWITTER_ACCOUNT_ID)
       LinkToken.deployed().then(linkTokenInstance => {
@@ -43,6 +46,9 @@ module.exports = function (deployer, network) {
       OctobayGovNFT.deployed().then(OctobayGovNFTInstance => {
         OctobayGovNFTInstance.setOctobay(octobayInstance.address)
       })
+      IssueDepositStorage.deployed().then(IssueDepositStorageInstance => {
+        IssueDepositStorageInstance.setOctobay(octobayInstance.address)
+      })      
     })
   } else if (network == 'kovan') {
     deployer.deploy(
@@ -54,7 +60,8 @@ module.exports = function (deployer, network) {
       OracleStorage.address,
       OctobayGovernor.address,
       '0x9326BFA02ADD2366b30bacB125260Af641031331',
-      OctobayGovNFT.address
+      OctobayGovNFT.address,
+      IssueDepositStorage.address
     ).then(octobayInstance => {
       OctobayVisibilityToken.deployed().then(OctobayVisibilityTokenInstance => {
         OctobayVisibilityTokenInstance.setOctobay(octobayInstance.address)
@@ -71,6 +78,9 @@ module.exports = function (deployer, network) {
       OctobayGovNFT.deployed().then(OctobayGovNFTInstance => {
         OctobayGovNFTInstance.setOctobay(octobayInstance.address)
       })
+      IssueDepositStorage.deployed().then(IssueDepositStorageInstance => {
+        IssueDepositStorageInstance.setOctobay(octobayInstance.address)
+      })      
     })
   }
 }
