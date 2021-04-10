@@ -374,7 +374,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     mapping(string => IssueStatus) public issueStatusByIssueId;
     mapping(string => OctobayGovToken) public govTokenByIssueId;
 
-    function depositAndSetGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external {
+    function depositAndSetGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external payable {
         depositEthForIssue(_issueId);
         setGovTokenForIssue(_issueId, _govTokenAddress, _projectId);
     }
