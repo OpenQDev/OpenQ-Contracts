@@ -374,7 +374,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         recordChainlinkFulfillment(_requestId)
     {
         uint256 payoutAmt = issueDepositStorage.confirmWithdrawIssueDeposit(issueWithdrawRequests[_requestId].payoutAddress, issueWithdrawRequests[_requestId].issueId);
-        awardGovernanceTokens(issueWithdrawRequests[_requestId].payoutAddress, payoutAmt, issueDepositStorage.govTokenByIssueId(issueWithdrawRequests[_requestId].issueId));
+        awardGovernanceTokens(
+            issueWithdrawRequests[_requestId].payoutAddress, 
+            // payoutAmt, 
+            issueDepositStorage.govTokenByIssueId(issueWithdrawRequests[_requestId].issueId));
         emit WithdrawIssueDepositEvent(issueWithdrawRequests[_requestId].issueId, issueWithdrawRequests[_requestId].payoutAddress, payoutAmt);
         delete issueWithdrawRequests[_requestId];
     }
@@ -435,15 +438,20 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         octobayGovNFT.grantAllPermissions(nftId);
     }
 
-    function awardGovernanceTokens(address recipient, uint256 payoutEth, OctobayGovToken tokenAddr) internal {
-        (
-            , //uint80 roundID, 
-            int price,
-            , //uint startedAt,
-            , //uint timeStamp,
-            //uint80 answeredInRound
-        ) = ethUSDPriceFeed.latestRoundData();
-        uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
+    function awardGovernanceTokens(
+        address recipient,
+        // uint256 payoutEth,
+        OctobayGovToken tokenAddr
+    ) internal {
+        // (
+        //     , //uint80 roundID, 
+        //     int price,
+        //     , //uint startedAt,
+        //     , //uint timeStamp,
+        //     //uint80 answeredInRound
+        // ) = ethUSDPriceFeed.latestRoundData();
+        // uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
+        uint256 amount = 2000 * 10**18;
         emit AwardGovernanceTokensEvent(recipient, amount, address(tokenAddr));
         tokenAddr.mint(recipient, amount);
     }

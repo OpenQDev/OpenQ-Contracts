@@ -42,7 +42,7 @@ contract OctobayGovernor is OctobayStorage {
         Succeeded
     }
 
-    event ProposalCreatedEvent(string projectId, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId);
+    event ProposalCreatedEvent(address tokenAddress, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId);
 
     event VoteCastEvent(string projectId, uint256 proposalId, int16 vote, address voter);
 
@@ -83,7 +83,7 @@ contract OctobayGovernor is OctobayStorage {
     }
 
     /// @dev Anyone with at least newProposalShare share of tokens can create a new proposal here
-    function createProposal(string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
+    function createProposal(address _tokenAddress, string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");
         Governor storage governor = governorsByProjectId[_projectId];
         OctobayGovToken govToken = tokensByProjectId[_projectId];
@@ -115,7 +115,7 @@ contract OctobayGovernor is OctobayStorage {
         governor.proposalCount++;
         governor.proposalList[governor.proposalCount] = newProposal;
 
-        emit ProposalCreatedEvent(_projectId, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount);
+        emit ProposalCreatedEvent(_tokenAddress, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount);
     }
 
     function proposalState(string memory _projectId, uint256 _proposalId) public view proposalExists(_projectId, _proposalId) returns(ProposalState) {
