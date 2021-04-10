@@ -42,9 +42,9 @@ contract OctobayGovernor is OctobayStorage {
         Succeeded
     }
 
-    event ProposalCreatedEvent(address tokenAddress, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId);
+    event ProposalCreatedEvent(address tokenAddress, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId, uint256 snapshotId);
 
-    event VoteCastEvent(string projectId, uint256 proposalId, int16 vote, address voter);
+    event VoteCastEvent(string projectId, uint256 proposalId, string discussionId, int16 vote, address voter);
 
     event DepartmentCreatedEvent(string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
 
@@ -100,6 +100,7 @@ contract OctobayGovernor is OctobayStorage {
         }
         require(hasPermission, "Token share not high enough and no NFT permission for new proposals");
         
+        uint256 snapshotId = govToken.snapshot();
         Proposal memory newProposal = Proposal({
             isValue: true,
             creator: msg.sender,
@@ -108,14 +109,14 @@ contract OctobayGovernor is OctobayStorage {
             endDate: _endDate,
             quorum: _quorum,
             voteCount: 0,
-            snapshotId: govToken.snapshot(),
+            snapshotId: snapshotId,
             votingToken: govToken 
         });
 
         governor.proposalCount++;
         governor.proposalList[governor.proposalCount] = newProposal;
 
-        emit ProposalCreatedEvent(_tokenAddress, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount);
+        emit ProposalCreatedEvent(_tokenAddress, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount, snapshotId);
     }
 
     function proposalState(string memory _projectId, uint256 _proposalId) public view proposalExists(_projectId, _proposalId) returns(ProposalState) {
@@ -147,7 +148,7 @@ contract OctobayGovernor is OctobayStorage {
         });
         proposal.votesBySubmitter[msg.sender] = newVote;
 
-        emit VoteCastEvent(_projectId, _proposalId, _vote, msg.sender);
+        emit VoteCastEvent(_projectId, _proposalId, proposal.discussionId, _vote, msg.sender);
     }
 
     //TODO: Include a castVoteBySignature to avoid gas costs for voters
