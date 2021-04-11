@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 import '@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol';
 import './OctobayStorage.sol';
 
+/// @notice Owners or repos or orgs can create new gov tokens which are used to vote on proposals.
+///         New tokens are minted and awarded to those who complete bounties for the associated repo or org.
 contract OctobayGovToken is OctobayStorage, ERC20Snapshot {
 
     /// @param _name Name of the new token
