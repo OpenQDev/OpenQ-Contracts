@@ -6,7 +6,8 @@ import './OctobayStorage.sol';
 import './OctobayGovToken.sol';
 import './OctobayGovNFT.sol';
 
-// This contract acts as Octobay's storage of all Governors which are used for voting on proposals
+/// @notice This contract acts as Octobay's storage of all Governors, proposals and associated tokens.
+///         It handles all of the voting on the proposals and checking on statuses of proposals.
 contract OctobayGovernor is OctobayStorage {
 
     struct Governor {
@@ -36,10 +37,10 @@ contract OctobayGovernor is OctobayStorage {
     }
 
     enum ProposalState {
-        Pending,
-        Active,
-        Defeated,
-        Succeeded
+        Pending, // Proposal is created but isn't yet active
+        Active, // Proposal is active and can be voted on
+        Defeated, // Proposal did not pass due to not reaching quorum before expiring
+        Succeeded // Proposal passed by meeting quorum at expiry
     }
 
     event ProposalCreatedEvent(address tokenAddress, string discussionId, uint256 startDate, uint256 endDate, uint16 quorum, address creator, uint256 proposalId, uint256 snapshotId);
@@ -57,6 +58,13 @@ contract OctobayGovernor is OctobayStorage {
         octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
     }
 
+    /// @notice Essentially a wrapper for createGovernor and createToken to use only one call
+    /// @param _projectId Github graphql ID of the org or repo this governor/token is associated with
+    /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
+    /// @param _minQuorum The minimum quorum allowed for new proposals
+    /// @param _name Name of the new governance token
+    /// @param _symbol Symbol to use for the new governance token
+    /// @return newToken A reference to the created governance token
     function createGovernorAndToken(
         string memory _projectId,
         uint16 _newProposalShare,
@@ -70,7 +78,10 @@ contract OctobayGovernor is OctobayStorage {
         emit DepartmentCreatedEvent(_projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
     } 
 
-    /// @dev Necessary to set the newProposalShare for new proposals and to know if we've already initialized a governor
+    /// @notice Necessary to set the parameters for new proposals and to know if we've already initialized a governor
+    /// @param _projectId Github graphql ID of the org or repo this governor/token is associated with
+    /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
+    /// @param _minQuorum The minimum quorum allowed for new proposals    
     function createGovernor(string memory _projectId, uint16 _newProposalShare, uint16 _minQuorum) public onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
         Governor memory newGovernor = Governor({
@@ -82,12 +93,19 @@ contract OctobayGovernor is OctobayStorage {
         governorsByProjectId[_projectId] = newGovernor;
     }
 
-    /// @dev Anyone with at least newProposalShare share of tokens can create a new proposal here
+    /// @notice Anyone with at least newProposalShare share of tokens or an NFT with the required permission can create a new proposal here
+    /// @param _tokenAddress Address of the gov token to use. Required as the same project can have multiple departments
+    /// @param _projectId Github graphql ID of the org or repo this proposal is associated with
+    /// @param _discussionId The minimum quorum allowed for new proposals
+    /// @param _startDate Date in epoch secs when this proposal will become active and voting is opened
+    /// @param _endDate Date in epoch secs when the voting for this proposal closes
+    /// @param _quorum The minimum percentage of gov tokens required for this proposal to pass          
     function createProposal(address _tokenAddress, string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");
         Governor storage governor = governorsByProjectId[_projectId];
         OctobayGovToken govToken = tokensByProjectId[_projectId];
         require(address(govToken) != address(0), "No governance token for that _projectId");
+        require(_quorum >= governor.minQuorum, "Given _quorum is less than this governor's minQuorum");
 
         bool hasPermission = false;
         if (govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare) {
@@ -119,6 +137,10 @@ contract OctobayGovernor is OctobayStorage {
         emit ProposalCreatedEvent(_tokenAddress, _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount, snapshotId);
     }
 
+    /// @notice Anyone with at least newProposalShare share of tokens or an NFT with the required permission can create a new proposal here
+    /// @param _projectId Github graphql ID of the org or repo this proposal is associated with
+    /// @param _proposalId ID of the proposal whose state we should check
+    /// @return The ProposalState of the given proposal
     function proposalState(string memory _projectId, uint256 _proposalId) public view proposalExists(_projectId, _proposalId) returns(ProposalState) {
         Proposal storage proposal = governorsByProjectId[_projectId].proposalList[_proposalId];
         if (block.timestamp < proposal.startDate) {
@@ -133,7 +155,10 @@ contract OctobayGovernor is OctobayStorage {
     }
 
     /// @dev Anyone with > 0 amount of tokens can vote. They can vote up to and including their share (but not necessarily all).
-    ///      A positive _vote is considered in favour of the proposal and a negative is considered against it.   
+    ///      A positive _vote is considered in favour of the proposal and a negative is considered against it.
+    /// @param _projectId Github graphql ID of the org or repo this proposal is associated with
+    /// @param _proposalId ID of the proposal to vote on
+    /// @param _vote The positive(for) or negative(against) amount of your token share you'd like to vote towards this proposal 
     function castVote(string memory _projectId, uint256 _proposalId, int16 _vote) external proposalExists(_projectId, _proposalId) {
         Proposal storage proposal = governorsByProjectId[_projectId].proposalList[_proposalId];
         require(proposalState(_projectId, _proposalId) == ProposalState.Active, "Proposal is not Active");
@@ -153,6 +178,8 @@ contract OctobayGovernor is OctobayStorage {
 
     //TODO: Include a castVoteBySignature to avoid gas costs for voters
 
+    /// @param _projectId Github graphql ID of the org or repo this proposal is associated with
+    /// @param _proposalId ID of the proposal
     modifier proposalExists(string memory _projectId, uint256 _proposalId) {
         require(governorsByProjectId[_projectId].isValue, "Governor for that _projectId doesn't exist");
         require(governorsByProjectId[_projectId].proposalList[_proposalId].isValue, "Proposal for that _proposalId doesn't exist");
@@ -166,8 +193,8 @@ contract OctobayGovernor is OctobayStorage {
 
     /// @param _name Name of the new token
     /// @param _symbol Token Symbol for the new token
-    /// @param _projectId Path of the org or repo which maps to the new token
-    /// @return The address of the new token contract
+    /// @param _projectId Github graphql ID of the org or repo this governor/token is associated with
+    /// @return A reference to the created governance token
     function createToken(string memory _name, string memory _symbol, string memory _projectId) public onlyOctobay returns (OctobayGovToken) {
         OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
         newToken.setOctobay(msg.sender);
@@ -176,8 +203,8 @@ contract OctobayGovernor is OctobayStorage {
     }
 
     /// @notice Used in case a project wants to transfer tokens from a repo to an org in the future for example
-    /// @param _oldProjectId Path of the old org or repo which should be updated
-    /// @param _newProjectId Path of the new org or repo which should be used
+    /// @param _oldProjectId Github graphql ID of the old org or repo which should be updated
+    /// @param _newProjectId Github graphql ID of the new org or repo which should be used
     function updateProjectId(string memory _oldProjectId, string memory _newProjectId) external onlyOctobay {
         OctobayGovToken token = tokensByProjectId[_oldProjectId];
         require(address(token) != address(0), "There is no token associated with _oldProjectId");

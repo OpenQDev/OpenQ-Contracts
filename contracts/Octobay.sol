@@ -473,7 +473,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         issueStatusByIssueId[issueWithdrawRequests[_requestId].issueId] = IssueStatus.CLAIMED;
         awardGovernanceTokens(
             payoutAddr,
-            // payoutAmt,
+            payoutAmt,
             govTokenByIssueId[issueWithdrawRequests[_requestId].issueId]
         );
         emit WithdrawIssueDepositEvent(issueWithdrawRequests[_requestId].issueId, payoutAddr, payoutAmt);
@@ -490,20 +490,25 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     OctobayGovernor public octobayGovernor;
 
+    /// @notice Used to store Chainlink requests for new governance tokens
     struct NewGovernanceToken {
-        bool isValue;
-        string githubUserId;
-        string name;
-        string symbol;
-        string projectId;
-        uint16 newProposalShare;
-        uint16 minQuorum;
-        address creator;
+        bool isValue; // Ensure we have a valid value in the map
+        string githubUserId; // Github graphql ID of the user we need to check for ownership
+        string name; // Name of the new governance token
+        string symbol; // Symbol to use for the new governance token
+        string projectId; // Github graphql ID of the project (repo/org) to be associated with the new token
+        uint16 newProposalShare; // Share of gov tokens a holder requires before they can create new proposals
+        uint16 minQuorum; // The minimum quorum allowed for new proposals
+        address creator; // Address of the creator, we need to store this as we lose it in the Oracle callback otherwise
     }
 
     mapping(bytes32 => NewGovernanceToken) public newGovernanceTokenReqs;
 
-    // Using a struct as arg here otherwise we get stack too deep errors
+    /// @notice A request from the site to create a new governance token, checks ownership of the given
+    ///         project (repo or org) via a Chainlink Oracle request to confirm
+    /// @dev Using a struct as an argument here otherwise we get stack too deep errors
+    /// @param _oracle Specify the address of the _oracle to use for the request
+    /// @param _newToken The details of the new governance token to create
     function createGovernanceToken(
         address _oracle,
         NewGovernanceToken memory _newToken
@@ -516,13 +521,16 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
                 this.confirmCreateGovernanceToken.selector
             );
         request.add('githubUserId', _newToken.githubUserId);
-        request.add('repoOrgId', _newToken.projectId); // Which one should we use to keep these in sync? 
+        request.add('repoOrgId', _newToken.projectId);
         requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
 
         _newToken.creator = msg.sender;
         newGovernanceTokenReqs[requestId] = _newToken;
     }
 
+    /// @notice Called in response by the Chainlink Oracle, continues with governance token creation
+    /// @param _requestId Chainlink request ID being returned
+    /// @param _result True if the given github user is an owner of the given project (org/repo)
     function confirmCreateGovernanceToken(bytes32 _requestId, bool _result)
         public
         recordChainlinkFulfillment(_requestId)
@@ -537,11 +545,16 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         octobayGovNFT.grantAllPermissions(nftId);
     }
 
+    /// @notice Awards (mints) governance tokens to users for completing an issue (bounty) according to USD amount of bounty
+    /// @param recipient Address of user to award governance tokens to
+    /// @param payoutEth Amount in wei of the completed bounty, used to calculate USD amount of tokens to award
+    /// @param tokenAddr Address of the governance token to award this user
     function awardGovernanceTokens(
         address recipient,
-        // uint256 payoutEth,
+        uint256 payoutEth,
         OctobayGovToken tokenAddr
     ) internal {
+        // Issues with the price feed so commenting it out and hardcoding for now
         // (
         //     , //uint80 roundID, 
         //     int price,
@@ -550,7 +563,9 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         //     //uint80 answeredInRound
         // ) = ethUSDPriceFeed.latestRoundData();
         // uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
-        uint256 amount = 2000 * 10**18;
+
+        uint256 ethPriceUSD = 2000;
+        uint256 amount = uint256((payoutEth * ethPriceUSD) / 10 ** 18);
         emit AwardGovernanceTokensEvent(recipient, amount, address(tokenAddr));
         tokenAddr.mint(recipient, amount);
     }
