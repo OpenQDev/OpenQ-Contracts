@@ -82,39 +82,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         _;
     }
 
-    function addOracle(
-        address _oracle,
-        string calldata _name,
-        string[] memory _jobNames,
-        OracleStorage.Job[] memory _jobs
-    ) external onlyOwner {
-        oracleStorage.addOracle(_oracle, _name, _jobNames, _jobs);
-    }
-
-    function removeOracle(address _oracle) external onlyOwner {
-        oracleStorage.removeOracle(_oracle);
-    }
-
-    function changeOracleName(address _oracle, string calldata _name) external onlyOwner {
-        oracleStorage.changeOracleName(_oracle, _name);
-    }
-
-    function addOracleJob(
-        address _oracle,
-        string calldata _jobName,
-        OracleStorage.Job memory _job
-    ) external onlyOwner {
-        oracleStorage.addOracleJob(_oracle, _jobName, _job);
-    }
-
-    function removeOracleJob(address _oracle, string calldata _jobName) external onlyOwner {
-        oracleStorage.removeOracleJob(_oracle, _jobName);
-    }
-    
-
-
-
-
     // ------------ GSN ------------ //
 
 
