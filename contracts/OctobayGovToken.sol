@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 import '@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol';
 import './OctobayStorage.sol';
 
+/// @notice Owners or repos or orgs can create new gov tokens which are used to vote on proposals.
+///         New tokens are minted and awarded to those who complete bounties for the associated repo or org.
 contract OctobayGovToken is OctobayStorage, ERC20Snapshot {
 
     /// @param _name Name of the new token
@@ -50,7 +52,7 @@ contract OctobayGovToken is OctobayStorage, ERC20Snapshot {
     /// @param _snapshotId Snapshot ID for the block at whose balance we'd like to check
     /// @return The balance of the given account as a percentage of total supply (0 - 10000) 
     function balanceOfAsPercentAt(address _account, uint256 _snapshotId) public view returns (uint16) {
-        if (totalSupply() > 0) {
+        if (totalSupplyAt(_snapshotId) > 0) {
             return uint16((balanceOfAt(_account, _snapshotId) / totalSupplyAt(_snapshotId)) * 10000);
         }
         return 0;
