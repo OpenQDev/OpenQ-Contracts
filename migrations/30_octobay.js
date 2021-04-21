@@ -7,7 +7,7 @@ const UserAddressStorage = artifacts.require("UserAddressStorage")
 const OracleStorage = artifacts.require("OracleStorage")
 const OctobayGovernor = artifacts.require("OctobayGovernor")
 const OctobayGovNFT = artifacts.require("OctobayGovNFT")
-const IssueDepositStorage = artifacts.require("IssueDepositStorage")
+const DepositStorage = artifacts.require("DepositStorage")
 const zeroAddress = "0x0000000000000000000000000000000000000000"
 
 module.exports = function (deployer, network) {
@@ -23,7 +23,7 @@ module.exports = function (deployer, network) {
       OctobayGovernor.address,
       zeroAddress,
       OctobayGovNFT.address,
-      IssueDepositStorage.address
+      DepositStorage.address
 
     ).then(octobayInstance => {
       octobayInstance.setTwitterAccountId(process.env.OCTOBAY_TWITTER_ACCOUNT_ID)
@@ -46,8 +46,8 @@ module.exports = function (deployer, network) {
       OctobayGovNFT.deployed().then(OctobayGovNFTInstance => {
         OctobayGovNFTInstance.setOctobay(octobayInstance.address)
       })
-      IssueDepositStorage.deployed().then(IssueDepositStorageInstance => {
-        IssueDepositStorageInstance.setOctobay(octobayInstance.address)
+      DepositStorage.deployed().then(DepositStorageInstance => {
+        DepositStorageInstance.setOctobay(octobayInstance.address)
       })      
     })
   } else if (network == 'kovan') {
@@ -61,7 +61,7 @@ module.exports = function (deployer, network) {
       OctobayGovernor.address,
       '0x9326BFA02ADD2366b30bacB125260Af641031331',
       OctobayGovNFT.address,
-      IssueDepositStorage.address
+      DepositStorage.address
     ).then(octobayInstance => {
       OctobayVisibilityToken.deployed().then(OctobayVisibilityTokenInstance => {
         OctobayVisibilityTokenInstance.setOctobay(octobayInstance.address)
@@ -78,8 +78,8 @@ module.exports = function (deployer, network) {
       OctobayGovNFT.deployed().then(OctobayGovNFTInstance => {
         OctobayGovNFTInstance.setOctobay(octobayInstance.address)
       })
-      IssueDepositStorage.deployed().then(IssueDepositStorageInstance => {
-        IssueDepositStorageInstance.setOctobay(octobayInstance.address)
+      DepositStorage.deployed().then(DepositStorageInstance => {
+        DepositStorageInstance.setOctobay(octobayInstance.address)
       })      
     })
   }
