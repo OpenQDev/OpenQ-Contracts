@@ -1,7 +1,7 @@
 require("dotenv").config({ path: './../.env' })
-const IssueDepositStorage = artifacts.require("IssueDepositStorage")
+const DepositStorage = artifacts.require("DepositStorage")
 
 module.exports = function (deployer, network) {
   if (network == 'test') return;
-  deployer.deploy(IssueDepositStorage)
+  deployer.deploy(DepositStorage)
 }
