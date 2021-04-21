@@ -6,7 +6,6 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
-import './OctobayVisibilityToken.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
 import './OctobayGovToken.sol';
@@ -21,7 +20,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     constructor(
         address _link,
         address _forwarder,
-        address _ovt,
         address _userAddressStorage,
         address _oracleStorage,
         address _octobayGovernor,
@@ -33,7 +31,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         trustedForwarder = _forwarder; // GSN trusted forwarder
         userAddressStorage = UserAddressStorage(_userAddressStorage);
         oracleStorage = OracleStorage(_oracleStorage);
-        ovt = OctobayVisibilityToken(_ovt);
         octobayGovernor = OctobayGovernor(_octobayGovernor);
         ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
         octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
@@ -52,10 +49,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function setOracleStorage(address _oracleStorage) external onlyOwner {
         oracleStorage = OracleStorage(_oracleStorage);
-    }
-
-    function setOctobayVisibilityToken(address _ovt) external onlyOwner {
-        ovt = OctobayVisibilityToken(_ovt);
     }
 
     function setOctobayGovernor(address _octobayGovernor) external onlyOwner {
@@ -80,6 +73,35 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         require(oracleStorage.oracleExists(_oracle), "Oracle does not exist.");
         require(oracleStorage.oracleJobExists(_oracle, _jobName), "Oracle job does not exist.");
         _;
+    }
+
+    function addOracle(
+        address _oracle,
+        string calldata _name,
+        string[] memory _jobNames,
+        OracleStorage.Job[] memory _jobs
+    ) external onlyOwner {
+        oracleStorage.addOracle(_oracle, _name, _jobNames, _jobs);
+    }
+
+    function removeOracle(address _oracle) external onlyOwner {
+        oracleStorage.removeOracle(_oracle);
+    }
+
+    function changeOracleName(address _oracle, string calldata _name) external onlyOwner {
+        oracleStorage.changeOracleName(_oracle, _name);
+    }
+
+    function addOracleJob(
+        address _oracle,
+        string calldata _jobName,
+        OracleStorage.Job memory _job
+    ) external onlyOwner {
+        oracleStorage.addOracleJob(_oracle, _jobName, _job);
+    }
+
+    function removeOracleJob(address _oracle, string calldata _jobName) external onlyOwner {
+        oracleStorage.removeOracleJob(_oracle, _jobName);
     }
 
     // ------------ GSN ------------ //
@@ -157,78 +179,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
         delete userAddressRegistrations[_requestId];
     }
-
-
-
-
-
-    // ------------ TWITTER ------------ //
-
-    event TwitterPostEvent(string issueId, bytes32 tweetId);
-
-    OctobayVisibilityToken public ovt;
-
-    string public twitterAccountId;
-    uint256 public twitterFollowers;
-    mapping(bytes32 => string) public pendingTwitterPostsIssueIds;
-
-    function setTwitterAccountId(string memory _accountId) external onlyOwner {
-        twitterAccountId = _accountId;
-        twitterFollowers = 0;
-    }
-
-    function twitterPost(
-        address _oracle,
-        string memory _issueId
-    ) internal oracleHandlesJob(_oracle, 'twitterPost') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterPost');
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                jobId,
-                address(this),
-                this.twitterPostConfirm.selector
-            );
-        request.add('issueId', _issueId);
-        request.addUint('amount', depositStorage.issueDepositsAmountByIssueId(_issueId));
-        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
-    }
-
-    function twitterPostConfirm(bytes32 _requestId, bytes32 _tweetId)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        emit TwitterPostEvent(pendingTwitterPostsIssueIds[_requestId], _tweetId);
-    }
-
-    function updateTwitterFollowersAndPost(
-        address _oracle,
-        string memory _issueId
-    ) public oracleHandlesJob(_oracle, 'twitterFollowers') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterFollowers');
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                jobId,
-                address(this),
-                this.updateTwitterFollowersConfirm.selector
-            );
-        request.add('accountId', twitterAccountId);
-        requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
-        pendingTwitterPostsIssueIds[requestId] = _issueId;
-    }
-
-    function updateTwitterFollowersConfirm(bytes32 _requestId, uint256 _followers)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        twitterFollowers = _followers;
-        bytes32 postRequestId = twitterPost(msg.sender, pendingTwitterPostsIssueIds[_requestId]);
-        pendingTwitterPostsIssueIds[postRequestId] = pendingTwitterPostsIssueIds[_requestId];
-        delete pendingTwitterPostsIssueIds[_requestId];
-    }
-
-
-
-
 
     // ------------ USER DEPOSITS ------------ //
 

@@ -2,7 +2,6 @@ require("dotenv").config({ path: './../.env' })
 
 const Octobay = artifacts.require("Octobay")
 const LinkToken = artifacts.require("link-token/LinkToken")
-const OctobayVisibilityToken = artifacts.require("OctobayVisibilityToken")
 const UserAddressStorage = artifacts.require("UserAddressStorage")
 const OracleStorage = artifacts.require("OracleStorage")
 const OctobayGovernor = artifacts.require("OctobayGovernor")
@@ -17,7 +16,6 @@ module.exports = function (deployer, network) {
       Octobay,
       LinkToken.address,
       zeroAddress,
-      OctobayVisibilityToken.address,
       UserAddressStorage.address,
       OracleStorage.address,
       OctobayGovernor.address,
@@ -31,9 +29,6 @@ module.exports = function (deployer, network) {
         linkTokenInstance.transfer(octobayInstance.address, "10000000000000000000")
       })
 
-      OctobayVisibilityToken.deployed().then(OctobayVisibilityTokenInstance => {
-        OctobayVisibilityTokenInstance.setOctobay(octobayInstance.address)
-      })
       UserAddressStorage.deployed().then(UserAddressStorageInstance => {
         UserAddressStorageInstance.setOctobay(octobayInstance.address)
       })
@@ -55,7 +50,6 @@ module.exports = function (deployer, network) {
       Octobay,
       '0xa36085F69e2889c224210F603D836748e7dC0088',
       zeroAddress,
-      OctobayVisibilityToken.address,
       UserAddressStorage.address,
       OracleStorage.address,
       OctobayGovernor.address,
@@ -63,9 +57,6 @@ module.exports = function (deployer, network) {
       OctobayGovNFT.address,
       DepositStorage.address
     ).then(octobayInstance => {
-      OctobayVisibilityToken.deployed().then(OctobayVisibilityTokenInstance => {
-        OctobayVisibilityTokenInstance.setOctobay(octobayInstance.address)
-      })
       UserAddressStorage.deployed().then(UserAddressStorageInstance => {
         UserAddressStorageInstance.setOctobay(octobayInstance.address)
       })
