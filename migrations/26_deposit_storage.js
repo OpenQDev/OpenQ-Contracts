@@ -1,7 +1,7 @@
 require("dotenv").config({ path: './../.env' })
-const OctobayVisibilityToken = artifacts.require("OctobayVisibilityToken")
+const IssueDepositStorage = artifacts.require("IssueDepositStorage")
 
 module.exports = function (deployer, network) {
   if (network == 'test') return;
-  deployer.deploy(OctobayVisibilityToken)
+  deployer.deploy(IssueDepositStorage)
 }
