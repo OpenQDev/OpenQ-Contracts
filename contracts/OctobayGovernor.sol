@@ -11,6 +11,7 @@ import './OctobayGovNFT.sol';
 contract OctobayGovernor is OctobayStorage {
 
     struct Governor {
+        address creator; // msg.sender from Octobay->createGovernanceToken
         bool isValue; // Ensure we have a valid value in the map
         uint256 proposalCount; // Number of proposals
         uint16 newProposalShare; // min percentage required for a token holder to create a new proposal
@@ -47,7 +48,7 @@ contract OctobayGovernor is OctobayStorage {
 
     event VoteCastEvent(string projectId, uint256 proposalId, string discussionId, int16 vote, address voter);
 
-    event DepartmentCreatedEvent(string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
+    event DepartmentCreatedEvent(address creator, string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
 
     /// @notice Maps org/repo path to a Governor
     mapping (string => Governor) public governorsByProjectId;
@@ -66,25 +67,27 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _symbol Symbol to use for the new governance token
     /// @return newToken A reference to the created governance token
     function createGovernorAndToken(
+        address _creator,
         string memory _projectId,
         uint16 _newProposalShare,
         uint16 _minQuorum,
         string memory _name,
         string memory _symbol
     ) external onlyOctobay returns(OctobayGovToken newToken) {
-        createGovernor(_projectId, _newProposalShare, _minQuorum);
+        createGovernor(_creator, _projectId, _newProposalShare, _minQuorum);
         newToken = createToken(_name, _symbol, _projectId);
 
-        emit DepartmentCreatedEvent(_projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
+        emit DepartmentCreatedEvent(_creator, _projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
     } 
 
     /// @notice Necessary to set the parameters for new proposals and to know if we've already initialized a governor
     /// @param _projectId Github graphql ID of the org or repo this governor/token is associated with
     /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
     /// @param _minQuorum The minimum quorum allowed for new proposals    
-    function createGovernor(string memory _projectId, uint16 _newProposalShare, uint16 _minQuorum) public onlyOctobay {
+    function createGovernor(address _creator, string memory _projectId, uint16 _newProposalShare, uint16 _minQuorum) public onlyOctobay {
         require(!governorsByProjectId[_projectId].isValue, "Governor for that _projectId already exists");
         Governor memory newGovernor = Governor({
+            creator: _creator,
             isValue: true,
             proposalCount: 0,
             newProposalShare: _newProposalShare,
