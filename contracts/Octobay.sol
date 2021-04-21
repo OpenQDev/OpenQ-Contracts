@@ -15,8 +15,6 @@ import './DepositStorage.sol';
 
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
-    // TODO: Add more events related to user withdrawls
-
     constructor(
         address _link,
         address _forwarder,
@@ -204,9 +202,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     OctobayGovNFT public octobayGovNFT;
 
-    event SetGovTokenForIssueEvent(address from, string  issueId, address govTokenAddress, string projectId);
-
-
     function depositAndSetGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external payable {
         depositEthForIssue(_issueId);
         setGovTokenForIssue(_issueId, _govTokenAddress, _projectId);
@@ -224,7 +219,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         }
         require(hasPermission, "You don't have permission to set governance tokens for issues");
         depositStorage.setGovTokenForIssue(_issueId, _govTokenAddress);
-        emit SetGovTokenForIssueEvent(msg.sender, _issueId, _govTokenAddress, _projectId);
     }
 
     function depositEthForIssue(string calldata _issueId) public payable {
@@ -272,7 +266,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         recordChainlinkFulfillment(_requestId)
     {
         uint256 payoutAmt = depositStorage.confirmWithdrawIssueDeposit(issueWithdrawRequests[_requestId].payoutAddress, issueWithdrawRequests[_requestId].issueId);
-        awardGovernanceTokens(
+        octobayGovernor.awardGovernanceTokens(
             issueWithdrawRequests[_requestId].payoutAddress, 
             payoutAmt, 
             depositStorage.govTokenByIssueId(issueWithdrawRequests[_requestId].issueId));
@@ -282,8 +276,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
 
     // ------------ GOVERNANCE ------------ //
-
-    event AwardGovernanceTokensEvent(address recipient, uint256 amount, address tokenAddr);
 
     OctobayGovernor public octobayGovernor;
     AggregatorV3Interface internal ethUSDPriceFeed;
@@ -348,31 +340,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         );
         uint256 nftId = octobayGovNFT.mintTokenForProject(newToken.creator, newToken.projectId, address(deployedToken));
         octobayGovNFT.grantAllPermissions(nftId);
-    }
-
-    /// @notice Awards (mints) governance tokens to users for completing an issue (bounty) according to USD amount of bounty
-    /// @param recipient Address of user to award governance tokens to
-    /// @param payoutEth Amount in wei of the completed bounty, used to calculate USD amount of tokens to award
-    /// @param tokenAddr Address of the governance token to award this user
-    function awardGovernanceTokens(
-        address recipient,
-        uint256 payoutEth,
-        OctobayGovToken tokenAddr
-    ) internal {
-        // Issues with the price feed so commenting it out and hardcoding for now
-        // (
-        //     , //uint80 roundID, 
-        //     int price,
-        //     , //uint startedAt,
-        //     , //uint timeStamp,
-        //     //uint80 answeredInRound
-        // ) = ethUSDPriceFeed.latestRoundData();
-        // uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
-
-        uint256 ethPriceUSD = 2000;
-        uint256 amount = uint256((payoutEth * ethPriceUSD) / 10 ** 18);
-        emit AwardGovernanceTokensEvent(recipient, amount, address(tokenAddr));
-        tokenAddr.mint(recipient, amount);
     }
 
     // ------------ UTILS ------------ //

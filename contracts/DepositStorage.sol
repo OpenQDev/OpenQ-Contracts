@@ -53,7 +53,9 @@ contract DepositStorage is OctobayStorage {
 
     // ------------ USER DEPOSITS ------------ //
 
-    event UserDepositEvent(address from, uint256 amount, string githubUser);
+    event UserDepositEvent(address from, uint256 amount, string githubUserId, uint256 depositId);
+    event RefundUserDepositEvent(uint256 depositId);
+    event WithdrawUserDepositEvent(uint256 depositId);
 
     function depositEthForGithubUser(string calldata _githubUserId, address msgSender)
         external
@@ -74,7 +76,7 @@ contract DepositStorage is OctobayStorage {
         // increment claim amount
         userClaimAmountByGithbUserId[_githubUserId] += msg.value;
 
-        emit UserDepositEvent(msgSender, msg.value, _githubUserId);
+        emit UserDepositEvent(msgSender, msg.value, _githubUserId, nextUserDepositId);
     }
 
     function refundUserDeposit(uint256 _depositId, address msgSender) external onlyOctobay {
@@ -83,6 +85,8 @@ contract DepositStorage is OctobayStorage {
             'Deposit did not came from this Ethereum address.'
         );
         _sendDeposit(_depositId, msgSender);   // msg.sender is depositor
+        
+        emit RefundUserDepositEvent(_depositId);
     }
 
     function withdrawUserDeposit(uint256 _depositId, address msgSender, string calldata _userId) external onlyOctobay {
@@ -94,6 +98,8 @@ contract DepositStorage is OctobayStorage {
             'Deposit is not for this GitHub account.'
         );
         _sendDeposit(_depositId, msgSender);   // msg.sender is user
+
+        emit WithdrawUserDepositEvent(_depositId);
     }
 
     function _sendDeposit(uint256 _depositId, address _to) internal {
@@ -109,11 +115,14 @@ contract DepositStorage is OctobayStorage {
     // ------------ ISSUE DEPOSITS ------------ //
 
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
-    event RefundIssueDepositEvent(address to, uint256 amount, string issueId, uint256 depositId);
+    event RefundIssueDepositEvent(uint256 depositId);
+    event WithdrawIssueDepositsEvent(string issueId);
+    event SetGovTokenForIssueEvent(string  issueId, address govTokenAddress);
 
     function setGovTokenForIssue(string calldata _issueId, address _govTokenAddress) external onlyOctobay {
         require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
         govTokenByIssueId[_issueId] = OctobayGovToken(_govTokenAddress);
+        emit SetGovTokenForIssueEvent(_issueId, _govTokenAddress);
     }
 
     function depositEthForIssue(string calldata _issueId, address msgSender) external payable onlyOctobay {
@@ -145,16 +154,12 @@ contract DepositStorage is OctobayStorage {
             issueDeposits[_depositId].issueId
         ] -= payoutAmt;
 
-        emit RefundIssueDepositEvent(msgSender, payoutAmt, issueDeposits[_depositId].issueId, _depositId);
+        emit RefundIssueDepositEvent(_depositId);
 
         delete issueDeposits[_depositId];
 
         payable(msgSender).transfer(payoutAmt);
     }
-
-    // ------------ ISSUE CLAIMING ------------ //
-
-    event WithdrawIssueDepositEvent(string issueId, address recipient, uint256 amount);
 
     function confirmWithdrawIssueDeposit(address _payoutAddress, string calldata _issueId)
         external onlyOctobay
@@ -166,7 +171,7 @@ contract DepositStorage is OctobayStorage {
         issueStatusByIssueId[_issueId] = IssueStatus.CLAIMED;
         // delete issueDeposits[_depositId]; ??? loop through issueDepositIdsByIssueId ???
 
-        emit WithdrawIssueDepositEvent(_issueId, _payoutAddress, payoutAmt);
+        emit WithdrawIssueDepositsEvent(_issueId);
 
         payable(_payoutAddress).transfer(payoutAmt);
 
