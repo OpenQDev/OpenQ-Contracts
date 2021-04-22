@@ -189,6 +189,7 @@ contract OctobayGovernor is OctobayStorage {
 
     // ------------ Token Factory ------------ //
 
+    event AwardGovernanceTokensEvent(address recipient, uint256 amount, address tokenAddr);
     event UpdatedProjectId(string oldProjectId, string newProjectId, address tokenAddr);
     mapping (string => OctobayGovToken[]) public tokensByProjectId;
     mapping (OctobayGovToken => string) public projectsByToken;
@@ -230,5 +231,30 @@ contract OctobayGovernor is OctobayStorage {
                 break;
             }
         }
-    }     
+    }
+
+    /// @notice Awards (mints) governance tokens to users for completing an issue (bounty) according to USD amount of bounty
+    /// @param recipient Address of user to award governance tokens to
+    /// @param payoutEth Amount in wei of the completed bounty, used to calculate USD amount of tokens to award
+    /// @param tokenAddr Address of the governance token to award this user
+    function awardGovernanceTokens(
+        address recipient,
+        uint256 payoutEth,
+        OctobayGovToken tokenAddr
+    ) external onlyOctobay {
+        // Issues with the price feed so commenting it out and hardcoding for now
+        // (
+        //     , //uint80 roundID, 
+        //     int price,
+        //     , //uint startedAt,
+        //     , //uint timeStamp,
+        //     //uint80 answeredInRound
+        // ) = ethUSDPriceFeed.latestRoundData();
+        // uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
+
+        uint256 ethPriceUSD = 2000;
+        uint256 amount = uint256((payoutEth * ethPriceUSD) / 10 ** 18);
+        emit AwardGovernanceTokensEvent(recipient, amount, address(tokenAddr));
+        tokenAddr.mint(recipient, amount);
+    }    
 }

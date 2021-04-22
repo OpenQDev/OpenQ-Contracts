@@ -2,62 +2,37 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
-import '@opengsn/gsn/contracts/BasePaymaster.sol';
-import './OctobayVisibilityToken.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
 import './OctobayGovToken.sol';
 import './OctobayGovernor.sol';
 import './OctobayGovNFT.sol';
+import './DepositStorage.sol';
 
 contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
-
-    // TODO: Add more events related to user withdrawls
-    event TwitterPostEvent(string issueId, bytes32 tweetId);
-
-    mapping(string => uint256) public issuePins;
-
-    OctobayVisibilityToken public ovt;
-
-    string public twitterAccountId;
-    uint256 public twitterFollowers;
-    mapping(bytes32 => string) public pendingTwitterPostsIssueIds;
-    AggregatorV3Interface internal ethUSDPriceFeed;
 
     constructor(
         address _link,
         address _forwarder,
-        address _ovt,
         address _userAddressStorage,
         address _oracleStorage,
         address _octobayGovernor,
         address _ethUSDPriceFeed,
-        address _octobayGovNFT
+        address _octobayGovNFT,
+        address _depositStorage
     ) public {
         setChainlinkToken(_link);
         trustedForwarder = _forwarder; // GSN trusted forwarder
         userAddressStorage = UserAddressStorage(_userAddressStorage);
         oracleStorage = OracleStorage(_oracleStorage);
-        ovt = OctobayVisibilityToken(_ovt);
         octobayGovernor = OctobayGovernor(_octobayGovernor);
         ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
         octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
-    }
-
-    function setTwitterAccountId(string memory _accountId) external onlyOwner {
-        twitterAccountId = _accountId;
-        twitterFollowers = 0;
-    }
-
-    function pinIssue(string memory _issueId, uint256 _amount) public {
-        require(_amount > 0, 'Amount must be greater zero.');
-        ovt.burn(msg.sender, _amount);
-        issuePins[_issueId] += _amount;
+        depositStorage = DepositStorage(_depositStorage);
     }
 
     // ------------ Set contract addresses ------------ //
@@ -74,10 +49,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         oracleStorage = OracleStorage(_oracleStorage);
     }
 
-    function setOctobayVisibilityToken(address _ovt) external onlyOwner {
-        ovt = OctobayVisibilityToken(_ovt);
-    }
-
     function setOctobayGovernor(address _octobayGovernor) external onlyOwner {
         octobayGovernor = OctobayGovernor(_octobayGovernor);
     }
@@ -91,7 +62,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }                    
 
     // ------------ Oracles ------------ //
-
+    
+    //TODO: These methods are all wrappers, can we call OracleStorage directly?
 
     OracleStorage public oracleStorage;
 
@@ -129,10 +101,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function removeOracleJob(address _oracle, string calldata _jobName) external onlyOwner {
         oracleStorage.removeOracleJob(_oracle, _jobName);
     }
-    
-
-
-
 
     // ------------ GSN ------------ //
 
@@ -160,9 +128,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     {
         // only paymaster, cause paymaster pays for gas fee on behalf of user
         require(msg.sender == octobayPaymaster);
-        require(userClaimAmountByGithbUserId[_githubUserId] >= _amount, 'Not enough funds to pay gasFee');
-
-        userClaimAmountByGithbUserId[_githubUserId] -= _amount;
+        depositStorage.deductGasFee(_githubUserId, _amount);
     }
 
 
@@ -212,167 +178,29 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         delete userAddressRegistrations[_requestId];
     }
 
-
-
-
-
-    // ------------ TWITTER ------------ //
-
-
-    // function twitterPost(
-    //     address _oracle,
-    //     string memory _issueId
-    // ) internal oracleHandlesJob(_oracle, 'twitterPost') returns(bytes32 requestId) {
-    //     (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterPost');
-    //     Chainlink.Request memory request =
-    //         buildChainlinkRequest(
-    //             jobId,
-    //             address(this),
-    //             this.twitterPostConfirm.selector
-    //         );
-    //     request.add('issueId', _issueId);
-    //     request.addUint('amount', issueDepositsAmountByIssueId[_issueId]);
-    //     requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
-    // }
-
-    // function twitterPostConfirm(bytes32 _requestId, bytes32 _tweetId)
-    //     public
-    //     recordChainlinkFulfillment(_requestId)
-    // {
-    //     emit TwitterPostEvent(pendingTwitterPostsIssueIds[_requestId], _tweetId);
-    // }
-
-    // function updateTwitterFollowersAndPost(
-    //     address _oracle,
-    //     string memory _issueId
-    // ) public oracleHandlesJob(_oracle, 'twitterFollowers') returns(bytes32 requestId) {
-    //     (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'twitterFollowers');
-    //     Chainlink.Request memory request =
-    //         buildChainlinkRequest(
-    //             jobId,
-    //             address(this),
-    //             this.updateTwitterFollowersConfirm.selector
-    //         );
-    //     request.add('accountId', twitterAccountId);
-    //     requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
-    //     pendingTwitterPostsIssueIds[requestId] = _issueId;
-    // }
-
-    // function updateTwitterFollowersConfirm(bytes32 _requestId, uint256 _followers)
-    //     public
-    //     recordChainlinkFulfillment(_requestId)
-    // {
-    //     twitterFollowers = _followers;
-    //     bytes32 postRequestId = twitterPost(msg.sender, pendingTwitterPostsIssueIds[_requestId]);
-    //     pendingTwitterPostsIssueIds[postRequestId] = pendingTwitterPostsIssueIds[_requestId];
-    //     delete pendingTwitterPostsIssueIds[_requestId];
-    // }
-
-
-
-
-
     // ------------ USER DEPOSITS ------------ //
 
-
-    event UserDepositEvent(address from, uint256 amount, string githubUser);
-
-    mapping(string => uint256) public userClaimAmountByGithbUserId;
-
-    struct UserDeposit {
-        address from;
-        uint256 amount;
-        string githubUserId;
-    }
-
-    uint256 private nextUserDepositId = 0;
-
-    mapping(uint256 => UserDeposit) public userDeposits;
-
-    mapping(string => uint256[]) public userDepositIdsByGithubUserId;
-
-    mapping(address => uint256[]) public userDepositIdsBySender;
+    DepositStorage public depositStorage;
 
     function depositEthForGithubUser(string calldata _githubUserId)
         external
         payable
     {
-        require(msg.value > 0, 'You must send ETH.');
-
-        nextUserDepositId++;
-        userDeposits[nextUserDepositId] = UserDeposit(
-            msg.sender,
-            msg.value,
-            _githubUserId
-        );
-        userDepositIdsByGithubUserId[_githubUserId].push(nextUserDepositId);
-        userDepositIdsBySender[msg.sender].push(nextUserDepositId);
-
-        // increment claim amount
-        userClaimAmountByGithbUserId[_githubUserId] += msg.value;
-
-        emit UserDepositEvent(msg.sender, msg.value, _githubUserId);
-    }
-
-    function _sendDeposit(uint256 _depositId, address _to) internal {
-        UserDeposit memory deposit = userDeposits[_depositId];
-        payable(_to).transfer(deposit.amount);
-
-        // reduce claim amount
-        userClaimAmountByGithbUserId[deposit.githubUserId] -= deposit.amount;
-
-        delete userDeposits[_depositId];
+        // Forwards eth payment to depositStorage to hold
+        depositStorage.depositEthForGithubUser{value: msg.value}(_githubUserId, msg.sender);
     }
 
     function refundUserDeposit(uint256 _depositId) external {
-        require(
-            userDeposits[_depositId].from == msg.sender,
-            'Deposit did not came from this Ethereum address.'
-        );
-        _sendDeposit(_depositId, msg.sender);   // msg.sender is depositor
+        depositStorage.refundUserDeposit(_depositId, msg.sender);
     }
 
     function withdrawUserDeposit(uint256 _depositId) external {
-        require(
-            keccak256(bytes(userDeposits[_depositId].githubUserId)) ==
-                keccak256(
-                    bytes(userAddressStorage.userIdsByAddress(msg.sender))
-                ),
-            'Deposit is not for this GitHub account.'
-        );
-        _sendDeposit(_depositId, msg.sender);   // msg.sender is user
+        depositStorage.withdrawUserDeposit(_depositId, msg.sender, userAddressStorage.userIdsByAddress(msg.sender));
     }
-
-
-
-
 
     // ------------ ISSUE DEPOSITS ------------ //
 
     OctobayGovNFT public octobayGovNFT;
-
-    event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
-    event RefundIssueDepositEvent(address to, uint256 amount, string issueId, uint256 depositId);
-    event SetGovTokenForIssueEvent(address from, string  issueId, address govTokenAddress);
-
-    enum IssueStatus {
-        // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
-        OPEN,
-        CLAIMED
-    }
-
-    struct IssueDeposit {
-        address from;
-        uint256 amount;
-        string issueId;
-    }
-    mapping(uint256 => IssueDeposit) public issueDeposits;
-    uint256 public nextIssueDepositId = 0;
-    mapping(string => uint256[]) public issueDepositIdsByIssueId; // Consider removing this? Can be derived from issueDeposits. Unless we need it for deletion.
-    mapping(address => uint256[]) public issueDepositIdsBySender;
-    mapping(string => uint256) public issueDepositsAmountByIssueId;
-    mapping(string => IssueStatus) public issueStatusByIssueId;
-    mapping(string => OctobayGovToken) public govTokenByIssueId;
 
     function depositAndSetGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) external payable {
         depositEthForIssue(_issueId);
@@ -380,7 +208,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
     function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) public {
-        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
         // Ensure they're giving us a valid gov token
         require(bytes(octobayGovernor.projectsByToken(_govToken)).length != 0, "Invalid _govToken");
         bool hasPermission = false;
@@ -391,47 +218,19 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             // Do other permission checks here, e.g. oracle calls
         }
         require(hasPermission, "You don't have permission to set governance tokens for issues");
-        govTokenByIssueId[_issueId] = _govToken;
-        emit SetGovTokenForIssueEvent(msg.sender, _issueId, address(_govToken));
+        depositStorage.setGovTokenForIssue(_issueId, _govToken);
     }
 
     function depositEthForIssue(string calldata _issueId) public payable {
-        require(msg.value > 0, 'You must send ETH.');
-        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
-
-        nextIssueDepositId++;
-        issueDeposits[nextIssueDepositId] = IssueDeposit(
-            msg.sender,
-            msg.value,
-            _issueId
-        );
-        issueDepositIdsByIssueId[_issueId].push(nextIssueDepositId);
-        issueDepositIdsBySender[msg.sender].push(nextIssueDepositId);
-        issueDepositsAmountByIssueId[_issueId] += msg.value;
-        emit IssueDepositEvent(msg.sender, msg.value, _issueId, nextIssueDepositId);
+        // Forwards eth payment to depositStorage to hold
+        depositStorage.depositEthForIssue{value: msg.value}(_issueId, msg.sender);
     }
 
     function refundIssueDeposit(uint256 _depositId) external {
-        require(
-            issueDeposits[_depositId].from == msg.sender,
-            'Deposit did not come from this Ethereum address or does not exist.'
-        );
-        require(issueStatusByIssueId[issueDeposits[_depositId].issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
-
-        uint256 payoutAmt = issueDeposits[_depositId].amount;
-        issueDepositsAmountByIssueId[
-            issueDeposits[_depositId].issueId
-        ] -= payoutAmt;
-        emit RefundIssueDepositEvent(msg.sender, payoutAmt, issueDeposits[_depositId].issueId, _depositId);
-        delete issueDeposits[_depositId];
-        payable(msg.sender).transfer(payoutAmt);
+        depositStorage.refundIssueDeposit(_depositId, msg.sender);
     }
 
-
-
     // ------------ ISSUE CLAIMING ------------ //
-
-    event WithdrawIssueDepositEvent(string issueId, address recipient, uint256 amount);
 
     struct IssueWithdrawRequest {
         string issueId;
@@ -444,7 +243,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string calldata _issueId
     ) public oracleHandlesJob(_oracle, 'claim') returns(bytes32 requestId) {
-        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.'); 
+        require(depositStorage.issueStatusByIssueId(_issueId) == DepositStorage.IssueStatus.OPEN, 'Issue is not OPEN.'); 
 
         (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'claim');
         Chainlink.Request memory request =
@@ -466,29 +265,20 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        require(issueWithdrawRequests[_requestId].payoutAddress != address(0) );
-        address payoutAddr = issueWithdrawRequests[_requestId].payoutAddress;
-        uint256 payoutAmt = issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId];
-        issueDepositsAmountByIssueId[issueWithdrawRequests[_requestId].issueId] = 0;
-        issueStatusByIssueId[issueWithdrawRequests[_requestId].issueId] = IssueStatus.CLAIMED;
-        awardGovernanceTokens(
-            payoutAddr,
-            payoutAmt,
-            govTokenByIssueId[issueWithdrawRequests[_requestId].issueId]
-        );
-        emit WithdrawIssueDepositEvent(issueWithdrawRequests[_requestId].issueId, payoutAddr, payoutAmt);
+        uint256 payoutAmt = depositStorage.confirmWithdrawIssueDeposit(issueWithdrawRequests[_requestId].payoutAddress, issueWithdrawRequests[_requestId].issueId);
+        octobayGovernor.awardGovernanceTokens(
+            issueWithdrawRequests[_requestId].payoutAddress, 
+            payoutAmt, 
+            depositStorage.govTokenByIssueId(issueWithdrawRequests[_requestId].issueId));
         delete issueWithdrawRequests[_requestId];
-        // delete issueDeposits[_depositId]; ??? loop through issueDepositIdsByIssueId ???
-        payable(payoutAddr).transfer(payoutAmt);
     }
 
 
 
     // ------------ GOVERNANCE ------------ //
 
-    event AwardGovernanceTokensEvent(address recipient, uint256 amount, address tokenAddr);
-
     OctobayGovernor public octobayGovernor;
+    AggregatorV3Interface internal ethUSDPriceFeed;
 
     /// @notice Used to store Chainlink requests for new governance tokens
     struct NewGovernanceToken {
@@ -551,80 +341,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         uint256 nftId = octobayGovNFT.mintNFTForGovToken(newToken.creator, deployedToken);
         octobayGovNFT.grantAllPermissions(nftId);
     }
-
-    /// @notice Awards (mints) governance tokens to users for completing an issue (bounty) according to USD amount of bounty
-    /// @param recipient Address of user to award governance tokens to
-    /// @param payoutEth Amount in wei of the completed bounty, used to calculate USD amount of tokens to award
-    /// @param tokenAddr Address of the governance token to award this user
-    function awardGovernanceTokens(
-        address recipient,
-        uint256 payoutEth,
-        OctobayGovToken tokenAddr
-    ) internal {
-        // Issues with the price feed so commenting it out and hardcoding for now
-        // (
-        //     , //uint80 roundID, 
-        //     int price,
-        //     , //uint startedAt,
-        //     , //uint timeStamp,
-        //     //uint80 answeredInRound
-        // ) = ethUSDPriceFeed.latestRoundData();
-        // uint256 amount = uint256((payoutEth * uint256(price)) / ethUSDPriceFeed.decimals());
-
-        uint256 ethPriceUSD = 2000;
-        uint256 amount = uint256((payoutEth * ethPriceUSD) / 10 ** 18);
-        emit AwardGovernanceTokensEvent(recipient, amount, address(tokenAddr));
-        tokenAddr.mint(recipient, amount);
-    }
-
-
-
-    // ------------ GETTERS ------------ //
-
-
-     function getUserDepositIdsForGithubUserId(string calldata _githubUserId)
-        external
-        view
-        returns (uint256[] memory)
-    {
-        return userDepositIdsByGithubUserId[_githubUserId];
-    }
-
-    function getUserDepositIdsForSender()
-        external
-        view
-        returns (uint256[] memory)
-    {
-        return userDepositIdsBySender[msg.sender];
-    }
-
-    function getIssueDepositIdsForIssueId(string calldata _issueId)
-        external
-        view
-        returns (uint256[] memory)
-    {
-        return issueDepositIdsByIssueId[_issueId];
-    }
-
-    function getIssueDepositIdsForSender()
-        external
-        view
-        returns (uint256[] memory)
-    {
-        return issueDepositIdsBySender[msg.sender];
-    }
-
-    function getUserClaimAmount(string calldata _githubUserId)
-        external
-        view
-        returns (uint256)
-    {
-        return userClaimAmountByGithbUserId[_githubUserId];
-    }
-
-
-
-
 
     // ------------ UTILS ------------ //
 
