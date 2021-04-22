@@ -202,23 +202,23 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     OctobayGovNFT public octobayGovNFT;
 
-    function depositAndSetGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external payable {
+    function depositAndSetGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) external payable {
         depositEthForIssue(_issueId);
-        setGovTokenForIssue(_issueId, _govTokenAddress, _projectId);
+        setGovTokenForIssue(_issueId, _govToken);
     }
 
-    function setGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) public {
+    function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) public {
         // Ensure they're giving us a valid gov token
-        require(address(octobayGovernor.tokensByProjectId(_projectId)) == _govTokenAddress, "_projectId is not associated with _govTokenAddress");
+        require(bytes(octobayGovernor.projectsByToken(_govToken)).length != 0, "Invalid _govToken");
         bool hasPermission = false;
-        uint256 govNFTId = octobayGovNFT.getTokenIDForUserInProject(msg.sender, _projectId);
+        uint256 govNFTId = octobayGovNFT.getTokenIDForUserByGovToken(msg.sender, _govToken);
         if (govNFTId != 0 && octobayGovNFT.hasPermission(govNFTId, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN)) {
             hasPermission = true;
         } else {
             // Do other permission checks here, e.g. oracle calls
         }
         require(hasPermission, "You don't have permission to set governance tokens for issues");
-        depositStorage.setGovTokenForIssue(_issueId, _govTokenAddress);
+        depositStorage.setGovTokenForIssue(_issueId, _govToken);
     }
 
     function depositEthForIssue(string calldata _issueId) public payable {
@@ -338,7 +338,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             newToken.name,
             newToken.symbol
         );
-        uint256 nftId = octobayGovNFT.mintTokenForProject(newToken.creator, newToken.projectId, address(deployedToken));
+        uint256 nftId = octobayGovNFT.mintNFTForGovToken(newToken.creator, deployedToken);
         octobayGovNFT.grantAllPermissions(nftId);
     }
 

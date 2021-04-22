@@ -119,10 +119,10 @@ contract DepositStorage is OctobayStorage {
     event WithdrawIssueDepositsEvent(string issueId);
     event SetGovTokenForIssueEvent(string  issueId, address govTokenAddress);
 
-    function setGovTokenForIssue(string calldata _issueId, address _govTokenAddress) external onlyOctobay {
+    function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) external onlyOctobay {
         require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
-        govTokenByIssueId[_issueId] = OctobayGovToken(_govTokenAddress);
-        emit SetGovTokenForIssueEvent(_issueId, _govTokenAddress);
+        govTokenByIssueId[_issueId] = _govToken;
+        emit SetGovTokenForIssueEvent(_issueId, address(_govToken));
     }
 
     function depositEthForIssue(string calldata _issueId, address msgSender) external payable onlyOctobay {
