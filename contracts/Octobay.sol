@@ -353,7 +353,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
     event RefundIssueDepositEvent(address to, uint256 amount, string issueId, uint256 depositId);
-    event SetGovTokenForIssueEvent(address from, string  issueId, address govTokenAddress, string projectId);
+    event SetGovTokenForIssueEvent(address from, string  issueId, address govTokenAddress);
 
     enum IssueStatus {
         // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
@@ -374,25 +374,25 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     mapping(string => IssueStatus) public issueStatusByIssueId;
     mapping(string => OctobayGovToken) public govTokenByIssueId;
 
-    function depositAndSetGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) external payable {
+    function depositAndSetGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) external payable {
         depositEthForIssue(_issueId);
-        setGovTokenForIssue(_issueId, _govTokenAddress, _projectId);
+        setGovTokenForIssue(_issueId, _govToken);
     }
 
-    function setGovTokenForIssue(string calldata _issueId, address _govTokenAddress, string calldata _projectId) public {
+    function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) public {
         require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'Issue is not OPEN.');
         // Ensure they're giving us a valid gov token
-        // require(address(octobayGovernor.projectsByToken(_govTokenAddress)) == _projectId, "_projectId is not associated with _govTokenAddress");
+        require(bytes(octobayGovernor.projectsByToken(_govToken)).length != 0, "Invalid _govToken");
         bool hasPermission = false;
-        uint256 govNFTId = octobayGovNFT.getTokenIDForUserInProject(msg.sender, _projectId);
+        uint256 govNFTId = octobayGovNFT.getTokenIDForUserByGovToken(msg.sender, _govToken);
         if (govNFTId != 0 && octobayGovNFT.hasPermission(govNFTId, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN)) {
             hasPermission = true;
         } else {
             // Do other permission checks here, e.g. oracle calls
         }
         require(hasPermission, "You don't have permission to set governance tokens for issues");
-        govTokenByIssueId[_issueId] = OctobayGovToken(_govTokenAddress);
-        emit SetGovTokenForIssueEvent(msg.sender, _issueId, _govTokenAddress, _projectId);
+        govTokenByIssueId[_issueId] = _govToken;
+        emit SetGovTokenForIssueEvent(msg.sender, _issueId, address(_govToken));
     }
 
     function depositEthForIssue(string calldata _issueId) public payable {
@@ -548,7 +548,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             newToken.name,
             newToken.symbol
         );
-        uint256 nftId = octobayGovNFT.mintTokenForProject(newToken.creator, newToken.projectId, address(deployedToken));
+        uint256 nftId = octobayGovNFT.mintNFTForGovToken(newToken.creator, deployedToken);
         octobayGovNFT.grantAllPermissions(nftId);
     }
 

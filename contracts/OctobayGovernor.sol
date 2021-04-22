@@ -98,13 +98,12 @@ contract OctobayGovernor is OctobayStorage {
     }
 
     /// @notice Anyone with at least newProposalShare share of tokens or an NFT with the required permission can create a new proposal here
-    /// @param _govToken Address of the gov token to use. Required as the same project can have multiple departments
-    /// @param _projectId Github graphql ID of the org or repo this proposal is associated with
+    /// @param _govToken Address of the gov token to use
     /// @param _discussionId The minimum quorum allowed for new proposals
     /// @param _startDate Date in epoch secs when this proposal will become active and voting is opened
     /// @param _endDate Date in epoch secs when the voting for this proposal closes
     /// @param _quorum The minimum percentage of gov tokens required for this proposal to pass          
-    function createProposal(OctobayGovToken _govToken, string memory _projectId, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
+    function createProposal(OctobayGovToken _govToken, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
         require(governorsByTokenAddr[_govToken].isValue, "Governor for that _govToken doesn't exist");
         Governor storage governor = governorsByTokenAddr[_govToken];
         require(_quorum >= governor.minQuorum, "Given _quorum is less than this governor's minQuorum");
@@ -113,7 +112,7 @@ contract OctobayGovernor is OctobayStorage {
         if (_govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare) {
             hasPermission = true;
         } else {
-            uint256 govNFTId = octobayGovNFT.getTokenIDForUserInProject(msg.sender, _projectId);
+            uint256 govNFTId = octobayGovNFT.getTokenIDForUserByGovToken(msg.sender, _govToken);
             if (govNFTId != 0 && octobayGovNFT.hasPermission(govNFTId, OctobayGovNFT.Permission.CREATE_PROPOSAL)) {
                 hasPermission = true;
             }
@@ -214,7 +213,6 @@ contract OctobayGovernor is OctobayStorage {
         require(bytes(oldProjectId).length != 0, "Token _govToken is not a valid governance token");
 
         removeTokenFromProject(_govToken, oldProjectId);
-        delete projectsByToken[_govToken];
         projectsByToken[_govToken] = _newProjectId;
         tokensByProjectId[_newProjectId].push(_govToken);
         emit UpdatedProjectId(oldProjectId, _newProjectId, address(_govToken));
@@ -223,17 +221,13 @@ contract OctobayGovernor is OctobayStorage {
     // Ugh, dealing with array changes is ugly - we need to remove the token from the project's list and fill the empty array slot
     // But I think we do want a list of tokens for a projectId, right?
     function removeTokenFromProject(OctobayGovToken _govToken, string memory _oldProjectId) internal {
-        if (tokensByProjectId[_oldProjectId].length == 1) {
-            delete tokensByProjectId[_oldProjectId][0];
-        } else {
-            uint len = tokensByProjectId[_oldProjectId].length;
-            OctobayGovToken lastToken = tokensByProjectId[_oldProjectId][len-1];
-            for (uint i=0; i < len; i++) {
-                if (tokensByProjectId[_oldProjectId][i] == _govToken) {
-                    tokensByProjectId[_oldProjectId][i] = lastToken;
-                    delete tokensByProjectId[_oldProjectId][len-1];
-                    break;
-                }
+        uint len = tokensByProjectId[_oldProjectId].length;
+        OctobayGovToken lastToken = tokensByProjectId[_oldProjectId][len-1];
+        for (uint i=0; i < len; i++) {
+            if (tokensByProjectId[_oldProjectId][i] == _govToken) {
+                tokensByProjectId[_oldProjectId][i] = lastToken;
+                delete tokensByProjectId[_oldProjectId][len-1];
+                break;
             }
         }
     }     
