@@ -20,9 +20,9 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     event MintNFTForGovTokenEvent(address to, uint256 tokenId, address govTokenAddress);
     event BurnTokenEvent(uint256 tokenId);
 
-    mapping (uint256 => mapping (uint => bool) ) public permissionsByTokenID;
-    mapping (OctobayGovToken => uint256) public tokenIDsByGovToken;
-    // mapping (uint256 => string) public projectIdsByTokenID;
+    mapping (uint256 => mapping (uint => bool) ) public permissionsByTokenId;
+    mapping (uint256 => OctobayGovToken) public govTokensByTokenId;
+    //Do we need a list of NFTs per gov token?
 
     constructor(string memory name, string memory symbol) public ERC721(name, symbol) {
         // Prevent transfers by default unless we allow it
@@ -33,7 +33,7 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     /// @param _perm Permission to check
     /// @return Whether the NFT has that permission
     function hasPermission(uint256 _tokenId, Permission _perm) public view returns(bool) {
-        return permissionsByTokenID[_tokenId][uint(_perm)];
+        return permissionsByTokenId[_tokenId][uint(_perm)];
     }
 
     /// @notice Grants all permissions to the given NFT
@@ -46,6 +46,16 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         _grantPermission(_tokenId, Permission.CREATE_PROPOSAL);
     }
 
+    /// @notice Revokes all permissions from the given NFT
+    /// @param _tokenId ID of the NFT to grant permissions to
+    function revokeAllPermissions(uint256 _tokenId) internal {
+        // There's no nice way of looping through enums... :( It's probably better that we do this here though
+        _revokePermission(_tokenId, Permission.MINT);
+        _revokePermission(_tokenId, Permission.TRANSFER);
+        _revokePermission(_tokenId, Permission.SET_ISSUE_GOVTOKEN);
+        _revokePermission(_tokenId, Permission.CREATE_PROPOSAL);
+    }    
+
     /// @param _tokenId ID of the NFT to grant permission to
     /// @param _perm Permission to enable
     function grantPermission(uint256 _tokenId, Permission _perm) external onlyOctobay {
@@ -55,13 +65,19 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     /// @param _tokenId ID of the NFT to grant permission to
     /// @param _perm Permission to enable
     function _grantPermission(uint256 _tokenId, Permission _perm) internal {
-        permissionsByTokenID[_tokenId][uint(_perm)] = true;
+        permissionsByTokenId[_tokenId][uint(_perm)] = true;
     }
 
     /// @param _tokenId ID of the NFT to revoke permission from
     /// @param _perm Permission to revoke
     function revokePermission(uint256 _tokenId, Permission _perm) external onlyOctobay {
-        permissionsByTokenID[_tokenId][uint(_perm)] = false;
+        _revokePermission(_tokenId, _perm);
+    }
+
+    /// @param _tokenId ID of the NFT to revoke permission from
+    /// @param _perm Permission to revoke
+    function _revokePermission(uint256 _tokenId, Permission _perm) internal  {
+        permissionsByTokenId[_tokenId][uint(_perm)] = false;
     }
 
     /// @param _to The address to assign the newly minted NFT to
@@ -79,10 +95,15 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         _unpause();
         _safeMint(_to, tokenId);
         _pause();
-        tokenIDsByGovToken[_govToken] = tokenId;
+        govTokensByTokenId[tokenId] = _govToken;
         emit MintNFTForGovTokenEvent(_to, tokenId, address(_govToken));
         return tokenId;
     }
+
+    /// TODO: I just realised a bug with this, it's possible for a user to have multiple NFTs per gov token here.
+    /// An attacker could actually mint and send an NFT with no permissions and send it to someone to 'cover' or 'hide'
+    /// their actual NFT. I suppose instead we should have a function which checks whether a user simply has a specific permission
+    /// for a given gov token and look through all of their list of NFTs.
 
     /// @notice Checks whether a user has an NFT for a given governance token
     /// @param _user Address of user to check for NFT ownership
@@ -90,7 +111,7 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     /// @return If found, the ID of the NFT this user owns or 0 if none is found
     function getTokenIDForUserByGovToken(address _user, OctobayGovToken _govToken) public view returns(uint256) {
         for (uint i=0; i < balanceOf(_user); i++) {
-            if (tokenOfOwnerByIndex(_user, i) == tokenIDsByGovToken[_govToken]) {
+            if (govTokensByTokenId[tokenOfOwnerByIndex(_user, i)] == _govToken) {
                 return tokenOfOwnerByIndex(_user, i);
             }
         }
@@ -126,6 +147,8 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
 
     /// @param _tokenId ID of the NFT to burn (destroy)
     function burn(uint256 _tokenId) public {
+        delete govTokensByTokenId[_tokenId];
+        revokeAllPermissions(_tokenId);
         _burn(_tokenId);
         emit BurnTokenEvent(_tokenId);
     }
