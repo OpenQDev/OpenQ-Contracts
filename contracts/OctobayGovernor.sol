@@ -108,16 +108,9 @@ contract OctobayGovernor is OctobayStorage {
         Governor storage governor = governorsByTokenAddr[_govToken];
         require(_quorum >= governor.minQuorum, "Given _quorum is less than this governor's minQuorum");
 
-        bool hasPermission = false;
-        if (_govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare) {
-            hasPermission = true;
-        } else {
-            uint256 govNFTId = octobayGovNFT.getTokenIDForUserByGovToken(msg.sender, _govToken);
-            if (govNFTId != 0 && octobayGovNFT.hasPermission(govNFTId, OctobayGovNFT.Permission.CREATE_PROPOSAL)) {
-                hasPermission = true;
-            }
-        }
-        require(hasPermission, "Token share not high enough and no NFT permission for new proposals");
+        require((_govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare) || 
+            (octobayGovNFT.userHasPermissionForGovToken(msg.sender, _govToken, OctobayGovNFT.Permission.CREATE_PROPOSAL)), 
+            "Token share not high enough and no NFT permission for new proposals");
         
         uint256 snapshotId = _govToken.snapshot();
         Proposal memory newProposal = Proposal({
@@ -138,7 +131,6 @@ contract OctobayGovernor is OctobayStorage {
         emit ProposalCreatedEvent(address(_govToken), _discussionId, _startDate, _endDate, _quorum, msg.sender, governor.proposalCount, snapshotId);
     }
 
-    /// @notice Anyone with at least newProposalShare share of tokens or an NFT with the required permission can create a new proposal here
     /// @param _govToken Address of the gov token to use 
     /// @param _proposalId ID of the proposal whose state we should check
     /// @return The ProposalState of the given proposal
