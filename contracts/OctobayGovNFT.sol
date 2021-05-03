@@ -44,16 +44,6 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         _grantPermission(_tokenId, Permission.TRANSFER);
         _grantPermission(_tokenId, Permission.SET_ISSUE_GOVTOKEN);
         _grantPermission(_tokenId, Permission.CREATE_PROPOSAL);
-    }
-
-    /// @notice Revokes all permissions from the given NFT
-    /// @param _tokenId ID of the NFT to grant permissions to
-    function revokeAllPermissions(uint256 _tokenId) internal {
-        // There's no nice way of looping through enums... :( It's probably better that we do this here though
-        _revokePermission(_tokenId, Permission.MINT);
-        _revokePermission(_tokenId, Permission.TRANSFER);
-        _revokePermission(_tokenId, Permission.SET_ISSUE_GOVTOKEN);
-        _revokePermission(_tokenId, Permission.CREATE_PROPOSAL);
     }    
 
     /// @param _tokenId ID of the NFT to grant permission to
@@ -144,7 +134,10 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     /// @param _tokenId ID of the NFT to burn (destroy)
     function burn(uint256 _tokenId) public {
         delete govTokensByTokenId[_tokenId];
-        revokeAllPermissions(_tokenId);
+        _revokePermission(_tokenId, Permission.MINT);
+        _revokePermission(_tokenId, Permission.TRANSFER);
+        _revokePermission(_tokenId, Permission.SET_ISSUE_GOVTOKEN);
+        _revokePermission(_tokenId, Permission.CREATE_PROPOSAL);
         _burn(_tokenId);
         emit BurnTokenEvent(_tokenId);
     }
