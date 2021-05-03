@@ -210,14 +210,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) public {
         // Ensure they're giving us a valid gov token
         require(bytes(octobayGovernor.projectsByToken(_govToken)).length != 0, "Invalid _govToken");
-        bool hasPermission = false;
-        uint256 govNFTId = octobayGovNFT.getTokenIDForUserByGovToken(msg.sender, _govToken);
-        if (govNFTId != 0 && octobayGovNFT.hasPermission(govNFTId, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN)) {
-            hasPermission = true;
-        } else {
-            // Do other permission checks here, e.g. oracle calls
-        }
-        require(hasPermission, "You don't have permission to set governance tokens for issues");
+        require(octobayGovNFT.userHasPermissionForGovToken(msg.sender, _govToken, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN), 
+            "You don't have permission to set governance tokens for issues");
         depositStorage.setGovTokenForIssue(_issueId, _govToken);
     }
 

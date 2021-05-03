@@ -100,23 +100,19 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         return tokenId;
     }
 
-    /// TODO: I just realised a bug with this, it's possible for a user to have multiple NFTs per gov token here.
-    /// An attacker could actually mint and send an NFT with no permissions and send it to someone to 'cover' or 'hide'
-    /// their actual NFT. I suppose instead we should have a function which checks whether a user simply has a specific permission
-    /// for a given gov token and look through all of their list of NFTs.
-
-    /// @notice Checks whether a user has an NFT for a given governance token
+    /// @notice Checks whether a user has a given permission for a given governance token
     /// @param _user Address of user to check for NFT ownership
     /// @param _govToken The governance token associated with this NFT
-    /// @return If found, the ID of the NFT this user owns or 0 if none is found
-    function getTokenIDForUserByGovToken(address _user, OctobayGovToken _govToken) public view returns(uint256) {
+    /// @param _perm The permission we're checking for
+    /// @return Whether the user 
+    function userHasPermissionForGovToken(address _user, OctobayGovToken _govToken, Permission _perm) public view returns(bool) {
         for (uint i=0; i < balanceOf(_user); i++) {
             if (govTokensByTokenId[tokenOfOwnerByIndex(_user, i)] == _govToken) {
-                return tokenOfOwnerByIndex(_user, i);
+                return hasPermission(tokenOfOwnerByIndex(_user, i), _perm);
             }
         }
 
-        return 0;
+        return false;
     }
 
     /// @dev We need to override this as we don't allow transfers by default, we need to check the NFT has permission to transfer
