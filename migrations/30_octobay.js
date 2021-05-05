@@ -22,26 +22,25 @@ module.exports = function (deployer, network) {
       OctobayGovernor.address,
       OctobayGovNFT.address,
       zeroAddress,
-    ).then(octobayInstance => {
+    ).then(async (octobayInstance) => {
       octobayInstance.setTwitterAccountId(process.env.OCTOBAY_TWITTER_ACCOUNT_ID)
-      LinkToken.deployed().then(linkTokenInstance => {
-        linkTokenInstance.transfer(octobayInstance.address, "10000000000000000000")
-      })
-      UserAddressStorage.deployed().then(UserAddressStorageInstance => {
-        UserAddressStorageInstance.setOctobay(octobayInstance.address)
-      })
-      OracleStorage.deployed().then(OracleStorageInstance => {
-        OracleStorageInstance.setOctobay(octobayInstance.address)
-      })
-      DepositStorage.deployed().then(DepositStorageInstance => {
-        DepositStorageInstance.setOctobay(octobayInstance.address)
-      })      
-      OctobayGovernor.deployed().then(OctobayGovernorInstance => {
-        OctobayGovernorInstance.setOctobay(octobayInstance.address)
-      })     
-      OctobayGovNFT.deployed().then(OctobayGovNFTInstance => {
-        OctobayGovNFTInstance.setOctobay(octobayInstance.address)
-      })
+      const linkTokenInstance = await LinkToken.deployed()
+      linkTokenInstance.transfer(octobayInstance.address, "10000000000000000000")
+
+      const UserAddressStorageInstance = await UserAddressStorage.deployed()
+      UserAddressStorageInstance.setOctobay(octobayInstance.address)
+      
+      const OracleStorageInstance = await OracleStorage.deployed()
+      OracleStorageInstance.setOctobay(octobayInstance.address)
+
+      const DepositStorageInstance = await DepositStorage.deployed()
+      DepositStorageInstance.setOctobay(octobayInstance.address)
+
+      const OctobayGovernorInstance = await OctobayGovernor.deployed()
+      OctobayGovernorInstance.setOctobay(octobayInstance.address)
+
+      const OctobayGovNFTInstance = await OctobayGovNFT.deployed()
+      OctobayGovNFTInstance.setOctobay(octobayInstance.address)
     })
   } else if (network == 'kovan') {
     deployer.deploy(
@@ -54,22 +53,21 @@ module.exports = function (deployer, network) {
       OctobayGovernor.address,
       OctobayGovNFT.address,
       '0x9326BFA02ADD2366b30bacB125260Af641031331',
-    ).then(octobayInstance => {
-      UserAddressStorage.deployed().then(UserAddressStorageInstance => {
-        UserAddressStorageInstance.setOctobay(octobayInstance.address)
-      })
-      OracleStorage.deployed().then(OracleStorageInstance => {
-        OracleStorageInstance.setOctobay(octobayInstance.address)
-      })
-      DepositStorage.deployed().then(DepositStorageInstance => {
-        DepositStorageInstance.setOctobay(octobayInstance.address)
-      })      
-      OctobayGovernor.deployed().then(OctobayGovernorInstance => {
-        OctobayGovernorInstance.setOctobay(octobayInstance.address)
-      })     
-      OctobayGovNFT.deployed().then(OctobayGovNFTInstance => {
-        OctobayGovNFTInstance.setOctobay(octobayInstance.address)
-      })
+    ).then(async (octobayInstance) => {
+      const UserAddressStorageInstance = await UserAddressStorage.deployed()
+      UserAddressStorageInstance.setOctobay(octobayInstance.address)
+      
+      const OracleStorageInstance = await OracleStorage.deployed()
+      OracleStorageInstance.setOctobay(octobayInstance.address)
+
+      const DepositStorageInstance = await DepositStorage.deployed()
+      DepositStorageInstance.setOctobay(octobayInstance.address)
+
+      const OctobayGovernorInstance = await OctobayGovernor.deployed()
+      OctobayGovernorInstance.setOctobay(octobayInstance.address)
+
+      const OctobayGovNFTInstance = await OctobayGovNFT.deployed()
+      OctobayGovNFTInstance.setOctobay(octobayInstance.address)
     })
   }
 }
