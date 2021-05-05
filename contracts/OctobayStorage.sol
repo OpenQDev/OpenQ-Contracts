@@ -8,7 +8,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 // that can be passed on to new Octobay versions.
 contract OctobayStorage is Ownable {
 
-  address octobay;
+  address public octobay;
 
   modifier onlyOctobay() {
     require(msg.sender == octobay, 'Only the current octobay version can use this function.');
