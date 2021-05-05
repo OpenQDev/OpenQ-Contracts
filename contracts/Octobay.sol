@@ -20,46 +20,93 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _forwarder,
         address _userAddressStorage,
         address _oracleStorage,
+        address _depositStorage,
         address _octobayGovernor,
-        address _ethUSDPriceFeed,
         address _octobayGovNFT,
-        address _depositStorage
+        address _ethUSDPriceFeed
     ) public {
         setChainlinkToken(_link);
-        trustedForwarder = _forwarder; // GSN trusted forwarder
-        userAddressStorage = UserAddressStorage(_userAddressStorage);
-        oracleStorage = OracleStorage(_oracleStorage);
-        octobayGovernor = OctobayGovernor(_octobayGovernor);
-        ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
-        octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
-        depositStorage = DepositStorage(_depositStorage);
+        _setTrustedForwarder(_forwarder); // GSN trusted forwarder
+        _setUserAddressStorage(_userAddressStorage);
+        _setOracleStorage(_oracleStorage);
+        _setDepositStorage(_depositStorage);
+        _setOctobayGovernor(_octobayGovernor);
+        _setOctobayGovNFT(_octobayGovNFT);
+        _setEthUSDPriceFeed(_ethUSDPriceFeed);
     }
 
     // ------------ Set contract addresses ------------ //
 
+    event SetTrustedForwarderEvent(address forwarder);
+    event SetUserAddressStorageEvent(address addressStorage);
+    event SetOracleStorageEvent(address oracleStorage);
+    event SetDepositStorageEvent(address depositStorage);
+    event SetOctobayGovernorEvent(address octobayGovernor);
+    event SetOctobayGovNFTEvent(address octobayGovNFT);
+    event SetEthUSDPriceFeedEvent(address ethUsdPriceFeed);
+
     function setTrustedForwarder(address _forwarder) external onlyOwner {
-        trustedForwarder = _forwarder; // GSN trusted forwarder
+        _setTrustedForwarder(_forwarder);
     }
 
     function setUserAddressStorage(address _userAddressStorage) external onlyOwner {
-        userAddressStorage = UserAddressStorage(_userAddressStorage);
+        _setUserAddressStorage(_userAddressStorage);
     }
 
     function setOracleStorage(address _oracleStorage) external onlyOwner {
-        oracleStorage = OracleStorage(_oracleStorage);
+        _setOracleStorage(_oracleStorage);
+    }
+
+    function setDepositStorage(address _depositStorage) external onlyOwner {
+        _setDepositStorage(_depositStorage);
     }
 
     function setOctobayGovernor(address _octobayGovernor) external onlyOwner {
-        octobayGovernor = OctobayGovernor(_octobayGovernor);
-    }
-
-    function setEthUSDPriceFeed(address _ethUSDPriceFeed) external onlyOwner {
-        ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
+        _setOctobayGovernor(_octobayGovernor);
     }
 
     function setOctobayGovNFT(address _octobayGovNFT) external onlyOwner {
-        octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
+        _setOctobayGovNFT(_octobayGovNFT);
     }                    
+
+    function setEthUSDPriceFeed(address _ethUSDPriceFeed) external onlyOwner {
+        _setEthUSDPriceFeed(_ethUSDPriceFeed);
+    }
+
+    function _setTrustedForwarder(address _forwarder) internal {
+        trustedForwarder = _forwarder;
+        emit SetTrustedForwarderEvent(_forwarder);
+    }
+
+    function _setUserAddressStorage(address _userAddressStorage) internal {
+        userAddressStorage = UserAddressStorage(_userAddressStorage);
+        emit SetUserAddressStorageEvent(_userAddressStorage);
+    }
+
+    function _setOracleStorage(address _oracleStorage) internal {
+        oracleStorage = OracleStorage(_oracleStorage);
+        emit SetOracleStorageEvent(_oracleStorage);
+    }
+
+    function _setDepositStorage(address _depositStorage) internal {
+        depositStorage = DepositStorage(_depositStorage);
+        emit SetDepositStorageEvent(_depositStorage);
+    }
+
+    function _setOctobayGovernor(address _octobayGovernor) internal {
+        octobayGovernor = OctobayGovernor(_octobayGovernor);
+        emit SetOctobayGovernorEvent(_octobayGovernor);
+    }
+
+    function _setOctobayGovNFT(address _octobayGovNFT) internal {
+        octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
+        emit SetOctobayGovNFTEvent(_octobayGovNFT);
+    }                    
+
+    function _setEthUSDPriceFeed(address _ethUSDPriceFeed) internal {
+        ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
+        emit SetEthUSDPriceFeedEvent(_ethUSDPriceFeed);
+    }
 
     // ------------ Oracles ------------ //
     
