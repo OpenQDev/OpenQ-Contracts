@@ -97,8 +97,9 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     /// @return Whether the user 
     function userHasPermissionForGovToken(address _user, OctobayGovToken _govToken, Permission _perm) public view returns(bool) {
         for (uint i=0; i < balanceOf(_user); i++) {
-            if (govTokensByTokenId[tokenOfOwnerByIndex(_user, i)] == _govToken) {
-                return hasPermission(tokenOfOwnerByIndex(_user, i), _perm);
+            if (govTokensByTokenId[tokenOfOwnerByIndex(_user, i)] == _govToken &&
+                hasPermission(tokenOfOwnerByIndex(_user, i), _perm)) {
+                    return true;
             }
         }
 
