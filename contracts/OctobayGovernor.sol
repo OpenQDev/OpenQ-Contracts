@@ -50,7 +50,7 @@ contract OctobayGovernor is OctobayStorage {
 
     event DepartmentCreatedEvent(address creator, string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
     
-    event UpdateNewProposalParamsEvent(address govToken, uint16 newProposalShare, uint16 minQuorum);
+    event UpdateGovTokenParamsEvent(address govToken, uint16 newProposalShare, uint16 minQuorum);
 
     /// @notice Maps gov token address to a Governor
     mapping (OctobayGovToken => Governor) public governorsByTokenAddr;
@@ -115,7 +115,7 @@ contract OctobayGovernor is OctobayStorage {
         governorsByTokenAddr[_govToken].newProposalShare = _newProposalShare;
         governorsByTokenAddr[_govToken].minQuorum = _minQuorum;
 
-        emit UpdateNewProposalParamsEvent(address(_govToken), _newProposalShare, _minQuorum);
+        emit UpdateGovTokenParamsEvent(address(_govToken), _newProposalShare, _minQuorum);
     }
 
     /// @notice Anyone with at least newProposalShare share of tokens or an NFT with the required permission can create a new proposal here
