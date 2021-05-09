@@ -387,10 +387,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     /// @param _govToken The address of the governance token for this governor
     /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
     /// @param _minQuorum The minimum quorum allowed for new proposals    
-    function updateNewProposalParams(OctobayGovToken _govToken, uint16 _newProposalShare, uint16 _minQuorum)
+    function updateGovTokenParams(OctobayGovToken _govToken, uint16 _newProposalShare, uint16 _minQuorum)
         public
     {
-        octobayGovernor.updateNewProposalParams(_govToken, _newProposalShare, _minQuorum, msg.sender);
+        octobayGovernor.updateGovTokenParams(_govToken, _newProposalShare, _minQuorum, msg.sender);
     }
 
     // ------------ UTILS ------------ //

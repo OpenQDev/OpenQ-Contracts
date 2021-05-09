@@ -103,7 +103,7 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
     /// @param _minQuorum The minimum quorum allowed for new proposals
     /// @param _msgSender The original sender
-    function updateNewProposalParams(
+    function updateGovTokenParams(
         OctobayGovToken _govToken,
         uint16 _newProposalShare,
         uint16 _minQuorum,
