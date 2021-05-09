@@ -49,6 +49,8 @@ contract OctobayGovernor is OctobayStorage {
     event VoteCastEvent(address tokenAddress, uint256 proposalId, string discussionId, int16 vote, address voter);
 
     event DepartmentCreatedEvent(address creator, string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
+    
+    event UpdateNewProposalParamsEvent(address govToken, uint16 newProposalShare, uint16 minQuorum);
 
     /// @notice Maps gov token address to a Governor
     mapping (OctobayGovToken => Governor) public governorsByTokenAddr;
@@ -95,6 +97,25 @@ contract OctobayGovernor is OctobayStorage {
             minQuorum: _minQuorum
         });
         governorsByTokenAddr[_newToken] = newGovernor;
+    }
+
+    /// @param _govToken The address of the governance token for this governor
+    /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
+    /// @param _minQuorum The minimum quorum allowed for new proposals
+    /// @param _msgSender The original sender
+    function updateNewProposalParams(
+        OctobayGovToken _govToken,
+        uint16 _newProposalShare,
+        uint16 _minQuorum,
+        address _msgSender
+    ) public onlyOctobay {
+        require(governorsByTokenAddr[_govToken].isValue, "Governor does not exists");
+        require(octobayGovNFT.userHasPermissionForGovToken(_msgSender, _govToken, OctobayGovNFT.Permission.MINT), "Not allowed to change token's parameters");
+
+        governorsByTokenAddr[_govToken].newProposalShare = _newProposalShare;
+        governorsByTokenAddr[_govToken].minQuorum = _minQuorum;
+
+        emit UpdateNewProposalParamsEvent(address(_govToken), _newProposalShare, _minQuorum);
     }
 
     /// @notice Anyone with at least newProposalShare share of tokens or an NFT with the required permission can create a new proposal here
