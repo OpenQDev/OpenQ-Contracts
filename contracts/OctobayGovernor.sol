@@ -65,7 +65,7 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _minQuorum The minimum quorum allowed for new proposals
     /// @param _name Name of the new governance token
     /// @param _symbol Symbol to use for the new governance token
-    /// @return A reference to the created governance token
+    /// @return newToken A reference to the created governance token
     function createGovernorAndToken(
         address _creator,
         string memory _projectId,
@@ -73,8 +73,8 @@ contract OctobayGovernor is OctobayStorage {
         uint16 _minQuorum,
         string memory _name,
         string memory _symbol
-    ) external onlyOctobay returns(OctobayGovToken) {
-        OctobayGovToken newToken = createToken(_name, _symbol, _projectId);
+    ) external onlyOctobay returns(OctobayGovToken newToken) {
+        newToken = createToken(_name, _symbol, _projectId);
         createGovernor(_creator, newToken, _newProposalShare, _minQuorum);
 
         emit DepartmentCreatedEvent(_creator, _projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
