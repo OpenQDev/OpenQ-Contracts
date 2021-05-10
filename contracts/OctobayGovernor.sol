@@ -109,7 +109,7 @@ contract OctobayGovernor is OctobayStorage {
         uint16 _minQuorum,
         address _msgSender
     ) public onlyOctobay {
-        require(governorsByTokenAddr[_govToken].isValue, "Governor does not exists");
+        require(governorsByTokenAddr[_govToken].isValue, "Governor does not exist");
         require(octobayGovNFT.userHasPermissionForGovToken(_msgSender, _govToken, OctobayGovNFT.Permission.MINT), "Not allowed to change token's parameters");
 
         governorsByTokenAddr[_govToken].newProposalShare = _newProposalShare;
