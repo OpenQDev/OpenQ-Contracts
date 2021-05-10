@@ -125,6 +125,7 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     function mintTokenWithPermissions(address _to, uint256 _tokenId, Permission[] memory _perms, OctobayGovToken _govToken) public {
         require(hasPermission(_tokenId, Permission.MINT), "Not allowed to mint new tokens");
         require(ownerOf(_tokenId) == msg.sender, "Not the owner of _tokenId");
+        require(govTokensByTokenId[_tokenId] == _govToken, "_tokenId's gov token is not the same as given _govToken");
 
         uint256 newTokenId = _mintNFTForGovToken(_to, _govToken);
         for (uint i=0; i < _perms.length; i++) {
