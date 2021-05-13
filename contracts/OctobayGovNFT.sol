@@ -2,13 +2,13 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/token/ERC721/ERC721Pausable.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import './OctobayStorage.sol';
 import './OctobayGovToken.sol';
 
 /// @notice OctobayGovNFT tracks all NFTs minted for project owners which allows them to manage governors and create proposals.
 ///         They can also mint new NFTs to others and set the permissions on the NFT.
-contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
+contract OctobayGovNFT is OctobayStorage, ERC721 {
     enum Permission {
         MINT, // Can mint new NFTs for the associated project
         TRANSFER, // Can transfer this NFT to another address
@@ -19,14 +19,13 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
 
     event MintNFTForGovTokenEvent(address to, uint256 tokenId, address govTokenAddress);
     event BurnTokenEvent(uint256 tokenId);
+    event TokenTransferEvent(address from, address to, uint256 tokenId);
 
     mapping (uint256 => mapping (uint => bool) ) public permissionsByTokenId;
     mapping (uint256 => OctobayGovToken) public govTokensByTokenId;
     //Do we need a list of NFTs per gov token?
 
     constructor(string memory name, string memory symbol) public ERC721(name, symbol) {
-        // Prevent transfers by default unless we allow it
-        _pause();
     }
 
     /// @param _tokenId ID of the NFT to check
@@ -77,19 +76,6 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         return _mintNFTForGovToken(_to, _govToken);
     }
 
-    /// @param _to The address to assign the newly minted NFT to
-    /// @param _govToken The governance token associated with this NFT
-    /// @return The token ID of the newly minted NFT
-    function _mintNFTForGovToken(address _to, OctobayGovToken _govToken) internal returns(uint256) {
-        uint256 tokenId = totalSupply() + 1;
-        _unpause();
-        _safeMint(_to, tokenId);
-        _pause();
-        govTokensByTokenId[tokenId] = _govToken;
-        emit MintNFTForGovTokenEvent(_to, tokenId, address(_govToken));
-        return tokenId;
-    }
-
     /// @notice Checks whether a user has a given permission for a given governance token
     /// @param _user Address of user to check for NFT ownership
     /// @param _govToken The governance token associated with this NFT
@@ -104,17 +90,6 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         }
 
         return false;
-    }
-
-    /// @dev We need to override this as we don't allow transfers by default, we need to check the NFT has permission to transfer
-    /// @param _from Address of NFT owner
-    /// @param _to Address NFT is being transferred to
-    /// @param _tokenId ID of the NFT
-    function safeTransferFrom(address _from, address _to, uint256 _tokenId) public override {
-        require(hasPermission(_tokenId, Permission.TRANSFER), "Not allowed to transfer this token");
-        _unpause();
-        super.safeTransferFrom(_from, _to, _tokenId);
-        _pause();
     }
 
     /// @notice If an NFT has the MINT permission, the owner can mint a new NFT to someone else based on theirs
@@ -140,9 +115,31 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
         _revokePermission(_tokenId, Permission.TRANSFER);
         _revokePermission(_tokenId, Permission.SET_ISSUE_GOVTOKEN);
         _revokePermission(_tokenId, Permission.CREATE_PROPOSAL);
-        _unpause();
         _burn(_tokenId);
-        _pause();
         emit BurnTokenEvent(_tokenId);
     }
+
+    /// @param _from Address of NFT owner
+    /// @param _to Address NFT is being transferred to
+    /// @param _tokenId ID of the NFT
+    function _beforeTokenTransfer(address _from, address _to, uint256 _tokenId) internal override {
+        super._beforeTokenTransfer(_from, _to, _tokenId);
+
+        //Ignore minting and burning
+        if (_from != address(0) && _to != address(0)) {
+            require(hasPermission(_tokenId, Permission.TRANSFER), "Not allowed to transfer this token");
+            emit TokenTransferEvent(_from, _to, _tokenId);
+        }
+    }
+
+    /// @param _to The address to assign the newly minted NFT to
+    /// @param _govToken The governance token associated with this NFT
+    /// @return The token ID of the newly minted NFT
+    function _mintNFTForGovToken(address _to, OctobayGovToken _govToken) internal returns(uint256) {
+        uint256 tokenId = totalSupply() + 1;
+        _safeMint(_to, tokenId);
+        govTokensByTokenId[tokenId] = _govToken;
+        emit MintNFTForGovTokenEvent(_to, tokenId, address(_govToken));
+        return tokenId;
+    }    
 }
