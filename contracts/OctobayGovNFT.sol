@@ -135,12 +135,15 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
 
     /// @param _tokenId ID of the NFT to burn (destroy)
     function burn(uint256 _tokenId) public {
+        require(ownerOf(_tokenId) == msg.sender, "Not the owner of _tokenId");
         delete govTokensByTokenId[_tokenId];
         _revokePermission(_tokenId, Permission.MINT);
         _revokePermission(_tokenId, Permission.TRANSFER);
         _revokePermission(_tokenId, Permission.SET_ISSUE_GOVTOKEN);
         _revokePermission(_tokenId, Permission.CREATE_PROPOSAL);
+        _unpause();
         _burn(_tokenId);
+        _pause();
         emit BurnTokenEvent(_tokenId);
     }
 }
