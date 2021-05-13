@@ -321,16 +321,6 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     OctobayGovernor public octobayGovernor;
     AggregatorV3Interface internal ethUSDPriceFeed;
 
-    /// @notice Used to wrap arguments to createGovernanceToken
-    struct NewGovernanceRequest {
-        string githubUserId; // Github graphql ID of the user we need to check for ownership
-        string name; // Name of the new governance token
-        string symbol; // Symbol to use for the new governance token
-        string projectId; // Github graphql ID of the project (repo/org) to be associated with the new token
-        uint16 newProposalShare; // Share of gov tokens a holder requires before they can create new proposals
-        uint16 minQuorum; // The minimum quorum allowed for new proposals
-    }
-
     /// @notice Used to store Chainlink requests for new governance tokens
     struct TempGovernanceRequest {
         bool isValue; // Ensure we have a valid value in the map
@@ -342,6 +332,15 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
     mapping(bytes32 => TempGovernanceRequest) public tempGovernanceReqs;
+
+    /// @notice Used to wrap arguments to createGovernanceToken
+    struct NewGovernanceRequest {
+        string name; // Name of the new governance token
+        string symbol; // Symbol to use for the new governance token
+        string projectId; // Github graphql ID of the project (repo/org) to be associated with the new token
+        uint16 newProposalShare; // Share of gov tokens a holder requires before they can create new proposals
+        uint16 minQuorum; // The minimum quorum allowed for new proposals
+    }
 
     /// @notice A request from the site to create a new governance token, checks ownership of the given
     ///         project (repo or org) via a Chainlink Oracle request to confirm
@@ -359,7 +358,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
                 address(this),
                 this.confirmCreateGovernanceToken.selector
             );
-        request.add('githubUserId', _newGovReq.githubUserId);
+        request.add('githubUserId', userAddressStorage.userIdsByAddress(msg.sender));
         request.add('repoOrgId', _newGovReq.projectId);
         requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
 
