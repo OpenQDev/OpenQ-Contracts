@@ -322,27 +322,34 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     AggregatorV3Interface internal ethUSDPriceFeed;
 
     /// @notice Used to store Chainlink requests for new governance tokens
-    struct NewGovernanceToken {
+    struct TempGovernanceRequest {
         bool isValue; // Ensure we have a valid value in the map
-        string githubUserId; // Github graphql ID of the user we need to check for ownership
+        address creator; // Address of the creator, we need to store this as we lose it in the Oracle callback otherwise
+        string projectId; // Github graphql ID of the project (repo/org) to be associated with the new token
+        uint16 newProposalShare; // Share of gov tokens a holder requires before they can create new proposals
+        uint16 minQuorum; // The minimum quorum allowed for new proposals
+        OctobayGovToken govToken; // The new governance token which needs to be confirmed
+    }
+
+    mapping(bytes32 => TempGovernanceRequest) public tempGovernanceReqs;
+
+    /// @notice Used to wrap arguments to createGovernanceToken
+    struct NewGovernanceRequest {
         string name; // Name of the new governance token
         string symbol; // Symbol to use for the new governance token
         string projectId; // Github graphql ID of the project (repo/org) to be associated with the new token
         uint16 newProposalShare; // Share of gov tokens a holder requires before they can create new proposals
         uint16 minQuorum; // The minimum quorum allowed for new proposals
-        address creator; // Address of the creator, we need to store this as we lose it in the Oracle callback otherwise
     }
-
-    mapping(bytes32 => NewGovernanceToken) public newGovernanceTokenReqs;
 
     /// @notice A request from the site to create a new governance token, checks ownership of the given
     ///         project (repo or org) via a Chainlink Oracle request to confirm
     /// @dev Using a struct as an argument here otherwise we get stack too deep errors
     /// @param _oracle Specify the address of the _oracle to use for the request
-    /// @param _newToken The details of the new governance token to create
+    /// @param _newGovReq The details of the new governor and token to create
     function createGovernanceToken(
         address _oracle,
-        NewGovernanceToken memory _newToken
+        NewGovernanceRequest memory _newGovReq
     ) public oracleHandlesJob(_oracle, 'check-ownership') returns(bytes32 requestId) {
         (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'check-ownership');
         Chainlink.Request memory request =
@@ -351,12 +358,18 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
                 address(this),
                 this.confirmCreateGovernanceToken.selector
             );
-        request.add('githubUserId', _newToken.githubUserId);
-        request.add('repoOrgId', _newToken.projectId);
+        request.add('githubUserId', userAddressStorage.userIdsByAddress(msg.sender));
+        request.add('repoOrgId', _newGovReq.projectId);
         requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
 
-        _newToken.creator = msg.sender;
-        newGovernanceTokenReqs[requestId] = _newToken;
+        tempGovernanceReqs[requestId] = TempGovernanceRequest({
+            isValue: true,
+            creator: msg.sender,
+            projectId: _newGovReq.projectId,
+            newProposalShare: _newGovReq.newProposalShare,
+            minQuorum: _newGovReq.minQuorum,
+            govToken: octobayGovernor.createToken(_newGovReq.name, _newGovReq.symbol)
+        });
     }
 
     /// @notice Called in response by the Chainlink Oracle, continues with governance token creation
@@ -366,21 +379,24 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        require(_result, "User is not owner of organization or repository");
-        NewGovernanceToken memory newToken = newGovernanceTokenReqs[_requestId];
-        require(newToken.isValue, "No such request");
-        delete newGovernanceTokenReqs[_requestId];
+        require(tempGovernanceReqs[_requestId].isValue, "No such request");
 
-        OctobayGovToken deployedToken = octobayGovernor.createGovernorAndToken(
-            newToken.creator,
-            newToken.projectId,
-            newToken.newProposalShare,
-            newToken.minQuorum,
-            newToken.name,
-            newToken.symbol
+        if (!_result) {
+            delete tempGovernanceReqs[_requestId];
+            return;
+        }
+
+        octobayGovernor.createGovernorAndSetToken(
+            tempGovernanceReqs[_requestId].creator,
+            tempGovernanceReqs[_requestId].projectId,
+            tempGovernanceReqs[_requestId].newProposalShare,
+            tempGovernanceReqs[_requestId].minQuorum,
+            tempGovernanceReqs[_requestId].govToken
         );
-        uint256 nftId = octobayGovNFT.mintNFTForGovToken(newToken.creator, deployedToken);
+        uint256 nftId = octobayGovNFT.mintNFTForGovToken(tempGovernanceReqs[_requestId].creator, tempGovernanceReqs[_requestId].govToken);
         octobayGovNFT.grantAllPermissions(nftId);
+
+        delete tempGovernanceReqs[_requestId];
     }
 
     /// @notice A request from the site to update a governance token's params for new proposals
