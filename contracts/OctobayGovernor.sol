@@ -49,6 +49,8 @@ contract OctobayGovernor is OctobayStorage {
     event VoteCastEvent(address tokenAddress, uint256 proposalId, string discussionId, int16 vote, address voter);
 
     event DepartmentCreatedEvent(address creator, string projectId, uint16 newProposalShare, uint16 minQuorum, string tokenName, string tokenSymbol, address tokenAddress);
+    
+    event UpdateGovTokenParamsEvent(address govToken, uint16 newProposalShare, uint16 minQuorum);
 
     /// @notice Maps gov token address to a Governor
     mapping (OctobayGovToken => Governor) public governorsByTokenAddr;
@@ -59,25 +61,22 @@ contract OctobayGovernor is OctobayStorage {
         octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
     }
 
-    /// @notice Essentially a wrapper for createGovernor and createToken to use only one call
+    /// @notice Essentially a wrapper for createGovernor and setTokenForProjectId to use only one call
     /// @param _projectId Github graphql ID of the org or repo this governor/token is associated with
     /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
     /// @param _minQuorum The minimum quorum allowed for new proposals
-    /// @param _name Name of the new governance token
-    /// @param _symbol Symbol to use for the new governance token
-    /// @return newToken A reference to the created governance token
-    function createGovernorAndToken(
+    /// @param _govToken Address of the gov token to use 
+    function createGovernorAndSetToken(
         address _creator,
         string memory _projectId,
         uint16 _newProposalShare,
         uint16 _minQuorum,
-        string memory _name,
-        string memory _symbol
-    ) external onlyOctobay returns(OctobayGovToken newToken) {
-        newToken = createToken(_name, _symbol, _projectId);
-        createGovernor(_creator, newToken, _newProposalShare, _minQuorum);
+        OctobayGovToken _govToken
+    ) external onlyOctobay {
+        setTokenForProjectId(_govToken, _projectId);
+        createGovernor(_creator, _govToken, _newProposalShare, _minQuorum);
 
-        emit DepartmentCreatedEvent(_creator, _projectId, _newProposalShare, _minQuorum, _name, _symbol, address(newToken));
+        emit DepartmentCreatedEvent(_creator, _projectId, _newProposalShare, _minQuorum, _govToken.name(), _govToken.symbol(), address(_govToken));
     } 
 
     /// @notice Necessary to set the parameters for new proposals and to know if we've already initialized a governor
@@ -95,6 +94,25 @@ contract OctobayGovernor is OctobayStorage {
             minQuorum: _minQuorum
         });
         governorsByTokenAddr[_newToken] = newGovernor;
+    }
+
+    /// @param _govToken The address of the governance token for this governor
+    /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
+    /// @param _minQuorum The minimum quorum allowed for new proposals
+    /// @param _msgSender The original sender
+    function updateGovTokenParams(
+        OctobayGovToken _govToken,
+        uint16 _newProposalShare,
+        uint16 _minQuorum,
+        address _msgSender
+    ) public onlyOctobay {
+        require(governorsByTokenAddr[_govToken].isValue, "Governor does not exist");
+        require(octobayGovNFT.userHasPermissionForGovToken(_msgSender, _govToken, OctobayGovNFT.Permission.MINT), "Not allowed to change token's parameters");
+
+        governorsByTokenAddr[_govToken].newProposalShare = _newProposalShare;
+        governorsByTokenAddr[_govToken].minQuorum = _minQuorum;
+
+        emit UpdateGovTokenParamsEvent(address(_govToken), _newProposalShare, _minQuorum);
     }
 
     /// @notice Anyone with at least newProposalShare share of tokens or an NFT with the required permission can create a new proposal here
@@ -188,14 +206,18 @@ contract OctobayGovernor is OctobayStorage {
 
     /// @param _name Name of the new token
     /// @param _symbol Token Symbol for the new token
-    /// @param _projectId Github graphql ID of the org or repo this governor/token is associated with
     /// @return A reference to the created governance token
-    function createToken(string memory _name, string memory _symbol, string memory _projectId) public onlyOctobay returns (OctobayGovToken) {
+    function createToken(string memory _name, string memory _symbol) public onlyOctobay returns (OctobayGovToken) {
         OctobayGovToken newToken = new OctobayGovToken(_name, _symbol);
         newToken.setOctobay(msg.sender);
-        tokensByProjectId[_projectId].push(newToken);
-        projectsByToken[newToken] = _projectId;
         return newToken;
+    }
+
+    /// @param _govToken Governance token to associate with the given project ID
+    /// @param _projectId Github graphql ID of the org or repo this governor/token should be associated with
+    function setTokenForProjectId(OctobayGovToken _govToken, string memory _projectId) public onlyOctobay {
+        tokensByProjectId[_projectId].push(_govToken);
+        projectsByToken[_govToken] = _projectId;
     }
 
     /// @notice Used in case a project wants to transfer tokens from a repo to an org in the future for example
