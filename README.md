@@ -1,58 +1,54 @@
-# OctoBay
+# Octobay Contracts
 
-## Local Development Setup
+## Contracts
 
-### Prepare
+### Octobay.sol
 
-You need Node v12.18, Go 1.14 and an empty postgres database named `chainlink-local` with the default `postgres:postgres` user and port 5432 (or adjust chainlink/.env.sample) as well as a GitHub [OAuth app](https://github.com/settings/applications/new) client ID and secret and a [personal access token](https://github.com/settings/tokens/new). You need to provide those during installation.
+This is the main contract that connects all the parts.
+Many of the other contract's functions are only accessible through this main contract.
 
-## Install
+### UserAddressStorage.sol
 
-Clone the repository and install its dependencies.
+Stores verified Ethereum addresses for GitHub users.
 
-```bash
-git clone https://github.com/mktcode/octobay && cd octobay && yarn
-```
+### OracleStorage.sol
 
-Now start the local Ethereum node, the Gas Station Network and the Chainlink node and its adapters, all in their own terminal sessions.
+Stores information about our Chainlink oracles and their available jobs.
 
-```bash
-yarn evm
-# or: yarn evm 'mnemonic seed phrase'
-```
+### DepositStorage.sol
 
-```bash
-yarn evm:gsn
-```
+Stores funds for GitHub users and issues.
 
-```bash
-yarn chainlink:node
-```
+### OctobayGovernor.sol
 
-```bash
-yarn chainlink:adapters
-```
+Stores departments and deploys governance tokens.
 
-When running the Chainlink node for the first time, you will be asked to set an email address and a password. You'll need those in the next step. When the node is running, open http://localhost:6688/config in your browser, login and copy your Chainlink node's `ACCOUNT_ADDRESS` to your `.env` file.
+### OctobayGovNFT.sol
 
-```
-CHAINLINK_NODE_ADDRESS=0x...
-```
+An ERC721 contract, managing the transferable permissions in governance departments.
 
-## Deploy Contracts
+### OctobayGovToken.sol
 
-Now you can deploy the contracts. During deployment you will be asked to log in to your Chainlink node, using your email and password from before, so the necessary job specifications can be created for you.
+The template contract for new governance tokens.
+
+## Deploy Scripts
+
+Which contracts are deployed and how depents on the target.
+The LINK token and the Oracle contract are only deployed in development mode. LINK tokens are then automatically transferred to the main contract.
 
 ```bash
-yarn evm:deploy
+# Kovan testnet, using Infura and KOVAN_API_KEY env var
+truffle migrate --network kovan
+
+# Local node port 8545
+truffle migrate --network development
 ```
 
-This will deploy all OctoBay contracts as well as the Chainlink token and an oracle, create jobs for that oracle on the Chainlink node and configure the OctoBay contract accordingly and also make sure all contracts are funded properly.
-
-## Run App
-
-Now run the app and open `http://localhost:3000` in your browser.
+When the main contract is deployed it connects itself with the other deployed contracts and overwrites old connections. If one contract was updated you just need to re-deploy this one and the main contract.
 
 ```bash
-yarn app
+truffle migrate --network development --f <migration> --to <migration>
+
+# Octobay
+truffle migrate --network development --f 30 --to 30
 ```
