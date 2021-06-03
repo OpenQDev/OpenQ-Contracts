@@ -30,7 +30,7 @@ contract OctobayPaymaster is BasePaymaster {
         string memory githubUserId = string(getBytesParam(relayRequest.request.data, 2));
         require(
             octobay.getUserClaimAmount(githubUserId) >= maxPossibleGas,
-            "Not enough funds to pay for gas"
+            "OctobayPaymaster: Not enough funds to pay for gas"
         );
         context = bytes(githubUserId);
         rejectOnRecipientRevert = true;

@@ -115,8 +115,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     OracleStorage public oracleStorage;
 
     modifier oracleHandlesJob(address _oracle, string memory _jobName) {
-        require(oracleStorage.oracleExists(_oracle), "Oracle does not exist.");
-        require(oracleStorage.oracleJobExists(_oracle, _jobName), "Oracle job does not exist.");
+        require(oracleStorage.oracleExists(_oracle), "Octobay: Oracle does not exist.");
+        require(oracleStorage.oracleJobExists(_oracle, _jobName), "Octobay: Oracle job does not exist.");
         _;
     }
 
@@ -256,9 +256,9 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) public {
         // Ensure they're giving us a valid gov token
-        require(bytes(octobayGovernor.projectsByToken(_govToken)).length != 0, "Invalid _govToken");
+        require(bytes(octobayGovernor.projectsByToken(_govToken)).length != 0, "Octobay: Invalid _govToken");
         require(octobayGovNFT.userHasPermissionForGovToken(msg.sender, _govToken, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN), 
-            "You don't have permission to set governance tokens for issues");
+            "Octobay: You don't have permission to set governance tokens for issues");
         depositStorage.setGovTokenForIssue(_issueId, _govToken);
     }
 
@@ -284,7 +284,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _oracle,
         string calldata _issueId
     ) public oracleHandlesJob(_oracle, 'claim') returns(bytes32 requestId) {
-        require(depositStorage.issueStatusByIssueId(_issueId) == DepositStorage.IssueStatus.OPEN, 'Issue is not OPEN.'); 
+        require(depositStorage.issueStatusByIssueId(_issueId) == DepositStorage.IssueStatus.OPEN, 'Octobay: Issue is not OPEN.'); 
 
         (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'claim');
         Chainlink.Request memory request =
@@ -379,7 +379,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        require(tempGovernanceReqs[_requestId].isValue, "No such request");
+        require(tempGovernanceReqs[_requestId].isValue, "Octobay: No such request");
 
         if (!_result) {
             delete tempGovernanceReqs[_requestId];

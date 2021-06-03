@@ -20,7 +20,7 @@ contract UserAddressStorage is OctobayStorage {
     bytes32 _addressName,
     address _address
   ) public onlyOctobay {
-    require(addresses[_userId][_addressName] == address(0), 'An address with this name already exsits for this GitHub user.');
+    require(addresses[_userId][_addressName] == address(0), 'UserAddressStorage: An address with this name already exsits for this GitHub user.');
     addresses[_userId][_addressName] = _address;
     userIdsByAddress[_address] = _userId;
 

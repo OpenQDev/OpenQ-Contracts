@@ -85,7 +85,7 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
     /// @param _minQuorum The minimum quorum allowed for new proposals    
     function createGovernor(address _creator, OctobayGovToken _newToken, uint16 _newProposalShare, uint16 _minQuorum) public onlyOctobay {
-        require(!governorsByTokenAddr[_newToken].isValue, "Governor for that token address already exists");
+        require(!governorsByTokenAddr[_newToken].isValue, "OctobayGovernor: Governor for that token address already exists");
         Governor memory newGovernor = Governor({
             creator: _creator,
             isValue: true,
@@ -106,8 +106,8 @@ contract OctobayGovernor is OctobayStorage {
         uint16 _minQuorum,
         address _msgSender
     ) public onlyOctobay {
-        require(governorsByTokenAddr[_govToken].isValue, "Governor does not exist");
-        require(octobayGovNFT.userHasPermissionForGovToken(_msgSender, _govToken, OctobayGovNFT.Permission.MINT), "Not allowed to change token's parameters");
+        require(governorsByTokenAddr[_govToken].isValue, "OctobayGovernor: Governor does not exist");
+        require(octobayGovNFT.userHasPermissionForGovToken(_msgSender, _govToken, OctobayGovNFT.Permission.MINT), "OctobayGovernor: Not allowed to change token's parameters");
 
         governorsByTokenAddr[_govToken].newProposalShare = _newProposalShare;
         governorsByTokenAddr[_govToken].minQuorum = _minQuorum;
@@ -122,13 +122,13 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _endDate Date in epoch secs when the voting for this proposal closes
     /// @param _quorum The minimum percentage of gov tokens required for this proposal to pass          
     function createProposal(OctobayGovToken _govToken, string memory _discussionId, uint256 _startDate, uint256 _endDate, uint16 _quorum) external {
-        require(governorsByTokenAddr[_govToken].isValue, "Governor for that _govToken doesn't exist");
+        require(governorsByTokenAddr[_govToken].isValue, "OctobayGovernor: Governor for that _govToken doesn't exist");
         Governor storage governor = governorsByTokenAddr[_govToken];
-        require(_quorum >= governor.minQuorum, "Given _quorum is less than this governor's minQuorum");
+        require(_quorum >= governor.minQuorum, "OctobayGovernor: Given _quorum is less than this governor's minQuorum");
 
         require((_govToken.balanceOfAsPercent(msg.sender) >= governor.newProposalShare) || 
             (octobayGovNFT.userHasPermissionForGovToken(msg.sender, _govToken, OctobayGovNFT.Permission.CREATE_PROPOSAL)), 
-            "Token share not high enough and no NFT permission for new proposals");
+            "OctobayGovernor: Token share not high enough and no NFT permission for new proposals");
         
         uint256 snapshotId = _govToken.snapshot();
         Proposal memory newProposal = Proposal({
@@ -172,10 +172,10 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _vote The positive(for) or negative(against) amount of your token share you'd like to vote towards this proposal 
     function castVote(OctobayGovToken _govToken, uint256 _proposalId, int16 _vote) external proposalExists(_govToken, _proposalId) {
         Proposal storage proposal = governorsByTokenAddr[_govToken].proposalList[_proposalId];
-        require(proposalState(_govToken, _proposalId) == ProposalState.Active, "Proposal is not Active");
-        require(!proposal.votesBySubmitter[msg.sender].hasVoted, "Sender has already voted");
+        require(proposalState(_govToken, _proposalId) == ProposalState.Active, "OctobayGovernor: Proposal is not Active");
+        require(!proposal.votesBySubmitter[msg.sender].hasVoted, "OctobayGovernor: Sender has already voted");
         uint voteAmt = _vote < 0 ? uint(-1 * _vote) : uint(_vote);
-        require(proposal.votingToken.balanceOfAsPercentAt(msg.sender, proposal.snapshotId) >= voteAmt, "Sender doesn't have enough governance tokens to make that vote");
+        require(proposal.votingToken.balanceOfAsPercentAt(msg.sender, proposal.snapshotId) >= voteAmt, "OctobayGovernor: Sender doesn't have enough governance tokens to make that vote");
 
         proposal.voteCount += _vote;
         Vote memory newVote = Vote({
@@ -192,8 +192,8 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _govToken Address of the gov token to use 
     /// @param _proposalId ID of the proposal
     modifier proposalExists(OctobayGovToken _govToken, uint256 _proposalId) {
-        require(governorsByTokenAddr[_govToken].isValue, "Governor for that _projectId doesn't exist");
-        require(governorsByTokenAddr[_govToken].proposalList[_proposalId].isValue, "Proposal for that _proposalId doesn't exist");
+        require(governorsByTokenAddr[_govToken].isValue, "OctobayGovernor: Governor for that _projectId doesn't exist");
+        require(governorsByTokenAddr[_govToken].proposalList[_proposalId].isValue, "OctobayGovernor: Proposal for that _proposalId doesn't exist");
         _;
     }
 
@@ -225,7 +225,7 @@ contract OctobayGovernor is OctobayStorage {
     /// @param _newProjectId Github graphql ID of the new org or repo which should be used
     function updateProjectId(OctobayGovToken _govToken, string memory _newProjectId) external onlyOctobay {
         string memory oldProjectId = projectsByToken[_govToken];
-        require(bytes(oldProjectId).length != 0, "Token _govToken is not a valid governance token");
+        require(bytes(oldProjectId).length != 0, "OctobayGovernor: Token _govToken is not a valid governance token");
 
         removeTokenFromProject(_govToken, oldProjectId);
         projectsByToken[_govToken] = _newProjectId;
