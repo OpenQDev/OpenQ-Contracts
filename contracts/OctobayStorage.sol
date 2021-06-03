@@ -11,7 +11,7 @@ contract OctobayStorage is Ownable {
   address public octobay;
 
   modifier onlyOctobay() {
-    require(msg.sender == octobay, 'Only the current octobay version can use this function.');
+    require(msg.sender == octobay, 'OctobayStorage: Only the current octobay version can use this function.');
     _;
   }
 

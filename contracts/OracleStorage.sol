@@ -28,7 +28,7 @@ contract OracleStorage is OctobayStorage {
   event OracleJobRemovedEvent(address oracle, string name, bytes32 id);
 
   modifier onlyRegisteredOracle(address _oracle) {
-    require(bytes(oracles[_oracle].name).length > 0, "Unregistered oracle");
+    require(bytes(oracles[_oracle].name).length > 0, "OracleStorage: Unregistered oracle");
     _;
   }
 
@@ -38,9 +38,9 @@ contract OracleStorage is OctobayStorage {
     string[] memory _jobNames,
     Job[] memory _jobs
   ) external onlyOctobay {
-    require(bytes(oracles[_oracle].name).length == 0, 'Oracle already exists');
-    require(_jobs.length > 0, 'No Jobs');
-    require(_jobNames.length == _jobs.length, '_jobNames and _jobs should be of same length');
+    require(bytes(oracles[_oracle].name).length == 0, 'OracleStorage: Oracle already exists');
+    require(_jobs.length > 0, 'OracleStorage: No Jobs');
+    require(_jobNames.length == _jobs.length, 'OracleStorage: _jobNames and _jobs should be of same length');
 
     oracles[_oracle] = Oracle({
         name: _name

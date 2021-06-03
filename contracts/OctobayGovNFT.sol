@@ -111,7 +111,7 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     /// @param _to Address NFT is being transferred to
     /// @param _tokenId ID of the NFT
     function safeTransferFrom(address _from, address _to, uint256 _tokenId) public override {
-        require(hasPermission(_tokenId, Permission.TRANSFER), "Not allowed to transfer this token");
+        require(hasPermission(_tokenId, Permission.TRANSFER), "OctobayGovNFT: Not allowed to transfer this token");
         _unpause();
         super.safeTransferFrom(_from, _to, _tokenId);
         _pause();
@@ -123,9 +123,9 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
     /// @param _perms The array of permissions to assign to the new NFT
     /// @param _govToken The governance token associated with this NFT
     function mintTokenWithPermissions(address _to, uint256 _tokenId, Permission[] memory _perms, OctobayGovToken _govToken) public {
-        require(hasPermission(_tokenId, Permission.MINT), "Not allowed to mint new tokens");
-        require(ownerOf(_tokenId) == msg.sender, "Not the owner of _tokenId");
-        require(govTokensByTokenId[_tokenId] == _govToken, "_tokenId's gov token is not the same as given _govToken");
+        require(hasPermission(_tokenId, Permission.MINT), "OctobayGovNFT: Not allowed to mint new tokens");
+        require(ownerOf(_tokenId) == msg.sender, "OctobayGovNFT: Not the owner of _tokenId");
+        require(govTokensByTokenId[_tokenId] == _govToken, "OctobayGovNFT: _tokenId's gov token is not the same as given _govToken");
 
         uint256 newTokenId = _mintNFTForGovToken(_to, _govToken);
         for (uint i=0; i < _perms.length; i++) {
@@ -135,7 +135,7 @@ contract OctobayGovNFT is OctobayStorage, ERC721Pausable {
 
     /// @param _tokenId ID of the NFT to burn (destroy)
     function burn(uint256 _tokenId) public {
-        require(ownerOf(_tokenId) == msg.sender, "Not the owner of _tokenId");
+        require(ownerOf(_tokenId) == msg.sender, "OctobayGovNFT: Not the owner of _tokenId");
         delete govTokensByTokenId[_tokenId];
         _revokePermission(_tokenId, Permission.MINT);
         _revokePermission(_tokenId, Permission.TRANSFER);
