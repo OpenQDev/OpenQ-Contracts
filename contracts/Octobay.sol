@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
 import '@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol';
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
-import '@api3/airnode-protocol/contracts/AirnodeClient.sol';
+import {AirnodeClient} from '@api3/airnode-protocol/contracts/AirnodeClient.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
 import './OctobayGovToken.sol';
@@ -30,8 +30,9 @@ contract Octobay is
         address _octobayGovernor,
         address _octobayGovNFT,
         address _ethUSDPriceFeed,
-        address _openQUtilities
-    ) public {
+        address _openQUtilities,
+        address _airnodeAddress
+    ) public AirnodeClient(_airnodeAddress) {
         setChainlinkToken(_link);
         _setTrustedForwarder(_forwarder); // GSN trusted forwarder
         _setUserAddressStorage(_userAddressStorage);
@@ -41,6 +42,42 @@ contract Octobay is
         _setOctobayGovNFT(_octobayGovNFT);
         _setEthUSDPriceFeed(_ethUSDPriceFeed);
         _setOpenQUtilities(_openQUtilities);
+    }
+
+    // ------------ Airnode ------------ //
+
+    mapping(bytes32 => bool) public incomingFulfillments;
+    mapping(bytes32 => int256) public fulfilledData;
+
+    function makeRequest(
+        bytes32 providerId,
+        bytes32 endpointId,
+        uint256 requesterInd,
+        address designatedWallet,
+        bytes calldata parameters
+    ) external {
+        bytes32 requestId = airnode.makeFullRequest(
+            providerId,
+            endpointId,
+            requesterInd,
+            designatedWallet,
+            address(this),
+            this.fulfill.selector,
+            parameters
+        );
+        incomingFulfillments[requestId] = true;
+    }
+
+    function fulfill(
+        bytes32 requestId,
+        uint256 statusCode,
+        bytes32 data
+    ) external onlyAirnode() {
+        require(incomingFulfillments[requestId], 'No such request made');
+        delete incomingFulfillments[requestId];
+        if (statusCode == 0) {
+            fulfilledData[requestId] = data;
+        }
     }
 
     // ------------ Set contract addresses ------------ //
