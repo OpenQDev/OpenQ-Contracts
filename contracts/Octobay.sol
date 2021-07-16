@@ -4,17 +4,23 @@ pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@chainlink/contracts/src/v0.6/ChainlinkClient.sol';
-import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
+import '@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol';
 import '@opengsn/gsn/contracts/BaseRelayRecipient.sol';
+import '@api3/airnode-protocol/contracts/AirnodeClient.sol';
 import './UserAddressStorage.sol';
 import './OracleStorage.sol';
 import './OctobayGovToken.sol';
 import './OctobayGovernor.sol';
 import './OctobayGovNFT.sol';
+import './OpenQUtilities.sol';
 import './DepositStorage.sol';
 
-contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
-
+contract Octobay is
+    Ownable,
+    ChainlinkClient,
+    BaseRelayRecipient,
+    AirnodeClient
+{
     constructor(
         address _link,
         address _forwarder,
@@ -23,7 +29,8 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         address _depositStorage,
         address _octobayGovernor,
         address _octobayGovNFT,
-        address _ethUSDPriceFeed
+        address _ethUSDPriceFeed,
+        address _openQUtilities
     ) public {
         setChainlinkToken(_link);
         _setTrustedForwarder(_forwarder); // GSN trusted forwarder
@@ -33,6 +40,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         _setOctobayGovernor(_octobayGovernor);
         _setOctobayGovNFT(_octobayGovNFT);
         _setEthUSDPriceFeed(_ethUSDPriceFeed);
+        _setOpenQUtilities(_openQUtilities);
     }
 
     // ------------ Set contract addresses ------------ //
@@ -44,12 +52,16 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     event SetOctobayGovernorEvent(address octobayGovernor);
     event SetOctobayGovNFTEvent(address octobayGovNFT);
     event SetEthUSDPriceFeedEvent(address ethUsdPriceFeed);
+    event SetOpenQUtilities(address openQUtilities);
 
     function setTrustedForwarder(address _forwarder) external onlyOwner {
         _setTrustedForwarder(_forwarder);
     }
 
-    function setUserAddressStorage(address _userAddressStorage) external onlyOwner {
+    function setUserAddressStorage(address _userAddressStorage)
+        external
+        onlyOwner
+    {
         _setUserAddressStorage(_userAddressStorage);
     }
 
@@ -67,7 +79,11 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     function setOctobayGovNFT(address _octobayGovNFT) external onlyOwner {
         _setOctobayGovNFT(_octobayGovNFT);
-    }                    
+    }
+
+    function setOpenQUtilities(address _openQUtilities) external onlyOwner {
+        _setOpenQUtilities(_openQUtilities);
+    }
 
     function setEthUSDPriceFeed(address _ethUSDPriceFeed) external onlyOwner {
         _setEthUSDPriceFeed(_ethUSDPriceFeed);
@@ -101,7 +117,14 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function _setOctobayGovNFT(address _octobayGovNFT) internal {
         octobayGovNFT = OctobayGovNFT(_octobayGovNFT);
         emit SetOctobayGovNFTEvent(_octobayGovNFT);
-    }                    
+    }
+
+    OpenQUtilities public openQUtilities;
+
+    function _setOpenQUtilities(address _openQUtilities) internal {
+        openQUtilities = OpenQUtilities(_openQUtilities);
+        emit SetOpenQUtilities(_openQUtilities);
+    }
 
     function _setEthUSDPriceFeed(address _ethUSDPriceFeed) internal {
         ethUSDPriceFeed = AggregatorV3Interface(_ethUSDPriceFeed);
@@ -109,14 +132,20 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
     // ------------ Oracles ------------ //
-    
+
     //TODO: These methods are all wrappers, can we call OracleStorage directly?
 
     OracleStorage public oracleStorage;
 
     modifier oracleHandlesJob(address _oracle, string memory _jobName) {
-        require(oracleStorage.oracleExists(_oracle), "Octobay: Oracle does not exist.");
-        require(oracleStorage.oracleJobExists(_oracle, _jobName), "Octobay: Oracle job does not exist.");
+        require(
+            oracleStorage.oracleExists(_oracle),
+            'Octobay: Oracle does not exist.'
+        );
+        require(
+            oracleStorage.oracleJobExists(_oracle, _jobName),
+            'Octobay: Oracle job does not exist.'
+        );
         _;
     }
 
@@ -133,7 +162,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         oracleStorage.removeOracle(_oracle);
     }
 
-    function changeOracleName(address _oracle, string calldata _name) external onlyOwner {
+    function changeOracleName(address _oracle, string calldata _name)
+        external
+        onlyOwner
+    {
         oracleStorage.changeOracleName(_oracle, _name);
     }
 
@@ -145,12 +177,14 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         oracleStorage.addOracleJob(_oracle, _jobName, _job);
     }
 
-    function removeOracleJob(address _oracle, string calldata _jobName) external onlyOwner {
+    function removeOracleJob(address _oracle, string calldata _jobName)
+        external
+        onlyOwner
+    {
         oracleStorage.removeOracleJob(_oracle, _jobName);
     }
 
     // ------------ GSN ------------ //
-
 
     address octobayPaymaster;
 
@@ -158,13 +192,21 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         octobayPaymaster = _octobayPaymaster;
     }
 
-    function _msgSender() internal override(Context, BaseRelayRecipient)
-    view returns (address payable) {
+    function _msgSender()
+        internal
+        view
+        override(Context, BaseRelayRecipient)
+        returns (address payable)
+    {
         return BaseRelayRecipient._msgSender();
     }
 
-    function _msgData() internal override(Context, BaseRelayRecipient)
-    view returns (bytes memory ret) {
+    function _msgData()
+        internal
+        view
+        override(Context, BaseRelayRecipient)
+        returns (bytes memory ret)
+    {
         return BaseRelayRecipient._msgData();
     }
 
@@ -178,12 +220,7 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         depositStorage.deductGasFee(_githubUserId, _amount);
     }
 
-
-
-
-
     // ------------ REGISTRATION ------------ //
-
 
     UserAddressStorage public userAddressStorage;
 
@@ -194,28 +231,37 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     mapping(bytes32 => UserAddressRegistration) public userAddressRegistrations;
 
-    function registerUserAddress(
-        address _oracle,
-        string calldata _githubUserId
-    ) public oracleHandlesJob(_oracle, 'register') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'register');
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                jobId,
-                address(this),
-                this.confirmRegisterUserAddress.selector
-            );
+    function registerUserAddress(address _oracle, string calldata _githubUserId)
+        public
+        oracleHandlesJob(_oracle, 'register')
+        returns (bytes32 requestId)
+    {
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(
+            _oracle,
+            'register'
+        );
+        Chainlink.Request memory request = buildChainlinkRequest(
+            jobId,
+            address(this),
+            this.confirmRegisterUserAddress.selector
+        );
         request.add('githubUserId', _githubUserId);
-        request.add('ethAddress', addressToIntString(_msgSender()));
+        request.add(
+            'ethAddress',
+            openQUtilities.addressToIntString(_msgSender())
+        );
         requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
 
-        userAddressRegistrations[requestId] = UserAddressRegistration(_githubUserId, _msgSender());
+        userAddressRegistrations[requestId] = UserAddressRegistration(
+            _githubUserId,
+            _msgSender()
+        );
     }
 
-    function confirmRegisterUserAddress(bytes32 _requestId, bytes32 _addressName)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
+    function confirmRegisterUserAddress(
+        bytes32 _requestId,
+        bytes32 _addressName
+    ) public recordChainlinkFulfillment(_requestId) {
         userAddressStorage.addUserAddress(
             userAddressRegistrations[_requestId].githubUserId,
             _addressName,
@@ -234,7 +280,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         payable
     {
         // Forwards eth payment to depositStorage to hold
-        depositStorage.depositEthForGithubUser{value: msg.value}(_githubUserId, msg.sender);
+        depositStorage.depositEthForGithubUser{value: msg.value}(
+            _githubUserId,
+            msg.sender
+        );
     }
 
     function refundUserDeposit(uint256 _depositId) external {
@@ -242,29 +291,51 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     }
 
     function withdrawUserDeposit(uint256 _depositId) external {
-        depositStorage.withdrawUserDeposit(_depositId, msg.sender, userAddressStorage.userIdsByAddress(msg.sender));
+        depositStorage.withdrawUserDeposit(
+            _depositId,
+            msg.sender,
+            userAddressStorage.userIdsByAddress(msg.sender)
+        );
     }
 
     // ------------ ISSUE DEPOSITS ------------ //
 
     OctobayGovNFT public octobayGovNFT;
 
-    function depositAndSetGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) external payable {
+    function depositAndSetGovTokenForIssue(
+        string calldata _issueId,
+        OctobayGovToken _govToken
+    ) external payable {
         depositEthForIssue(_issueId);
         setGovTokenForIssue(_issueId, _govToken);
     }
 
-    function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) public {
+    function setGovTokenForIssue(
+        string calldata _issueId,
+        OctobayGovToken _govToken
+    ) public {
         // Ensure they're giving us a valid gov token
-        require(bytes(octobayGovernor.projectsByToken(_govToken)).length != 0, "Octobay: Invalid _govToken");
-        require(octobayGovNFT.userHasPermissionForGovToken(msg.sender, _govToken, OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN), 
-            "Octobay: You don't have permission to set governance tokens for issues");
+        require(
+            bytes(octobayGovernor.projectsByToken(_govToken)).length != 0,
+            'Octobay: Invalid _govToken'
+        );
+        require(
+            octobayGovNFT.userHasPermissionForGovToken(
+                msg.sender,
+                _govToken,
+                OctobayGovNFT.Permission.SET_ISSUE_GOVTOKEN
+            ),
+            "Octobay: You don't have permission to set governance tokens for issues"
+        );
         depositStorage.setGovTokenForIssue(_issueId, _govToken);
     }
 
     function depositEthForIssue(string calldata _issueId) public payable {
         // Forwards eth payment to depositStorage to hold
-        depositStorage.depositEthForIssue{value: msg.value}(_issueId, msg.sender);
+        depositStorage.depositEthForIssue{value: msg.value}(
+            _issueId,
+            msg.sender
+        );
     }
 
     function refundIssueDeposit(uint256 _depositId) external {
@@ -280,20 +351,30 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
 
     mapping(bytes32 => IssueWithdrawRequest) public issueWithdrawRequests;
 
-    function withdrawIssueDeposit(
-        address _oracle,
-        string calldata _issueId
-    ) public oracleHandlesJob(_oracle, 'claim') returns(bytes32 requestId) {
-        require(depositStorage.issueStatusByIssueId(_issueId) == DepositStorage.IssueStatus.OPEN, 'Octobay: Issue is not OPEN.'); 
+    function withdrawIssueDeposit(address _oracle, string calldata _issueId)
+        public
+        oracleHandlesJob(_oracle, 'claim')
+        returns (bytes32 requestId)
+    {
+        require(
+            depositStorage.issueStatusByIssueId(_issueId) ==
+                DepositStorage.IssueStatus.OPEN,
+            'Octobay: Issue is not OPEN.'
+        );
 
-        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'claim');
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                jobId,
-                address(this),
-                this.confirmWithdrawIssueDeposit.selector
-            );
-        request.add('githubUserId', userAddressStorage.userIdsByAddress(msg.sender));
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(
+            _oracle,
+            'claim'
+        );
+        Chainlink.Request memory request = buildChainlinkRequest(
+            jobId,
+            address(this),
+            this.confirmWithdrawIssueDeposit.selector
+        );
+        request.add(
+            'githubUserId',
+            userAddressStorage.userIdsByAddress(msg.sender)
+        );
         request.add('issueId', _issueId);
         requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
         issueWithdrawRequests[requestId] = IssueWithdrawRequest({
@@ -306,15 +387,19 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        uint256 payoutAmt = depositStorage.confirmWithdrawIssueDeposit(issueWithdrawRequests[_requestId].payoutAddress, issueWithdrawRequests[_requestId].issueId);
+        uint256 payoutAmt = depositStorage.confirmWithdrawIssueDeposit(
+            issueWithdrawRequests[_requestId].payoutAddress,
+            issueWithdrawRequests[_requestId].issueId
+        );
         octobayGovernor.awardGovernanceTokens(
-            issueWithdrawRequests[_requestId].payoutAddress, 
-            payoutAmt, 
-            depositStorage.govTokenByIssueId(issueWithdrawRequests[_requestId].issueId));
+            issueWithdrawRequests[_requestId].payoutAddress,
+            payoutAmt,
+            depositStorage.govTokenByIssueId(
+                issueWithdrawRequests[_requestId].issueId
+            )
+        );
         delete issueWithdrawRequests[_requestId];
     }
-
-
 
     // ------------ GOVERNANCE ------------ //
 
@@ -350,15 +435,24 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     function createGovernanceToken(
         address _oracle,
         NewGovernanceRequest memory _newGovReq
-    ) public oracleHandlesJob(_oracle, 'check-ownership') returns(bytes32 requestId) {
-        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(_oracle, 'check-ownership');
-        Chainlink.Request memory request =
-            buildChainlinkRequest(
-                jobId,
-                address(this),
-                this.confirmCreateGovernanceToken.selector
-            );
-        request.add('githubUserId', userAddressStorage.userIdsByAddress(msg.sender));
+    )
+        public
+        oracleHandlesJob(_oracle, 'check-ownership')
+        returns (bytes32 requestId)
+    {
+        (bytes32 jobId, uint256 jobFee) = oracleStorage.getOracleJob(
+            _oracle,
+            'check-ownership'
+        );
+        Chainlink.Request memory request = buildChainlinkRequest(
+            jobId,
+            address(this),
+            this.confirmCreateGovernanceToken.selector
+        );
+        request.add(
+            'githubUserId',
+            userAddressStorage.userIdsByAddress(msg.sender)
+        );
         request.add('repoOrgId', _newGovReq.projectId);
         requestId = sendChainlinkRequestTo(_oracle, request, jobFee);
 
@@ -368,7 +462,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             projectId: _newGovReq.projectId,
             newProposalShare: _newGovReq.newProposalShare,
             minQuorum: _newGovReq.minQuorum,
-            govToken: octobayGovernor.createToken(_newGovReq.name, _newGovReq.symbol)
+            govToken: octobayGovernor.createToken(
+                _newGovReq.name,
+                _newGovReq.symbol
+            )
         });
     }
 
@@ -379,7 +476,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        require(tempGovernanceReqs[_requestId].isValue, "Octobay: No such request");
+        require(
+            tempGovernanceReqs[_requestId].isValue,
+            'Octobay: No such request'
+        );
 
         if (!_result) {
             delete tempGovernanceReqs[_requestId];
@@ -393,7 +493,10 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
             tempGovernanceReqs[_requestId].minQuorum,
             tempGovernanceReqs[_requestId].govToken
         );
-        uint256 nftId = octobayGovNFT.mintNFTForGovToken(tempGovernanceReqs[_requestId].creator, tempGovernanceReqs[_requestId].govToken);
+        uint256 nftId = octobayGovNFT.mintNFTForGovToken(
+            tempGovernanceReqs[_requestId].creator,
+            tempGovernanceReqs[_requestId].govToken
+        );
         octobayGovNFT.grantAllPermissions(nftId);
 
         delete tempGovernanceReqs[_requestId];
@@ -402,37 +505,17 @@ contract Octobay is Ownable, ChainlinkClient, BaseRelayRecipient {
     /// @notice A request from the site to update a governance token's params for new proposals
     /// @param _govToken The address of the governance token for this governor
     /// @param _newProposalShare Share of gov tokens a holder requires before they can create new proposals
-    /// @param _minQuorum The minimum quorum allowed for new proposals    
-    function updateGovTokenParams(OctobayGovToken _govToken, uint16 _newProposalShare, uint16 _minQuorum)
-        public
-    {
-        octobayGovernor.updateGovTokenParams(_govToken, _newProposalShare, _minQuorum, msg.sender);
-    }
-
-    // ------------ UTILS ------------ //
-
-
-    function addressToIntString(address _address)
-        internal
-        pure
-        returns (string memory _string)
-    {
-        uint256 _i = uint256(_address);
-        if (_i == 0) {
-            return '0';
-        }
-        uint256 j = _i;
-        uint256 len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint256 k = len - 1;
-        while (_i != 0) {
-            bstr[k--] = bytes1(uint8(48 + (_i % 10)));
-            _i /= 10;
-        }
-        return string(bstr);
+    /// @param _minQuorum The minimum quorum allowed for new proposals
+    function updateGovTokenParams(
+        OctobayGovToken _govToken,
+        uint16 _newProposalShare,
+        uint16 _minQuorum
+    ) public {
+        octobayGovernor.updateGovTokenParams(
+            _govToken,
+            _newProposalShare,
+            _minQuorum,
+            msg.sender
+        );
     }
 }
