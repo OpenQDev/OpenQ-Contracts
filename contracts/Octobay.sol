@@ -9,7 +9,7 @@ import './OracleStorage.sol';
 import './OpenQUtilities.sol';
 import './DepositStorage.sol';
 
-contract Octobay is
+contract OpenQ is
     Ownable,
     AirnodeClient
 {
@@ -111,55 +111,18 @@ contract Octobay is
 
     // ------------ Oracles ------------ //
 
-    //TODO: These methods are all wrappers, can we call OracleStorage directly?
-
     OracleStorage public oracleStorage;
 
     modifier oracleHandlesJob(address _oracle, string memory _jobName) {
         require(
             oracleStorage.oracleExists(_oracle),
-            'Octobay: Oracle does not exist.'
+            'OpenQ: Oracle does not exist.'
         );
         require(
             oracleStorage.oracleJobExists(_oracle, _jobName),
-            'Octobay: Oracle job does not exist.'
+            'OpenQ: Oracle job does not exist.'
         );
         _;
-    }
-
-    function addOracle(
-        address _oracle,
-        string calldata _name,
-        string[] memory _jobNames,
-        OracleStorage.Job[] memory _jobs
-    ) external onlyOwner {
-        oracleStorage.addOracle(_oracle, _name, _jobNames, _jobs);
-    }
-
-    function removeOracle(address _oracle) external onlyOwner {
-        oracleStorage.removeOracle(_oracle);
-    }
-
-    function changeOracleName(address _oracle, string calldata _name)
-        external
-        onlyOwner
-    {
-        oracleStorage.changeOracleName(_oracle, _name);
-    }
-
-    function addOracleJob(
-        address _oracle,
-        string calldata _jobName,
-        OracleStorage.Job memory _job
-    ) external onlyOwner {
-        oracleStorage.addOracleJob(_oracle, _jobName, _job);
-    }
-
-    function removeOracleJob(address _oracle, string calldata _jobName)
-        external
-        onlyOwner
-    {
-        oracleStorage.removeOracleJob(_oracle, _jobName);
     }
 
     // ------------ REGISTRATION ------------ //
