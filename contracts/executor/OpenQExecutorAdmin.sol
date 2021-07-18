@@ -4,13 +4,13 @@ pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract OpenQStorage is Ownable {
+contract OpenQExecutorAdmin is Ownable {
     address public _openQExecutorAddress;
 
     modifier onlyOpenQExecutor() {
         require(
             msg.sender == _openQExecutorAddress,
-            'OpenQStorage: Only the current OpenQ version can use this function.'
+            'Only the current OpenQExecutor can call this administrative function.'
         );
         _;
     }

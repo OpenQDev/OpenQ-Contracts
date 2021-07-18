@@ -9,10 +9,7 @@ import './OracleStorage.sol';
 import './OpenQUtilities.sol';
 import './DepositStorage.sol';
 
-contract OpenQ is
-    Ownable,
-    AirnodeClient
-{
+contract OpenQ is Ownable, AirnodeClient {
     constructor(
         address _link,
         address _userAddressStorage,
@@ -27,7 +24,64 @@ contract OpenQ is
         _setOpenQUtilities(_openQUtilities);
     }
 
-    // ------------ Airnode ------------ //
+    // ------------ AUXILIARY CONTRACT ADDRESSES ------------ //
+
+    OracleStorage public oracleStorage;
+    DepositStorage public depositStorage;
+    UserAddressStorage public userAddressStorage;
+    OpenQUtilities public openQUtilities;
+
+    // ------------ ADDRESS UPDATE EVENTS ------------ //
+
+    event SetOracleStorageEvent(address oracleStorage);
+    event SetDepositStorageEvent(address depositStorage);
+    event SetUserAddressStorageEvent(address addressStorage);
+    event SetOpenQUtilities(address openQUtilities);
+
+    // ------------ ADDRESS SETTERS (EXTERNAL) ------------ //
+
+    function setOracleStorage(address _oracleStorage) external onlyOwner {
+        _setOracleStorage(_oracleStorage);
+    }
+
+    function setDepositStorage(address _depositStorage) external onlyOwner {
+        _setDepositStorage(_depositStorage);
+    }
+
+    function setUserAddressStorage(address _userAddressStorage)
+        external
+        onlyOwner
+    {
+        _setUserAddressStorage(_userAddressStorage);
+    }
+
+    function setOpenQUtilities(address _openQUtilities) external onlyOwner {
+        _setOpenQUtilities(_openQUtilities);
+    }
+
+    // ------------ ADDRESS SETTERS (INTERNAL) ------------ //
+
+    function _setOracleStorage(address _oracleStorage) internal {
+        oracleStorage = OracleStorage(_oracleStorage);
+        emit SetOracleStorageEvent(_oracleStorage);
+    }
+
+    function _setDepositStorage(address _depositStorage) internal {
+        depositStorage = DepositStorage(_depositStorage);
+        emit SetDepositStorageEvent(_depositStorage);
+    }
+
+    function _setUserAddressStorage(address _userAddressStorage) internal {
+        userAddressStorage = UserAddressStorage(_userAddressStorage);
+        emit SetUserAddressStorageEvent(_userAddressStorage);
+    }
+
+    function _setOpenQUtilities(address _openQUtilities) internal {
+        openQUtilities = OpenQUtilities(_openQUtilities);
+        emit SetOpenQUtilities(_openQUtilities);
+    }
+
+    // ------------ AIRNODE ------------ //
 
     mapping(bytes32 => bool) public incomingFulfillments;
     mapping(bytes32 => int256) public fulfilledData;
@@ -61,73 +115,7 @@ contract OpenQ is
         }
     }
 
-    // ------------ Set contract addresses ------------ //
-
-    event SetUserAddressStorageEvent(address addressStorage);
-    event SetOracleStorageEvent(address oracleStorage);
-    event SetDepositStorageEvent(address depositStorage);
-    event SetOpenQUtilities(address openQUtilities);
-
-    function setUserAddressStorage(address _userAddressStorage)
-        external
-        onlyOwner
-    {
-        _setUserAddressStorage(_userAddressStorage);
-    }
-
-    function setOracleStorage(address _oracleStorage) external onlyOwner {
-        _setOracleStorage(_oracleStorage);
-    }
-
-    function setDepositStorage(address _depositStorage) external onlyOwner {
-        _setDepositStorage(_depositStorage);
-    }
-
-    function setOpenQUtilities(address _openQUtilities) external onlyOwner {
-        _setOpenQUtilities(_openQUtilities);
-    }
-
-    function _setUserAddressStorage(address _userAddressStorage) internal {
-        userAddressStorage = UserAddressStorage(_userAddressStorage);
-        emit SetUserAddressStorageEvent(_userAddressStorage);
-    }
-
-    function _setOracleStorage(address _oracleStorage) internal {
-        oracleStorage = OracleStorage(_oracleStorage);
-        emit SetOracleStorageEvent(_oracleStorage);
-    }
-
-    function _setDepositStorage(address _depositStorage) internal {
-        depositStorage = DepositStorage(_depositStorage);
-        emit SetDepositStorageEvent(_depositStorage);
-    }
-
-    OpenQUtilities public openQUtilities;
-
-    function _setOpenQUtilities(address _openQUtilities) internal {
-        openQUtilities = OpenQUtilities(_openQUtilities);
-        emit SetOpenQUtilities(_openQUtilities);
-    }
-
-    // ------------ Oracles ------------ //
-
-    OracleStorage public oracleStorage;
-
-    modifier oracleHandlesJob(address _oracle, string memory _jobName) {
-        require(
-            oracleStorage.oracleExists(_oracle),
-            'OpenQ: Oracle does not exist.'
-        );
-        require(
-            oracleStorage.oracleJobExists(_oracle, _jobName),
-            'OpenQ: Oracle job does not exist.'
-        );
-        _;
-    }
-
     // ------------ REGISTRATION ------------ //
-
-    UserAddressStorage public userAddressStorage;
 
     struct UserAddressRegistration {
         string githubUserId;
@@ -179,8 +167,6 @@ contract OpenQ is
     }
 
     // ------------ USER DEPOSITS ------------ //
-
-    DepositStorage public depositStorage;
 
     function depositEthForGithubUser(string calldata _githubUserId)
         external
@@ -266,3 +252,4 @@ contract OpenQ is
         );
         delete issueWithdrawRequests[_requestId];
     }
+}

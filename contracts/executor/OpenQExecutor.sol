@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
-import './OracleStorage.sol';
+import '../OracleStorage.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 /* 
@@ -10,12 +10,12 @@ In turn, other contracts (like Storage) can only be updated by calling methods o
 This is done by setting the OpenQExecutor address in OpenQStorage to this contracts address.
 
 This allows for a separation of administration tasks from business logic.
-
-The same contract that does things like calculate ETH/USD price need not be the same contract that adds oracle jobs.
 */
 contract OpenQExecutor is Ownable {
     // ------------ ORACLE STORAGE ------------ //
     OracleStorage public oracleStorage;
+
+    event SetOracleStorageEvent(address oracleStorage);
 
     constructor(address _oracleStorage) {
         _setOracleStorage(_oracleStorage);

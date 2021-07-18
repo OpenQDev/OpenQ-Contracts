@@ -2,7 +2,7 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import './OpenQStorage.sol';
+import './executor/OpenQExecutorAdmin.sol';
 
 // This contract acts as Octobay's oracle storage.
 contract OracleStorage is OpenQStorage {
@@ -37,7 +37,7 @@ contract OracleStorage is OpenQStorage {
 
     function addOracle(address _oracle, string calldata _name)
         external
-        onlyOctobay
+        onlyOpenQExecutor
     {
         require(
             bytes(oracles[_oracle].name).length == 0,
@@ -55,7 +55,7 @@ contract OracleStorage is OpenQStorage {
 
     function removeOracle(address _oracle)
         external
-        onlyOctobay
+        onlyOpenQExecutor
         onlyRegisteredOracle(_oracle)
     {
         for (uint256 i = 0; i < registeredOracles.length; i++) {
@@ -80,7 +80,7 @@ contract OracleStorage is OpenQStorage {
 
     function changeOracleName(address _oracle, string calldata _name)
         external
-        onlyOctobay
+        onlyOpenQExecutor
         onlyRegisteredOracle(_oracle)
     {
         oracles[_oracle].name = _name;
@@ -91,14 +91,14 @@ contract OracleStorage is OpenQStorage {
         address _oracle,
         string calldata _jobName,
         Job memory _job
-    ) external onlyOctobay onlyRegisteredOracle(_oracle) {
+    ) external onlyOpenQExecutor onlyRegisteredOracle(_oracle) {
         oracles[_oracle].jobs[_jobName] = _job;
         emit OracleJobAddedEvent(_oracle, _jobName, _job.id);
     }
 
     function removeOracleJob(address _oracle, string calldata _jobName)
         external
-        onlyOctobay
+        onlyOpenQExecutor
         onlyRegisteredOracle(_oracle)
     {
         emit OracleJobRemovedEvent(
@@ -136,5 +136,17 @@ contract OracleStorage is OpenQStorage {
         returns (bool)
     {
         return oracles[_oracle].jobs[_jobName].id > 0;
+    }
+
+    modifier oracleHandlesJob(address _oracle, string memory _jobName) {
+        require(
+            oracleStorage.oracleExists(_oracle),
+            'OpenQ: Oracle does not exist.'
+        );
+        require(
+            oracleStorage.oracleJobExists(_oracle, _jobName),
+            'OpenQ: Oracle job does not exist.'
+        );
+        _;
     }
 }
