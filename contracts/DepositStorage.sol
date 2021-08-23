@@ -1,25 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import './OctobayStorage.sol';
-import './OctobayGovToken.sol';
+import './OpenQStorage.sol';
 
-contract DepositStorage is OctobayStorage {
-
+contract DepositStorage is OpenQStorage {
     struct IssueDeposit {
         address from;
         uint256 amount;
         string issueId;
     }
 
-
     struct UserDeposit {
         address from;
         uint256 amount;
         string githubUserId;
     }
-  
 
     enum IssueStatus {
         // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
@@ -32,7 +28,7 @@ contract DepositStorage is OctobayStorage {
     uint256 private nextUserDepositId = 0;
     mapping(uint256 => UserDeposit) public userDeposits;
     mapping(string => uint256[]) public userDepositIdsByGithubUserId;
-    mapping(address => uint256[]) public userDepositIdsBySender;  
+    mapping(address => uint256[]) public userDepositIdsBySender;
 
     mapping(uint256 => IssueDeposit) public issueDeposits;
     uint256 public nextIssueDepositId = 0;
@@ -40,28 +36,22 @@ contract DepositStorage is OctobayStorage {
     mapping(address => uint256[]) public issueDepositIdsBySender;
     mapping(string => uint256) public issueDepositsAmountByIssueId;
     mapping(string => IssueStatus) public issueStatusByIssueId;
-    mapping(string => OctobayGovToken) public govTokenByIssueId;
-
-    // ------------ GSN ------------ //
-
-    function deductGasFee(string calldata _githubUserId, uint256 _amount)
-        external onlyOctobay
-    {
-        require(userClaimAmountByGithbUserId[_githubUserId] >= _amount, 'DepositStorage: Not enough funds to pay gasFee');
-        userClaimAmountByGithbUserId[_githubUserId] -= _amount;
-    }
 
     // ------------ USER DEPOSITS ------------ //
 
-    event UserDepositEvent(address from, uint256 amount, string githubUserId, uint256 depositId);
+    event UserDepositEvent(
+        address from,
+        uint256 amount,
+        string githubUserId,
+        uint256 depositId
+    );
     event RefundUserDepositEvent(uint256 depositId);
     event WithdrawUserDepositEvent(uint256 depositId);
 
-    function depositEthForGithubUser(string calldata _githubUserId, address msgSender)
-        external
-        payable
-        onlyOctobay
-    {
+    function depositEthForGithubUser(
+        string calldata _githubUserId,
+        address msgSender
+    ) external payable onlyOpenQ {
         require(msg.value > 0, 'DepositStorage: You must send ETH.');
 
         nextUserDepositId++;
@@ -76,28 +66,38 @@ contract DepositStorage is OctobayStorage {
         // increment claim amount
         userClaimAmountByGithbUserId[_githubUserId] += msg.value;
 
-        emit UserDepositEvent(msgSender, msg.value, _githubUserId, nextUserDepositId);
+        emit UserDepositEvent(
+            msgSender,
+            msg.value,
+            _githubUserId,
+            nextUserDepositId
+        );
     }
 
-    function refundUserDeposit(uint256 _depositId, address msgSender) external onlyOctobay {
+    function refundUserDeposit(uint256 _depositId, address msgSender)
+        external
+        onlyOpenQ
+    {
         require(
             userDeposits[_depositId].from == msgSender,
             'DepositStorage: Deposit did not come from this Ethereum address.'
         );
-        _sendDeposit(_depositId, msgSender);   // msg.sender is depositor
-        
+        _sendDeposit(_depositId, msgSender); // msg.sender is depositor
+
         emit RefundUserDepositEvent(_depositId);
     }
 
-    function withdrawUserDeposit(uint256 _depositId, address msgSender, string calldata _userId) external onlyOctobay {
+    function withdrawUserDeposit(
+        uint256 _depositId,
+        address msgSender,
+        string calldata _userId
+    ) external onlyOpenQ {
         require(
             keccak256(bytes(userDeposits[_depositId].githubUserId)) ==
-                keccak256(
-                    bytes(_userId)
-                ),
+                keccak256(bytes(_userId)),
             'DepositStorage: Deposit is not for this GitHub account.'
         );
-        _sendDeposit(_depositId, msgSender);   // msg.sender is user
+        _sendDeposit(_depositId, msgSender); // msg.sender is user
 
         emit WithdrawUserDepositEvent(_depositId);
     }
@@ -114,20 +114,26 @@ contract DepositStorage is OctobayStorage {
 
     // ------------ ISSUE DEPOSITS ------------ //
 
-    event IssueDepositEvent(address from, uint256 amount, string issueId, uint256 depositId);
+    event IssueDepositEvent(
+        address from,
+        uint256 amount,
+        string issueId,
+        uint256 depositId
+    );
     event RefundIssueDepositEvent(uint256 depositId);
     event WithdrawIssueDepositsEvent(string issueId);
-    event SetGovTokenForIssueEvent(string  issueId, address govTokenAddress);
+    event SetGovTokenForIssueEvent(string issueId, address govTokenAddress);
 
-    function setGovTokenForIssue(string calldata _issueId, OctobayGovToken _govToken) external onlyOctobay {
-        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'DepositStorage: Issue is not OPEN.');
-        govTokenByIssueId[_issueId] = _govToken;
-        emit SetGovTokenForIssueEvent(_issueId, address(_govToken));
-    }
-
-    function depositEthForIssue(string calldata _issueId, address msgSender) external payable onlyOctobay {
+    function depositEthForIssue(string calldata _issueId, address msgSender)
+        external
+        payable
+        onlyOpenQ
+    {
         require(msg.value > 0, 'DepositStorage: You must send ETH.');
-        require(issueStatusByIssueId[_issueId] == IssueStatus.OPEN, 'DepositStorage: Issue is not OPEN.');
+        require(
+            issueStatusByIssueId[_issueId] == IssueStatus.OPEN,
+            'DepositStorage: Issue is not OPEN.'
+        );
 
         nextIssueDepositId++;
         issueDeposits[nextIssueDepositId] = IssueDeposit(
@@ -139,15 +145,27 @@ contract DepositStorage is OctobayStorage {
         issueDepositIdsBySender[msgSender].push(nextIssueDepositId);
         issueDepositsAmountByIssueId[_issueId] += msg.value;
 
-        emit IssueDepositEvent(msgSender, msg.value, _issueId, nextIssueDepositId);
+        emit IssueDepositEvent(
+            msgSender,
+            msg.value,
+            _issueId,
+            nextIssueDepositId
+        );
     }
 
-    function refundIssueDeposit(uint256 _depositId, address msgSender) external onlyOctobay {
+    function refundIssueDeposit(uint256 _depositId, address msgSender)
+        external
+        onlyOpenQ
+    {
         require(
             issueDeposits[_depositId].from == msgSender,
             'DepositStorage: Deposit did not come from this Ethereum address or does not exist.'
         );
-        require(issueStatusByIssueId[issueDeposits[_depositId].issueId] == IssueStatus.OPEN, 'DepositStorage: Issue is not OPEN.');
+        require(
+            issueStatusByIssueId[issueDeposits[_depositId].issueId] ==
+                IssueStatus.OPEN,
+            'DepositStorage: Issue is not OPEN.'
+        );
 
         uint256 payoutAmt = issueDeposits[_depositId].amount;
         issueDepositsAmountByIssueId[
@@ -161,10 +179,10 @@ contract DepositStorage is OctobayStorage {
         payable(msgSender).transfer(payoutAmt);
     }
 
-    function confirmWithdrawIssueDeposit(address _payoutAddress, string calldata _issueId)
-        external onlyOctobay
-        returns(uint256)
-    {
+    function confirmWithdrawIssueDeposit(
+        address _payoutAddress,
+        string calldata _issueId
+    ) external onlyOpenQ returns (uint256) {
         require(_payoutAddress != address(0));
         uint256 payoutAmt = issueDepositsAmountByIssueId[_issueId];
         issueDepositsAmountByIssueId[_issueId] = 0;
@@ -177,5 +195,4 @@ contract DepositStorage is OctobayStorage {
 
         return payoutAmt;
     }
-
 }
