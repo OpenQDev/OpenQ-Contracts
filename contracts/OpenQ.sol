@@ -104,21 +104,23 @@ contract OpenQ is Ownable {
 
     struct IssueWithdrawRequest {
         string issueId;
-        address payoutAddress;
+        string username;
     }
 
     mapping(bytes32 => IssueWithdrawRequest) public issueWithdrawRequests;
 
     function withdrawIssueDeposit(
         string calldata _issueId,
-        address payoutAddress
-    ) public {
+        string calldata _username
+    ) public onlyOwner {
         require(
             depositStorage.issueStatusByIssueId(_issueId) ==
                 DepositStorage.IssueStatus.OPEN,
             'OpenQ: Issue is not OPEN.'
         );
 
-        depositStorage.confirmWithdrawIssueDeposit(payoutAddress, _issueId);
+        address payoutAddress = userAddressStorage.addresses(_username);
+
+        depositStorage.withdrawIssueDeposit(payoutAddress, _issueId);
     }
 }

@@ -18,7 +18,6 @@ contract DepositStorage is OpenQStorage {
     }
 
     enum IssueStatus {
-        // NOT_VALID, // There's no sense of 'opening' an issue atm, this would be used if so
         OPEN,
         CLAIMED
     }
@@ -179,7 +178,7 @@ contract DepositStorage is OpenQStorage {
         payable(msgSender).transfer(payoutAmt);
     }
 
-    function confirmWithdrawIssueDeposit(
+    function withdrawIssueDeposit(
         address _payoutAddress,
         string calldata _issueId
     ) external onlyOpenQ returns (uint256) {
@@ -187,7 +186,6 @@ contract DepositStorage is OpenQStorage {
         uint256 payoutAmt = issueDepositsAmountByIssueId[_issueId];
         issueDepositsAmountByIssueId[_issueId] = 0;
         issueStatusByIssueId[_issueId] = IssueStatus.CLAIMED;
-        // delete issueDeposits[_depositId]; ??? loop through issueDepositIdsByIssueId ???
 
         emit WithdrawIssueDepositsEvent(_issueId);
 
