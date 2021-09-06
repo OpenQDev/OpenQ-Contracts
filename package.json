@@ -3,31 +3,23 @@
   "description": "Contracts for OctoBay - Ethereum Payment Service for GitHub",
   "version": "1.0.0",
   "private": true,
-  "main": "truffle-config.js",
   "scripts": {
-    "verify-kovan": "yarn verify-kovan-address-storage; yarn verify-kovan-oracle-storage; yarn verify-kovan-deposit-storage; yarn verify-kovan-govnft; yarn verify-kovan-governor; yarn verify-kovan-octobay;",
-    "verify-kovan-address-storage": "truffle run verify UserAddressStorage --network kovan",
-    "verify-kovan-oracle-storage": "truffle run verify OracleStorage --network kovan",
-    "verify-kovan-deposit-storage": "truffle run verify DepositStorage --network kovan",
-    "verify-kovan-govnft": "truffle run verify OctobayGovNFT --network kovan",
-    "verify-kovan-governor": "truffle run verify OctobayGovernor --network kovan",
-    "verify-kovan-octobay": "truffle run verify Octobay --network kovan"
+    "hardhat-node": "hardhat node",
+    "deploy-local": "hardhat run --network localhost deploy/deploy.js",
+    "hardhat-console": "hardhat console --network localhost"
   },
   "dependencies": {
-    "@0x/contracts-utils": "^4.7.0",
-    "@chainlink/contracts": "0.0.11",
-    "@openzeppelin/contracts": "^3.1.0",
-    "@truffle/hdwallet-provider": "^1.2.6",
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^4.3.1",
     "dotenv": "^8.2.0",
-    "truffle": "^5.3.0",
-    "web3": "^1.2.11"
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.4.5",
+    "hardhat": "^2.6.2"
   },
   "devDependencies": {
-    "@opengsn/gsn": "^2.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "ganache-cli": "^6.12.1",
-    "prettier": "^2.0.5",
-    "truffle-plugin-verify": "^0.5.7"
+    "prettier": "^2.0.5"
   }
 }
