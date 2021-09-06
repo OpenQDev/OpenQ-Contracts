@@ -30,4 +30,21 @@ describe("DepositStorage contract", () => {
 
         expect(ethers.utils.formatEther(depositAmount)).to.equal("1.0");
     });
+
+    it("can only be called from OpenQ contract", async () => {
+        const DepositStorage = await ethers.getContractFactory("DepositStorage");
+        const depositStorage = await DepositStorage.deploy();
+
+        const accounts = await ethers.getSigners();
+        const [owner] = await ethers.getSigners();
+        await depositStorage.setOpenQ(owner.address);
+
+        const stranger = accounts[1];
+        let contractWithNonOwnerAccount = depositStorage.connect(stranger);
+
+        const address = "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690";
+        const mockIssueId = "mockIssueId";
+
+        await expect(contractWithNonOwnerAccount.withdrawIssueDeposit(address, mockIssueId)).to.be.revertedWith('OpenQStorage: Only the current OpenQ version can use this function.');
+    });
 });
