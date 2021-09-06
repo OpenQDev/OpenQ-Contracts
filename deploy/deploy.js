@@ -13,11 +13,8 @@ async function main() {
     const openQ = await OpenQ.deploy(userAddressStorage.address, depositStorage.address);
     await openQ.deployed();
 
-    const depositStorageContract = await DepositStorage.attach(userAddressStorage.address);
-    const userAddressStorageContract = await UserAddressStorage.attach(depositStorage.address);
-
-    await depositStorageContract.setOpenQ(openQ.address);
-    await userAddressStorageContract.setOpenQ(openQ.address);
+    await depositStorage.setOpenQ(openQ.address);
+    await userAddressStorage.setOpenQ(openQ.address);
 
     console.log("OpenQ deployed to:", openQ.address);
     console.log("DepositStorage deployed to:", depositStorage.address);

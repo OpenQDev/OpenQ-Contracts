@@ -4,14 +4,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "hardhat-node": "hardhat node",
-    "deploy-local": "hardhat run --network localhost deploy/deploy.js",
-    "hardhat-console": "hardhat console --network localhost"
+    "node": "hardhat node",
+    "deploy": "hardhat run --network localhost deploy/deploy.js",
+    "console": "hardhat console --network localhost",
+    "test": "hardhat test"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "^4.3.1",
+    "chai": "^4.3.4",
     "dotenv": "^8.2.0",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.5",
