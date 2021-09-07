@@ -1,6 +1,9 @@
 const { expect } = require("chai");
 
 describe("DepositStorage contract", () => {
+    // Solidity enums return an array index, not a string. This maps to the IssueStatus enum in DepositStorage.sol
+    const issueStatusEnum = ["OPEN", "CLAIMED"];
+
     it("setOpenQ should set openq address", async () => {
         const DepositStorage = await ethers.getContractFactory("DepositStorage");
         const depositStorage = await DepositStorage.deploy();
@@ -48,7 +51,7 @@ describe("DepositStorage contract", () => {
         expect(ethers.utils.formatEther(depositAmount)).to.equal("1.0");
     });
 
-    it("withdrawIssueDeposit should send deposit amount to calimers address", async () => {
+    it("withdrawIssueDeposit should send deposit amount to claimers address and remove the issueId", async () => {
         // Instantiate contract and set up
         const DepositStorage = await ethers.getContractFactory("DepositStorage");
         const depositStorage = await DepositStorage.deploy();
@@ -67,14 +70,24 @@ describe("DepositStorage contract", () => {
         const contractor = accounts[1];
 
         // Fetch a contractor account
-        const contractorBalanceBefore = await ethers.provider.getBalance(contractor.address);
+        const contractorBalanceBefore = parseFloat(ethers.utils.formatEther((await ethers.provider.getBalance(contractor.address))));
 
         // Withdraw issue deposit
-        const payoutAmount = await depositStorage.withdrawIssueDeposit(contractor.address, "mockIssueId");
+        const payoutAmount = parseFloat(ethers.utils.formatEther(await depositStorage.issueDepositsAmountByIssueId(mockIssueId)));
+        await depositStorage.withdrawIssueDeposit(contractor.address, "mockIssueId");
 
         // Fetch new contractor balance
-        const contractorBalanceAfter = ethers.utils.formatEther(await ethers.provider.getBalance(contractor.address));
+        const contractorBalanceAfter = parseFloat(ethers.utils.formatEther(await ethers.provider.getBalance(contractor.address)));
 
-        expect(contractorBalanceAfter).to.equal(contractorBalanceBefore.add(payoutAmount));
+        // Expect contractor balance to be approximately contractorBalanceBefore + payoutAmount
+        expect(contractorBalanceAfter).to.equal(contractorBalanceBefore + payoutAmount);
+
+        // Expect issueId to have amount 0
+        const payoutAmountAfter = parseFloat(ethers.utils.formatEther(await depositStorage.issueDepositsAmountByIssueId(mockIssueId)));
+        expect(payoutAmountAfter).to.equal(0);
+
+        // Expect issue to be claimed
+        const status = await depositStorage.issueStatusByIssueId(mockIssueId);
+        expect(issueStatusEnum[status]).to.equal("CLAIMED");
     });
 });
