@@ -10,7 +10,7 @@ contract UserAddressStorage is OpenQStorage {
 
     event UserAddressAddedEvent(string userId, address ethAddress);
 
-    function upsertUserAddress(string calldata _userId, address ethAddress)
+    function registerUserAddress(string calldata _userId, address ethAddress)
         public
         onlyOpenQ
     {

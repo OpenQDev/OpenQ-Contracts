@@ -60,7 +60,7 @@ contract OpenQ is Ownable {
         string calldata _githubUserId,
         address _ethAddress
     ) public onlyOwner {
-        userAddressStorage.upsertUserAddress(_githubUserId, _ethAddress);
+        userAddressStorage.registerUserAddress(_githubUserId, _ethAddress);
     }
 
     // ------------ USER DEPOSITS ------------ //
@@ -118,9 +118,8 @@ contract OpenQ is Ownable {
                 DepositStorage.IssueStatus.OPEN,
             'OpenQ: Issue is not OPEN.'
         );
-
         address payoutAddress = userAddressStorage.addresses(_username);
-
+        require(payoutAddress != address(0), 'User is not registered');
         depositStorage.withdrawIssueDeposit(payoutAddress, _issueId);
     }
 
@@ -130,5 +129,19 @@ contract OpenQ is Ownable {
         returns (bool isRegistered)
     {
         return userAddressStorage.addresses(_userId) != address(0);
+    }
+
+    error NotEnoughEther();
+
+    function withdrawAmount(uint256 amount) public onlyOwner {
+        require(
+            amount <= getBalance(),
+            'Attempting to withdraw greater amount than is in contract'
+        );
+        payable(msg.sender).transfer(amount);
+    }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 }
