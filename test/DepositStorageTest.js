@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { bigNumberToEtherFloat } = require("./utils");
 
 describe("DepositStorage contract", () => {
     // Solidity enums return an array index, not a string. This maps to the IssueStatus enum in DepositStorage.sol
@@ -70,20 +71,20 @@ describe("DepositStorage contract", () => {
         const contractor = accounts[1];
 
         // Fetch a contractor account
-        const contractorBalanceBefore = parseFloat(ethers.utils.formatEther((await ethers.provider.getBalance(contractor.address))));
+        const contractorBalanceBefore = bigNumberToEtherFloat(await ethers.provider.getBalance(contractor.address));
 
         // Withdraw issue deposit
-        const payoutAmount = parseFloat(ethers.utils.formatEther(await depositStorage.issueDepositsAmountByIssueId(mockIssueId)));
+        const payoutAmount = bigNumberToEtherFloat(await depositStorage.issueDepositsAmountByIssueId(mockIssueId));
         await depositStorage.withdrawIssueDeposit(contractor.address, "mockIssueId");
 
         // Fetch new contractor balance
-        const contractorBalanceAfter = parseFloat(ethers.utils.formatEther(await ethers.provider.getBalance(contractor.address)));
+        const contractorBalanceAfter = bigNumberToEtherFloat(await ethers.provider.getBalance(contractor.address));
 
         // Expect contractor balance to be approximately contractorBalanceBefore + payoutAmount
         expect(contractorBalanceAfter).to.equal(contractorBalanceBefore + payoutAmount);
 
         // Expect issueId to have amount 0
-        const payoutAmountAfter = parseFloat(ethers.utils.formatEther(await depositStorage.issueDepositsAmountByIssueId(mockIssueId)));
+        const payoutAmountAfter = bigNumberToEtherFloat(await depositStorage.issueDepositsAmountByIssueId(mockIssueId));
         expect(payoutAmountAfter).to.equal(0);
 
         // Expect issue to be claimed
