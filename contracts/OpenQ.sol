@@ -60,7 +60,7 @@ contract OpenQ is Ownable {
         string calldata _githubUserId,
         address _ethAddress
     ) public onlyOwner {
-        userAddressStorage.addUserAddress(_githubUserId, _ethAddress);
+        userAddressStorage.upsertUserAddress(_githubUserId, _ethAddress);
     }
 
     // ------------ USER DEPOSITS ------------ //
@@ -122,5 +122,13 @@ contract OpenQ is Ownable {
         address payoutAddress = userAddressStorage.addresses(_username);
 
         depositStorage.withdrawIssueDeposit(payoutAddress, _issueId);
+    }
+
+    function usernameIsRegistered(string calldata _userId)
+        public
+        view
+        returns (bool isRegistered)
+    {
+        return userAddressStorage.addresses(_userId) != address(0);
     }
 }
