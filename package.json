@@ -5,8 +5,9 @@
   "private": true,
   "scripts": {
     "node": "hardhat node",
-    "deploy": "hardhat run --network localhost deploy/deploy.js",
-    "console": "hardhat console --network localhost",
+    "deploy:local": "hardhat run --network localhost deploy/deploy.js",
+    "deploy:rinkeby": "hardhat run --network rinkeby deploy/deploy.js",
+    "console:local": "hardhat console --network localhost",
     "test": "hardhat test"
   },
   "dependencies": {

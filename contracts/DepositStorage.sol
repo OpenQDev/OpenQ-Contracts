@@ -152,9 +152,9 @@ contract DepositStorage is OpenQStorage {
         );
     }
 
+    //
     function refundIssueDeposit(uint256 _depositId, address msgSender)
         external
-        onlyOpenQ
     {
         require(
             issueDeposits[_depositId].from == msgSender,
@@ -183,6 +183,10 @@ contract DepositStorage is OpenQStorage {
         string calldata _issueId
     ) external onlyOpenQ returns (uint256) {
         require(_payoutAddress != address(0));
+        require(
+            issueStatusByIssueId[_issueId] != IssueStatus.CLAIMED,
+            'Issue already claimed!'
+        );
         uint256 payoutAmt = issueDepositsAmountByIssueId[_issueId];
         issueDepositsAmountByIssueId[_issueId] = 0;
         issueStatusByIssueId[_issueId] = IssueStatus.CLAIMED;

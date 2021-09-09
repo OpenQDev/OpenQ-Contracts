@@ -1,0 +1,15 @@
+version: 2.1
+orbs:
+  node: circleci/node@3.0.0
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run: yarn
+      - run: npm test
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
