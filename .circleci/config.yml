@@ -12,4 +12,3 @@ jobs:
       - run: yarn -v
       - run: yarn
       - run: yarn test
-      # - run: export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"' >> $BASH_ENV
