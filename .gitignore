@@ -4,3 +4,6 @@ package-lock.json
 .mnemonic
 *.swp
 .wallets
+cache
+artifacts/
+cache/
