@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/alo/contracts/contracts/DepositStorage.sol": {
-      "lastModificationDate": 1630936389102,
-      "contentHash": "c08c01dc5918e4c5090f71a0586944d6",
+      "lastModificationDate": 1631009689871,
+      "contentHash": "ad58d97161fd34e92efc4c433e935dee",
       "sourceName": "contracts/DepositStorage.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -144,8 +144,8 @@
       ]
     },
     "/Users/alo/contracts/contracts/OpenQ.sol": {
-      "lastModificationDate": 1631008386032,
-      "contentHash": "5924360a09007c56f66fbe558921671f",
+      "lastModificationDate": 1631008558078,
+      "contentHash": "677dd336447c714081ce2ad560567e7c",
       "sourceName": "contracts/OpenQ.sol",
       "solcConfig": {
         "version": "0.8.4",
