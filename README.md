@@ -1,54 +1,43 @@
-# Octobay Contracts
+# OpenQ Contracts
+
+This is the API middleware between the OpenQ frontend and the OpenQ backend.
+
+## Stack
+Package Manger: yarn
+Language: Solidity
+Toolchain: Hardhat
 
 ## Contracts
 
-### Octobay.sol
+### OpenQStorage
 
-This is the main contract that connects all the parts.
-Many of the other contract's functions are only accessible through this main contract.
+### DepositStorage
 
-### UserAddressStorage.sol
+### UserAddressStorage
 
-Stores verified Ethereum addresses for GitHub users.
+### OpenQ
 
-### OracleStorage.sol
+## Deployment
 
-Stores information about our Chainlink oracles and their available jobs.
-
-### DepositStorage.sol
-
-Stores funds for GitHub users and issues.
-
-### OctobayGovernor.sol
-
-Stores departments and deploys governance tokens.
-
-### OctobayGovNFT.sol
-
-An ERC721 contract, managing the transferable permissions in governance departments.
-
-### OctobayGovToken.sol
-
-The template contract for new governance tokens.
-
-## Deploy Scripts
-
-Which contracts are deployed and how depents on the target.
-The LINK token and the Oracle contract are only deployed in development mode. LINK tokens are then automatically transferred to the main contract.
+Start a hardhat Ethereum Node
 
 ```bash
-# Kovan testnet, using Infura and KOVAN_API_KEY env var
-truffle migrate --network kovan
-
-# Local node port 8545
-truffle migrate --network development
+yarn node
 ```
 
-When the main contract is deployed it connects itself with the other deployed contracts and overwrites old connections. If one contract was updated you just need to re-deploy this one and the main contract.
+To deploy all contracts to the Hardhat node running on localhost:8485, run:
 
 ```bash
-truffle migrate --network development --f <migration> --to <migration>
+yarn deploy:local
+```
 
-# Octobay
-truffle migrate --network development --f 30 --to 30
+To deploy all contracts to Rinkeby, run:
+
+```bash
+yarn deploy:local
+```
+
+## Test
+```bash
+npm test
 ```
