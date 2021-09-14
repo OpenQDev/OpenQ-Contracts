@@ -3,17 +3,37 @@ pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 import './OpenQStorage.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 contract DepositStorage is OpenQStorage {
     struct IssueDeposit {
-        address from;
-        uint256 amount;
         string issueId;
+        mapping(string => mapping(string => uint256)) fromToTokenToAmount;
+    }
+
+    mapping(string => IssueDeposit[]) public depositsByIssueId;
+
+    function depositERC20ForIssue(
+        string calldata _issueId,
+        address msgSender,
+        string calldata token,
+        uint256 amount
+    ) external onlyOpenQ {
+        require(amount > 0, 'DepositStorage: You must send some ERC20.');
+
+        ERC20 tokenContract = ERC20(tokenAddressBySymbol[token]);
+        tokenContract.transferFrom(msgSender, address(this), amount);
+        depositsByIssueId[_issueId].fromToTokenToAmount[msgSender][
+            token
+        ] += amount;
+        emit IssueDepositEvent(msgSender, token, amount, _issueId);
     }
 
     struct UserDeposit {
         address from;
         uint256 amount;
+        string token;
         string githubUserId;
     }
 
@@ -29,12 +49,7 @@ contract DepositStorage is OpenQStorage {
     mapping(string => uint256[]) public userDepositIdsByGithubUserId;
     mapping(address => uint256[]) public userDepositIdsBySender;
 
-    mapping(uint256 => IssueDeposit) public issueDeposits;
-    uint256 public nextIssueDepositId = 0;
-    mapping(string => uint256[]) public issueDepositIdsByIssueId; // Consider removing this? Can be derived from issueDeposits. Unless we need it for deletion.
-    mapping(address => uint256[]) public issueDepositIdsBySender;
-    mapping(string => uint256) public issueDepositsAmountByIssueId;
-    mapping(string => IssueStatus) public issueStatusByIssueId;
+    mapping(string => address) public tokenAddressBySymbol;
 
     // ------------ USER DEPOSITS ------------ //
 
@@ -71,6 +86,12 @@ contract DepositStorage is OpenQStorage {
             _githubUserId,
             nextUserDepositId
         );
+    }
+
+    function setTokenAddress(string calldata _symbol, address _tokenAddress)
+        public
+    {
+        tokenAddressBySymbol[_symbol] = _tokenAddress;
     }
 
     function refundUserDeposit(uint256 _depositId, address msgSender)
@@ -115,42 +136,13 @@ contract DepositStorage is OpenQStorage {
 
     event IssueDepositEvent(
         address from,
+        string token,
         uint256 amount,
-        string issueId,
-        uint256 depositId
+        string issueId
     );
     event RefundIssueDepositEvent(uint256 depositId);
     event WithdrawIssueDepositsEvent(string issueId);
     event SetGovTokenForIssueEvent(string issueId, address govTokenAddress);
-
-    function depositEthForIssue(string calldata _issueId, address msgSender)
-        external
-        payable
-        onlyOpenQ
-    {
-        require(msg.value > 0, 'DepositStorage: You must send ETH.');
-        require(
-            issueStatusByIssueId[_issueId] == IssueStatus.OPEN,
-            'DepositStorage: Issue is not OPEN.'
-        );
-
-        nextIssueDepositId++;
-        issueDeposits[nextIssueDepositId] = IssueDeposit(
-            msgSender,
-            msg.value,
-            _issueId
-        );
-        issueDepositIdsByIssueId[_issueId].push(nextIssueDepositId);
-        issueDepositIdsBySender[msgSender].push(nextIssueDepositId);
-        issueDepositsAmountByIssueId[_issueId] += msg.value;
-
-        emit IssueDepositEvent(
-            msgSender,
-            msg.value,
-            _issueId,
-            nextIssueDepositId
-        );
-    }
 
     //
     function refundIssueDeposit(uint256 _depositId, address msgSender)
@@ -187,14 +179,38 @@ contract DepositStorage is OpenQStorage {
             issueStatusByIssueId[_issueId] != IssueStatus.CLAIMED,
             'Issue already claimed!'
         );
-        uint256 payoutAmt = issueDepositsAmountByIssueId[_issueId];
+
+        for (uint256 i = 0; i < issueDeposits[_issueId].length; i++) {
+            uint256 symbol = issueDeposits[_issueId].symbol;
+            uint256 payoutAmt = issueDeposits[_issueId].amount;
+            if (symbol == 'ETH') {
+                payable(_payoutAddress).transfer(payoutAmt);
+            }
+            address tokenAddress = tokenAddressBySymbol[symbol];
+            _transferERC20(tokenAddress, _payoutAddress, payoutAmt);
+        }
+
         issueDepositsAmountByIssueId[_issueId] = 0;
         issueStatusByIssueId[_issueId] = IssueStatus.CLAIMED;
 
         emit WithdrawIssueDepositsEvent(_issueId);
 
-        payable(_payoutAddress).transfer(payoutAmt);
-
         return payoutAmt;
+    }
+
+    function getBalance(address _tokenAddress) external view returns (uint256) {
+        ERC20 token = ERC20(_tokenAddress);
+        return token.balanceOf(address(this));
+    }
+
+    event Approval(address indexed caller, address indexed spender);
+
+    function _transferERC20(
+        address _tokenAddress,
+        address _recipient,
+        uint256 _amount
+    ) private {
+        ERC20 token = ERC20(_tokenAddress);
+        token.transfer(_recipient, _amount);
     }
 }
