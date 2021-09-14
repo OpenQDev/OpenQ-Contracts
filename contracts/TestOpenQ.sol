@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import './Issue.sol';
 
 contract TestOpenQ {
-    event IssueCreated(string indexed id, address issueAddress);
+    event IssueCreated(string indexed id, address indexed issueAddress);
 
     function createIssue(string calldata id)
         public
