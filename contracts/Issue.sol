@@ -23,5 +23,11 @@ contract Issue {
         mockTokenAddress = _mockTokenAddress;
     }
 
-    function withdraw(address payoutAddress) public {}
+    function withdraw(address _payoutAddress) public {
+        ERC20 mockTokenContract = ERC20(mockTokenAddress);
+        mockTokenContract.transfer(
+            _payoutAddress,
+            mockTokenContract.balanceOf(address(this))
+        );
+    }
 }
