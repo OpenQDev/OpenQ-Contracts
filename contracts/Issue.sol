@@ -1,11 +1,10 @@
 // contracts/MockToken.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import './OpenQStorage.sol';
 import './Issue.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-contract Issue is OpenQStorage {
+contract Issue {
     string id;
     address owner;
     address mockTokenAddress;
