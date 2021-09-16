@@ -30,6 +30,8 @@ contract Issue {
     }
 
     function transferAllERC20(address _payoutAddress) public {
+        require(msg.sender == owner, 'Only callable by OpenQ contract');
+
         for (uint256 i; i < tokenAddresses.length; i++) {
             ERC20 tokenContract = ERC20(tokenAddresses[i]);
             tokenContract.transfer(
