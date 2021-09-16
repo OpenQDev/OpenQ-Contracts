@@ -9,6 +9,8 @@ contract Issue {
     address owner;
     address tokenSymbolToAddressLibrary;
 
+    address[] public tokenAddresses;
+
     constructor(string memory _id) {
         id = _id;
         owner = msg.sender;
@@ -23,45 +25,13 @@ contract Issue {
         return tokenAddress.balanceOf(address(this));
     }
 
-    function transferAllAssets(address _payoutAddress) public {
-        // HOW TO GET LIST OF TOKENS AND NFTS DEPOSITED ON THIS ISSUE
+    function addTokenAddress(address tokenAddress) public {
+        tokenAddresses.push(tokenAddress);
+    }
 
-        // ORACLE Approach
-        // Set up an oracle listening for IssueCreated event to get issueId
-        // Oracle listens for transfers to issueAddress on all registered ERC20 contracts
-        // Call oracle here to get list of token addresses
-
-        // Benefits
-        // Only process what you need
-        // Scales well and is easily upgradable since its off chain
-        // Also can be served to the FE
-        // If backend goes down, can re-query from a blockchain indexing service like etherscan
-
-        // Drawbacks
-        // Requires stateful infrastructure maintenance
-        // Gas cost for fulfill() call
-        // Centralized
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~
-
-        // ON-CHAIN Approach
-        // Create upgradable TokenAddress library to hold addresses
-        // Loop over all and if balance is non-zero, transfer it
-
-        // Benefits
-        // No oracle to maintain
-        // No gas for fulfill() call
-        // Decentralized
-
-        // Drawbacks
-        // Doesn't scale well to arbitrary number of erc20/erc721
-        // Much useless comparison checks
-        // Need to do an on chain txn to update addresses
-
-        address[] memory tokens;
-
-        for (uint256 i; i < tokens.length; i++) {
-            ERC20 tokenContract = ERC20(tokens[i]);
+    function transferAllERC20(address _payoutAddress) public {
+        for (uint256 i; i < tokenAddresses.length; i++) {
+            ERC20 tokenContract = ERC20(tokenAddresses[i]);
             tokenContract.transfer(
                 _payoutAddress,
                 tokenContract.balanceOf(address(this))
