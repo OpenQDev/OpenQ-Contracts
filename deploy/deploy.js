@@ -24,8 +24,14 @@ async function main() {
     console.log("FakeToken deployed to:", fakeToken.address);
     console.log("OpenQ deployed to:", openQ.address);
 
-    const openQAddress = `OPENQ_ADDRESS="${openQ.address}"`;
+    const openQAddress = `OPENQ_ADDRESS="${openQ.address}"\n`;
     fs.appendFileSync('.env.docker', openQAddress);
+
+    const mockTokenAddress = `MOCK_TOKEN_ADDRESS="${mockToken.address}"\n`;
+    fs.appendFileSync('.env.docker', mockTokenAddress);
+
+    const fakeTokenAddress = `FAKE_TOKEN_ADDRESS="${fakeToken.address}"\n`;
+    fs.appendFileSync('.env.docker', fakeTokenAddress);
 }
 
 main()
