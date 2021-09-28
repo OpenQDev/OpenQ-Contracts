@@ -6,8 +6,8 @@ import './OpenQ.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 contract Issue {
-    string id;
-    address owner;
+    string public id;
+    address public owner;
     address[] public tokenAddresses;
 
     constructor(string memory _id, address[] memory _tokenAddresses) {

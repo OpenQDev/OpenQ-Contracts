@@ -33,14 +33,15 @@ contract OpenQ {
         return issueAddress;
     }
 
-    function getBountyAddress(string calldata _id) public view returns(address) {
+    function getBountyAddress(string calldata _id)
+        public
+        view
+        returns (address)
+    {
         return issueToAddress[_id];
     }
 
-    function withdrawIssueDeposit(string calldata _id, address _payoutAddress)
-        public
-    {
-        require(msg.sender == owner, 'Only callable by OpenQ owner');
+    function claimBounty(string calldata _id, address _payoutAddress) public {
         Issue issue = Issue(issueToAddress[_id]);
         issue.transferAllERC20(_payoutAddress);
     }
