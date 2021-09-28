@@ -18,7 +18,7 @@ contract OpenQ {
         address indexed issueAddress
     );
 
-    function createIssue(string calldata _id)
+    function mintBounty(string calldata _id)
         public
         returns (address issueAddress)
     {
@@ -31,6 +31,10 @@ contract OpenQ {
 
         emit IssueCreated(msg.sender, _id, issueAddress);
         return issueAddress;
+    }
+
+    function getBountyAddress(string calldata _id) public view returns(address) {
+        return issueToAddress[_id];
     }
 
     function withdrawIssueDeposit(string calldata _id, address _payoutAddress)
