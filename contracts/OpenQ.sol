@@ -9,6 +9,7 @@ contract OpenQ {
     }
 
     address owner;
+    string[] public issueIds;
     mapping(string => address) public issueToAddress;
     address[] public tokenAddresses;
 
@@ -17,6 +18,10 @@ contract OpenQ {
         string id,
         address indexed issueAddress
     );
+
+    function getIssueIds() public view returns (string[] memory) {
+        return issueIds;
+    }
 
     function mintBounty(string calldata _id)
         public
@@ -28,6 +33,7 @@ contract OpenQ {
         );
         issueAddress = address(new Issue(_id, tokenAddresses));
         issueToAddress[_id] = issueAddress;
+        issueIds.push(_id);
 
         emit IssueCreated(msg.sender, _id, issueAddress);
         return issueAddress;
