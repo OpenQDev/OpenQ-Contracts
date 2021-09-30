@@ -19,5 +19,10 @@ module.exports = {
         localhost: {
             url: process.env.PROVIDER_URL,
         },
+        mumbai: {
+            url: process.env.PROVIDER_URL,
+            accounts: [process.env.WALLET_KEY],
+            chainId: 80001
+        }
     },
 };
