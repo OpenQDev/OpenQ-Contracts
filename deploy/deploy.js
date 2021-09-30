@@ -24,6 +24,17 @@ async function main() {
     console.log("FakeToken deployed to:", fakeToken.address);
     console.log("OpenQ deployed to:", openQ.address);
 
+    const githubIssueIds = ["I_kwDOGAqhQc48M_2V", "I_kwDOGAqhQc48U54v", "I_kwDOGAqhQc48U5_r"];
+
+    await openQ.mintBounty(githubIssueIds[0]);
+    await openQ.mintBounty(githubIssueIds[1]);
+    await openQ.mintBounty(githubIssueIds[2]);
+
+    const bounty1Address = await openQ.getBountyAddress(githubIssueIds[0]);
+
+    console.log("bounty1Address", bounty1Address);
+    await fakeToken.transfer(bounty1Address, 1000000);
+
     const openQAddress = `OPENQ_ADDRESS="${openQ.address}"\n`;
     fs.appendFileSync('.env.docker', openQAddress);
 
