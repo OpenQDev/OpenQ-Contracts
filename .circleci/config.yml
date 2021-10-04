@@ -12,3 +12,9 @@ jobs:
       - run: yarn -v
       - run: yarn
       - run: yarn test
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build:
+          context: OpenQ
