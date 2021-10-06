@@ -2,7 +2,7 @@ const hre = require("hardhat");
 const fs = require('fs');
 
 async function main() {
-    const content = `RPC_NODE="${process.env.PROVIDER_URL}"\nWALLET_KEY="${process.env.WALLET_KEY}"\n`;
+    const content = `PROVIDER_URL="${process.env.PROVIDER_URL}"\nWALLET_KEY="${process.env.WALLET_KEY}"\n`;
     fs.writeFileSync('.env.docker', content);
 
     const MockToken = await hre.ethers.getContractFactory("MockToken");
@@ -30,10 +30,29 @@ async function main() {
     await openQ.mintBounty(githubIssueIds[1]);
     await openQ.mintBounty(githubIssueIds[2]);
 
-    const bounty1Address = await openQ.getBountyAddress(githubIssueIds[0]);
+    // must wait 3.5 seconds or so for propogation on Mumbai
+    if (process.env.DEPLOY_ENV == "mumbai") {
+        async function sleep(time) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve();
+                }, time);
+            });
+        }
 
-    console.log("bounty1Address", bounty1Address);
+        await sleep(3500);
+    }
+
+    const bounty1Address = await openQ.getBountyAddress(githubIssueIds[0]);
+    const bounty2Address = await openQ.getBountyAddress(githubIssueIds[1]);
+    const bounty3Address = await openQ.getBountyAddress(githubIssueIds[2]);
+
+    console.log("Bounty 1 minted to:", bounty1Address);
+    console.log("Bounty 2 minted to:", bounty2Address);
+    console.log("Bounty 3 minted to:", bounty3Address);
+
     await fakeToken.transfer(bounty1Address, 1000000);
+    await mockToken.transfer(bounty1Address, 2500000);
 
     const openQAddress = `OPENQ_ADDRESS="${openQ.address}"\n`;
     fs.appendFileSync('.env.docker', openQAddress);
