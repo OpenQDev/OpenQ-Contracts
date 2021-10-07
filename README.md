@@ -9,12 +9,6 @@ Toolchain: Hardhat
 
 ## Contracts
 
-### OpenQStorage
-
-### DepositStorage
-
-### UserAddressStorage
-
 ### OpenQ
 
 ## Deployment
