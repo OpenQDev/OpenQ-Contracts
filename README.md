@@ -9,12 +9,6 @@ Toolchain: Hardhat
 
 ## Contracts
 
-### OpenQStorage
-
-### DepositStorage
-
-### UserAddressStorage
-
 ### OpenQ
 
 ## Deployment
@@ -30,8 +24,6 @@ To deploy all contracts to the Hardhat node running on localhost:8485, run:
 ```bash
 yarn deploy:local
 ```
-
-To deploy all contracts to Rinkeby, run:
 
 ```bash
 yarn deploy:local

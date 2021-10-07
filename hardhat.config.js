@@ -30,7 +30,7 @@ module.exports = (function () {
                 accounts: [process.env.WALLET_KEY],
                 chainId: chainIdInt
             },
-            rinkeby: {
+            kovan: {
                 url: process.env.PROVIDER_URL,
                 accounts: [process.env.WALLET_KEY],
             },

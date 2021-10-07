@@ -8,7 +8,6 @@
     "hardhat:clean": "DEPLOY_ENV=local hardhat clean",
     "deploy:local": "DEPLOY_ENV=local hardhat run --network localhost deploy/deploy.js",
     "deploy:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy.js",
-    "deploy:rinkeby": "DEPLOY_ENV=rinkeby hardhat run --network rinkeby deploy/deploy.js",
     "console:local": "DEPLOY_ENV=local hardhat console --network localhost",
     "accounts": "DEPLOY_ENV=local hardhat accounts --network localhost",
     "test": "DEPLOY_ENV=local hardhat test"
