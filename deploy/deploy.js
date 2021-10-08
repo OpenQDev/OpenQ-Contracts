@@ -57,11 +57,17 @@ async function main() {
     const openQAddress = `OPENQ_ADDRESS="${openQ.address}"\n`;
     fs.appendFileSync('.env.docker', openQAddress);
 
-    const mockTokenAddress = `MOCK_TOKEN_ADDRESS="${mockToken.address}"\n`;
-    fs.appendFileSync('.env.docker', mockTokenAddress);
+    const contractorPublicAddress = `CONTRACTOR_PUBLIC_ADDRESS="${process.env.CONTRACTOR_PUBLIC_ADDRESS}"\n`;
+    fs.appendFileSync('.env.docker', contractorPublicAddress);
+
+    const contractorPrivateKey = `CONTRACTOR_PRIVATE_KEY="${process.env.CONTRACTOR_PRIVATE_KEY}"\n`;
+    fs.appendFileSync('.env.docker', contractorPrivateKey);
 
     const fakeTokenAddress = `FAKE_TOKEN_ADDRESS="${fakeToken.address}"\n`;
     fs.appendFileSync('.env.docker', fakeTokenAddress);
+
+    const mockTokenAddress = `MOCK_TOKEN_ADDRESS="${mockToken.address}"\n`;
+    fs.appendFileSync('.env.docker', mockTokenAddress);
 }
 
 main()

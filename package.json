@@ -1,6 +1,6 @@
 {
-  "name": "octobay-contracts",
-  "description": "Contracts for OctoBay - Ethereum Payment Service for GitHub",
+  "name": "OpenQ-Contracts",
+  "description": "OpenQ Contracts",
   "version": "1.0.0",
   "private": true,
   "scripts": {
