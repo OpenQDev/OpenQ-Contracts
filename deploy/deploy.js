@@ -2,9 +2,6 @@ const hre = require("hardhat");
 const fs = require('fs');
 
 async function main() {
-    const content = `\nPROVIDER_URL="${process.env.PROVIDER_URL}"\nWALLET_KEY="${process.env.WALLET_KEY}"\n`;
-    fs.appendFileSync('.env.docker', content);
-
     const MockToken = await hre.ethers.getContractFactory("MockToken");
     const mockToken = await MockToken.deploy();
     await mockToken.deployed();
@@ -54,14 +51,8 @@ async function main() {
     await fakeToken.transfer(bounty1Address, 1000000);
     await mockToken.transfer(bounty1Address, 2500000);
 
-    const openQAddress = `OPENQ_ADDRESS="${openQ.address}"\n`;
+    const openQAddress = `\nOPENQ_ADDRESS="${openQ.address}"\n`;
     fs.appendFileSync('.env.docker', openQAddress);
-
-    const contractorPublicAddress = `CONTRACTOR_PUBLIC_ADDRESS="${process.env.CONTRACTOR_PUBLIC_ADDRESS}"\n`;
-    fs.appendFileSync('.env.docker', contractorPublicAddress);
-
-    const contractorPrivateKey = `CONTRACTOR_PRIVATE_KEY="${process.env.CONTRACTOR_PRIVATE_KEY}"\n`;
-    fs.appendFileSync('.env.docker', contractorPrivateKey);
 
     const fakeTokenAddress = `FAKE_TOKEN_ADDRESS="${fakeToken.address}"\n`;
     fs.appendFileSync('.env.docker', fakeTokenAddress);
