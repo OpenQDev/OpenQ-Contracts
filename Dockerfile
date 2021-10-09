@@ -5,5 +5,4 @@ RUN apk update && apk upgrade && \
 COPY package.json .
 RUN yarn
 COPY . .
-EXPOSE 8090
-CMD node server.js
+CMD yarn deploy:docker

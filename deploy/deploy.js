@@ -2,8 +2,8 @@ const hre = require("hardhat");
 const fs = require('fs');
 
 async function main() {
-    const content = `PROVIDER_URL="${process.env.PROVIDER_URL}"\nWALLET_KEY="${process.env.WALLET_KEY}"\n`;
-    fs.writeFileSync('.env.docker', content);
+    const content = `\nPROVIDER_URL="${process.env.PROVIDER_URL}"\nWALLET_KEY="${process.env.WALLET_KEY}"\n`;
+    fs.appendFileSync('.env.docker', content);
 
     const MockToken = await hre.ethers.getContractFactory("MockToken");
     const mockToken = await MockToken.deploy();
