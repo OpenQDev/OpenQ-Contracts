@@ -8,3 +8,4 @@ cache
 artifacts/
 cache/
 nohup.out
+.env.docker
