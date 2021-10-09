@@ -51,14 +51,13 @@ async function main() {
     await fakeToken.transfer(bounty1Address, 1000000);
     await mockToken.transfer(bounty1Address, 2500000);
 
-    const openQAddress = `\nOPENQ_ADDRESS="${openQ.address}"\n`;
-    fs.appendFileSync('.env.docker', openQAddress);
+    const addresses = {
+        "OPENQ_ADDRESS": openQ.address,
+        "FAKE_TOKEN_ADDRESS": fakeToken.address,
+        "MOCK_TOKEN_ADDRESS": mockToken.address
+    };
 
-    const fakeTokenAddress = `FAKE_TOKEN_ADDRESS="${fakeToken.address}"\n`;
-    fs.appendFileSync('.env.docker', fakeTokenAddress);
-
-    const mockTokenAddress = `MOCK_TOKEN_ADDRESS="${mockToken.address}"\n`;
-    fs.appendFileSync('.env.docker', mockTokenAddress);
+    fs.writeFileSync('addresses.json', JSON.stringify(addresses));
 }
 
 main()

@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "ethnode": "DEPLOY_ENV=local hardhat node",
+    "ethnode": "DEPLOY_ENV=docker hardhat node",
     "hardhat:clean": "DEPLOY_ENV=local hardhat clean",
     "deploy:local": "DEPLOY_ENV=local hardhat run --network localhost deploy/deploy.js",
-    "deploy:docker": "DEPLOY_ENV=local hardhat run --network docker deploy/deploy.js",
+    "deploy:docker": "DEPLOY_ENV=docker hardhat run --network docker deploy/deploy.js",
     "deploy:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy.js",
     "console:local": "DEPLOY_ENV=local hardhat console --network localhost",
     "accounts": "DEPLOY_ENV=local hardhat accounts --network localhost",

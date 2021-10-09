@@ -20,7 +20,7 @@ module.exports = (function () {
                 url: process.env.PROVIDER_URL,
             },
             docker: {
-                url: "http://ethnode:8545",
+                url: process.env.PROVIDER_URL,
                 chainId: 31337
             },
             mumbai: {
