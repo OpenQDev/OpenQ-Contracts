@@ -19,6 +19,10 @@ module.exports = (function () {
             localhost: {
                 url: process.env.PROVIDER_URL,
             },
+            docker: {
+                url: "http://ethnode:8545",
+                chainId: 31337
+            },
             mumbai: {
                 url: process.env.PROVIDER_URL,
                 accounts: [process.env.WALLET_KEY],
