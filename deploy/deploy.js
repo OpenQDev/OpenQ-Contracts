@@ -21,7 +21,7 @@ async function main() {
     console.log("FakeToken deployed to:", fakeToken.address);
     console.log("OpenQ deployed to:", openQ.address);
 
-    const githubIssueIds = ["I_kwDOGAqhQc48M_2V", "I_kwDOGAqhQc48U54v", "I_kwDOGAqhQc48U5_r"];
+    const githubIssueIds = ["I_kwDOE5zs-M480ik8", "I_kwDOGAqhQc48U54v", "I_kwDOGAqhQc48U5_r"];
 
     await openQ.mintBounty(githubIssueIds[0]);
     await openQ.mintBounty(githubIssueIds[1]);
@@ -44,9 +44,9 @@ async function main() {
     const bounty2Address = await openQ.getBountyAddress(githubIssueIds[1]);
     const bounty3Address = await openQ.getBountyAddress(githubIssueIds[2]);
 
-    console.log("Bounty 1 minted to:", bounty1Address);
-    console.log("Bounty 2 minted to:", bounty2Address);
-    console.log("Bounty 3 minted to:", bounty3Address);
+    console.log(`Bounty 1 with id ${githubIssueIds[0]} minted to ${bounty1Address}`);
+    console.log(`Bounty 2 with id ${githubIssueIds[1]} minted to ${bounty2Address}`);
+    console.log(`Bounty 3 with id ${githubIssueIds[2]} minted to ${bounty3Address}`);
 
     await fakeToken.transfer(bounty1Address, 1000000);
     await mockToken.transfer(bounty1Address, 2500000);
