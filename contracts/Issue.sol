@@ -10,10 +10,18 @@ contract Issue {
     address public owner;
     address[] public tokenAddresses;
 
+    enum IssueStatus {
+        OPEN,
+        CLOSED
+    }
+
+    IssueStatus public status;
+
     constructor(string memory _id, address[] memory _tokenAddresses) {
         id = _id;
         owner = msg.sender;
         tokenAddresses = _tokenAddresses;
+        status = IssueStatus.OPEN;
     }
 
     function getERC20Balance(address _tokenAddress)
@@ -27,6 +35,10 @@ contract Issue {
 
     function transferAllERC20(address _payoutAddress) public {
         require(msg.sender == owner, 'Only callable by OpenQ contract');
+        require(
+            this.status == IssueStatus.OPEN,
+            'This is issue is closed. Cannot withdraw again.'
+        );
 
         for (uint256 i; i < tokenAddresses.length; i++) {
             ERC20 tokenContract = ERC20(tokenAddresses[i]);
@@ -35,5 +47,6 @@ contract Issue {
                 tokenContract.balanceOf(address(this))
             );
         }
+        this.status = IssueStatus.CLOSED;
     }
 }
