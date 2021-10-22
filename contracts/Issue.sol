@@ -36,7 +36,7 @@ contract Issue {
     function transferAllERC20(address _payoutAddress) public {
         require(msg.sender == owner, 'Only callable by OpenQ contract');
         require(
-            this.status == IssueStatus.OPEN,
+            this.status() == IssueStatus.OPEN,
             'This is issue is closed. Cannot withdraw again.'
         );
 
@@ -47,6 +47,6 @@ contract Issue {
                 tokenContract.balanceOf(address(this))
             );
         }
-        this.status = IssueStatus.CLOSED;
+        status = IssueStatus.CLOSED;
     }
 }

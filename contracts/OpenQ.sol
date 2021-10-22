@@ -30,14 +30,10 @@ contract OpenQ {
         return issueIds;
     }
 
-    enum IssueStatus {
-        OPEN,
-        CLOSED
-    }
-
     function issueIsOpen(string calldata id_) public view returns (bool) {
-        Issue issue = Issue(issueToAddress(id_));
-        return issue.status == IssueStatus.OPEN;
+        Issue issue = Issue(this.issueToAddress(id_));
+        bool isOpen = issue.status() == Issue.IssueStatus.OPEN;
+        return isOpen;
     }
 
     function mintBounty(string calldata _id)
@@ -66,9 +62,10 @@ contract OpenQ {
     }
 
     function claimBounty(string calldata _id, address _payoutAddress) public {
-        Issue issue = Issue(issueToAddress[_id]);
+        address issueAddress = issueToAddress[_id];
+        Issue issue = Issue(issueAddress);
         issue.transferAllERC20(_payoutAddress);
-        emit IssueClosed(_id, issue.address, _payoutAddress);
+        emit IssueClosed(_id, issueAddress, _payoutAddress);
     }
 
     function addTokenAddress(address tokenAddress) public {
