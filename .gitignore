@@ -7,5 +7,4 @@ package-lock.json
 cache
 artifacts/
 cache/
-nohup.out
-.env.docker
+yarn-error.log
