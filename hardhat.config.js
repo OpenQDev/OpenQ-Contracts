@@ -1,13 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
-require('custom-env').env(process.env.DEPLOY_ENV);
-
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-    const accounts = await hre.ethers.getSigners();
-
-    for (const account of accounts) {
-        console.log(account.address);
-    }
-});
+require('dotenv').config();
 
 module.exports = (function () {
     let chainId = process.env.CHAIN_ID;
@@ -21,7 +13,6 @@ module.exports = (function () {
             },
             docker: {
                 url: process.env.PROVIDER_URL,
-                chainId: 31337
             },
             mumbai: {
                 url: process.env.PROVIDER_URL,

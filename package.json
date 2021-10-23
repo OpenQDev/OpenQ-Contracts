@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "ethnode": "DEPLOY_ENV=docker hardhat node",
+    "ethnode": "hardhat node",
     "hardhat:clean": "DEPLOY_ENV=local hardhat clean",
     "deploy:local": "DEPLOY_ENV=local hardhat run --network localhost deploy/deploy.js",
     "deploy:docker": "DEPLOY_ENV=docker hardhat run --network docker deploy/deploy.js",
@@ -19,7 +19,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "^4.3.2",
     "chai": "^4.3.4",
-    "custom-env": "^2.0.1",
+    "dotenv": "^10.0.0",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.0.0",
     "fs": "^0.0.1-security",
