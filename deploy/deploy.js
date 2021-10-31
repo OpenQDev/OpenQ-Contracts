@@ -51,13 +51,11 @@ async function main() {
     await fakeToken.transfer(bounty1Address, 1000000);
     await mockToken.transfer(bounty1Address, 2500000);
 
-    const addresses = {
-        "OPENQ_ADDRESS": openQ.address,
-        "FAKE_TOKEN_ADDRESS": fakeToken.address,
-        "MOCK_TOKEN_ADDRESS": mockToken.address
-    };
+    const addresses = `OPENQ_ADDRESS="${openQ.address}"
+FAKE_TOKEN_ADDRESS="${fakeToken.address}"
+MOCK_TOKEN_ADDRESS="${mockToken.address}"`;
 
-    fs.writeFileSync('addresses.json', JSON.stringify(addresses));
+    fs.writeFileSync('.env.contracts', addresses);
 }
 
 main()
@@ -65,4 +63,4 @@ main()
     .catch((error) => {
         console.error(error);
         process.exit(1);
-    });
+    });;;
