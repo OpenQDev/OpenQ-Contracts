@@ -5,7 +5,6 @@ package-lock.json
 *.swp
 .wallets
 cache
-artifacts/
 cache/
 yarn-error.log
 nohup.out

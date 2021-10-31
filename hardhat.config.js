@@ -13,6 +13,7 @@ module.exports = (function () {
             },
             docker: {
                 url: process.env.PROVIDER_URL,
+                chainId: chainIdInt
             },
             mumbai: {
                 url: process.env.PROVIDER_URL,
