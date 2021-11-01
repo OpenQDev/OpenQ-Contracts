@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 contract Issue {
     string public id;
     address public owner;
+    address public closer;
     address[] public tokenAddresses;
 
     enum IssueStatus {
@@ -46,5 +47,6 @@ contract Issue {
             );
         }
         status = IssueStatus.CLOSED;
+        closer = _payoutAddress;
     }
 }
