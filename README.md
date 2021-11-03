@@ -4,7 +4,7 @@ This is the API middleware between the OpenQ frontend and the OpenQ backend.
 
 ## Stack
 Package Manger: yarn
-Language: Solidity
+Language: Solidity 
 Toolchain: Hardhat
 
 ## Contracts
