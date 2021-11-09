@@ -21,7 +21,7 @@ contract OpenQ {
     );
 
     event IssueClosed(
-        string indexed id,
+        string id,
         address indexed issueAddress,
         address indexed payoutAddress
     );
