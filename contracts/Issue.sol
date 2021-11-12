@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract Issue {
+contract Issue is Ownable {
     string public id;
-    address public owner;
     address public closer;
     address[] public tokenAddresses;
 
@@ -18,7 +18,6 @@ contract Issue {
 
     constructor(string memory _id, address[] memory _tokenAddresses) {
         id = _id;
-        owner = msg.sender;
         tokenAddresses = _tokenAddresses;
         status = IssueStatus.OPEN;
     }
@@ -32,8 +31,7 @@ contract Issue {
         return tokenAddress.balanceOf(address(this));
     }
 
-    function transferAllERC20(address _payoutAddress) public {
-        require(msg.sender == owner, 'Only callable by OpenQ contract');
+    function transferAllERC20(address _payoutAddress) public onlyOwner {
         require(
             this.status() == IssueStatus.OPEN,
             'This is issue is closed. Cannot withdraw again.'

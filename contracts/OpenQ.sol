@@ -2,13 +2,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import './Issue.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract OpenQ {
-    constructor() {
-        owner = msg.sender;
-    }
-
-    address owner;
+contract OpenQ is Ownable {
     string[] public issueIds;
     mapping(string => address) public issueToAddress;
     mapping(address => string) public addressToIssue;
@@ -61,7 +57,10 @@ contract OpenQ {
         return issueToAddress[_id];
     }
 
-    function claimBounty(string calldata _id, address _payoutAddress) public {
+    function claimBounty(string calldata _id, address _payoutAddress)
+        public
+        onlyOwner
+    {
         address issueAddress = issueToAddress[_id];
         Issue issue = Issue(issueAddress);
         issue.transferAllERC20(_payoutAddress);
