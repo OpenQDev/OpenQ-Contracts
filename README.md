@@ -1,4 +1,4 @@
-# OpenQ Contracts
+# OpenQ Smart Contracts 
 
 This is the API middleware between the OpenQ frontend and the OpenQ backend.
 
