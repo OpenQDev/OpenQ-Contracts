@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 contract Issue is Ownable {
-    string public id;
+    string public issueId;
     address public closer;
     address[] public tokenAddresses;
 
@@ -17,7 +17,7 @@ contract Issue is Ownable {
     IssueStatus public status;
 
     constructor(string memory _id, address[] memory _tokenAddresses) {
-        id = _id;
+        issueId = _id;
         tokenAddresses = _tokenAddresses;
         status = IssueStatus.OPEN;
     }

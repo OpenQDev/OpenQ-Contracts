@@ -12,12 +12,12 @@ contract OpenQ is Ownable {
 
     event IssueCreated(
         address indexed from,
-        string id,
+        string issueId,
         address indexed issueAddress
     );
 
     event IssueClosed(
-        string id,
+        string issueId,
         address indexed issueAddress,
         address indexed payoutAddress
     );
