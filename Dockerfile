@@ -1,8 +1,7 @@
 FROM node:lts-alpine
 WORKDIR /app
-RUN apk add --no-cache --virtual .gyp python3 make g++ \
-	&& apk del .gyp
-RUN apk add python3
+RUN apk update && apk upgrade && \
+	apk add --no-cache bash git
 COPY package.json .
 RUN yarn
 COPY . .
