@@ -8,3 +8,4 @@ cache
 cache/
 yarn-error.log
 nohup.out
+.env.mumbai
