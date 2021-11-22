@@ -11,9 +11,11 @@ contract OpenQ is Ownable {
     address[] public tokenAddresses;
 
     event IssueCreated(
-        address indexed from,
         string issueId,
-        address indexed issueAddress
+        address indexed issuer,
+        address indexed issueAddress,
+        address[] tokenAddresses,
+        uint256 issueTime
     );
 
     event IssueClosed(
@@ -45,7 +47,14 @@ contract OpenQ is Ownable {
         addressToIssue[issueAddress] = _id;
         issueIds.push(_id);
 
-        emit IssueCreated(msg.sender, _id, issueAddress);
+        emit IssueCreated(
+            _id,
+            msg.sender,
+            issueAddress,
+            tokenAddresses,
+            block.timestamp
+        );
+
         return issueAddress;
     }
 
