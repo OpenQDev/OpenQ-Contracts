@@ -40,7 +40,7 @@ contract OpenQ is Ownable {
             issueToAddress[_id] == address(0),
             'Issue already exists for given id. Find its address by calling issueToAddress on this contract with the issueId'
         );
-        issueAddress = address(new Issue(_id, tokenAddresses));
+        issueAddress = address(new Issue(_id, msg.sender, tokenAddresses));
         issueToAddress[_id] = issueAddress;
         addressToIssue[issueAddress] = _id;
         issueIds.push(_id);
