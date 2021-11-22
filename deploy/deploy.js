@@ -49,7 +49,7 @@ async function main() {
 	console.log(`Bounty 1 with id ${githubIssueIds[0]} minted to ${bounty1Address}`);
 	console.log(`Bounty 2 with id ${githubIssueIds[1]} minted to ${bounty2Address}`);
 	console.log(`Bounty 3 with id ${githubIssueIds[2]} minted to ${bounty3Address}`);
-	console.log(`Bounty 3 with id ${githubIssueIds[3]} minted to ${bounty4Address}`);
+	console.log(`Bounty 4 with id ${githubIssueIds[3]} minted to ${bounty4Address}`);
 
 	await fakeToken.transfer(bounty1Address, 1000000);
 	await mockToken.transfer(bounty1Address, 2500000);
