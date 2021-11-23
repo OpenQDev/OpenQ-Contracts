@@ -30,7 +30,7 @@ contract OpenQ is Ownable {
         string issueId,
         address issueAddress,
         address tokenAddress,
-        address indexed sender,
+        address sender,
         uint256 value,
         uint256 receiveTime
     );
@@ -39,7 +39,7 @@ contract OpenQ is Ownable {
         string issueId,
         address issueAddress,
         address tokenAddress,
-        address indexed funder,
+        address funder,
         uint256 value,
         uint256 refundTime
     );
