@@ -44,7 +44,7 @@ contract OpenQ is Ownable {
         uint256 refundTime
     );
 
-    // State changing methods
+    // Transactions
     function mintBounty(string calldata _id)
         public
         returns (address issueAddress)

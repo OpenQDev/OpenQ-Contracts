@@ -25,13 +25,6 @@ async function main() {
 	await openQ.deployed();
 	await sleep(10000);
 
-	await openQ.addTokenAddress(mockToken.address);
-	await sleep(10000);
-	await openQ.addTokenAddress(fakeToken.address);
-	await sleep(10000);
-	await openQ.addTokenAddress('0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39');
-	await sleep(10000);
-
 	console.log('MockToken deployed to:', mockToken.address);
 	console.log('FakeToken deployed to:', fakeToken.address);
 	console.log('OpenQ deployed to:', openQ.address);

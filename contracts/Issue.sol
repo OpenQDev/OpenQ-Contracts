@@ -36,6 +36,7 @@ contract Issue is Ownable {
         issueCreatedTime = block.timestamp;
     }
 
+    // Transactions
     function receiveFunds(
         address _funder,
         address _tokenAddress,

@@ -14,9 +14,6 @@ async function main() {
 	const openQ = await OpenQ.deploy();
 	await openQ.deployed();
 
-	await openQ.addTokenAddress(mockToken.address);
-	await openQ.addTokenAddress(fakeToken.address);
-
 	console.log('MockToken deployed to:', mockToken.address);
 	console.log('FakeToken deployed to:', fakeToken.address);
 	console.log('OpenQ deployed to:', openQ.address);
