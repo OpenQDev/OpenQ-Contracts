@@ -3,8 +3,22 @@
 pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
+import './TransferHelper.sol';
 
 contract Issue is Ownable {
+    mapping(address => bool) public isAFunder;
+    mapping(address => address[]) public fundersTokenAddresses;
+
+    function getFundersTokenAddresses(address _funder)
+        public
+        view
+        returns (address[] memory)
+    {
+        return fundersTokenAddresses[_funder];
+    }
+
+    mapping(address => mapping(address => uint256)) public funders;
+
     uint256 public issueTime;
     uint256 public escrowPeriod = 30 days;
     address public issuer;
@@ -41,27 +55,40 @@ contract Issue is Ownable {
         return tokenAddress.balanceOf(address(this));
     }
 
-    modifier onlyIssuer() {
-        require(
-            msg.sender == issuer,
-            'Only issuer of this bounty can reclaim funds after 30 days'
+    function refundBountyDeposit(address _funder, address _tokenAddress)
+        public
+        onlyOwner
+        returns (bool success)
+    {
+        TransferHelper.safeTransfer(
+            _tokenAddress,
+            _funder,
+            funders[_funder][_tokenAddress]
         );
-        _;
+        return true;
     }
 
-    function issuerWithdraw() public onlyIssuer {
-        require(
-            block.timestamp >= issueTime + escrowPeriod,
-            'Too early to withdraw funds'
+    function receiveFunds(
+        address _funder,
+        address _tokenAddress,
+        uint256 _value
+    ) public returns (bool success) {
+        require(_value != 0, 'Must send some value');
+        isAFunder[_funder] = true;
+        TransferHelper.safeTransferFrom(
+            _tokenAddress,
+            _funder,
+            address(this),
+            _value
         );
 
-        for (uint256 i; i < tokenAddresses.length; i++) {
-            ERC20 tokenContract = ERC20(tokenAddresses[i]);
-            tokenContract.transfer(
-                msg.sender,
-                tokenContract.balanceOf(address(this))
-            );
+        // If is a new deposit
+        if (funders[_funder][_tokenAddress] == 0) {
+            fundersTokenAddresses[_funder].push(_tokenAddress);
         }
+
+        funders[_funder][_tokenAddress] += _value;
+        return success;
     }
 
     function transferAllERC20(address _payoutAddress) public onlyOwner {
