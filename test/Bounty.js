@@ -284,10 +284,12 @@ describe('Bounty.sol', () => {
 				await expect(issueWithNonOwnerAccount.claim(notOwner.address)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 
-			it.skip('should revert if issue is already closed', async () => {
+			it('should revert if issue is already closed', async () => {
 				// ARRANGE
-				// ACT
+				await bounty.claim(owner.address);
+
 				// ASSERT
+				await expect(bounty.claim(owner.address)).to.be.revertedWith('This is bounty is closed. Cannot withdraw again.');
 			});
 		});
 
@@ -296,7 +298,6 @@ describe('Bounty.sol', () => {
 				// ARRANGE
 				// ASSUME
 				const openBounty = await bounty.status();
-				console.log(openBounty);
 				expect(openBounty).to.equal(0);
 
 				// ACT
