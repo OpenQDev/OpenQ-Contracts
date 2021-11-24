@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './TransferHelper.sol';
+import 'hardhat/console.sol';
 
 contract Bounty is Ownable {
     // Bounty Accounting
@@ -71,21 +72,24 @@ contract Bounty is Ownable {
         return success;
     }
 
-    function claimBounty(address _payoutAddress)
+    function claim(address _payoutAddress)
         public
         onlyOwner
         returns (bool success)
     {
+        console.log('sdfsdfsdfsdfsd');
         require(
             this.status() == BountyStatus.OPEN,
             'This is bounty is closed. Cannot withdraw again.'
         );
 
         for (uint256 i; i < bountyTokenAddresses.length; i++) {
-            ERC20 tokenContract = ERC20(bountyTokenAddresses[i]);
-            tokenContract.transfer(
+            uint256 bountyBalance = getERC20Balance(bountyTokenAddresses[i]);
+
+            TransferHelper.safeTransfer(
+                bountyTokenAddresses[i],
                 _payoutAddress,
-                tokenContract.balanceOf(address(this))
+                bountyBalance
             );
         }
 

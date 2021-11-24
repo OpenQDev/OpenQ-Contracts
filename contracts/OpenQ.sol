@@ -86,7 +86,7 @@ contract OpenQ is Ownable {
     {
         address bountyAddress = bountyIdToAddress[_id];
         Bounty bounty = Bounty(bountyAddress);
-        bounty.claimBounty(_payoutAddress);
+        bounty.claim(_payoutAddress);
         emit BountyClosed(_id, bountyAddress, _payoutAddress, block.timestamp);
     }
 
