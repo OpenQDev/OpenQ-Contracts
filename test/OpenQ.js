@@ -7,117 +7,151 @@ const truffleAssert = require('truffle-assertions');
 describe('OpenQ.sol', () => {
 	let openQ;
 	let owner;
+	let mockToken;
+	let fakeToken;
+	let bountyId = 'mockIssueId';
 
 	beforeEach(async () => {
-		[owner] = await ethers.getSigners();
 		const OpenQ = await hre.ethers.getContractFactory('OpenQ');
+		const MockToken = await hre.ethers.getContractFactory('MockToken');
+		const FakeToken = await hre.ethers.getContractFactory('FakeToken');
+
+		[owner] = await ethers.getSigners();
+
 		openQ = await OpenQ.deploy();
 		await openQ.deployed();
+
+		mockToken = await MockToken.deploy();
+		await mockToken.deployed();
+		fakeToken = await FakeToken.deploy();
+		await fakeToken.deployed();
 	});
 
-	describe('OpenQ.sol mintBounty', () => {
+	describe('mintBounty', () => {
 
-		it('should deploy a new issue contract with expected initial metadata', async () => {
+		it('should deploy a new bounty contract with expected initial metadata', async () => {
 			// ARRANGE
 			const expectedTimestamp = await setNextBlockTimestamp();
 
-			const newIssueId = 'mockIssueId';
-
 			// ACT
-			await openQ.mintBounty(newIssueId);
+			await openQ.mintBounty(bountyId);
 
-			const issueIsOpen = await openQ.issueIsOpen(newIssueId);
-			const issueAddress = await openQ.issueToAddress(newIssueId);
+			const bountyIsOpen = await openQ.bountyIsOpen(bountyId);
+			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
 
-			const Issue = await hre.ethers.getContractFactory('Issue');
+			const Bounty = await hre.ethers.getContractFactory('Bounty');
 
-			const newIssue = await Issue.attach(
-				issueAddress
+			const newBounty = await Bounty.attach(
+				bountyAddress
 			);
 
-			const issueId = await newIssue.issueId();
-			const issueCreatedTime = (await newIssue.issueCreatedTime()).toNumber();
-			const issueClosedTime = await newIssue.issueClosedTime();
-			const escrowPeriod = (await newIssue.escrowPeriod()).toNumber();
-			const issuer = await newIssue.issuer();
-			const closer = await newIssue.closer();
-			const status = await newIssue.status();
+			const newBountyId = await newBounty.bountyId();
+			const bountyCreatedTime = (await newBounty.bountyCreatedTime()).toNumber();
+			const bountyClosedTime = await newBounty.bountyClosedTime();
+			const escrowPeriod = (await newBounty.escrowPeriod()).toNumber();
+			const issuer = await newBounty.issuer();
+			const closer = await newBounty.closer();
+			const status = await newBounty.status();
 
 			// ASSERT
-			expect(issueId).to.equal(newIssueId);
-			expect(issueCreatedTime).to.equal(expectedTimestamp);
-			expect(issueClosedTime).to.equal(0);
+			expect(bountyId).to.equal(newBountyId);
+			expect(bountyCreatedTime).to.equal(expectedTimestamp);
+			expect(bountyClosedTime).to.equal(0);
 			expect(escrowPeriod).to.equal(2592000);
 			expect(issuer).to.equal(owner.address);
 			expect(closer).to.equal(hre.ethers.constants.AddressZero);
 			expect(status).to.equal(0);
 
-			const issueIdFromAddress = await openQ.addressToIssue(issueAddress);
-			expect(issueIdFromAddress).to.equal(newIssueId);
+			const bountyIdFromAddress = await openQ.bountyAddressToBountyId(bountyAddress);
+			expect(bountyIdFromAddress).to.equal(newBountyId);
 		});
 
 		it('should revert if bounty already exists', async () => {
 			// ARRANGE
-			const issueId = 'mockIssueId';
-
 			// ACT
-			await openQ.mintBounty(issueId);
+			await openQ.mintBounty(bountyId);
 
 			// ASSERT
-			await expect(openQ.mintBounty(issueId)).to.be.revertedWith('Issue already exists for given id. Find its address by calling issueToAddress on this contract with the issueId');
+			await expect(openQ.mintBounty(bountyId)).to.be.revertedWith('Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId');
 		});
 
-		it.skip('should emit an IssueCreated event with expected issueId, issuer address, issue address, and issueMintTime', async () => {
+		it.skip('should emit an BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
 			// ARRANGE
-			const issueId = 'mockIssueId';
-			const issueAddress = "0x4F57F9239eFCBf43e5920f579D03B3849C588396";
+			const bountyAddress = "0x4F57F9239eFCBf43e5920f579D03B3849C588396";
 
 			const expectedTimestamp = await setNextBlockTimestamp();
 
 			// ACT
 			// ASSERT
-			await expect(openQ.mintBounty(issueId))
+			await expect(openQ.mintBounty(bountyId))
 				.to.emit(openQ, 'IssueCreated')
-				.withArgs(issueId, owner.address, issueAddress, expectedTimestamp);
+				.withArgs(bountyId, owner.address, bountyAddress, expectedTimestamp);
 		});
 	});
 
-	describe('OpenQ.sol fundBounty', () => {
-		it('should emit a FundsReceived event with expected issueId, issue address, token address, funder, value and timestamp', async () => {
+	describe('fundBounty', () => {
+		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, value and timestamp', async () => {
 			// ARRANGE
-			const issueId = 'mockIssueId';
-			const tokenAddress = "0x553BED26A78b94862e53945941e4ad6E4F2497da";
+			await openQ.mintBounty(bountyId);
 
-			await openQ.mintBounty(issueId);
+			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
 
-			const issueAddress = await openQ.issueToAddress(issueId);
+			await mockToken.approve(bountyAddress, 10000000);
+			await fakeToken.approve(bountyAddress, 10000000);
 
-			const Issue = await hre.ethers.getContractFactory('Issue');
+			const Bounty = await hre.ethers.getContractFactory('Bounty');
 
-			const issue = await Issue.attach(
-				issueAddress
+			const bounty = await Bounty.attach(
+				bountyAddress
 			);
 
 			const expectedTimestamp = await setNextBlockTimestamp();
 
 			// ACT
 			// ASSERT
-			await expect(openQ.fundBounty(issue.address, tokenAddress, 100))
-				.to.emit(openQ, 'FundsReceived')
-				.withArgs(issueId, issueAddress, tokenAddress, owner.address, 100, expectedTimestamp);
+			await expect(openQ.fundBounty(bountyAddress, mockToken.address, 100))
+				.to.emit(openQ, 'DepositReceived')
+				.withArgs(bountyId, bountyAddress, mockToken.address, owner.address, 100, expectedTimestamp);
 		});
 	});
 
-	describe('OpenQ.sol claimBounty', () => {
-		it('claimBounty should revert if not called by owner', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-			const issueId = 'mockIssueId';
-			let openQWithNonOwnerAccount = openQ.connect(notOwner);
-			const payoutAddress = '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690';
+	describe('claimBounty', () => {
+		describe('require and revert', () => {
+			it('should revert if not called by owner', async () => {
+				// ARRANGE
+				const [, notOwner] = await ethers.getSigners();
+				let openQWithNonOwnerAccount = openQ.connect(notOwner);
+				const payoutAddress = '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690';
 
-			// ASSERT
-			await expect(openQWithNonOwnerAccount.claimBounty(issueId, payoutAddress)).to.be.revertedWith('Ownable: caller is not the owner');
+				// ASSERT
+				await expect(openQWithNonOwnerAccount.claimBounty(bountyId, payoutAddress)).to.be.revertedWith('Ownable: caller is not the owner');
+			});
+		});
+
+		describe('transfer', () => {
+			it('should transfer all assets to bounty claimer', async () => {
+
+			});
+		});
+
+		describe('Event Emissions', () => {
+			it('should emit a BountyClosed event with proper bounty id, bounty Address, payout address, and bounty closed time', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				await mockToken.approve(bountyAddress, 10000000);
+				await fakeToken.approve(bountyAddress, 10000000);
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+
+				// ACT
+				// ASSERT
+				await expect(openQ.claimBounty(bountyId, owner.address))
+					.to.emit(openQ, 'BountyClosed')
+					.withArgs(bountyId, bountyAddress, owner.address, expectedTimestamp);
+			});
 		});
 	});
 });

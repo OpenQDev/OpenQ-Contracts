@@ -1,42 +1,42 @@
 // contracts/MockToken.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import './Issue.sol';
+import './Bounty.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './TransferHelper.sol';
 
 contract OpenQ is Ownable {
     // Properties
-    mapping(string => address) public issueToAddress;
-    mapping(address => string) public addressToIssue;
+    mapping(string => address) public bountyIdToAddress;
+    mapping(address => string) public bountyAddressToBountyId;
 
     // Events
-    event IssueCreated(
-        string issueId,
+    event BountyCreated(
+        string bountyId,
         address indexed issuer,
-        address indexed issueAddress,
-        uint256 issueMintTime
+        address indexed bountyAddress,
+        uint256 bountyMintTime
     );
 
-    event IssueClosed(
-        string issueId,
-        address indexed issueAddress,
+    event BountyClosed(
+        string bountyId,
+        address indexed bountyAddress,
         address indexed payoutAddress,
-        uint256 issueClosedTime
+        uint256 bountyClosedTime
     );
 
-    event FundsReceived(
-        string issueId,
-        address issueAddress,
+    event DepositReceived(
+        string bountyId,
+        address bountyAddress,
         address tokenAddress,
         address sender,
         uint256 value,
         uint256 receiveTime
     );
 
-    event DepositsRefunded(
-        string issueId,
-        address issueAddress,
+    event DepositRefunded(
+        string bountyId,
+        address bountyAddress,
         address tokenAddress,
         address funder,
         uint256 value,
@@ -46,31 +46,31 @@ contract OpenQ is Ownable {
     // Transactions
     function mintBounty(string calldata _id)
         public
-        returns (address issueAddress)
+        returns (address bountyAddress)
     {
         require(
-            issueToAddress[_id] == address(0),
-            'Issue already exists for given id. Find its address by calling issueToAddress on this contract with the issueId'
+            bountyIdToAddress[_id] == address(0),
+            'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
         );
-        issueAddress = address(new Issue(_id, msg.sender));
-        issueToAddress[_id] = issueAddress;
-        addressToIssue[issueAddress] = _id;
+        bountyAddress = address(new Bounty(_id, msg.sender));
+        bountyIdToAddress[_id] = bountyAddress;
+        bountyAddressToBountyId[bountyAddress] = _id;
 
-        emit IssueCreated(_id, msg.sender, issueAddress, block.timestamp);
+        emit BountyCreated(_id, msg.sender, bountyAddress, block.timestamp);
 
-        return issueAddress;
+        return bountyAddress;
     }
 
     function fundBounty(
-        address _issueAddress,
+        address _bountyAddress,
         address _tokenAddress,
         uint256 _value
     ) public returns (bool success) {
-        Issue issue = Issue(_issueAddress);
-        issue.receiveFunds(msg.sender, _tokenAddress, _value);
-        emit FundsReceived(
-            issue.issueId(),
-            _issueAddress,
+        Bounty bounty = Bounty(_bountyAddress);
+        bounty.receiveFunds(msg.sender, _tokenAddress, _value);
+        emit DepositReceived(
+            bounty.bountyId(),
+            _bountyAddress,
             _tokenAddress,
             msg.sender,
             _value,
@@ -84,41 +84,42 @@ contract OpenQ is Ownable {
         public
         onlyOwner
     {
-        address issueAddress = issueToAddress[_id];
-        Issue issue = Issue(issueAddress);
-        issue.transferAllERC20(_payoutAddress);
-        emit IssueClosed(_id, issueAddress, _payoutAddress, block.timestamp);
+        address bountyAddress = bountyIdToAddress[_id];
+        Bounty bounty = Bounty(bountyAddress);
+        bounty.claimBounty(_payoutAddress);
+        emit BountyClosed(_id, bountyAddress, _payoutAddress, block.timestamp);
     }
 
-    function refundBountyDeposits(address _issueAddress)
+    function refundBountyDeposits(address _bountyAddress)
         public
         returns (bool success)
     {
-        Issue issue = Issue(_issueAddress);
+        Bounty bounty = Bounty(_bountyAddress);
 
         require(
-            block.timestamp >= issue.issueCreatedTime() + issue.escrowPeriod(),
+            block.timestamp >=
+                bounty.bountyCreatedTime() + bounty.escrowPeriod(),
             'Too early to withdraw funds'
         );
 
         require(
-            issue.isAFunder(msg.sender) == true,
+            bounty.isAFunder(msg.sender) == true,
             'Only funders of this bounty can reclaim funds after 30 days.'
         );
 
         for (
             uint256 i = 0;
-            i < issue.getFunderTokenAddresses(msg.sender).length;
+            i < bounty.getFunderTokenAddresses(msg.sender).length;
             i++
         ) {
-            address tokenAddress = issue.funderTokenAddresses(msg.sender, i);
-            uint256 value = issue.funderDeposits(msg.sender, tokenAddress);
+            address tokenAddress = bounty.funderTokenAddresses(msg.sender, i);
+            uint256 value = bounty.funderDeposits(msg.sender, tokenAddress);
 
-            issue.refundBountyDeposit(msg.sender, tokenAddress);
+            bounty.refundBountyDeposit(msg.sender, tokenAddress);
 
-            emit DepositsRefunded(
-                issue.issueId(),
-                _issueAddress,
+            emit DepositRefunded(
+                bounty.bountyId(),
+                _bountyAddress,
                 tokenAddress,
                 msg.sender,
                 value,
@@ -130,9 +131,9 @@ contract OpenQ is Ownable {
     }
 
     // Convenience Methods
-    function issueIsOpen(string calldata id_) public view returns (bool) {
-        Issue issue = Issue(this.issueToAddress(id_));
-        bool isOpen = issue.status() == Issue.IssueStatus.OPEN;
+    function bountyIsOpen(string calldata id_) public view returns (bool) {
+        Bounty bounty = Bounty(this.bountyIdToAddress(id_));
+        bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
 
@@ -141,6 +142,6 @@ contract OpenQ is Ownable {
         view
         returns (address)
     {
-        return issueToAddress[_id];
+        return bountyIdToAddress[_id];
     }
 }

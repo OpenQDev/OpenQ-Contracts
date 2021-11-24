@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './TransferHelper.sol';
 
-contract Issue is Ownable {
+contract Bounty is Ownable {
     // Bounty Accounting
     address[] public bountyTokenAddresses;
     mapping(address => uint256) public bountyDeposits;
@@ -16,24 +16,24 @@ contract Issue is Ownable {
     mapping(address => bool) public isAFunder;
 
     // Issue Metadata
-    string public issueId;
-    uint256 public issueCreatedTime;
-    uint256 public issueClosedTime;
+    string public bountyId;
+    uint256 public bountyCreatedTime;
+    uint256 public bountyClosedTime;
     uint256 public escrowPeriod = 30 days;
     address public issuer;
     address public closer;
-    IssueStatus public status;
+    BountyStatus public status;
 
-    enum IssueStatus {
+    enum BountyStatus {
         OPEN,
         CLOSED
     }
 
     constructor(string memory _id, address _issuer) {
-        issueId = _id;
-        status = IssueStatus.OPEN;
+        bountyId = _id;
+        status = BountyStatus.OPEN;
         issuer = _issuer;
-        issueCreatedTime = block.timestamp;
+        bountyCreatedTime = block.timestamp;
     }
 
     // Transactions
@@ -71,14 +71,14 @@ contract Issue is Ownable {
         return success;
     }
 
-    function transferAllERC20(address _payoutAddress)
+    function claimBounty(address _payoutAddress)
         public
         onlyOwner
         returns (bool success)
     {
         require(
-            this.status() == IssueStatus.OPEN,
-            'This is issue is closed. Cannot withdraw again.'
+            this.status() == BountyStatus.OPEN,
+            'This is bounty is closed. Cannot withdraw again.'
         );
 
         for (uint256 i; i < bountyTokenAddresses.length; i++) {
@@ -89,9 +89,9 @@ contract Issue is Ownable {
             );
         }
 
-        status = IssueStatus.CLOSED;
+        status = BountyStatus.CLOSED;
         closer = _payoutAddress;
-        issueClosedTime = block.timestamp;
+        bountyClosedTime = block.timestamp;
         return true;
     }
 
