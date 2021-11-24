@@ -61,7 +61,7 @@ describe('Issue.sol receiveFunds', () => {
 		expect(isAFunderNow).to.be.true;
 	});
 
-	it.only('should add that token address to tokenAddresses if its a new address', async () => {
+	it('should add that token address to tokenAddresses if its a new address', async () => {
 		// ARRANGE
 		const [owner] = await ethers.getSigners();
 		const funder = owner.address;
@@ -78,5 +78,69 @@ describe('Issue.sol receiveFunds', () => {
 		// ASSERT
 		const newTokenAddress = await issue.tokenAddresses(0);
 		expect(newTokenAddress).to.equal(tokenAddress);
+	});
+
+	it('should NOT add that token address to tokenAddresses if it is already there', async () => {
+		// ARRANGE
+		const [owner] = await ethers.getSigners();
+		const funder = owner.address;
+		const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+		const value = 10000;
+
+		// ASSUME
+		const zeroLength = await issue.getIssuesTokenAddresses();
+		expect(zeroLength.length).to.equal(0);
+
+		// ACT
+		await issue.receiveFunds(funder, tokenAddress, value);
+		await issue.receiveFunds(funder, tokenAddress, value);
+
+		// ASSERT
+		const newTokenAddress = await issue.tokenAddresses(0);
+		expect(newTokenAddress).to.equal(tokenAddress);
+
+		const undefinedTokenAddress = await issue.tokenAddresses(1);
+		// expect(undefinedTokenAddress).to.equal(hre.ethers.constants.AddressZero);
+	});
+
+	it.only('should increment totalValuesPerToken by value', async () => {
+		// ARRANGE
+		const [owner] = await ethers.getSigners();
+		const funder = owner.address;
+		const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+		const value = 10000;
+
+		// ASSUME
+		const zeroLength = await issue.getIssuesTokenAddresses();
+		expect(zeroLength.length).to.equal(0);
+
+		// ACT
+		await issue.receiveFunds(funder, tokenAddress, value);
+
+		// ASSERT
+		const newValue = await issue.totalValuesPerToken(tokenAddress);
+		expect(newValue).to.equal(value);
+
+		// ACT
+		await issue.receiveFunds(funder, tokenAddress, value);
+
+		// ASSERT
+		const newerValue = await issue.totalValuesPerToken(tokenAddress);
+		expect(newerValue).to.equal(value + value);
+
+		// ACT
+		const otherTokenAddress = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
+		await issue.receiveFunds(funder, otherTokenAddress, value);
+
+		// ASSERT
+		const newValueOtherToken = await issue.totalValuesPerToken(otherTokenAddress);
+		expect(newValueOtherToken).to.equal(value);
+
+		// ACT
+		await issue.receiveFunds(funder, otherTokenAddress, value);
+
+		// ASSERT
+		const newerValueOtherToken = await issue.totalValuesPerToken(otherTokenAddress);
+		expect(newerValueOtherToken).to.equal(value + value);
 	});
 });
