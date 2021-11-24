@@ -125,4 +125,8 @@ contract Issue is Ownable {
     {
         return fundersTokenAddresses[_funder];
     }
+
+    function getIssuesTokenAddresses() public view returns (address[] memory) {
+        return tokenAddresses;
+    }
 }

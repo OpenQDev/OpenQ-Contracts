@@ -60,4 +60,23 @@ describe('Issue.sol receiveFunds', () => {
 		const isAFunderNow = await issue.isAFunder(funder);
 		expect(isAFunderNow).to.be.true;
 	});
+
+	it.only('should add that token address to tokenAddresses if its a new address', async () => {
+		// ARRANGE
+		const [owner] = await ethers.getSigners();
+		const funder = owner.address;
+		const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+		const value = 10000;
+
+		// ASSUME
+		const zeroLength = await issue.getIssuesTokenAddresses();
+		expect(zeroLength.length).to.equal(0);
+
+		// ACT
+		await issue.receiveFunds(funder, tokenAddress, value);
+
+		// ASSERT
+		const newTokenAddress = await issue.tokenAddresses(0);
+		expect(newTokenAddress).to.equal(tokenAddress);
+	});
 });
