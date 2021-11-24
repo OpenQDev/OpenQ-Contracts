@@ -6,14 +6,14 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import './TransferHelper.sol';
 
 contract Issue is Ownable {
-    // Funders Accounting
-    address[] public tokenAddresses;
+    // Bounty Accounting
+    address[] public bountyTokenAddresses;
+    mapping(address => uint256) public bountyDeposits;
 
-    // funder's address => (token address => value)
-    mapping(address => mapping(address => uint256)) public funders;
+    // Funder Accounting
+    mapping(address => address[]) public funderTokenAddresses;
+    mapping(address => mapping(address => uint256)) public funderDeposits;
     mapping(address => bool) public isAFunder;
-    mapping(address => address[]) public fundersTokenAddresses;
-    mapping(address => uint256) public totalValuesPerToken;
 
     // Issue Metadata
     string public issueId;
@@ -54,20 +54,20 @@ contract Issue is Ownable {
         isAFunder[_funder] = true;
 
         // If is a new deposit for that denomination for the entire bounty
-        if (totalValuesPerToken[_tokenAddress] == 0) {
-            tokenAddresses.push(_tokenAddress);
+        if (bountyDeposits[_tokenAddress] == 0) {
+            bountyTokenAddresses.push(_tokenAddress);
         }
 
         // If is a new deposit for that denomination for that funder
-        if (funders[_funder][_tokenAddress] == 0) {
-            fundersTokenAddresses[_funder].push(_tokenAddress);
+        if (funderDeposits[_funder][_tokenAddress] == 0) {
+            funderTokenAddresses[_funder].push(_tokenAddress);
         }
 
         // Increment the total value locked for this denomination
-        totalValuesPerToken[_tokenAddress] += _value;
+        bountyDeposits[_tokenAddress] += _value;
 
         // Increment the value that funder has deposited for that denomination
-        funders[_funder][_tokenAddress] += _value;
+        funderDeposits[_funder][_tokenAddress] += _value;
         return success;
     }
 
@@ -81,8 +81,8 @@ contract Issue is Ownable {
             'This is issue is closed. Cannot withdraw again.'
         );
 
-        for (uint256 i; i < tokenAddresses.length; i++) {
-            ERC20 tokenContract = ERC20(tokenAddresses[i]);
+        for (uint256 i; i < bountyTokenAddresses.length; i++) {
+            ERC20 tokenContract = ERC20(bountyTokenAddresses[i]);
             tokenContract.transfer(
                 _payoutAddress,
                 tokenContract.balanceOf(address(this))
@@ -103,7 +103,7 @@ contract Issue is Ownable {
         TransferHelper.safeTransfer(
             _tokenAddress,
             _funder,
-            funders[_funder][_tokenAddress]
+            funderDeposits[_funder][_tokenAddress]
         );
         return true;
     }
@@ -118,15 +118,15 @@ contract Issue is Ownable {
         return tokenAddress.balanceOf(address(this));
     }
 
-    function getFundersTokenAddresses(address _funder)
+    function getFunderTokenAddresses(address _funder)
         public
         view
         returns (address[] memory)
     {
-        return fundersTokenAddresses[_funder];
+        return funderTokenAddresses[_funder];
     }
 
-    function getIssuesTokenAddresses() public view returns (address[] memory) {
-        return tokenAddresses;
+    function getBountyTokenAddresses() public view returns (address[] memory) {
+        return bountyTokenAddresses;
     }
 }

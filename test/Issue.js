@@ -65,7 +65,7 @@ describe.only('Issue.sol receiveFunds', () => {
 		});
 	});
 
-	describe('tokenAddresses', () => {
+	describe('bountyTokenAddresses', () => {
 		it('should add that token address to tokenAddresses if its a new address', async () => {
 			// ARRANGE
 			const [owner] = await ethers.getSigners();
@@ -74,14 +74,14 @@ describe.only('Issue.sol receiveFunds', () => {
 			const value = 10000;
 
 			// ASSUME
-			const zeroLength = await issue.getIssuesTokenAddresses();
+			const zeroLength = await issue.getBountyTokenAddresses();
 			expect(zeroLength.length).to.equal(0);
 
 			// ACT
 			await issue.receiveFunds(funder, tokenAddress, value);
 
 			// ASSERT
-			const newTokenAddress = await issue.tokenAddresses(0);
+			const newTokenAddress = await issue.bountyTokenAddresses(0);
 			expect(newTokenAddress).to.equal(tokenAddress);
 		});
 
@@ -93,7 +93,7 @@ describe.only('Issue.sol receiveFunds', () => {
 			const value = 10000;
 
 			// ASSUME
-			const zeroLength = await issue.getIssuesTokenAddresses();
+			const zeroLength = await issue.getBountyTokenAddresses();
 			expect(zeroLength.length).to.equal(0);
 
 			// ACT
@@ -101,58 +101,15 @@ describe.only('Issue.sol receiveFunds', () => {
 			await issue.receiveFunds(funder, tokenAddress, value);
 
 			// ASSERT
-			const newTokenAddress = await issue.tokenAddresses(0);
+			const newTokenAddress = await issue.bountyTokenAddresses(0);
 			expect(newTokenAddress).to.equal(tokenAddress);
 
-			const tokenAddresses = await issue.getIssuesTokenAddresses();
+			const tokenAddresses = await issue.getBountyTokenAddresses();
 			expect(tokenAddresses.length).to.equal(1);
 		});
 	});
 
-	describe('totalValuesPerToken', () => {
-		it('should increment totalValuesPerToken by value', async () => {
-			// ARRANGE
-			const [owner] = await ethers.getSigners();
-			const funder = owner.address;
-			const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
-			const value = 10000;
-
-			// ASSUME
-			const zeroLength = await issue.getIssuesTokenAddresses();
-			expect(zeroLength.length).to.equal(0);
-
-			// ACT
-			await issue.receiveFunds(funder, tokenAddress, value);
-
-			// ASSERT
-			const newValue = await issue.totalValuesPerToken(tokenAddress);
-			expect(newValue).to.equal(value);
-
-			// ACT
-			await issue.receiveFunds(funder, tokenAddress, value);
-
-			// ASSERT
-			const newerValue = await issue.totalValuesPerToken(tokenAddress);
-			expect(newerValue).to.equal(value + value);
-
-			// ACT
-			const otherTokenAddress = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
-			await issue.receiveFunds(funder, otherTokenAddress, value);
-
-			// ASSERT
-			const newValueOtherToken = await issue.totalValuesPerToken(otherTokenAddress);
-			expect(newValueOtherToken).to.equal(value);
-
-			// ACT
-			await issue.receiveFunds(funder, otherTokenAddress, value);
-
-			// ASSERT
-			const newerValueOtherToken = await issue.totalValuesPerToken(otherTokenAddress);
-			expect(newerValueOtherToken).to.equal(value + value);
-		});
-	});
-
-	describe.only('fundersTokenAddresses', () => {
+	describe('funderTokenAddresses', () => {
 		it('should add that token address to fundersTokenAddresses if its a new address', async () => {
 			// ARRANGE
 			const [owner] = await ethers.getSigners();
@@ -161,14 +118,14 @@ describe.only('Issue.sol receiveFunds', () => {
 			const value = 10000;
 
 			// ASSUME
-			const zeroLength = await issue.getFundersTokenAddresses(owner.address);
+			const zeroLength = await issue.getFunderTokenAddresses(owner.address);
 			expect(zeroLength.length).to.equal(0);
 
 			// ACT
 			await issue.receiveFunds(funder, tokenAddress, value);
 
 			// ASSERT
-			const fundersTokenAddress = await issue.getFundersTokenAddresses(owner.address);
+			const fundersTokenAddress = await issue.getFunderTokenAddresses(owner.address);
 			expect(fundersTokenAddress[0]).to.equal(tokenAddress);
 		});
 
@@ -180,22 +137,108 @@ describe.only('Issue.sol receiveFunds', () => {
 			const value = 10000;
 
 			// ASSUME
-			const zeroLength = await issue.getFundersTokenAddresses(owner.address);
+			const zeroLength = await issue.getFunderTokenAddresses(owner.address);
 			expect(zeroLength.length).to.equal(0);
 
 			// ACT
 			await issue.receiveFunds(funder, tokenAddress, value);
 
 			// ASSERT
-			const fundersTokenAddress = await issue.getFundersTokenAddresses(owner.address);
+			const fundersTokenAddress = await issue.getFunderTokenAddresses(owner.address);
 			expect(fundersTokenAddress[0]).to.equal(tokenAddress);
 
 			// ACT
 			await issue.receiveFunds(funder, tokenAddress, value);
 
 			// ASSERT
-			const fundersTokenNewAddress = await issue.getFundersTokenAddresses(owner.address);
+			const fundersTokenNewAddress = await issue.getFunderTokenAddresses(owner.address);
 			expect(fundersTokenNewAddress.length).to.equal(1);
+		});
+	});
+
+	describe('bountyDeposits', () => {
+		it('should increment bountyDeposits by value for that token address', async () => {
+			// ARRANGE
+			const [owner] = await ethers.getSigners();
+			const funder = owner.address;
+			const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+			const value = 10000;
+
+			// ASSUME
+			const zeroLength = await issue.getBountyTokenAddresses();
+			expect(zeroLength.length).to.equal(0);
+
+			// ACT
+			await issue.receiveFunds(funder, tokenAddress, value);
+
+			// ASSERT
+			const newValue = await issue.bountyDeposits(tokenAddress);
+			expect(newValue).to.equal(value);
+
+			// ACT
+			await issue.receiveFunds(funder, tokenAddress, value);
+
+			// ASSERT
+			const newerValue = await issue.bountyDeposits(tokenAddress);
+			expect(newerValue).to.equal(value + value);
+
+			// ACT
+			const otherTokenAddress = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
+			await issue.receiveFunds(funder, otherTokenAddress, value);
+
+			// ASSERT
+			const newValueOtherToken = await issue.bountyDeposits(otherTokenAddress);
+			expect(newValueOtherToken).to.equal(value);
+
+			// ACT
+			await issue.receiveFunds(funder, otherTokenAddress, value);
+
+			// ASSERT
+			const newerValueOtherToken = await issue.bountyDeposits(otherTokenAddress);
+			expect(newerValueOtherToken).to.equal(value + value);
+		});
+	});
+
+	describe('fundersDeposits', () => {
+		it('should increment fundersDeposits at tokenAddress by value', async () => {
+			// ARRANGE
+			const [owner] = await ethers.getSigners();
+			const funder = owner.address;
+			const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+			const value = 10000;
+
+			// ASSUME
+			const zeroValue = (await issue.funderDeposits(funder, tokenAddress)).toNumber();
+			expect(zeroValue).to.equal(0);
+
+			// ACT
+			await issue.receiveFunds(funder, tokenAddress, value);
+
+			// ASSERT
+			const funderDepositsForTokenAddress = (await issue.funderDeposits(funder, tokenAddress)).toNumber();
+			expect(funderDepositsForTokenAddress).to.equal(value);
+
+			// ACT
+			await issue.receiveFunds(funder, tokenAddress, value);
+
+			// ASSERT
+			const funderNewDeposits = (await issue.funderDeposits(funder, tokenAddress)).toNumber();
+			expect(funderNewDeposits).to.equal(value + value);
+
+			// ACT
+			const otherTokenAddress = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
+			await issue.receiveFunds(funder, otherTokenAddress, value);
+
+			// ASSERT
+			const funderNewDepositsOnOtherAddress = (await issue.funderDeposits(funder, otherTokenAddress)).toNumber();
+			expect(funderNewDepositsOnOtherAddress).to.equal(value);
+
+			// ACT
+			await issue.receiveFunds(funder, otherTokenAddress, value);
+
+			// ASSERT
+			const funderNewDepositsOnOtherAddressNewer = (await issue.funderDeposits(funder, otherTokenAddress)).toNumber();
+			expect(funderNewDepositsOnOtherAddressNewer).to.equal(value + value);
 		});
 	});
 });

@@ -108,11 +108,11 @@ contract OpenQ is Ownable {
 
         for (
             uint256 i = 0;
-            i < issue.getFundersTokenAddresses(msg.sender).length;
+            i < issue.getFunderTokenAddresses(msg.sender).length;
             i++
         ) {
-            address tokenAddress = issue.fundersTokenAddresses(msg.sender, i);
-            uint256 value = issue.funders(msg.sender, tokenAddress);
+            address tokenAddress = issue.funderTokenAddresses(msg.sender, i);
+            uint256 value = issue.funderDeposits(msg.sender, tokenAddress);
 
             issue.refundBountyDeposit(msg.sender, tokenAddress);
 
