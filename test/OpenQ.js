@@ -89,7 +89,7 @@ describe('OpenQ.sol fundBounty', () => {
 		await openQ.deployed();
 	});
 
-	it.skip('should emit a FundsReceived event with expected issueId, issue address, token address, funder, value and timestamp', async () => {
+	it('should emit a FundsReceived event with expected issueId, issue address, token address, funder, value and timestamp', async () => {
 		// ARRANGE
 		const [owner] = await ethers.getSigners();
 		const issueId = 'mockIssueId';
