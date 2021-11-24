@@ -4,27 +4,29 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe('OpenQ.sol Transactions', () => {
+describe('OpenQ.sol mintBounty', () => {
 	let openQ;
 
 	beforeEach(async () => {
 		const OpenQ = await hre.ethers.getContractFactory('OpenQ');
 		openQ = await OpenQ.deploy();
+		await openQ.deployed();
 	});
 
-	it('mintBounty method should create a new open bounty with expected initial metadata', async () => {
+	it('should deploy a new issue contract with expected initial metadata', async () => {
 		// ARRANGE
-		await openQ.deployed();
-
 		// Manually set timestamp for next block
 		const expectedTimestamp = 1953282725;
 		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
 
-		// ACT
-		await openQ.mintBounty('mockIssueId');
+		const newIssueId = 'mockIssueId';
 
-		const issueIsOpen = await openQ.issueIsOpen('mockIssueId');
-		const issueAddress = await openQ.issueToAddress('mockIssueId');
+		// ACT
+		const [owner] = await ethers.getSigners();
+		await openQ.mintBounty(newIssueId);
+
+		const issueIsOpen = await openQ.issueIsOpen(newIssueId);
+		const issueAddress = await openQ.issueToAddress(newIssueId);
 
 		const Issue = await hre.ethers.getContractFactory('Issue');
 
@@ -41,17 +43,46 @@ describe('OpenQ.sol Transactions', () => {
 		const status = await newIssue.status();
 
 		// ASSERT
-		expect(issueId).to.equal("mockIssueId");
+		expect(issueId).to.equal(newIssueId);
 		expect(issueCreatedTime).to.equal(expectedTimestamp);
 		expect(issueClosedTime).to.equal(0);
 		expect(escrowPeriod).to.equal(2592000);
-		expect(issuer).to.equal("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
-		expect(closer).to.equal("0x0000000000000000000000000000000000000000");
+		expect(issuer).to.equal(owner.address);
+		expect(closer).to.equal(hre.ethers.constants.AddressZero);
 		expect(status).to.equal(0);
+
+		const issueIdFromAddress = await openQ.addressToIssue(issueAddress);
+		expect(issueIdFromAddress).to.equal(newIssueId);
+	});
+
+	it('should revert if bounty already exists', async () => {
+		// ARRANGE
+		const issueId = 'mockIssueId';
+
+		// ACT
+		await openQ.mintBounty(issueId);
+
+		// ASSERT
+		await expect(openQ.mintBounty(issueId)).to.be.revertedWith('Issue already exists for given id. Find its address by calling issueToAddress on this contract with the issueId');
+	});
+
+	it('should emit an IssueCreated event with expected issueId, issuer address, issue address, and issueMintTime', async () => {
+		// ARRANGE
+		const [owner] = await ethers.getSigners();
+		const issueId = 'mockIssueId';
+		const issueAddress = "0x61c36a8d610163660E21a8b7359e1Cac0C9133e1";
+		const expectedTimestamp = 1953282740;
+		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
+
+		// ACT
+		// ASSERT
+		await expect(openQ.mintBounty(issueId))
+			.to.emit(openQ, 'IssueCreated')
+			.withArgs(issueId, owner.address, issueAddress, expectedTimestamp);
 	});
 });
 
-describe('OpenQ.sol Reverts', () => {
+describe('OpenQ.sol claimBounty', () => {
 	let openq;
 
 	beforeEach(async () => {
@@ -59,28 +90,17 @@ describe('OpenQ.sol Reverts', () => {
 		openQ = await OpenQ.deploy();
 	});
 
-	it('mintBounty method should revert if bounty already exists', async () => {
-		// ARRANGE
-		await openQ.deployed();
-
-		// ACT
-		await openQ.mintBounty('mockIssueId');
-
-		// ASSERT
-		await expect(openQ.mintBounty('mockIssueId')).to.be.revertedWith('Issue already exists for given id. Find its address by calling issueToAddress on this contract with the issueId');
-	});
-
 	it('claimBounty should revert if not called by Owner', async () => {
 		// ARRANGE
 		await openQ.deployed();
-
-		const accounts = await ethers.getSigners();
-		const [, notOwner] = await ethers.getSigners();
-
+		const [owner, notOwner] = await ethers.getSigners();
+		const issueId = 'mockIssueId';
 		let openQWithNonOwnerAccount = openQ.connect(notOwner);
 		const payoutAddress = '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690';
 
 		// ASSERT
-		await expect(openQWithNonOwnerAccount.claimBounty('mockIssueId', payoutAddress)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(openQWithNonOwnerAccount.claimBounty(issueId, payoutAddress)).to.be.revertedWith('Ownable: caller is not the owner');
 	});
 });
+
+
