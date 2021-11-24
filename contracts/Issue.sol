@@ -16,11 +16,11 @@ contract Issue is Ownable {
     mapping(address => uint256) public totalValuesPerToken;
 
     // Issue Metadata
+    string public issueId;
     uint256 public issueCreatedTime;
     uint256 public issueClosedTime;
     uint256 public escrowPeriod = 30 days;
     address public issuer;
-    string public issueId;
     address public closer;
     IssueStatus public status;
 

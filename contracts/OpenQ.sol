@@ -7,7 +7,6 @@ import './TransferHelper.sol';
 
 contract OpenQ is Ownable {
     // Properties
-    string[] public issueIds;
     mapping(string => address) public issueToAddress;
     mapping(address => string) public addressToIssue;
 
@@ -56,7 +55,6 @@ contract OpenQ is Ownable {
         issueAddress = address(new Issue(_id, msg.sender));
         issueToAddress[_id] = issueAddress;
         addressToIssue[issueAddress] = _id;
-        issueIds.push(_id);
 
         emit IssueCreated(_id, msg.sender, issueAddress, block.timestamp);
 
@@ -141,10 +139,6 @@ contract OpenQ is Ownable {
     }
 
     // Convenience Methods
-    function getIssueIds() public view returns (string[] memory) {
-        return issueIds;
-    }
-
     function issueIsOpen(string calldata id_) public view returns (bool) {
         Issue issue = Issue(this.issueToAddress(id_));
         bool isOpen = issue.status() == Issue.IssueStatus.OPEN;
