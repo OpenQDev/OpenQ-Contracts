@@ -15,12 +15,7 @@ describe('OpenQ.sol mintBounty', () => {
 
 	it('should deploy a new issue contract with expected initial metadata', async () => {
 		// ARRANGE
-		// Manually set timestamp for next block
-		const blockNumBefore = await ethers.provider.getBlockNumber();
-		const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-		const timestampBefore = blockBefore.timestamp;
-		const expectedTimestamp = timestampBefore + 10;
-		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
+		const expectedTimestamp = await setNextBlockTimestamp();
 
 		const newIssueId = 'mockIssueId';
 
@@ -73,13 +68,9 @@ describe('OpenQ.sol mintBounty', () => {
 		// ARRANGE
 		const [owner] = await ethers.getSigners();
 		const issueId = 'mockIssueId';
-		const issueAddress = "0x6F1216D1BFe15c98520CA1434FC1d9D57AC95321";
+		const issueAddress = "0x553BED26A78b94862e53945941e4ad6E4F2497da";
 
-		const blockNumBefore = await ethers.provider.getBlockNumber();
-		const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-		const timestampBefore = blockBefore.timestamp;
-		const expectedTimestamp = timestampBefore + 10;
-		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
+		const expectedTimestamp = await setNextBlockTimestamp();
 
 		// ACT
 		// ASSERT
@@ -98,11 +89,11 @@ describe('OpenQ.sol fundBounty', () => {
 		await openQ.deployed();
 	});
 
-	it('should emit a FundsReceived event with expected issueId, issue address, token address, funder, value and timestamp', async () => {
+	it.skip('should emit a FundsReceived event with expected issueId, issue address, token address, funder, value and timestamp', async () => {
 		// ARRANGE
 		const [owner] = await ethers.getSigners();
 		const issueId = 'mockIssueId';
-		const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+		const tokenAddress = "0x553BED26A78b94862e53945941e4ad6E4F2497da";
 
 		await openQ.mintBounty(issueId);
 
@@ -114,11 +105,7 @@ describe('OpenQ.sol fundBounty', () => {
 			issueAddress
 		);
 
-		const blockNumBefore = await ethers.provider.getBlockNumber();
-		const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-		const timestampBefore = blockBefore.timestamp;
-		const expectedTimestamp = timestampBefore + 10;
-		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
+		const expectedTimestamp = await setNextBlockTimestamp();
 
 		// ACT
 		// ASSERT
@@ -149,4 +136,13 @@ describe('OpenQ.sol claimBounty', () => {
 	});
 });
 
-
+async function setNextBlockTimestamp() {
+	return new Promise(async (resolve,) => {
+		const blockNumBefore = await hre.ethers.provider.getBlockNumber();
+		const blockBefore = await hre.ethers.provider.getBlock(blockNumBefore);
+		const timestampBefore = blockBefore.timestamp;
+		const expectedTimestamp = timestampBefore + 10;
+		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
+		resolve(expectedTimestamp);
+	});
+}

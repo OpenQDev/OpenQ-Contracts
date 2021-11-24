@@ -99,11 +99,11 @@ describe('Issue.sol receiveFunds', () => {
 		const newTokenAddress = await issue.tokenAddresses(0);
 		expect(newTokenAddress).to.equal(tokenAddress);
 
-		const undefinedTokenAddress = await issue.tokenAddresses(1);
-		// expect(undefinedTokenAddress).to.equal(hre.ethers.constants.AddressZero);
+		const tokenAddresses = await issue.getIssuesTokenAddresses();
+		expect(tokenAddresses.length).to.equal(1);
 	});
 
-	it.only('should increment totalValuesPerToken by value', async () => {
+	it('should increment totalValuesPerToken by value', async () => {
 		// ARRANGE
 		const [owner] = await ethers.getSigners();
 		const funder = owner.address;
