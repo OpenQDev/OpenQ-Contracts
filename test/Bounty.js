@@ -291,6 +291,54 @@ describe('Bounty.sol', () => {
 			});
 		});
 
+		describe('bounty updates after claim', () => {
+			it('should close issue after successful claim', async () => {
+				// ARRANGE
+				// ASSUME
+				const openBounty = await bounty.status();
+				console.log(openBounty);
+				expect(openBounty).to.equal(0);
+
+				// ACT
+				await bounty.claim(owner.address);
+
+				// ASSERT
+				const closedBounty = await bounty.status();
+				expect(closedBounty).to.equal(1);
+			});
+
+			it('should set closer to the claimer address', async () => {
+				// ARRANGE
+				// ASSUME
+				const closer = await bounty.closer();
+				expect(closer).to.equal(ethers.constants.AddressZero);
+
+				// ACT
+				await bounty.claim(owner.address);
+
+				// ASSERT
+				const udpatedCloser = await bounty.closer();
+				expect(udpatedCloser).to.equal(owner.address);
+			});
+
+			it('should set close time correctly', async () => {
+				// ARRANGE
+				const expectedTimestamp = await setNextBlockTimestamp();
+
+				// ASSUME
+				const bountyClosedTime = await bounty.bountyClosedTime();
+				expect(bountyClosedTime).to.equal(0);
+
+
+				// ACT
+				await bounty.claim(owner.address);
+
+				// ASSERT
+				const updatedBountyClosedTime = await bounty.bountyClosedTime();
+				expect(updatedBountyClosedTime).to.equal(expectedTimestamp);
+			});
+		});
+
 		describe('transfer', () => {
 			it('should transfer all assets from bounty contract to claimer', async () => {
 				// ARRANGE
@@ -327,3 +375,14 @@ describe('Bounty.sol', () => {
 		});
 	});
 });
+
+async function setNextBlockTimestamp() {
+	return new Promise(async (resolve,) => {
+		const blockNumBefore = await hre.ethers.provider.getBlockNumber();
+		const blockBefore = await hre.ethers.provider.getBlock(blockNumBefore);
+		const timestampBefore = blockBefore.timestamp;
+		const expectedTimestamp = timestampBefore + 10;
+		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
+		resolve(expectedTimestamp);
+	});
+}

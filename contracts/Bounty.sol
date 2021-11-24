@@ -77,7 +77,6 @@ contract Bounty is Ownable {
         onlyOwner
         returns (bool success)
     {
-        console.log('sdfsdfsdfsdfsd');
         require(
             this.status() == BountyStatus.OPEN,
             'This is bounty is closed. Cannot withdraw again.'
