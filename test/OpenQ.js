@@ -69,4 +69,18 @@ describe('OpenQ.sol Reverts', () => {
 		// ASSERT
 		await expect(openQ.mintBounty('mockIssueId')).to.be.revertedWith('Issue already exists for given id. Find its address by calling issueToAddress on this contract with the issueId');
 	});
+
+	it('claimBounty should revert if not called by Owner', async () => {
+		// ARRANGE
+		await openQ.deployed();
+
+		const accounts = await ethers.getSigners();
+		const [, notOwner] = await ethers.getSigners();
+
+		let openQWithNonOwnerAccount = openQ.connect(notOwner);
+		const payoutAddress = '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690';
+
+		// ASSERT
+		await expect(openQWithNonOwnerAccount.claimBounty('mockIssueId', payoutAddress)).to.be.revertedWith('Ownable: caller is not the owner');
+	});
 });
