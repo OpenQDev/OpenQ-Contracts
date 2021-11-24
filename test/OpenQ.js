@@ -16,7 +16,10 @@ describe('OpenQ.sol mintBounty', () => {
 	it('should deploy a new issue contract with expected initial metadata', async () => {
 		// ARRANGE
 		// Manually set timestamp for next block
-		const expectedTimestamp = 1953282725;
+		const blockNumBefore = await ethers.provider.getBlockNumber();
+		const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+		const timestampBefore = blockBefore.timestamp;
+		const expectedTimestamp = timestampBefore + 10;
 		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
 
 		const newIssueId = 'mockIssueId';
@@ -71,7 +74,11 @@ describe('OpenQ.sol mintBounty', () => {
 		const [owner] = await ethers.getSigners();
 		const issueId = 'mockIssueId';
 		const issueAddress = "0x6F1216D1BFe15c98520CA1434FC1d9D57AC95321";
-		const expectedTimestamp = 1953282740;
+
+		const blockNumBefore = await ethers.provider.getBlockNumber();
+		const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+		const timestampBefore = blockBefore.timestamp;
+		const expectedTimestamp = timestampBefore + 10;
 		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
 
 		// ACT
@@ -79,6 +86,45 @@ describe('OpenQ.sol mintBounty', () => {
 		await expect(openQ.mintBounty(issueId))
 			.to.emit(openQ, 'IssueCreated')
 			.withArgs(issueId, owner.address, issueAddress, expectedTimestamp);
+	});
+});
+
+describe('OpenQ.sol fundBounty', () => {
+	let openQ;
+
+	beforeEach(async () => {
+		const OpenQ = await hre.ethers.getContractFactory('OpenQ');
+		openQ = await OpenQ.deploy();
+		await openQ.deployed();
+	});
+
+	it('should emit a FundsReceived event with expected issueId, issue address, token address, funder, value and timestamp', async () => {
+		// ARRANGE
+		const [owner] = await ethers.getSigners();
+		const issueId = 'mockIssueId';
+		const tokenAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+
+		await openQ.mintBounty(issueId);
+
+		const issueAddress = await openQ.issueToAddress(issueId);
+
+		const Issue = await hre.ethers.getContractFactory('Issue');
+
+		const issue = await Issue.attach(
+			issueAddress
+		);
+
+		const blockNumBefore = await ethers.provider.getBlockNumber();
+		const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+		const timestampBefore = blockBefore.timestamp;
+		const expectedTimestamp = timestampBefore + 10;
+		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
+
+		// ACT
+		// ASSERT
+		await expect(openQ.fundBounty(issue.address, tokenAddress, 100))
+			.to.emit(openQ, 'FundsReceived')
+			.withArgs(issueId, issueAddress, tokenAddress, owner.address, 100, expectedTimestamp);
 	});
 });
 

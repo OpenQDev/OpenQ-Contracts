@@ -49,15 +49,15 @@ describe('Issue.sol receiveFunds', () => {
 		const tokenAddress = "0x514910771af9ca656af840dff83e8264ecf986ca";
 		const value = 10000;
 
-		// ACT
+		// ASSUME
 		const isNotAFunder = await issue.isAFunder(funder);
 		expect(isNotAFunder).to.be.false;
 
+		// ACT
 		await issue.receiveFunds(funder, tokenAddress, value);
 
-		const isAFunderNow = await issue.isAFunder(funder);
-
 		// ASSERT
+		const isAFunderNow = await issue.isAFunder(funder);
 		expect(isAFunderNow).to.be.true;
 	});
 });

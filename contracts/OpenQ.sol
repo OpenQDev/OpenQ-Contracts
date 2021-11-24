@@ -61,15 +61,6 @@ contract OpenQ is Ownable {
         return issueAddress;
     }
 
-    function safeApprove(
-        address _token,
-        address _issueAddress,
-        uint256 _value
-    ) public returns (bool success) {
-        TransferHelper.safeApprove(_token, _issueAddress, _value);
-        return true;
-    }
-
     function fundBounty(
         address _issueAddress,
         address _tokenAddress,
