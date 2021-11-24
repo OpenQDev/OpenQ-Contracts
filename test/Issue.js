@@ -201,47 +201,72 @@ describe('Issue.sol receiveFunds', () => {
 	describe('fundersDeposits', () => {
 		it('should increment fundersDeposits at tokenAddress by value', async () => {
 			// ARRANGE
-			const funder = owner.address;
 			const value = 10000;
 
 			// ASSUME
-			const zeroValue = (await issue.funderDeposits(funder, mockToken.address)).toNumber();
+			const zeroValue = (await issue.funderDeposits(owner.address, mockToken.address)).toNumber();
 			expect(zeroValue).to.equal(0);
 
 			// ACT
-			await issue.receiveFunds(funder, mockToken.address, value);
+			await issue.receiveFunds(owner.address, mockToken.address, value);
 
 			// ASSERT
-			const funderDepositsForTokenAddress = (await issue.funderDeposits(funder, mockToken.address)).toNumber();
+			const funderDepositsForTokenAddress = (await issue.funderDeposits(owner.address, mockToken.address)).toNumber();
 			expect(funderDepositsForTokenAddress).to.equal(value);
 
 			// ACT
-			await issue.receiveFunds(funder, mockToken.address, value);
+			await issue.receiveFunds(owner.address, mockToken.address, value);
 
 			// ASSERT
-			const funderNewDeposits = (await issue.funderDeposits(funder, mockToken.address)).toNumber();
+			const funderNewDeposits = (await issue.funderDeposits(owner.address, mockToken.address)).toNumber();
 			expect(funderNewDeposits).to.equal(value + value);
 
 			// ACT
-			await issue.receiveFunds(funder, fakeToken.address, value);
+			await issue.receiveFunds(owner.address, fakeToken.address, value);
 
 			// ASSERT
-			const funderNewDepositsOnOtherAddress = (await issue.funderDeposits(funder, fakeToken.address)).toNumber();
+			const funderNewDepositsOnOtherAddress = (await issue.funderDeposits(owner.address, fakeToken.address)).toNumber();
 			expect(funderNewDepositsOnOtherAddress).to.equal(value);
 
 			// ACT
-			await issue.receiveFunds(funder, fakeToken.address, value);
+			await issue.receiveFunds(owner.address, fakeToken.address, value);
 
 			// ASSERT
-			const funderNewDepositsOnOtherAddressNewer = (await issue.funderDeposits(funder, fakeToken.address)).toNumber();
+			const funderNewDepositsOnOtherAddressNewer = (await issue.funderDeposits(owner.address, fakeToken.address)).toNumber();
 			expect(funderNewDepositsOnOtherAddressNewer).to.equal(value + value);
 		});
 	});
 
 	describe('transferFrom', () => {
-		it('should transfer the resepctive amount from sender to this bounty address', async () => {
-			const funderBalance = (await fakeToken.balanceOf(owner.address)).toString();
-			expect(funderBalance).to.equal('10000000000000000000000');
+		it('should transfer the resepctive amount from sender to this bounty address for the token address', async () => {
+			// ASSUME
+			const initialFunderMockTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
+			const initialFunderFakeTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
+			expect(initialFunderMockTokenBalance).to.equal('10000000000000000000000');
+			expect(initialFunderFakeTokenBalance).to.equal('10000000000000000000000');
+
+			const initialIssueMockTokenBalance = (await mockToken.balanceOf(issue.address)).toString();
+			const initialIssueFakeTokenBalance = (await fakeToken.balanceOf(issue.address)).toString();
+			expect(initialIssueMockTokenBalance).to.equal('0');
+			expect(initialIssueFakeTokenBalance).to.equal('0');
+
+			// ARRANGE
+			const value = 100;
+
+			// ACT
+			await issue.receiveFunds(owner.address, mockToken.address, value);
+			await issue.receiveFunds(owner.address, fakeToken.address, value);
+
+			// ASSERT
+			const funderMockTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
+			const funderFakeTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
+			expect(funderMockTokenBalance).to.equal('9999999999999999999900');
+			expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
+
+			const issueMockTokenBalance = (await mockToken.balanceOf(issue.address)).toString();
+			const issueFakeTokenBalance = (await fakeToken.balanceOf(issue.address)).toString();
+			expect(issueMockTokenBalance).to.equal('100');
+			expect(issueFakeTokenBalance).to.equal('100');
 		});
 	});
 });
