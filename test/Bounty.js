@@ -272,7 +272,7 @@ describe('Bounty.sol', () => {
 		});
 	});
 
-	describe.only('claimBounty', () => {
+	describe('claimBounty', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by owner', async () => {
 				// ARRANGE

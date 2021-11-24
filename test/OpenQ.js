@@ -129,8 +129,44 @@ describe('OpenQ.sol', () => {
 		});
 
 		describe('transfer', () => {
-			it('should transfer all assets to bounty claimer', async () => {
+			it('should transfer all assets from bounty contract to claimer', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId);
 
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				await mockToken.approve(bountyAddress, 10000000);
+				await fakeToken.approve(bountyAddress, 10000000);
+				const value = 100;
+				await openQ.fundBounty(bountyAddress, mockToken.address, value);
+				await openQ.fundBounty(bountyAddress, fakeToken.address, value);
+
+				const [, claimer] = await ethers.getSigners();
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockToken.balanceOf(bountyAddress)).toString();
+				const bountyFakeTokenBalance = (await fakeToken.balanceOf(bountyAddress)).toString();
+				expect(bountyMockTokenBalance).to.equal('100');
+				expect(bountyFakeTokenBalance).to.equal('100');
+
+				const claimerMockTokenBalance = (await mockToken.balanceOf(claimer.address)).toString();
+				const claimerFakeTokenBalance = (await fakeToken.balanceOf(claimer.address)).toString();
+				expect(claimerMockTokenBalance).to.equal('0');
+				expect(claimerFakeTokenBalance).to.equal('0');
+
+				// ACT
+				await openQ.claimBounty(bountyId, claimer.address);
+
+				// ASSERT
+				const newBountyMockTokenBalance = (await mockToken.balanceOf(bountyAddress)).toString();
+				const newBountyFakeTokenBalance = (await fakeToken.balanceOf(bountyAddress)).toString();
+				expect(newBountyMockTokenBalance).to.equal('0');
+				expect(newBountyFakeTokenBalance).to.equal('0');
+
+				const newClaimerMockTokenBalance = (await mockToken.balanceOf(claimer.address)).toString();
+				const newClaimerFakeTokenBalance = (await fakeToken.balanceOf(claimer.address)).toString();
+				expect(newClaimerMockTokenBalance).to.equal('100');
+				expect(newClaimerFakeTokenBalance).to.equal('100');
 			});
 		});
 
