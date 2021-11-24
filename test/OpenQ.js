@@ -70,7 +70,7 @@ describe('OpenQ.sol mintBounty', () => {
 		// ARRANGE
 		const [owner] = await ethers.getSigners();
 		const issueId = 'mockIssueId';
-		const issueAddress = "0x61c36a8d610163660E21a8b7359e1Cac0C9133e1";
+		const issueAddress = "0x6F1216D1BFe15c98520CA1434FC1d9D57AC95321";
 		const expectedTimestamp = 1953282740;
 		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
 
@@ -88,11 +88,11 @@ describe('OpenQ.sol claimBounty', () => {
 	beforeEach(async () => {
 		const OpenQ = await hre.ethers.getContractFactory('OpenQ');
 		openQ = await OpenQ.deploy();
+		await openQ.deployed();
 	});
 
-	it('claimBounty should revert if not called by Owner', async () => {
+	it('claimBounty should revert if not called by owner', async () => {
 		// ARRANGE
-		await openQ.deployed();
 		const [owner, notOwner] = await ethers.getSigners();
 		const issueId = 'mockIssueId';
 		let openQWithNonOwnerAccount = openQ.connect(notOwner);
