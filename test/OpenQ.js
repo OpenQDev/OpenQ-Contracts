@@ -192,6 +192,30 @@ describe('OpenQ.sol', () => {
 	});
 
 	describe('refundBountyDeposits', () => {
+		describe('Event Emissions', () => {
+			it('should emit one DepositRefunded event for each deposit refunded', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				await mockToken.approve(bountyAddress, 10000000);
+				await fakeToken.approve(bountyAddress, 10000000);
+
+				const value = 100;
+				await openQ.fundBounty(bountyAddress, mockToken.address, value);
+				await openQ.fundBounty(bountyAddress, fakeToken.address, value);
+
+				const expectedTimestamp = await setNextBlockTimestamp(2764800);
+
+				// ACT
+				// ASSERT
+				await expect(openQ.refundBountyDeposits(bountyAddress))
+					.to.emit(openQ, 'DepositRefunded')
+					.withArgs(bountyId, bountyAddress, mockToken.address, owner.address, 100, expectedTimestamp);
+			});
+		});
+
 		describe('requires and reverts', () => {
 			it('should revert if attempt to withdraw too early, or if not funder', async () => {
 				// ARRANGE
@@ -261,12 +285,12 @@ describe('OpenQ.sol', () => {
 	});
 });
 
-async function setNextBlockTimestamp(timestamp = null) {
+async function setNextBlockTimestamp(timestamp = 10) {
 	return new Promise(async (resolve,) => {
 		const blockNumBefore = await hre.ethers.provider.getBlockNumber();
 		const blockBefore = await hre.ethers.provider.getBlock(blockNumBefore);
 		const timestampBefore = blockBefore.timestamp;
-		const expectedTimestamp = timestamp ? timestamp : timestampBefore + 10;
+		const expectedTimestamp = timestampBefore + timestamp;
 		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
 		resolve(expectedTimestamp);
 	});
