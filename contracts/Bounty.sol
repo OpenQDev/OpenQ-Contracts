@@ -9,7 +9,6 @@ import 'hardhat/console.sol';
 contract Bounty is Ownable {
     // Bounty Accounting
     address[] public bountyTokenAddresses;
-    mapping(address => uint256) public bountyDeposits;
 
     // Funder Accounting
     mapping(address => address[]) public funderTokenAddresses;
@@ -45,6 +44,11 @@ contract Bounty is Ownable {
     ) public onlyOwner returns (bool success) {
         require(_value != 0, 'Must send some value');
 
+        // If is a new deposit for that denomination for the entire bounty
+        if (getERC20Balance(_tokenAddress) == 0) {
+            bountyTokenAddresses.push(_tokenAddress);
+        }
+
         TransferHelper.safeTransferFrom(
             _tokenAddress,
             _funder,
@@ -54,18 +58,10 @@ contract Bounty is Ownable {
 
         isAFunder[_funder] = true;
 
-        // If is a new deposit for that denomination for the entire bounty
-        if (bountyDeposits[_tokenAddress] == 0) {
-            bountyTokenAddresses.push(_tokenAddress);
-        }
-
         // If is a new deposit for that denomination for that funder
         if (funderDeposits[_funder][_tokenAddress] == 0) {
             funderTokenAddresses[_funder].push(_tokenAddress);
         }
-
-        // Increment the total value locked for this denomination
-        bountyDeposits[_tokenAddress] += _value;
 
         // Increment the value that funder has deposited for that denomination
         funderDeposits[_funder][_tokenAddress] += _value;
@@ -108,6 +104,12 @@ contract Bounty is Ownable {
             _funder,
             funderDeposits[_funder][_tokenAddress]
         );
+
+        // Decrement the value that funder has deposited for that denomination
+        funderDeposits[_funder][_tokenAddress] -= funderDeposits[_funder][
+            _tokenAddress
+        ];
+
         return true;
     }
 

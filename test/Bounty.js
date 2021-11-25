@@ -81,7 +81,7 @@ describe('Bounty.sol', () => {
 		});
 
 		describe('bountyTokenAddresses', () => {
-			it('should add that token address to tokenAddresses if its a new address', async () => {
+			it('should add that token address to bountyTokenAddresses if current balance is zero for that token', async () => {
 				// ARRANGE
 				const value = 10000;
 
@@ -99,7 +99,6 @@ describe('Bounty.sol', () => {
 
 			it('should NOT add that token address to tokenAddresses if it is already there', async () => {
 				// ARRANGE
-				const [owner] = await ethers.getSigners();
 				const value = 10000;
 
 				// ASSUME
@@ -157,45 +156,6 @@ describe('Bounty.sol', () => {
 				// ASSERT
 				const fundersTokenNewAddress = await bounty.getFunderTokenAddresses(owner.address);
 				expect(fundersTokenNewAddress.length).to.equal(1);
-			});
-		});
-
-		describe('bountyDeposits', () => {
-			it('should increment bountyDeposits by value for that token address', async () => {
-				// ARRANGE
-				const value = 10000;
-
-				// ASSUME
-				const zeroLength = await bounty.getBountyTokenAddresses();
-				expect(zeroLength.length).to.equal(0);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
-
-				// ASSERT
-				const newValue = await bounty.bountyDeposits(mockToken.address);
-				expect(newValue).to.equal(value);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
-
-				// ASSERT
-				const newerValue = await bounty.bountyDeposits(mockToken.address);
-				expect(newerValue).to.equal(value + value);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
-
-				// ASSERT
-				const newValueOtherToken = await bounty.bountyDeposits(fakeToken.address);
-				expect(newValueOtherToken).to.equal(value);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
-
-				// ASSERT
-				const newerValueOtherToken = await bounty.bountyDeposits(fakeToken.address);
-				expect(newerValueOtherToken).to.equal(value + value);
 			});
 		});
 
@@ -375,6 +335,49 @@ describe('Bounty.sol', () => {
 			});
 		});
 	});
+
+	describe('refundBountyDeposit', () => {
+		describe('require and revert', () => {
+			it('should revert if not called by owner', async () => {
+				// ARRANGE
+				const [, notOwner] = await ethers.getSigners();
+				let issueWithNonOwnerAccount = bounty.connect(notOwner);
+				// ASSERT
+				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockToken.address)).to.be.revertedWith('Ownable: caller is not the owner');
+			});
+		});
+
+		describe('fundersDeposits', () => {
+			it('should decrement fundersDeposits at tokenAddress by value refunded', async () => {
+				// ARRANGE
+				const value = 100;
+
+				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+
+				// ASSUME
+				const funderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockToken.address)).toNumber();
+				expect(funderMockTokenDeposit).to.equal(value);
+				const funderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, fakeToken.address)).toNumber();
+				expect(funderFakeTokenDeposit).to.equal(value);
+
+				// ACT
+				await bounty.refundBountyDeposit(owner.address, mockToken.address);
+				await bounty.refundBountyDeposit(owner.address, fakeToken.address);
+
+				// ASSERT
+				const decrementedFunderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockToken.address)).toNumber();
+				expect(decrementedFunderMockTokenDeposit).to.equal(0);
+				const decrementedFunderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, fakeToken.address)).toNumber();
+				expect(decrementedFunderFakeTokenDeposit).to.equal(0);
+			});
+		});
+
+		describe('transfer', () => {
+			it('should');
+		});
+	});
+
 });
 
 async function setNextBlockTimestamp() {
