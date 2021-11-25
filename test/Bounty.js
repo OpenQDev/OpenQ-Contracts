@@ -374,7 +374,38 @@ describe('Bounty.sol', () => {
 		});
 
 		describe('transfer', () => {
-			it('should');
+			it.only('should transfer refunded asset from bounty contract to funder', async () => {
+				// ARRANGE
+				const value = 100;
+				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
+				const bountyFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('100');
+				expect(bountyFakeTokenBalance).to.equal('100');
+
+				const funderMockTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
+				const funderFakeTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
+				expect(funderMockTokenBalance).to.equal('9999999999999999999900');
+				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
+
+				// // ACT
+				await bounty.refundBountyDeposit(owner.address, mockToken.address);
+				await bounty.refundBountyDeposit(owner.address, fakeToken.address);
+
+				// // ASSERT
+				const newBountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
+				const newBountyFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
+				expect(newBountyMockTokenBalance).to.equal('0');
+				expect(newBountyFakeTokenBalance).to.equal('0');
+
+				const newFunderMockTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
+				const newFunderFakeTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
+				expect(newFunderMockTokenBalance).to.equal('10000000000000000000000');
+				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
+			});
 		});
 	});
 
