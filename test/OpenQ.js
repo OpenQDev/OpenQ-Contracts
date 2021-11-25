@@ -77,14 +77,14 @@ describe('OpenQ.sol', () => {
 
 		it.skip('should emit an BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
 			// ARRANGE
-			const bountyAddress = "0x4F57F9239eFCBf43e5920f579D03B3849C588396";
+			const bountyAddress = "0x68D0190b345d712Cc724345B78E1B6bdf4bf3782";
 
 			const expectedTimestamp = await setNextBlockTimestamp();
 
 			// ACT
 			// ASSERT
 			await expect(openQ.mintBounty(bountyId))
-				.to.emit(openQ, 'IssueCreated')
+				.to.emit(openQ, 'BountyCreated')
 				.withArgs(bountyId, owner.address, bountyAddress, expectedTimestamp);
 		});
 	});
@@ -190,14 +190,83 @@ describe('OpenQ.sol', () => {
 			});
 		});
 	});
+
+	describe('refundBountyDeposits', () => {
+		describe('requires and reverts', () => {
+			it('should revert if attempt to withdraw too early, or if not funder', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				const twoDays = 172800;
+				ethers.provider.send("evm_increaseTime", [twoDays]);
+
+				// ACT
+				// ASSERT
+				await expect(openQ.refundBountyDeposits(bountyAddress)).to.be.revertedWith('Too early to withdraw funds');
+
+				const thirtyTwoDays = 2765000;
+				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+
+				// ACT
+				// ASSERT
+				await expect(openQ.refundBountyDeposits(bountyAddress)).to.be.revertedWith('Only funders of this bounty can reclaim funds after 30 days.');
+			});
+		});
+
+		describe('transfer', () => {
+			it('should transfer refunded asset from bounty contract to funder', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				await mockToken.approve(bountyAddress, 10000000);
+				await fakeToken.approve(bountyAddress, 10000000);
+				const value = 100;
+				await openQ.fundBounty(bountyAddress, mockToken.address, value);
+				await openQ.fundBounty(bountyAddress, fakeToken.address, value);
+
+				const thirtyTwoDays = 2765000;
+				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockToken.balanceOf(bountyAddress)).toString();
+				const bountyFakeTokenBalance = (await fakeToken.balanceOf(bountyAddress)).toString();
+				expect(bountyMockTokenBalance).to.equal('100');
+				expect(bountyFakeTokenBalance).to.equal('100');
+
+				const funderMockTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
+				const funderFakeTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
+				expect(funderMockTokenBalance).to.equal('9999999999999999999900');
+				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
+
+				// // ACT
+				await openQ.refundBountyDeposits(bountyAddress);
+				await openQ.refundBountyDeposits(bountyAddress);
+
+				// // ASSERT
+				const newBountyMockTokenBalance = (await mockToken.balanceOf(bountyAddress)).toString();
+				const newBountyFakeTokenBalance = (await fakeToken.balanceOf(bountyAddress)).toString();
+				expect(newBountyMockTokenBalance).to.equal('0');
+				expect(newBountyFakeTokenBalance).to.equal('0');
+
+				const newFunderMockTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
+				const newFunderFakeTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
+				expect(newFunderMockTokenBalance).to.equal('10000000000000000000000');
+				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
+			});
+		});
+	});
 });
 
-async function setNextBlockTimestamp() {
+async function setNextBlockTimestamp(timestamp = null) {
 	return new Promise(async (resolve,) => {
 		const blockNumBefore = await hre.ethers.provider.getBlockNumber();
 		const blockBefore = await hre.ethers.provider.getBlock(blockNumBefore);
 		const timestampBefore = blockBefore.timestamp;
-		const expectedTimestamp = timestampBefore + 10;
+		const expectedTimestamp = timestamp ? timestamp : timestampBefore + 10;
 		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
 		resolve(expectedTimestamp);
 	});

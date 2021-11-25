@@ -374,7 +374,7 @@ describe('Bounty.sol', () => {
 		});
 
 		describe('transfer', () => {
-			it.only('should transfer refunded asset from bounty contract to funder', async () => {
+			it('should transfer refunded asset from bounty contract to funder', async () => {
 				// ARRANGE
 				const value = 100;
 				await bounty.receiveFunds(owner.address, mockToken.address, value);
