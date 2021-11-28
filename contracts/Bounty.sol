@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './TransferHelper.sol';
-import 'hardhat/console.sol';
 
 contract Bounty is Ownable {
     // Bounty Accounting
@@ -17,7 +16,7 @@ contract Bounty is Ownable {
 
     // Issue Metadata
     string public bountyId;
-    uint256 public bountyCreatedTime;
+    uint256 public bountyCreatedTime = block.timestamp;
     uint256 public bountyClosedTime;
     uint256 public escrowPeriod = 30 days;
     address public issuer;
@@ -33,7 +32,6 @@ contract Bounty is Ownable {
         bountyId = _id;
         status = BountyStatus.OPEN;
         issuer = _issuer;
-        bountyCreatedTime = block.timestamp;
     }
 
     // Transactions
@@ -68,7 +66,7 @@ contract Bounty is Ownable {
         return success;
     }
 
-    function claim(address _payoutAddress)
+    function claim(address _payoutAddress, address _tokenAddress)
         public
         onlyOwner
         returns (bool success)
@@ -78,16 +76,26 @@ contract Bounty is Ownable {
             'This is bounty is closed. Cannot withdraw again.'
         );
 
-        for (uint256 i; i < bountyTokenAddresses.length; i++) {
-            uint256 bountyBalance = getERC20Balance(bountyTokenAddresses[i]);
+        uint256 bountyBalance = getERC20Balance(_tokenAddress);
 
-            TransferHelper.safeTransfer(
-                bountyTokenAddresses[i],
-                _payoutAddress,
-                bountyBalance
-            );
-        }
+        TransferHelper.safeTransfer(
+            _tokenAddress,
+            _payoutAddress,
+            bountyBalance
+        );
 
+        return true;
+    }
+
+    function closeBounty(address _payoutAddress)
+        public
+        onlyOwner
+        returns (bool success)
+    {
+        require(
+            this.status() == BountyStatus.OPEN,
+            'This is bounty is already closed. Cannot close again.'
+        );
         status = BountyStatus.CLOSED;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
@@ -113,7 +121,7 @@ contract Bounty is Ownable {
         return true;
     }
 
-    // Convenience Methods
+    // View Methods
     function getERC20Balance(address _tokenAddress)
         public
         view
@@ -133,5 +141,11 @@ contract Bounty is Ownable {
 
     function getBountyTokenAddresses() public view returns (address[] memory) {
         return bountyTokenAddresses;
+    }
+
+    // Fallback and Receive
+    // Revert any attempts to send ETH or unknown calldata
+    fallback() external {
+        revert();
     }
 }

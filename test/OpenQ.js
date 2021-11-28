@@ -128,6 +128,80 @@ describe('OpenQ.sol', () => {
 			});
 		});
 
+		describe('bounty updates after claim', () => {
+			it('should close issue after successful claim', async () => {
+				// ARRANGE
+				// ASSUME
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				const openBounty = await openQ.bountyIsOpen(bountyId);
+				expect(openBounty).to.equal(true);
+
+				// ACT
+				await openQ.claimBounty(bountyId, owner.address);
+
+				// ASSERT
+				const closedBounty = await openQ.bountyIsOpen(bountyId);
+				expect(closedBounty).to.equal(false);
+			});
+
+			it('should set closer to the claimer address', async () => {
+				// ARRANGE
+				// ASSUME
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				const Bounty = await hre.ethers.getContractFactory('Bounty');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+
+				const closer = await newBounty.closer();
+				expect(closer).to.equal(ethers.constants.AddressZero);
+
+				// ACT
+				await openQ.claimBounty(bountyId, owner.address);
+
+				// ASSERT
+				const newCloser = await newBounty.closer();
+				expect(newCloser).to.equal(owner.address);
+			});
+
+			it('should set close time correctly', async () => {
+				// ARRANGE
+				// ASSUME
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				const Bounty = await hre.ethers.getContractFactory('Bounty');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+
+				// ASSUME
+				const bountyClosedTime = await newBounty.bountyClosedTime();
+				expect(bountyClosedTime).to.equal(0);
+
+				const closer = await newBounty.closer();
+				expect(closer).to.equal(ethers.constants.AddressZero);
+
+				// ACT
+				await openQ.claimBounty(bountyId, owner.address);
+
+				// ASSERT
+				const newCloser = await newBounty.closer();
+				expect(newCloser).to.equal(owner.address);
+			});
+		});
+
 		describe('transfer', () => {
 			it('should transfer all assets from bounty contract to claimer', async () => {
 				// ARRANGE

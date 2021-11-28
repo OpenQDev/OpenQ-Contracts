@@ -13,15 +13,15 @@ contract OpenQ is Ownable {
     // Events
     event BountyCreated(
         string bountyId,
-        address indexed issuer,
-        address indexed bountyAddress,
+        address issuerAddress,
+        address bountyAddress,
         uint256 bountyMintTime
     );
 
     event BountyClosed(
         string bountyId,
-        address indexed bountyAddress,
-        address indexed payoutAddress,
+        address bountyAddress,
+        address payoutAddress,
         uint256 bountyClosedTime
     );
 
@@ -38,9 +38,18 @@ contract OpenQ is Ownable {
         string bountyId,
         address bountyAddress,
         address tokenAddress,
-        address funder,
+        address sender,
         uint256 value,
         uint256 refundTime
+    );
+
+    event BountyPaidout(
+        string bountyId,
+        address bountyAddress,
+        address tokenAddress,
+        address payoutAddress,
+        uint256 value,
+        uint256 payoutTime
     );
 
     // Transactions
@@ -67,6 +76,7 @@ contract OpenQ is Ownable {
         uint256 _value
     ) public returns (bool success) {
         Bounty bounty = Bounty(_bountyAddress);
+        // require(bounty.address != 0, "Attempting to fund a bounty that does not exist.");
         bounty.receiveFunds(msg.sender, _tokenAddress, _value);
         emit DepositReceived(
             bounty.bountyId(),
@@ -86,7 +96,24 @@ contract OpenQ is Ownable {
     {
         address bountyAddress = bountyIdToAddress[_id];
         Bounty bounty = Bounty(bountyAddress);
-        bounty.claim(_payoutAddress);
+
+        for (uint256 i = 0; i < bounty.getBountyTokenAddresses().length; i++) {
+            address tokenAddress = bounty.bountyTokenAddresses(i);
+            uint256 value = bounty.getERC20Balance(tokenAddress);
+
+            bounty.claim(_payoutAddress, tokenAddress);
+
+            emit BountyPaidout(
+                bounty.bountyId(),
+                bountyAddress,
+                tokenAddress,
+                _payoutAddress,
+                value,
+                block.timestamp
+            );
+        }
+
+        bounty.closeBounty(_payoutAddress);
         emit BountyClosed(_id, bountyAddress, _payoutAddress, block.timestamp);
     }
 

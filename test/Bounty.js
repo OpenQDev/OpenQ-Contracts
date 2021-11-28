@@ -241,62 +241,15 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claim(notOwner.address)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockToken.address)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 
 			it('should revert if issue is already closed', async () => {
 				// ARRANGE
-				await bounty.claim(owner.address);
+				await bounty.closeBounty(owner.address);
 
 				// ASSERT
-				await expect(bounty.claim(owner.address)).to.be.revertedWith('This is bounty is closed. Cannot withdraw again.');
-			});
-		});
-
-		describe('bounty updates after claim', () => {
-			it('should close issue after successful claim', async () => {
-				// ARRANGE
-				// ASSUME
-				const openBounty = await bounty.status();
-				expect(openBounty).to.equal(0);
-
-				// ACT
-				await bounty.claim(owner.address);
-
-				// ASSERT
-				const closedBounty = await bounty.status();
-				expect(closedBounty).to.equal(1);
-			});
-
-			it('should set closer to the claimer address', async () => {
-				// ARRANGE
-				// ASSUME
-				const closer = await bounty.closer();
-				expect(closer).to.equal(ethers.constants.AddressZero);
-
-				// ACT
-				await bounty.claim(owner.address);
-
-				// ASSERT
-				const udpatedCloser = await bounty.closer();
-				expect(udpatedCloser).to.equal(owner.address);
-			});
-
-			it('should set close time correctly', async () => {
-				// ARRANGE
-				const expectedTimestamp = await setNextBlockTimestamp();
-
-				// ASSUME
-				const bountyClosedTime = await bounty.bountyClosedTime();
-				expect(bountyClosedTime).to.equal(0);
-
-
-				// ACT
-				await bounty.claim(owner.address);
-
-				// ASSERT
-				const updatedBountyClosedTime = await bounty.bountyClosedTime();
-				expect(updatedBountyClosedTime).to.equal(expectedTimestamp);
+				await expect(bounty.claim(owner.address, mockToken.address)).to.be.revertedWith('This is bounty is closed. Cannot withdraw again.');
 			});
 		});
 
@@ -320,7 +273,8 @@ describe('Bounty.sol', () => {
 				expect(claimerFakeTokenBalance).to.equal('0');
 
 				// // ACT
-				await bounty.claim(claimer.address);
+				await bounty.claim(claimer.address, mockToken.address);
+				await bounty.claim(claimer.address, fakeToken.address);
 
 				// // ASSERT
 				const newBountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
