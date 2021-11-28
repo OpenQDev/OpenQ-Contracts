@@ -244,7 +244,40 @@ describe('OpenQ.sol', () => {
 			});
 		});
 
+		/*
+								bounty.bountyId(),
+								bountyAddress,
+								tokenAddress,
+								_payoutAddress,
+								value,
+								block.timestamp
+		*/
+
 		describe('Event Emissions', () => {
+			it('should emit a BountyPaidout event with proper bounty id, bounty Address, tokenAddress, payout address, value, and bounty closed time', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				await mockToken.approve(bountyAddress, 10000000);
+				await fakeToken.approve(bountyAddress, 10000000);
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+
+				const value = 100;
+				await openQ.fundBounty(bountyAddress, mockToken.address, value);
+				await openQ.fundBounty(bountyAddress, fakeToken.address, value);
+
+				// ACT
+				// ASSERT
+				// Since the BountyPaidout time stamp happens in a for loop, its hard to predict to the ms what it will be
+				// Usually add + 2 works....
+				await expect(openQ.claimBounty(bountyId, owner.address))
+					.to.emit(openQ, 'BountyPaidout')
+					.withArgs(bountyId, bountyAddress, mockToken.address, owner.address, value, expectedTimestamp + 2);
+			});
+
 			it('should emit a BountyClosed event with proper bounty id, bounty Address, payout address, and bounty closed time', async () => {
 				// ARRANGE
 				await openQ.mintBounty(bountyId);
