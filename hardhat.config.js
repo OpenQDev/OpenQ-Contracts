@@ -1,5 +1,6 @@
 require('@nomiclabs/hardhat-waffle');
 require('dotenv').config();
+require("hardhat-tracer");
 
 module.exports = (function () {
 	let chainId = process.env.CHAIN_ID;

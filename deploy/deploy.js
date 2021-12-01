@@ -14,9 +14,6 @@ async function main() {
 	const openQ = await OpenQ.deploy();
 	await openQ.deployed();
 
-	await openQ.addTokenAddress(mockToken.address);
-	await openQ.addTokenAddress(fakeToken.address);
-
 	console.log('MockToken deployed to:', mockToken.address);
 	console.log('FakeToken deployed to:', fakeToken.address);
 	console.log('OpenQ deployed to:', openQ.address);
@@ -51,12 +48,20 @@ async function main() {
 	console.log(`Bounty 3 with id ${githubIssueIds[2]} minted to ${bounty3Address}`);
 	console.log(`Bounty 4 with id ${githubIssueIds[3]} minted to ${bounty4Address}`);
 
-	await fakeToken.transfer(bounty1Address, 1000000);
-	await mockToken.transfer(bounty1Address, 2500000);
+	// Pre-load with some deposits
+	await mockToken.approve(bounty1Address, 10000000);
+	await fakeToken.approve(bounty1Address, 10000000);
 
-	await fakeToken.transfer(bounty4Address, 1000000);
-	await mockToken.transfer(bounty4Address, 2500000);
+	await mockToken.approve(bounty2Address, 10000000);
+	await fakeToken.approve(bounty2Address, 10000000);
 
+	await openQ.fundBounty(bounty1Address, mockToken.address, 100);
+	await openQ.fundBounty(bounty1Address, fakeToken.address, 100);
+
+	await openQ.fundBounty(bounty2Address, mockToken.address, 200);
+	await openQ.fundBounty(bounty2Address, fakeToken.address, 200);
+
+	// Write contract addresses to .env.contracts file for use in OpenQ-Frontend and OpenQ-Oracle
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"
 FAKE_TOKEN_ADDRESS="${fakeToken.address}"
 MOCK_TOKEN_ADDRESS="${mockToken.address}"`;
