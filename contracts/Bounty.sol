@@ -20,6 +20,7 @@ contract Bounty is Ownable {
     uint256 public bountyClosedTime;
     uint256 public escrowPeriod = 30 days;
     address public issuer;
+    string public organization;
     address public closer;
     BountyStatus public status;
 
@@ -28,10 +29,15 @@ contract Bounty is Ownable {
         CLOSED
     }
 
-    constructor(string memory _id, address _issuer) {
+    constructor(
+        string memory _id,
+        address _issuer,
+        string memory _organization
+    ) {
         bountyId = _id;
         status = BountyStatus.OPEN;
         issuer = _issuer;
+        organization = _organization;
     }
 
     // Transactions

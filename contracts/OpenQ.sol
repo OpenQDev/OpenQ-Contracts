@@ -13,6 +13,7 @@ contract OpenQ is Ownable {
     // Events
     event BountyCreated(
         string bountyId,
+        string organization,
         address issuerAddress,
         address bountyAddress,
         uint256 bountyMintTime
@@ -20,6 +21,7 @@ contract OpenQ is Ownable {
 
     event BountyClosed(
         string bountyId,
+        string organization,
         address bountyAddress,
         address payoutAddress,
         uint256 bountyClosedTime
@@ -27,6 +29,7 @@ contract OpenQ is Ownable {
 
     event DepositReceived(
         string bountyId,
+        string organization,
         address bountyAddress,
         address tokenAddress,
         address sender,
@@ -36,6 +39,7 @@ contract OpenQ is Ownable {
 
     event DepositRefunded(
         string bountyId,
+        string organization,
         address bountyAddress,
         address tokenAddress,
         address sender,
@@ -45,6 +49,7 @@ contract OpenQ is Ownable {
 
     event BountyPaidout(
         string bountyId,
+        string organization,
         address bountyAddress,
         address tokenAddress,
         address payoutAddress,
@@ -53,7 +58,7 @@ contract OpenQ is Ownable {
     );
 
     // Transactions
-    function mintBounty(string calldata _id)
+    function mintBounty(string calldata _id, string calldata _organization)
         public
         returns (address bountyAddress)
     {
@@ -61,11 +66,17 @@ contract OpenQ is Ownable {
             bountyIdToAddress[_id] == address(0),
             'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
         );
-        bountyAddress = address(new Bounty(_id, msg.sender));
+        bountyAddress = address(new Bounty(_id, msg.sender, _organization));
         bountyIdToAddress[_id] = bountyAddress;
         bountyAddressToBountyId[bountyAddress] = _id;
 
-        emit BountyCreated(_id, msg.sender, bountyAddress, block.timestamp);
+        emit BountyCreated(
+            _id,
+            _organization,
+            msg.sender,
+            bountyAddress,
+            block.timestamp
+        );
 
         return bountyAddress;
     }
@@ -80,6 +91,7 @@ contract OpenQ is Ownable {
         bounty.receiveFunds(msg.sender, _tokenAddress, _value);
         emit DepositReceived(
             bounty.bountyId(),
+            bounty.organization(),
             _bountyAddress,
             _tokenAddress,
             msg.sender,
@@ -105,6 +117,7 @@ contract OpenQ is Ownable {
 
             emit BountyPaidout(
                 bounty.bountyId(),
+                bounty.organization(),
                 bountyAddress,
                 tokenAddress,
                 _payoutAddress,
@@ -114,7 +127,13 @@ contract OpenQ is Ownable {
         }
 
         bounty.closeBounty(_payoutAddress);
-        emit BountyClosed(_id, bountyAddress, _payoutAddress, block.timestamp);
+        emit BountyClosed(
+            _id,
+            bounty.organization(),
+            bountyAddress,
+            _payoutAddress,
+            block.timestamp
+        );
     }
 
     function refundBountyDeposits(address _bountyAddress)
@@ -146,6 +165,7 @@ contract OpenQ is Ownable {
 
             emit DepositRefunded(
                 bounty.bountyId(),
+                bounty.organization(),
                 _bountyAddress,
                 tokenAddress,
                 msg.sender,

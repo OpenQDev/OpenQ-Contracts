@@ -1,5 +1,6 @@
 const hre = require('hardhat');
 const fs = require('fs');
+const ethers = require('ethers');
 
 async function main() {
 	const MockToken = await hre.ethers.getContractFactory('MockToken');
@@ -20,10 +21,10 @@ async function main() {
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq'];
 
-	await openQ.mintBounty(githubIssueIds[0]);
-	await openQ.mintBounty(githubIssueIds[1]);
-	await openQ.mintBounty(githubIssueIds[2]);
-	await openQ.mintBounty(githubIssueIds[3]);
+	await openQ.mintBounty(githubIssueIds[0], 'openqdev');
+	await openQ.mintBounty(githubIssueIds[1], 'openqdev');
+	await openQ.mintBounty(githubIssueIds[2], 'openqdev');
+	await openQ.mintBounty(githubIssueIds[3], 'openqdev');
 
 	// must wait 3.5 seconds or so for propogation on Mumbai
 	if (process.env.DEPLOY_ENV == 'mumbai') {
@@ -49,17 +50,20 @@ async function main() {
 	console.log(`Bounty 4 with id ${githubIssueIds[3]} minted to ${bounty4Address}`);
 
 	// Pre-load with some deposits
-	await mockToken.approve(bounty1Address, 10000000);
-	await fakeToken.approve(bounty1Address, 10000000);
+	const one = ethers.BigNumber.from('1000000000000000000');
+	const two = ethers.BigNumber.from('2000000000000000000');
 
-	await mockToken.approve(bounty2Address, 10000000);
-	await fakeToken.approve(bounty2Address, 10000000);
+	await mockToken.approve(bounty1Address, one);
+	await fakeToken.approve(bounty1Address, two);
 
-	await openQ.fundBounty(bounty1Address, mockToken.address, 100);
-	await openQ.fundBounty(bounty1Address, fakeToken.address, 100);
+	await mockToken.approve(bounty2Address, one);
+	await fakeToken.approve(bounty2Address, two);
 
-	await openQ.fundBounty(bounty2Address, mockToken.address, 200);
-	await openQ.fundBounty(bounty2Address, fakeToken.address, 200);
+	await openQ.fundBounty(bounty1Address, mockToken.address, one);
+	await openQ.fundBounty(bounty1Address, fakeToken.address, two);
+
+	await openQ.fundBounty(bounty2Address, mockToken.address, one);
+	await openQ.fundBounty(bounty2Address, fakeToken.address, two);
 
 	// Write contract addresses to .env.contracts file for use in OpenQ-Frontend and OpenQ-Oracle
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"
