@@ -20,12 +20,13 @@ module.exports = (function () {
 				url: process.env.PROVIDER_URL,
 				accounts: [process.env.WALLET_KEY],
 				chainId: chainIdInt,
-				gas: 3000000
+				gas: 2100000
 			},
 			polygon: {
 				url: process.env.PROVIDER_URL,
 				accounts: [process.env.WALLET_KEY],
-				chainId: chainIdInt
+				chainId: chainIdInt,
+				gas: 9999999
 			},
 			kovan: {
 				url: process.env.PROVIDER_URL,
