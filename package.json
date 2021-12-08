@@ -9,7 +9,7 @@
 		"start:docker": "nodemon --watch contracts -e sol --exec yarn deploy:docker",
 		"deploy:local": "DEPLOY_ENV=local hardhat run --network localhost deploy/deploy.js",
 		"deploy:docker": "DEPLOY_ENV=docker hardhat run --network docker deploy/deploy.js",
-		"deploy:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy.js",
+		"deploy:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy_polygon.js",
 		"deploy:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy_polygon.js",
 		"hardhat:compile": "hardhat compile",
 		"console:local": "DEPLOY_ENV=local hardhat console --network localhost",

@@ -6,6 +6,7 @@ package-lock.json
 .wallets
 cache
 cache/
+.env
 yarn-error.log
 nohup.out
 .env.mumbai

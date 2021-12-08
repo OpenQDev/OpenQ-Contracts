@@ -6,27 +6,27 @@ const truffleAssert = require('truffle-assertions');
 
 describe('Bounty.sol', () => {
 	let bounty;
-	let mockToken;
-	let fakeToken;
+	let mockLink;
+	let mockDai;
 	let owner;
 
 	beforeEach(async () => {
 		const Bounty = await hre.ethers.getContractFactory('Bounty');
-		const MockToken = await hre.ethers.getContractFactory('MockToken');
-		const FakeToken = await hre.ethers.getContractFactory('FakeToken');
+		const MockLink = await hre.ethers.getContractFactory('MockLink');
+		const MockDai = await hre.ethers.getContractFactory('MockDai');
 
 		[owner] = await ethers.getSigners();
 
 		bounty = await Bounty.deploy("mockId", owner.address);
 		await bounty.deployed();
 
-		mockToken = await MockToken.deploy();
-		await mockToken.deployed();
-		fakeToken = await FakeToken.deploy();
-		await fakeToken.deployed();
+		mockLink = await MockLink.deploy();
+		await mockLink.deployed();
+		mockDai = await MockDai.deploy();
+		await mockDai.deployed();
 
-		await mockToken.approve(bounty.address, 10000000);
-		await fakeToken.approve(bounty.address, 10000000);
+		await mockLink.approve(bounty.address, 10000000);
+		await mockDai.approve(bounty.address, 10000000);
 	});
 
 	describe('receiveFunds', () => {
@@ -41,7 +41,7 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.receiveFunds(notOwner.address, mockToken.address, value)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 
 			it('should revert if no value is sent', async () => {
@@ -50,7 +50,7 @@ describe('Bounty.sol', () => {
 				const value = 0;
 
 				// ASSERT
-				await expect(bounty.receiveFunds(owner.address, mockToken.address, value)).to.be.revertedWith('Must send some value');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, value)).to.be.revertedWith('Must send some value');
 			});
 
 			it('should revert if funder tries to send more than allowance', async () => {
@@ -58,7 +58,7 @@ describe('Bounty.sol', () => {
 				// ACT
 				// ASSERT
 				const greaterThanAllowance = 100000000;
-				await expect(bounty.receiveFunds(owner.address, mockToken.address, greaterThanAllowance)).to.be.revertedWith('TransferHelper::transferFrom: transferFrom failed');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance)).to.be.revertedWith('TransferHelper::transferFrom: transferFrom failed');
 			});
 		});
 
@@ -72,7 +72,7 @@ describe('Bounty.sol', () => {
 				expect(isNotAFunder).to.be.false;
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
 				const isAFunderNow = await bounty.isAFunder(owner.address);
@@ -90,11 +90,11 @@ describe('Bounty.sol', () => {
 				expect(zeroLength.length).to.equal(0);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
 				const newTokenAddress = await bounty.bountyTokenAddresses(0);
-				expect(newTokenAddress).to.equal(mockToken.address);
+				expect(newTokenAddress).to.equal(mockLink.address);
 			});
 
 			it('should NOT add that token address to tokenAddresses if it is already there', async () => {
@@ -106,12 +106,12 @@ describe('Bounty.sol', () => {
 				expect(zeroLength.length).to.equal(0);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
 				const newTokenAddress = await bounty.bountyTokenAddresses(0);
-				expect(newTokenAddress).to.equal(mockToken.address);
+				expect(newTokenAddress).to.equal(mockLink.address);
 
 				const tokenAddresses = await bounty.getBountyTokenAddresses();
 				expect(tokenAddresses.length).to.equal(1);
@@ -128,11 +128,11 @@ describe('Bounty.sol', () => {
 				expect(zeroLength.length).to.equal(0);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
 				const fundersTokenAddress = await bounty.getFunderTokenAddresses(owner.address);
-				expect(fundersTokenAddress[0]).to.equal(mockToken.address);
+				expect(fundersTokenAddress[0]).to.equal(mockLink.address);
 			});
 
 			it('should NOT add that token address to fundersTokenAddresses if its NOT a new address', async () => {
@@ -144,14 +144,14 @@ describe('Bounty.sol', () => {
 				expect(zeroLength.length).to.equal(0);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
 				const fundersTokenAddress = await bounty.getFunderTokenAddresses(owner.address);
-				expect(fundersTokenAddress[0]).to.equal(mockToken.address);
+				expect(fundersTokenAddress[0]).to.equal(mockLink.address);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
 				const fundersTokenNewAddress = await bounty.getFunderTokenAddresses(owner.address);
@@ -165,35 +165,35 @@ describe('Bounty.sol', () => {
 				const value = 10000;
 
 				// ASSUME
-				const zeroValue = (await bounty.funderDeposits(owner.address, mockToken.address)).toNumber();
+				const zeroValue = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
 				expect(zeroValue).to.equal(0);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
-				const funderDepositsForTokenAddress = (await bounty.funderDeposits(owner.address, mockToken.address)).toNumber();
+				const funderDepositsForTokenAddress = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
 				expect(funderDepositsForTokenAddress).to.equal(value);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
 
 				// ASSERT
-				const funderNewDeposits = (await bounty.funderDeposits(owner.address, mockToken.address)).toNumber();
+				const funderNewDeposits = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
 				expect(funderNewDeposits).to.equal(value + value);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+				await bounty.receiveFunds(owner.address, mockDai.address, value);
 
 				// ASSERT
-				const funderNewDepositsOnOtherAddress = (await bounty.funderDeposits(owner.address, fakeToken.address)).toNumber();
+				const funderNewDepositsOnOtherAddress = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
 				expect(funderNewDepositsOnOtherAddress).to.equal(value);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+				await bounty.receiveFunds(owner.address, mockDai.address, value);
 
 				// ASSERT
-				const funderNewDepositsOnOtherAddressNewer = (await bounty.funderDeposits(owner.address, fakeToken.address)).toNumber();
+				const funderNewDepositsOnOtherAddressNewer = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
 				expect(funderNewDepositsOnOtherAddressNewer).to.equal(value + value);
 			});
 		});
@@ -201,31 +201,31 @@ describe('Bounty.sol', () => {
 		describe('transferFrom', () => {
 			it('should transfer the resepctive amount from sender to this bounty address for the token address', async () => {
 				// ASSUME
-				const initialFunderMockTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
-				const initialFunderFakeTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
-				expect(initialFunderMockTokenBalance).to.equal('10000000000000000000000');
-				expect(initialFunderFakeTokenBalance).to.equal('10000000000000000000000');
+				const initialFunderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
+				const initialFunderMockDaiBalance = (await mockLink.balanceOf(owner.address)).toString();
+				expect(initialFunderMockLinkBalance).to.equal('10000000000000000000000');
+				expect(initialFunderMockDaiBalance).to.equal('10000000000000000000000');
 
-				const initialIssueMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
-				const initialIssueFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
-				expect(initialIssueMockTokenBalance).to.equal('0');
-				expect(initialIssueFakeTokenBalance).to.equal('0');
+				const initialIssueMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
+				const initialIssueMockDaiBalance = (await mockDai.balanceOf(bounty.address)).toString();
+				expect(initialIssueMockLinkBalance).to.equal('0');
+				expect(initialIssueMockDaiBalance).to.equal('0');
 
 				// ARRANGE
 				const value = 100;
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
+				await bounty.receiveFunds(owner.address, mockDai.address, value);
 
 				// ASSERT
-				const funderMockTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
-				const funderFakeTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
-				expect(funderMockTokenBalance).to.equal('9999999999999999999900');
+				const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
+				const funderFakeTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
+				expect(funderMockLinkBalance).to.equal('9999999999999999999900');
 				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
 
-				const bountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
-				const bountyFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
+				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
+				const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
 				expect(bountyMockTokenBalance).to.equal('100');
 				expect(bountyFakeTokenBalance).to.equal('100');
 			});
@@ -241,7 +241,7 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockToken.address)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 
 			it('should revert if issue is already closed', async () => {
@@ -249,7 +249,7 @@ describe('Bounty.sol', () => {
 				await bounty.closeBounty(owner.address);
 
 				// ASSERT
-				await expect(bounty.claim(owner.address, mockToken.address)).to.be.revertedWith('This is bounty is closed. Cannot withdraw again.');
+				await expect(bounty.claim(owner.address, mockLink.address)).to.be.revertedWith('This is bounty is closed. Cannot withdraw again.');
 			});
 		});
 
@@ -257,33 +257,33 @@ describe('Bounty.sol', () => {
 			it('should transfer all assets from bounty contract to claimer', async () => {
 				// ARRANGE
 				const value = 100;
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
+				await bounty.receiveFunds(owner.address, mockDai.address, value);
 				const [, claimer] = await ethers.getSigners();
 
 				// ASSUME
-				const bountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
-				const bountyFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
+				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
+				const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
 				expect(bountyMockTokenBalance).to.equal('100');
 				expect(bountyFakeTokenBalance).to.equal('100');
 
-				const claimerMockTokenBalance = (await mockToken.balanceOf(claimer.address)).toString();
-				const claimerFakeTokenBalance = (await fakeToken.balanceOf(claimer.address)).toString();
+				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				const claimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
 				expect(claimerMockTokenBalance).to.equal('0');
 				expect(claimerFakeTokenBalance).to.equal('0');
 
 				// // ACT
-				await bounty.claim(claimer.address, mockToken.address);
-				await bounty.claim(claimer.address, fakeToken.address);
+				await bounty.claim(claimer.address, mockLink.address);
+				await bounty.claim(claimer.address, mockDai.address);
 
 				// // ASSERT
-				const newBountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
-				const newBountyFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
-				expect(newBountyMockTokenBalance).to.equal('0');
+				const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
+				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+				expect(newBountyMockLinkBalance).to.equal('0');
 				expect(newBountyFakeTokenBalance).to.equal('0');
 
-				const newClaimerMockTokenBalance = (await mockToken.balanceOf(claimer.address)).toString();
-				const newClaimerFakeTokenBalance = (await fakeToken.balanceOf(claimer.address)).toString();
+				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
 				expect(newClaimerMockTokenBalance).to.equal('100');
 				expect(newClaimerFakeTokenBalance).to.equal('100');
 			});
@@ -297,7 +297,7 @@ describe('Bounty.sol', () => {
 				const [, notOwner] = await ethers.getSigners();
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockToken.address)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 		});
 
@@ -306,23 +306,23 @@ describe('Bounty.sol', () => {
 				// ARRANGE
 				const value = 100;
 
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
+				await bounty.receiveFunds(owner.address, mockDai.address, value);
 
 				// ASSUME
-				const funderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockToken.address)).toNumber();
+				const funderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
 				expect(funderMockTokenDeposit).to.equal(value);
-				const funderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, fakeToken.address)).toNumber();
+				const funderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
 				expect(funderFakeTokenDeposit).to.equal(value);
 
 				// ACT
-				await bounty.refundBountyDeposit(owner.address, mockToken.address);
-				await bounty.refundBountyDeposit(owner.address, fakeToken.address);
+				await bounty.refundBountyDeposit(owner.address, mockLink.address);
+				await bounty.refundBountyDeposit(owner.address, mockDai.address);
 
 				// ASSERT
-				const decrementedFunderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockToken.address)).toNumber();
+				const decrementedFunderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
 				expect(decrementedFunderMockTokenDeposit).to.equal(0);
-				const decrementedFunderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, fakeToken.address)).toNumber();
+				const decrementedFunderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
 				expect(decrementedFunderFakeTokenDeposit).to.equal(0);
 			});
 		});
@@ -331,33 +331,33 @@ describe('Bounty.sol', () => {
 			it('should transfer refunded asset from bounty contract to funder', async () => {
 				// ARRANGE
 				const value = 100;
-				await bounty.receiveFunds(owner.address, mockToken.address, value);
-				await bounty.receiveFunds(owner.address, fakeToken.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, value);
+				await bounty.receiveFunds(owner.address, mockDai.address, value);
 
 				// ASSUME
-				const bountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
-				const bountyFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
+				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
+				const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
 				expect(bountyMockTokenBalance).to.equal('100');
 				expect(bountyFakeTokenBalance).to.equal('100');
 
-				const funderMockTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
-				const funderFakeTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
-				expect(funderMockTokenBalance).to.equal('9999999999999999999900');
+				const funderMockLinkBalance = (await mockLink.balanceOf(owner.address)).toString();
+				const funderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
+				expect(funderMockLinkBalance).to.equal('9999999999999999999900');
 				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
 
 				// // ACT
-				await bounty.refundBountyDeposit(owner.address, mockToken.address);
-				await bounty.refundBountyDeposit(owner.address, fakeToken.address);
+				await bounty.refundBountyDeposit(owner.address, mockLink.address);
+				await bounty.refundBountyDeposit(owner.address, mockDai.address);
 
 				// // ASSERT
-				const newBountyMockTokenBalance = (await mockToken.balanceOf(bounty.address)).toString();
-				const newBountyFakeTokenBalance = (await fakeToken.balanceOf(bounty.address)).toString();
-				expect(newBountyMockTokenBalance).to.equal('0');
+				const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
+				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+				expect(newBountyMockLinkBalance).to.equal('0');
 				expect(newBountyFakeTokenBalance).to.equal('0');
 
-				const newFunderMockTokenBalance = (await mockToken.balanceOf(owner.address)).toString();
-				const newFunderFakeTokenBalance = (await fakeToken.balanceOf(owner.address)).toString();
-				expect(newFunderMockTokenBalance).to.equal('10000000000000000000000');
+				const newFunderMockLinkBalance = (await mockLink.balanceOf(owner.address)).toString();
+				const newFunderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
+				expect(newFunderMockLinkBalance).to.equal('10000000000000000000000');
 				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
 			});
 		});

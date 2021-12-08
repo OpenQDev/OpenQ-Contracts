@@ -20,7 +20,7 @@ module.exports = (function () {
 				url: process.env.PROVIDER_URL,
 				accounts: [process.env.WALLET_KEY],
 				chainId: chainIdInt,
-				gas: 2100000
+				gas: 9999999
 			},
 			polygon: {
 				url: process.env.PROVIDER_URL,

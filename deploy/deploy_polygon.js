@@ -4,14 +4,14 @@ const ethers = require('ethers');
 
 async function main() {
 	// DEPLOY CONTRACTS
-	const MockToken = await hre.ethers.getContractFactory('MockToken');
-	const mockToken = await MockToken.deploy();
-	await mockToken.deployed();
+	const MockLink = await hre.ethers.getContractFactory('MockLink');
+	const mockLink = await MockLink.deploy();
+	await mockLink.deployed();
 	await sleep(10000);
 
-	const FakeToken = await hre.ethers.getContractFactory('FakeToken');
-	const fakeToken = await FakeToken.deploy();
-	await fakeToken.deployed();
+	const MockDai = await hre.ethers.getContractFactory('MockDai');
+	const mockDai = await MockDai.deploy();
+	await mockDai.deployed();
 	await sleep(10000);
 
 	const OpenQ = await hre.ethers.getContractFactory('OpenQ');
@@ -19,8 +19,8 @@ async function main() {
 	await openQ.deployed();
 	await sleep(10000);
 
-	console.log('MockToken deployed to:', mockToken.address);
-	console.log('FakeToken deployed to:', fakeToken.address);
+	console.log('MockLink deployed to:', mockLink.address);
+	console.log('MockDai deployed to:', mockDai.address);
 	console.log('OpenQ deployed to:', openQ.address);
 
 	// MINT BOUNTIES AND GET ADDRESSES
@@ -52,35 +52,35 @@ async function main() {
 	const one = ethers.BigNumber.from('1000000000000000000');
 	const two = ethers.BigNumber.from('2000000000000000000');
 
-	await mockToken.approve(bounty1Address, one);
+	await mockLink.approve(bounty1Address, one);
 	await sleep(5000);
 
-	await fakeToken.approve(bounty1Address, two);
+	await mockDai.approve(bounty1Address, two);
 	await sleep(5000);
 
-	await mockToken.approve(bounty2Address, one);
+	await mockLink.approve(bounty2Address, one);
 	await sleep(5000);
 
-	await fakeToken.approve(bounty2Address, two);
+	await mockDai.approve(bounty2Address, two);
 	await sleep(5000);
 
 	console.log('Approved funding');
 
-	await openQ.fundBounty(bounty1Address, mockToken.address, one);
+	await openQ.fundBounty(bounty1Address, mockLink.address, one);
 	await sleep(5000);
 
-	await openQ.fundBounty(bounty1Address, fakeToken.address, two);
+	await openQ.fundBounty(bounty1Address, mockDai.address, two);
 	await sleep(5000);
 
-	await openQ.fundBounty(bounty2Address, mockToken.address, one);
+	await openQ.fundBounty(bounty2Address, mockLink.address, one);
 	await sleep(5000);
 
-	await openQ.fundBounty(bounty2Address, fakeToken.address, two);
+	await openQ.fundBounty(bounty2Address, mockDai.address, two);
 	await sleep(5000);
 
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"
-FAKE_TOKEN_ADDRESS="${fakeToken.address}"
-MOCK_TOKEN_ADDRESS="${mockToken.address}"`;
+MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
+MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"`;
 
 	fs.writeFileSync('.env.contracts', addresses);
 
