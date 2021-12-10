@@ -18,19 +18,19 @@ module.exports = (function () {
 			},
 			mumbai: {
 				url: process.env.PROVIDER_URL,
-				accounts: [process.env.WALLET_KEY],
+				accounts: [process.env.WALLET_KEY_1],
 				chainId: chainIdInt,
 				gas: 9999999
 			},
 			polygon: {
 				url: process.env.PROVIDER_URL,
-				accounts: [process.env.WALLET_KEY],
+				accounts: [process.env.WALLET_KEY_1, process.env.WALLET_KEY_2],
 				chainId: chainIdInt,
 				gas: 9999999
 			},
 			kovan: {
 				url: process.env.PROVIDER_URL,
-				accounts: [process.env.WALLET_KEY],
+				accounts: [process.env.WALLET_KEY_1],
 			},
 		},
 	};
