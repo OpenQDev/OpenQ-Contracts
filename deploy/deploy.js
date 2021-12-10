@@ -52,6 +52,7 @@ async function main() {
 	// Pre-load with some deposits
 	const one = ethers.BigNumber.from('1000000000000000000');
 	const two = ethers.BigNumber.from('2000000000000000000');
+	const four = ethers.BigNumber.from('4000000000000000000');
 
 	await mockLink.approve(bounty1Address, one);
 	await mockDai.approve(bounty1Address, two);
@@ -64,6 +65,27 @@ async function main() {
 
 	await openQ.fundBounty(bounty2Address, mockLink.address, one);
 	await openQ.fundBounty(bounty2Address, mockDai.address, two);
+
+	// Contributor 2
+	const [, contributor] = await hre.ethers.getSigners();
+	await mockDai.transfer(contributor.address, four);
+	await mockLink.transfer(contributor.address, four);
+
+	await mockLink.connect(contributor);
+	await mockDai.connect(contributor);
+	await openQ.connect(contributor);
+
+	await mockLink.connect(contributor).approve(bounty1Address, one);
+	await mockDai.connect(contributor).approve(bounty1Address, two);
+
+	await mockLink.connect(contributor).approve(bounty2Address, one);
+	await mockDai.connect(contributor).approve(bounty2Address, two);
+
+	await openQ.connect(contributor).fundBounty(bounty1Address, mockLink.address, one);
+	await openQ.connect(contributor).fundBounty(bounty1Address, mockDai.address, two);
+
+	await openQ.connect(contributor).fundBounty(bounty2Address, mockLink.address, one);
+	await openQ.connect(contributor).fundBounty(bounty2Address, mockDai.address, two);
 
 	// Write contract addresses to .env.contracts file for use in OpenQ-Frontend and OpenQ-Oracle
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"
