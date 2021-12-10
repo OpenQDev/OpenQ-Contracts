@@ -10,6 +10,8 @@
 		"deploy:docker": "DEPLOY_ENV=docker hardhat run --network docker deploy/deploy.js",
 		"deploy:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy.js",
 		"deploy:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy.js",
+		"deploy-bounties:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy.js",
+		"fund-bounties:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy.js",
 		"hardhat:compile": "hardhat compile",
 		"console:local": "DEPLOY_ENV=local hardhat console --network localhost",
 		"accounts": "DEPLOY_ENV=local hardhat accounts --network localhost",
