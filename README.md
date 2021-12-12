@@ -41,6 +41,7 @@ npm test
 ```bash
 PROVIDER_URL="http://ethnode:8545"
 CLIENT="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+CONTRIBUTOR="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 CHAIN_ID=31337
 ```
 
@@ -49,6 +50,7 @@ CHAIN_ID=31337
 ```bash
 PROVIDER_URL="https://rpc-mumbai.maticvigil.com/v1/258e87c299409a354a268f96a06f9e6ae7ab8cea"
 CLIENT="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+CONTRIBUTOR="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 CHAIN_ID=80001
 ```
 
@@ -57,5 +59,6 @@ CHAIN_ID=80001
 ```bash
 PROVIDER_URL="https://matic-mainnet.chainstacklabs.com"
 CLIENT="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+CONTRIBUTOR="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 CHAIN_ID=137
 ```
