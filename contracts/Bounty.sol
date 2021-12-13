@@ -44,9 +44,9 @@ contract Bounty is Ownable {
     function receiveFunds(
         address _funder,
         address _tokenAddress,
-        uint256 _value
+        uint256 _volume
     ) public onlyOwner returns (bool success) {
-        require(_value != 0, 'Must send some value');
+        require(_volume != 0, 'Must send a non-zero volume of tokens.');
 
         // If is a new deposit for that denomination for the entire bounty
         if (getERC20Balance(_tokenAddress) == 0) {
@@ -57,7 +57,7 @@ contract Bounty is Ownable {
             _tokenAddress,
             _funder,
             address(this),
-            _value
+            _volume
         );
 
         isAFunder[_funder] = true;
@@ -67,8 +67,8 @@ contract Bounty is Ownable {
             funderTokenAddresses[_funder].push(_tokenAddress);
         }
 
-        // Increment the value that funder has deposited for that denomination
-        funderDeposits[_funder][_tokenAddress] += _value;
+        // Increment the volume that funder has deposited for that denomination
+        funderDeposits[_funder][_tokenAddress] += _volume;
         return success;
     }
 
@@ -119,7 +119,7 @@ contract Bounty is Ownable {
             funderDeposits[_funder][_tokenAddress]
         );
 
-        // Decrement the value that funder has deposited for that denomination
+        // Decrement the volume that funder has deposited for that denomination
         funderDeposits[_funder][_tokenAddress] -= funderDeposits[_funder][
             _tokenAddress
         ];

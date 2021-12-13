@@ -33,7 +33,7 @@ contract OpenQ is Ownable {
         address bountyAddress,
         address tokenAddress,
         address sender,
-        uint256 value,
+        uint256 volume,
         uint256 receiveTime
     );
 
@@ -43,7 +43,7 @@ contract OpenQ is Ownable {
         address bountyAddress,
         address tokenAddress,
         address sender,
-        uint256 value,
+        uint256 volume,
         uint256 refundTime
     );
 
@@ -53,7 +53,7 @@ contract OpenQ is Ownable {
         address bountyAddress,
         address tokenAddress,
         address payoutAddress,
-        uint256 value,
+        uint256 volume,
         uint256 payoutTime
     );
 
@@ -84,18 +84,18 @@ contract OpenQ is Ownable {
     function fundBounty(
         address _bountyAddress,
         address _tokenAddress,
-        uint256 _value
+        uint256 _volume
     ) public returns (bool success) {
         Bounty bounty = Bounty(_bountyAddress);
         // require(bounty.address != 0, "Attempting to fund a bounty that does not exist.");
-        bounty.receiveFunds(msg.sender, _tokenAddress, _value);
+        bounty.receiveFunds(msg.sender, _tokenAddress, _volume);
         emit DepositReceived(
             bounty.bountyId(),
             bounty.organization(),
             _bountyAddress,
             _tokenAddress,
             msg.sender,
-            _value,
+            _volume,
             block.timestamp
         );
 
@@ -111,7 +111,7 @@ contract OpenQ is Ownable {
 
         for (uint256 i = 0; i < bounty.getBountyTokenAddresses().length; i++) {
             address tokenAddress = bounty.bountyTokenAddresses(i);
-            uint256 value = bounty.getERC20Balance(tokenAddress);
+            uint256 volume = bounty.getERC20Balance(tokenAddress);
 
             bounty.claim(_payoutAddress, tokenAddress);
 
@@ -121,7 +121,7 @@ contract OpenQ is Ownable {
                 bountyAddress,
                 tokenAddress,
                 _payoutAddress,
-                value,
+                volume,
                 block.timestamp
             );
         }
@@ -159,7 +159,7 @@ contract OpenQ is Ownable {
             i++
         ) {
             address tokenAddress = bounty.funderTokenAddresses(msg.sender, i);
-            uint256 value = bounty.funderDeposits(msg.sender, tokenAddress);
+            uint256 volume = bounty.funderDeposits(msg.sender, tokenAddress);
 
             bounty.refundBountyDeposit(msg.sender, tokenAddress);
 
@@ -169,7 +169,7 @@ contract OpenQ is Ownable {
                 _bountyAddress,
                 tokenAddress,
                 msg.sender,
-                value,
+                volume,
                 block.timestamp
             );
         }
