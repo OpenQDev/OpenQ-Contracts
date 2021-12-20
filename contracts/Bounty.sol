@@ -18,7 +18,7 @@ contract Bounty is Ownable {
     string public bountyId;
     uint256 public bountyCreatedTime = block.timestamp;
     uint256 public bountyClosedTime;
-    uint256 public escrowPeriod = 30 seconds;
+    uint256 public escrowPeriod = 30 days;
     address public issuer;
     string public organization;
     address public closer;

@@ -17,7 +17,7 @@ describe('Bounty.sol', () => {
 
 		[owner] = await ethers.getSigners();
 
-		bounty = await Bounty.deploy("mockId", owner.address);
+		bounty = await Bounty.deploy("mockId", owner.address, "mock-org");
 		await bounty.deployed();
 
 		mockLink = await MockLink.deploy();
@@ -50,7 +50,7 @@ describe('Bounty.sol', () => {
 				const value = 0;
 
 				// ASSERT
-				await expect(bounty.receiveFunds(owner.address, mockLink.address, value)).to.be.revertedWith('Must send some value');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, value)).to.be.revertedWith('Must send a non-zero volume of tokens.');
 			});
 
 			it('should revert if funder tries to send more than allowance', async () => {

@@ -87,6 +87,12 @@ contract OpenQ is Ownable {
         uint256 _volume
     ) public returns (bool success) {
         Bounty bounty = Bounty(_bountyAddress);
+
+        require(
+            bountyIsOpen(bounty.bountyId()) == true,
+            'Cannot request refund on a closed bounty'
+        );
+
         // require(bounty.address != 0, "Attempting to fund a bounty that does not exist.");
         bounty.receiveFunds(msg.sender, _tokenAddress, _volume);
         emit DepositReceived(
@@ -108,6 +114,11 @@ contract OpenQ is Ownable {
     {
         address bountyAddress = bountyIdToAddress[_id];
         Bounty bounty = Bounty(bountyAddress);
+
+        require(
+            bountyIsOpen(bounty.bountyId()) == true,
+            'Cannot claim a bounty that is already closed.'
+        );
 
         for (uint256 i = 0; i < bounty.getBountyTokenAddresses().length; i++) {
             address tokenAddress = bounty.bountyTokenAddresses(i);
@@ -141,6 +152,11 @@ contract OpenQ is Ownable {
         returns (bool success)
     {
         Bounty bounty = Bounty(_bountyAddress);
+
+        require(
+            bountyIsOpen(bounty.bountyId()) == true,
+            'Cannot request refund on a closed bounty'
+        );
 
         require(
             block.timestamp >=
@@ -178,7 +194,7 @@ contract OpenQ is Ownable {
     }
 
     // Convenience Methods
-    function bountyIsOpen(string calldata id_) public view returns (bool) {
+    function bountyIsOpen(string memory id_) public view returns (bool) {
         Bounty bounty = Bounty(this.bountyIdToAddress(id_));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;

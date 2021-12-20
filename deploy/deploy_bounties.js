@@ -8,6 +8,7 @@ async function deployBounties() {
 	const openQ = await OpenQ.attach(process.env.OPENQ_ADDRESS);
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq'];
+	const githubIssueIdsOtherOrgs = ['I_kwDOD3_dQM5APoQW', 'I_kwDOAOvK984_H_5E', 'MDU6SXNzdWU4MzYyNjUzMzc=', 'I_kwDOCHE8585AYvGo'];
 
 	await openQ.mintBounty(githubIssueIds[0], 'openqdev');
 	await optionalSleep(10000);
@@ -19,6 +20,18 @@ async function deployBounties() {
 	await optionalSleep(10000);
 
 	await openQ.mintBounty(githubIssueIds[3], 'openqdev');
+	await optionalSleep(10000);
+
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[0], 'Uniswap');
+	await optionalSleep(10000);
+
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[1], 'ethereum');
+	await optionalSleep(10000);
+
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[2], 'balancer-labs');
+	await optionalSleep(10000);
+
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[3], 'ProjectOpenSea');
 	await optionalSleep(10000);
 
 	const bounty1Address = await openQ.getBountyAddress(githubIssueIds[0]);

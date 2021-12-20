@@ -14,6 +14,7 @@ async function fundBounties() {
 	const openQ = await OpenQ.attach(process.env.OPENQ_ADDRESS);
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq'];
+	const githubIssueIdsOtherOrgs = ['I_kwDOD3_dQM5APoQW', 'I_kwDOAOvK984_H_5E', 'MDU6SXNzdWU4MzYyNjUzMzc=', 'I_kwDOCHE8585AYvGo'];
 
 	const bounty1Address = await openQ.getBountyAddress(githubIssueIds[0]);
 	const bounty2Address = await openQ.getBountyAddress(githubIssueIds[1]);
