@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 async function deployBounties() {
-	const OpenQ = await hre.ethers.getContractFactory('OpenQ');
+	const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
 	const openQ = await OpenQ.attach(process.env.OPENQ_ADDRESS);
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq'];

@@ -11,7 +11,7 @@ describe('Bounty.sol', () => {
 	let owner;
 
 	beforeEach(async () => {
-		const Bounty = await hre.ethers.getContractFactory('Bounty_v1');
+		const Bounty = await hre.ethers.getContractFactory('BountyV1');
 		const MockLink = await hre.ethers.getContractFactory('MockLink');
 		const MockDai = await hre.ethers.getContractFactory('MockDai');
 

@@ -13,14 +13,14 @@ async function deployContracts() {
 	await mockDai.deployed();
 	await optionalSleep(10000);
 
-	const OpenQ = await hre.ethers.getContractFactory('OpenQ');
+	const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
 	const openQ = await OpenQ.deploy();
 	await openQ.deployed();
 	await optionalSleep(10000);
 
 	console.log('MockLink deployed to:', mockLink.address);
 	console.log('MockDai deployed to:', mockDai.address);
-	console.log('OpenQ deployed to:', openQ.address);
+	console.log('OpenQV1 deployed to:', openQ.address);
 
 	// Write contract addresses to .env.contracts file for use in OpenQ-Frontend and OpenQ-Oracle
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"
