@@ -44,7 +44,7 @@ contract OpenQV1 is IOpenQ, Ownable {
         address _tokenAddress,
         uint256 _volume
     ) public returns (bool success) {
-        BountyV1 bounty = BountyV1(_bountyAddress);
+        Bounty bounty = BountyV1(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,

@@ -6,7 +6,11 @@ package-lock.json
 .wallets
 cache
 cache/
-.env
 yarn-error.log
 nohup.out
+
+**/artifacts
+.env
 .env.mumbai
+.env.polygon
+.env.docker
