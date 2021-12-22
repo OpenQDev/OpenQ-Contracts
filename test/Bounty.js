@@ -41,7 +41,7 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Only the current OpenQ version can use this function');
+				await expect(issueWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 
 			it('should revert if no value is sent', async () => {
@@ -241,7 +241,7 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Only the current OpenQ version can use this function');
+				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 
 			it('should revert if issue is already closed', async () => {
@@ -297,7 +297,7 @@ describe('Bounty.sol', () => {
 				const [, notOwner] = await ethers.getSigners();
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Only the current OpenQ version can use this function');
+				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 		});
 

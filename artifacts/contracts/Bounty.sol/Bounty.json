@@ -282,19 +282,6 @@
     },
     {
       "inputs": [],
-      "name": "openQ",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "organization",
       "outputs": [
         {
@@ -375,19 +362,6 @@
     {
       "inputs": [],
       "name": "renounceOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_openQ",
-          "type": "address"
-        }
-      ],
-      "name": "setOpenQ",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

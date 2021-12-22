@@ -17,7 +17,7 @@ contract Bounty_v1 is Bounty {
         address _funder,
         address _tokenAddress,
         uint256 _volume
-    ) public onlyOpenQ returns (bool success) {
+    ) public onlyOwner returns (bool success) {
         require(_volume != 0, 'Must send a non-zero volume of tokens.');
 
         // If is a new deposit for that denomination for the entire bounty
@@ -46,7 +46,7 @@ contract Bounty_v1 is Bounty {
 
     function claim(address _payoutAddress, address _tokenAddress)
         public
-        onlyOpenQ
+        onlyOwner
         returns (bool success)
     {
         require(
@@ -67,7 +67,7 @@ contract Bounty_v1 is Bounty {
 
     function closeBounty(address _payoutAddress)
         public
-        onlyOpenQ
+        onlyOwner
         returns (bool success)
     {
         require(
@@ -82,7 +82,7 @@ contract Bounty_v1 is Bounty {
 
     function refundBountyDeposit(address _funder, address _tokenAddress)
         public
-        onlyOpenQ
+        onlyOwner
         returns (bool success)
     {
         TransferHelper.safeTransfer(

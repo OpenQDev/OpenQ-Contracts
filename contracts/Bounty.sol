@@ -2,10 +2,11 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import './Bountyable.sol';
-import './OpenQOwnable.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
-abstract contract Bounty is Bountyable, OpenQOwnable {
+import './Bountyable.sol';
+
+abstract contract Bounty is Bountyable, Ownable {
     constructor(
         string memory _id,
         address _issuer,
@@ -15,7 +16,6 @@ abstract contract Bounty is Bountyable, OpenQOwnable {
         status = BountyStatus.OPEN;
         issuer = _issuer;
         organization = _organization;
-        setOpenQ(msg.sender);
     }
 
     // Bounty Accounting
