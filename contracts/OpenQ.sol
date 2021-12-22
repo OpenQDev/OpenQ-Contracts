@@ -1,8 +1,11 @@
 // contracts/OpenQ.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import './Bounty.sol';
+
 import '@openzeppelin/contracts/access/Ownable.sol';
+import './Bounty.sol';
+import './Bountyable.sol';
+import './Bounty_v1.sol';
 import './TransferHelper.sol';
 
 contract OpenQ is Ownable {
@@ -66,7 +69,7 @@ contract OpenQ is Ownable {
             bountyIdToAddress[_id] == address(0),
             'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
         );
-        bountyAddress = address(new Bounty(_id, msg.sender, _organization));
+        bountyAddress = address(new Bounty_v1(_id, msg.sender, _organization));
         bountyIdToAddress[_id] = bountyAddress;
         bountyAddressToBountyId[bountyAddress] = _id;
 
@@ -86,15 +89,20 @@ contract OpenQ is Ownable {
         address _tokenAddress,
         uint256 _volume
     ) public returns (bool success) {
-        Bounty bounty = Bounty(_bountyAddress);
+        Bounty_v1 bounty = Bounty_v1(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
             'Cannot request refund on a closed bounty'
         );
 
-        // require(bounty.address != 0, "Attempting to fund a bounty that does not exist.");
+        require(
+            bytes(bountyAddressToBountyId[_bountyAddress]).length != 0,
+            'Attempting to fund a bounty that does not exist.'
+        );
+
         bounty.receiveFunds(msg.sender, _tokenAddress, _volume);
+
         emit DepositReceived(
             bounty.bountyId(),
             bounty.organization(),
@@ -113,7 +121,7 @@ contract OpenQ is Ownable {
         onlyOwner
     {
         address bountyAddress = bountyIdToAddress[_id];
-        Bounty bounty = Bounty(bountyAddress);
+        Bounty bounty = Bounty_v1(bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -138,6 +146,7 @@ contract OpenQ is Ownable {
         }
 
         bounty.closeBounty(_payoutAddress);
+
         emit BountyClosed(
             _id,
             bounty.organization(),
@@ -151,7 +160,7 @@ contract OpenQ is Ownable {
         public
         returns (bool success)
     {
-        Bounty bounty = Bounty(_bountyAddress);
+        Bounty bounty = Bounty_v1(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -195,7 +204,7 @@ contract OpenQ is Ownable {
 
     // Convenience Methods
     function bountyIsOpen(string memory id_) public view returns (bool) {
-        Bounty bounty = Bounty(this.bountyIdToAddress(id_));
+        Bounty bounty = Bounty_v1(this.bountyIdToAddress(id_));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }

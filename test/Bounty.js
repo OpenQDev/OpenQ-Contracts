@@ -11,7 +11,7 @@ describe('Bounty.sol', () => {
 	let owner;
 
 	beforeEach(async () => {
-		const Bounty = await hre.ethers.getContractFactory('Bounty');
+		const Bounty = await hre.ethers.getContractFactory('Bounty_v1');
 		const MockLink = await hre.ethers.getContractFactory('MockLink');
 		const MockDai = await hre.ethers.getContractFactory('MockDai');
 
@@ -41,7 +41,7 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Only the current OpenQ version can use this function');
 			});
 
 			it('should revert if no value is sent', async () => {
@@ -241,7 +241,7 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Only the current OpenQ version can use this function');
 			});
 
 			it('should revert if issue is already closed', async () => {
@@ -297,7 +297,7 @@ describe('Bounty.sol', () => {
 				const [, notOwner] = await ethers.getSigners();
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Only the current OpenQ version can use this function');
 			});
 		});
 
