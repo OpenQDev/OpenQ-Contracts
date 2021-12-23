@@ -5,15 +5,14 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 import '../../Bounty/Bounty.sol';
-import '../../Bounty/Bountyable.sol';
 import '../../Bounty/Implementations/BountyV1.sol';
 import '../../Helpers/TransferHelper.sol';
 import '../IOpenQ.sol';
 
 contract OpenQV1 is IOpenQ, Ownable {
     // Properties
-    mapping(string => address) public bountyIdToAddress;
-    mapping(address => string) public bountyAddressToBountyId;
+    mapping(string => address) private bountyIdToAddress;
+    mapping(address => string) private bountyAddressToBountyId;
 
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
@@ -24,6 +23,7 @@ contract OpenQV1 is IOpenQ, Ownable {
             bountyIdToAddress[_id] == address(0),
             'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
         );
+
         bountyAddress = address(new BountyV1(_id, msg.sender, _organization));
         bountyIdToAddress[_id] = bountyAddress;
         bountyAddressToBountyId[bountyAddress] = _id;
@@ -159,7 +159,7 @@ contract OpenQV1 is IOpenQ, Ownable {
 
     // Convenience Methods
     function bountyIsOpen(string memory id_) public view returns (bool) {
-        Bounty bounty = BountyV1(this.bountyIdToAddress(id_));
+        Bounty bounty = BountyV1(bountyIdToAddress[id_]);
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
