@@ -5,6 +5,10 @@ import '@openzeppelin/contracts/proxy/Proxy.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 contract OpenQProxy is Proxy, Ownable {
+    // Properties
+    mapping(string => address) public bountyIdToAddress;
+    mapping(address => string) public bountyAddressToBountyId;
+
     address private _OpenQImplementation;
 
     function _implementation()
@@ -16,7 +20,7 @@ contract OpenQProxy is Proxy, Ownable {
         return _OpenQImplementation;
     }
 
-    function setOpenQImplementation(address implementation) external onlyOwner {
+    function setOpenQImplementation(address implementation) public onlyOwner {
         _OpenQImplementation = implementation;
     }
 }
