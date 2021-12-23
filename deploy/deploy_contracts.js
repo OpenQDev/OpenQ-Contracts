@@ -34,7 +34,8 @@ async function deployContracts() {
 	console.log('OpenQV1 set as proxy implementation!');
 
 	// Write contract addresses to .env.contracts file for use in OpenQ-Frontend and OpenQ-Oracle
-	const addresses = `OPENQ_ADDRESS="${openQProxy.address}"
+	const addresses = `OPENQ_ADDRESS="${openQ.address}"
+OPENQ_PROXY_ADDRESS="${openQProxy.address}"
 MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"`;
 

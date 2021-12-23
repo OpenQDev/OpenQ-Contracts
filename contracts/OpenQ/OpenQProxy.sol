@@ -7,6 +7,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 contract OpenQProxy is Proxy, Ownable {
     // Storage MUST remain in the same order here as it appears in the implementation contract located at _OpenQImplementation
     // delegatecall works by using the STORAGE of the proxy with the LOGIC of the implementation
+    // https://jeiwan.net/posts/upgradeable-proxy-from-scratch/
     mapping(string => address) public bountyIdToAddress;
     mapping(address => string) public bountyAddressToBountyId;
 

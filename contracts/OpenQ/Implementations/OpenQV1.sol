@@ -10,9 +10,11 @@ import '../../Helpers/TransferHelper.sol';
 import '../IOpenQ.sol';
 
 contract OpenQV1 is IOpenQ, Ownable {
-    // Properties
-    mapping(string => address) private bountyIdToAddress;
-    mapping(address => string) private bountyAddressToBountyId;
+    // Storage MUST remain in the same order here as it appears in the implementation contract located at _OpenQImplementation
+    // delegatecall works by using the STORAGE of the proxy with the LOGIC of the implementation
+    // https://jeiwan.net/posts/upgradeable-proxy-from-scratch/
+    mapping(string => address) public bountyIdToAddress;
+    mapping(address => string) public bountyAddressToBountyId;
 
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
@@ -162,13 +164,5 @@ contract OpenQV1 is IOpenQ, Ownable {
         Bounty bounty = BountyV1(bountyIdToAddress[id_]);
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
-    }
-
-    function getBountyAddress(string calldata _id)
-        public
-        view
-        returns (address)
-    {
-        return bountyIdToAddress[_id];
     }
 }

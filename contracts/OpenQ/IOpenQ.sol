@@ -69,6 +69,4 @@ interface IOpenQ {
     function refundBountyDeposits(address) external returns (bool);
 
     function bountyIsOpen(string memory) external view returns (bool);
-
-    function getBountyAddress(string calldata) external view returns (address);
 }
