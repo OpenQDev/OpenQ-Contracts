@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe('OpenQV1.sol', () => {
+describe('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -12,7 +12,9 @@ describe('OpenQV1.sol', () => {
 	let bountyId = 'mockIssueId';
 
 	beforeEach(async () => {
-		const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
+		const OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
+		const OpenQStorage = await hre.ethers.getContractFactory('OpenQStorage');
+		const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 		const MockLink = await hre.ethers.getContractFactory('MockLink');
 		const MockDai = await hre.ethers.getContractFactory('MockDai');
 
@@ -23,8 +25,14 @@ describe('OpenQV1.sol', () => {
 
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
+
 		mockDai = await MockDai.deploy();
 		await mockDai.deployed();
+
+		openQStorage = await OpenQStorage.deploy();
+		await openQStorage.deployed();
+
+		await openQ.setOpenQStorage(openQStorage.address);
 	});
 
 	describe('mintBounty', () => {

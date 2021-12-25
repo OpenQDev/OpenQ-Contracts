@@ -3,18 +3,16 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
-
 import '../../Bounty/Bounty.sol';
 import '../../Bounty/Implementations/BountyV1.sol';
 import '../../Helpers/TransferHelper.sol';
 import '../IOpenQ.sol';
+import '../OpenQStorable.sol';
 
-contract OpenQV1 is IOpenQ, Ownable {
-    // Storage MUST remain in the same order here as it appears in the implementation contract located at _OpenQImplementation
-    // delegatecall works by using the STORAGE of the proxy with the LOGIC of the implementation
-    // https://jeiwan.net/posts/upgradeable-proxy-from-scratch/
-    mapping(string => address) public bountyIdToAddress;
-    mapping(address => string) public bountyAddressToBountyId;
+contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
+    function setOpenQStorage(address _openQStorage) public override {
+        openQStorage = OpenQStorage(_openQStorage);
+    }
 
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
@@ -22,13 +20,13 @@ contract OpenQV1 is IOpenQ, Ownable {
         returns (address bountyAddress)
     {
         require(
-            bountyIdToAddress[_id] == address(0),
+            bountyIdToAddress(_id) == address(0),
             'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
         );
 
         bountyAddress = address(new BountyV1(_id, msg.sender, _organization));
-        bountyIdToAddress[_id] = bountyAddress;
-        bountyAddressToBountyId[bountyAddress] = _id;
+        setBountyIdToAddress(_id, bountyAddress);
+        setBountyAddressToBountyId(bountyAddress, _id);
 
         emit BountyCreated(
             _id,
@@ -54,7 +52,7 @@ contract OpenQV1 is IOpenQ, Ownable {
         );
 
         require(
-            bytes(bountyAddressToBountyId[_bountyAddress]).length != 0,
+            bytes(bountyAddressToBountyId(_bountyAddress)).length != 0,
             'Attempting to fund a bounty that does not exist.'
         );
 
@@ -77,7 +75,7 @@ contract OpenQV1 is IOpenQ, Ownable {
         public
         onlyOwner
     {
-        address bountyAddress = bountyIdToAddress[_id];
+        address bountyAddress = bountyIdToAddress(_id);
         Bounty bounty = BountyV1(bountyAddress);
 
         require(
@@ -161,7 +159,7 @@ contract OpenQV1 is IOpenQ, Ownable {
 
     // Convenience Methods
     function bountyIsOpen(string memory id_) public view returns (bool) {
-        Bounty bounty = BountyV1(bountyIdToAddress[id_]);
+        Bounty bounty = BountyV1(bountyIdToAddress(id_));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
