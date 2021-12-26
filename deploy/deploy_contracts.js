@@ -13,25 +13,30 @@ async function deployContracts() {
 	await mockDai.deployed();
 	await optionalSleep(10000);
 
-	const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
+	const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 	const openQ = await OpenQ.deploy();
 	await openQ.deployed();
 	await optionalSleep(10000);
 
+	const OpenQStorage = await hre.ethers.getContractFactory('OpenQStorage');
+	const openQStorage = await OpenQStorage.deploy();
+	await openQStorage.deployed();
+	await optionalSleep(10000);
+
 	const OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
-	const openQProxy = await OpenQProxy.deploy();
+	const openQProxy = await OpenQProxy.deploy(openQ.address, []);
 	await openQProxy.deployed();
 	await optionalSleep(10000);
 
 	console.log('MockLink deployed to:', mockLink.address);
 	console.log('MockDai deployed to:', mockDai.address);
-	console.log('OpenQV1 deployed to:', openQ.address);
+	console.log('OpenQV0 deployed to:', openQ.address);
 	console.log('OpenQProxy deployed to:', openQProxy.address);
 
-	console.log('Setting OpenQV1 as proxy implementation...');
-	await openQProxy.setOpenQImplementation(openQ.address);
+	console.log('Setting OpenQStorage...');
+	await openQProxy.setOpenQStorage(openQStorage.address);
 	await optionalSleep(10000);
-	console.log('OpenQV1 set as proxy implementation!');
+	console.log(`OpenQStorage set on OpenQProxy to ${openQStorage.address}`);
 
 	// Write contract addresses to .env.contracts file for use in OpenQ-Frontend and OpenQ-Oracle
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"

@@ -1,10 +1,12 @@
 const hre = require('hardhat');
-const { optionalSleep } = require('./utils');
+const { optionalSleep, sleep } = require('./utils');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 async function deployBounties() {
-	const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
+	const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
+
+	// We fetch the contract factory for the implementation contract (OpenQV0) but attach it to the address of OpenQProxy
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq'];
@@ -33,6 +35,8 @@ async function deployBounties() {
 
 	await openQ.mintBounty(githubIssueIdsOtherOrgs[3], 'ProjectOpenSea');
 	await optionalSleep(10000);
+
+	sleep(2000);
 
 	const bounty1Address = await openQ.bountyIdToAddress(githubIssueIds[0]);
 	const bounty2Address = await openQ.bountyIdToAddress(githubIssueIds[1]);

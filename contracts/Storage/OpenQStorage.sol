@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import './interfaces/IOpenQStorage.sol';
+import './interfaces/EternalStorage.sol';
 
 /// @title The primary persistent storage for Rocket Pool
 /// @author David Rugendyke
 
-contract OpenQStorage is IOpenQStorage {
+contract OpenQStorage is EternalStorage {
     // Libraries
     using SafeMath for uint256;
     address public guardian;
@@ -22,13 +22,6 @@ contract OpenQStorage is IOpenQStorage {
     mapping(bytes32 => address) private addressStorage;
     mapping(bytes32 => bool) private booleanStorage;
     mapping(bytes32 => bytes32) private bytes32Storage;
-
-    // Arrays
-    mapping(bytes32 => address[]) addressArrayStorage;
-    mapping(bytes32 => bytes32[]) bytes32ArrayStorage;
-    mapping(bytes32 => int256[]) int256ArrayStorage;
-    mapping(bytes32 => uint256[]) uint256ArrayStorage;
-    mapping(bytes32 => bool[]) boolArrayStorage;
 
     /// @dev Construct RocketStorage
     constructor() {

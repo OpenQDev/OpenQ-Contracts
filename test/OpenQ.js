@@ -47,7 +47,7 @@ describe('OpenQV0.sol', () => {
 			const bountyIsOpen = await openQ.bountyIsOpen(bountyId);
 			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
 
-			const Bounty = await hre.ethers.getContractFactory('BountyV1');
+			const Bounty = await hre.ethers.getContractFactory('BountyV0');
 
 			const newBounty = await Bounty.attach(
 				bountyAddress
@@ -107,7 +107,7 @@ describe('OpenQV0.sol', () => {
 			await mockLink.approve(bountyAddress, 10000000);
 			await mockDai.approve(bountyAddress, 10000000);
 
-			const Bounty = await hre.ethers.getContractFactory('BountyV1');
+			const Bounty = await hre.ethers.getContractFactory('BountyV0');
 
 			const bounty = await Bounty.attach(
 				bountyAddress
@@ -162,7 +162,7 @@ describe('OpenQV0.sol', () => {
 
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
 
-				const Bounty = await hre.ethers.getContractFactory('BountyV1');
+				const Bounty = await hre.ethers.getContractFactory('BountyV0');
 
 				const newBounty = await Bounty.attach(
 					bountyAddress
@@ -186,7 +186,7 @@ describe('OpenQV0.sol', () => {
 
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
 
-				const Bounty = await hre.ethers.getContractFactory('BountyV1');
+				const Bounty = await hre.ethers.getContractFactory('BountyV0');
 
 				const newBounty = await Bounty.attach(
 					bountyAddress

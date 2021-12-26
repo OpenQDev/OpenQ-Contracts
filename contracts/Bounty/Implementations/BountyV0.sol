@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import '../../Helpers/TransferHelper.sol';
 import '../Bounty.sol';
 
-contract BountyV1 is Bounty {
+contract BountyV0 is Bounty {
     constructor(
         string memory _id,
         address _issuer,

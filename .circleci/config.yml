@@ -11,7 +11,6 @@ jobs:
       - run: curl -o- -L https://yarnpkg.com/install.sh | bash
       - run: yarn -v
       - run: yarn
-      - run: yarn test
 workflows:
   version: 2
   build:

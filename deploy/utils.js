@@ -17,4 +17,4 @@ async function sleep(time) {
 	});
 }
 
-module.exports = { optionalSleep };
+module.exports = { optionalSleep, sleep };

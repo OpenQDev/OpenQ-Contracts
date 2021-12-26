@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '../../Bounty/Bounty.sol';
-import '../../Bounty/Implementations/BountyV1.sol';
+import '../../Bounty/Implementations/BountyV0.sol';
 import '../../Helpers/TransferHelper.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
@@ -20,7 +20,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
             'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
         );
 
-        bountyAddress = address(new BountyV1(_id, msg.sender, _organization));
+        bountyAddress = address(new BountyV0(_id, msg.sender, _organization));
         setBountyIdToAddress(_id, bountyAddress);
         setBountyAddressToBountyId(bountyAddress, _id);
 
@@ -40,7 +40,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         address _tokenAddress,
         uint256 _volume
     ) public returns (bool success) {
-        Bounty bounty = BountyV1(_bountyAddress);
+        Bounty bounty = BountyV0(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -72,7 +72,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         onlyOwner
     {
         address bountyAddress = bountyIdToAddress(_id);
-        Bounty bounty = BountyV1(bountyAddress);
+        Bounty bounty = BountyV0(bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -111,7 +111,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         public
         returns (bool success)
     {
-        Bounty bounty = BountyV1(_bountyAddress);
+        Bounty bounty = BountyV0(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -155,7 +155,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
 
     // Convenience Methods
     function bountyIsOpen(string memory id_) public view returns (bool) {
-        Bounty bounty = BountyV1(bountyIdToAddress(id_));
+        Bounty bounty = BountyV0(bountyIdToAddress(id_));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
