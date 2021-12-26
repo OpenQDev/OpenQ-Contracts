@@ -12,7 +12,7 @@ abstract contract Bounty is Bountyable, Ownable {
         address _issuer,
         string memory _organization
     ) {
-        bountyId = _id;
+        bountyId = _id; //require non-empty id
         status = BountyStatus.OPEN;
         issuer = _issuer;
         organization = _organization;

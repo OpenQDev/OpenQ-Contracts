@@ -7,7 +7,7 @@ import '../Storage/OpenQStorage.sol';
 abstract contract OpenQStorable {
     OpenQStorage public openQStorage;
 
-    function setOpenQStorage(address _openQStorage) public virtual {
+    function setOpenQStorage(address _openQStorage) public {
         openQStorage = OpenQStorage(_openQStorage);
     }
 

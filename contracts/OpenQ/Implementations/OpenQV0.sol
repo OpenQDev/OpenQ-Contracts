@@ -10,10 +10,6 @@ import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
 
 contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
-    function setOpenQStorage(address _openQStorage) public override {
-        openQStorage = OpenQStorage(_openQStorage);
-    }
-
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
         public
