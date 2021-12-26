@@ -18,7 +18,7 @@ module.exports = (function () {
 			},
 			mumbai: {
 				url: process.env.PROVIDER_URL,
-				accounts: [process.env.CLIENT],
+				accounts: [process.env.CLIENT, process.env.CONTRIBUTOR],
 				chainId: chainIdInt,
 				gas: 9999999
 			},

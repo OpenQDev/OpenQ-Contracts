@@ -7,15 +7,17 @@
 		"ethnode": "hardhat node",
 		"hardhat:clean": "DEPLOY_ENV=local hardhat clean",
 		"start:docker": "nodemon --watch contracts -e sol --exec yarn deploy:docker",
-		"deploy:docker": "DEPLOY_ENV=docker hardhat run --network docker deploy/deploy.js",
-		"deploy:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy.js",
-		"deploy:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy.js",
-		"deploy-bounties:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy.js",
-		"fund-bounties:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy.js",
 		"hardhat:compile": "hardhat compile",
 		"console:local": "DEPLOY_ENV=local hardhat console --network localhost",
 		"accounts": "DEPLOY_ENV=local hardhat accounts --network localhost",
-		"test": "DEPLOY_ENV=local hardhat test"
+		"test": "DEPLOY_ENV=local hardhat test",
+		"deploy:docker": "DEPLOY_ENV=docker hardhat run --network docker deploy/deploy.js",
+		"deploy:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy.js",
+		"deploy:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy.js",
+		"deploy-bounties:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/deploy.js",
+		"deploy-bounties:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/deploy_bounties.js",
+		"fund-bounties:polygon": "DEPLOY_ENV=polygon hardhat run --network polygon deploy/fund_bounties.js",
+		"fund-bounties:mumbai": "DEPLOY_ENV=mumbai hardhat run --network mumbai deploy/fund_bounties.js"
 	},
 	"dependencies": {
 		"@nomiclabs/hardhat-ethers": "^2.0.2",

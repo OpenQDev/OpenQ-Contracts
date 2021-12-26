@@ -4,6 +4,9 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 async function fundBounties() {
+	console.log('\n------------------------------------------');
+	console.log('FUND BOUNTIES');
+	console.log('------------------------------------------');
 	const MockLink = await hre.ethers.getContractFactory('MockLink');
 	const mockLink = await MockLink.attach(process.env.MOCK_LINK_TOKEN_ADDRESS);
 
@@ -91,6 +94,8 @@ async function fundBounties() {
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 2');
+
+	console.log('\nBounties funded successfully!\n');
 }
 
 module.exports = fundBounties;
