@@ -44,7 +44,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
-            'Cannot request refund on a closed bounty'
+            'Cannot fund a closed bounty'
         );
 
         require(

@@ -4,20 +4,25 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe('Bounty.sol', () => {
+describe.only('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
 	let owner;
 
+	const mockId = "mockId";
+	let issuer;
+	const organization = "mockOrg";
+
 	beforeEach(async () => {
-		const Bounty = await hre.ethers.getContractFactory('BountyV0');
+		const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
 		const MockLink = await hre.ethers.getContractFactory('MockLink');
 		const MockDai = await hre.ethers.getContractFactory('MockDai');
 
 		[owner] = await ethers.getSigners();
+		issuer = owner.address;
 
-		bounty = await Bounty.deploy("mockId", owner.address, "mock-org");
+		bounty = await BountyV0.deploy(mockId, owner.address, organization);
 		await bounty.deployed();
 
 		mockLink = await MockLink.deploy();
@@ -27,6 +32,20 @@ describe('Bounty.sol', () => {
 
 		await mockLink.approve(bounty.address, 10000000);
 		await mockDai.approve(bounty.address, 10000000);
+	});
+
+	describe.only('constructor', () => {
+		it('should initialize by setting the bountyId, issuer and organization and is OPEN correctly', async () => {
+			// ARRANGE
+			const actualBountyId = await bounty.bountyId();
+			const actualIssuer = await bounty.issuer();
+			const actualOrganization = await bounty.organization();
+
+			// ASSERT
+			await expect(actualBountyId).equals(mockId);
+			await expect(actualIssuer).equals(issuer);
+			await expect(organization).equals(organization);
+		});
 	});
 
 	describe('receiveFunds', () => {

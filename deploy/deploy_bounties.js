@@ -55,26 +55,26 @@ async function deployBounties() {
 	await optionalSleep(10000);
 	console.log('Bounty 8 deployed');
 
-	sleep(2000);
+	// await sleep(2000);
 
-	const bounty1Address = await openQ.bountyIdToAddress(githubIssueIds[0]);
-	const bounty2Address = await openQ.bountyIdToAddress(githubIssueIds[1]);
-	const bounty3Address = await openQ.bountyIdToAddress(githubIssueIds[2]);
-	const bounty4Address = await openQ.bountyIdToAddress(githubIssueIds[3]);
+	// const bounty1Address = await openQ.bountyIdToAddress(githubIssueIds[0]);
+	// const bounty2Address = await openQ.bountyIdToAddress(githubIssueIds[1]);
+	// const bounty3Address = await openQ.bountyIdToAddress(githubIssueIds[2]);
+	// const bounty4Address = await openQ.bountyIdToAddress(githubIssueIds[3]);
 
-	const bounty5Address = await openQ.bountyIdToAddress(githubIssueIds[0]);
-	const bounty6Address = await openQ.bountyIdToAddress(githubIssueIds[1]);
-	const bounty7Address = await openQ.bountyIdToAddress(githubIssueIds[2]);
-	const bounty8Address = await openQ.bountyIdToAddress(githubIssueIds[3]);
+	// const bounty5Address = await openQ.bountyIdToAddress(githubIssueIds[0]);
+	// const bounty6Address = await openQ.bountyIdToAddress(githubIssueIds[1]);
+	// const bounty7Address = await openQ.bountyIdToAddress(githubIssueIds[2]);
+	// const bounty8Address = await openQ.bountyIdToAddress(githubIssueIds[3]);
 
-	console.log(`Bounty 1 with id ${githubIssueIds[0]} minted to ${bounty1Address}`);
-	console.log(`Bounty 2 with id ${githubIssueIds[1]} minted to ${bounty2Address}`);
-	console.log(`Bounty 3 with id ${githubIssueIds[2]} minted to ${bounty3Address}`);
-	console.log(`Bounty 4 with id ${githubIssueIds[3]} minted to ${bounty4Address}`);
-	console.log(`Bounty 5 with id ${githubIssueIdsOtherOrgs[0]} minted to ${bounty5Address}`);
-	console.log(`Bounty 6 with id ${githubIssueIdsOtherOrgs[1]} minted to ${bounty6Address}`);
-	console.log(`Bounty 7 with id ${githubIssueIdsOtherOrgs[2]} minted to ${bounty7Address}`);
-	console.log(`Bounty 8 with id ${githubIssueIdsOtherOrgs[3]} minted to ${bounty8Address}`);
+	// console.log(`Bounty 1 with id ${githubIssueIds[0]} minted to ${bounty1Address}`);
+	// console.log(`Bounty 2 with id ${githubIssueIds[1]} minted to ${bounty2Address}`);
+	// console.log(`Bounty 3 with id ${githubIssueIds[2]} minted to ${bounty3Address}`);
+	// console.log(`Bounty 4 with id ${githubIssueIds[3]} minted to ${bounty4Address}`);
+	// console.log(`Bounty 5 with id ${githubIssueIdsOtherOrgs[0]} minted to ${bounty5Address}`);
+	// console.log(`Bounty 6 with id ${githubIssueIdsOtherOrgs[1]} minted to ${bounty6Address}`);
+	// console.log(`Bounty 7 with id ${githubIssueIdsOtherOrgs[2]} minted to ${bounty7Address}`);
+	// console.log(`Bounty 8 with id ${githubIssueIdsOtherOrgs[3]} minted to ${bounty8Address}`);
 
 	console.log('\nBounties Deployed Successfully!');
 }
