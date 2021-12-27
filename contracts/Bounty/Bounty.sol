@@ -12,10 +12,16 @@ abstract contract Bounty is Bountyable, Ownable {
         address _issuer,
         string memory _organization
     ) {
-        bountyId = _id; //require non-empty id
-        status = BountyStatus.OPEN;
+        require(bytes(_id).length != 0, 'id cannot be empty string!');
+        require(
+            bytes(_organization).length != 0,
+            'organization cannot be empty string!'
+        );
+
+        bountyId = _id;
         issuer = _issuer;
         organization = _organization;
+        status = BountyStatus.OPEN;
     }
 
     // Bounty Accounting

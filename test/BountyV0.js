@@ -34,33 +34,44 @@ describe.only('Bounty.sol', () => {
 		await mockDai.approve(bounty.address, 10000000);
 	});
 
-	describe.only('constructor', () => {
+	describe('constructor', () => {
 		it('should initialize by setting the bountyId, issuer and organization and is OPEN correctly', async () => {
 			// ARRANGE
 			const actualBountyId = await bounty.bountyId();
 			const actualIssuer = await bounty.issuer();
 			const actualOrganization = await bounty.organization();
+			const actualStatus = await bounty.status();
 
 			// ASSERT
 			await expect(actualBountyId).equals(mockId);
 			await expect(actualIssuer).equals(issuer);
 			await expect(organization).equals(organization);
+			await expect(actualStatus).equals(0);
+		});
+
+		it('should revert if id is empty', async () => {
+			// ASSERT
+			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
+			await expect(BountyV0.deploy("", owner.address, organization)).to.be.revertedWith('id cannot be empty string!');
+		});
+
+		it('should revert if organization is empty', async () => {
+			// ASSERT
+			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
+			await expect(BountyV0.deploy(mockId, owner.address, "")).to.be.revertedWith('organization cannot be empty string!');
 		});
 	});
 
 	describe('receiveFunds', () => {
-
 		describe('require and revert', () => {
 			it('should revert if not called by owner', async () => {
 				// ARRANGE
 				const [, notOwner] = await ethers.getSigners();
-
 				const value = 10000;
-
-				let issueWithNonOwnerAccount = bounty.connect(notOwner);
+				let bountyWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Ownable: caller is not the owner');
 			});
 
 			it('should revert if no value is sent', async () => {
@@ -248,6 +259,53 @@ describe.only('Bounty.sol', () => {
 				expect(bountyMockTokenBalance).to.equal('100');
 				expect(bountyFakeTokenBalance).to.equal('100');
 			});
+		});
+	});
+
+	describe('closeBounty', () => {
+		it.only('should revert if not called by owner', async () => {
+			// ARRANGE
+			const [, notOwner] = await ethers.getSigners();
+			let issueWithNonOwnerAccount = bounty.connect(notOwner);
+
+			// ASSERT
+			await expect(issueWithNonOwnerAccount.closeBounty(owner.address)).to.be.revertedWith('Ownable: caller is not the owner');
+		});
+
+		it('should revert if already closed', async () => {
+			// ARRANGE
+			bounty.closeBounty(owner.address);
+			//ACT / ASSERT
+			await expect(bounty.closeBounty(owner.address)).to.be.revertedWith('This is bounty is already closed. Cannot close again.');
+		});
+
+		it('should change status to CLOSED (1)', async () => {
+			// ASSUME
+			await expect(await bounty.status()).equals(0);
+			//ACT
+			await bounty.closeBounty(owner.address);
+			// ASSERT
+			await expect(await bounty.status()).equals(1);
+		});
+
+		it('should set closer to payout address', async () => {
+			// ASSUME
+			await expect(await bounty.closer()).equals(hre.ethers.constants.AddressZero);
+			//ACT
+			await bounty.closeBounty(owner.address);
+			// ASSERT
+			await expect(await bounty.closer()).equals(owner.address);
+		});
+
+		it('should set bountyClosedTime to the block timestamp', async () => {
+			// ARRANGE
+			const expectedTimestamp = await setNextBlockTimestamp();
+			// ASSUME
+			await expect(await bounty.bountyClosedTime()).equals(0);
+			//ACT
+			await bounty.closeBounty(owner.address);
+			// ASSERT
+			await expect(await bounty.bountyClosedTime()).equals(expectedTimestamp);
 		});
 	});
 
