@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe.only('Bounty.sol', () => {
+describe('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -263,7 +263,7 @@ describe.only('Bounty.sol', () => {
 	});
 
 	describe('closeBounty', () => {
-		it.only('should revert if not called by owner', async () => {
+		it('should revert if not called by owner', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 			let issueWithNonOwnerAccount = bounty.connect(notOwner);

@@ -13,4 +13,8 @@ contract OpenQProxy is OpenQStorable, ERC1967Proxy, Ownable {
     function upgradeTo(address newImplementation) external onlyOwner {
         _upgradeTo(newImplementation);
     }
+
+    function getVersion() external view returns (address version) {
+        return _implementation();
+    }
 }

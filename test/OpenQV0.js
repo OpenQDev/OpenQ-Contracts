@@ -12,7 +12,6 @@ describe('OpenQV0.sol', () => {
 	let bountyId = 'mockIssueId';
 
 	beforeEach(async () => {
-		const OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		const OpenQStorage = await hre.ethers.getContractFactory('OpenQStorage');
 		const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 		const MockLink = await hre.ethers.getContractFactory('MockLink');
