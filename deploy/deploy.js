@@ -3,9 +3,9 @@ const deployBounties = require('./deploy_bounties');
 const fundBounties = require('./fund_bounties');
 
 async function main() {
-	// await deployContracts();
+	await deployContracts();
 	await deployBounties();
-	// await fundBounties();
+	await fundBounties();
 }
 
 main()
