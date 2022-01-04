@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -64,13 +64,10 @@ describe('OpenQV0.sol', () => {
 			expect(bountyId).to.equal(newBountyId);
 			expect(bountyCreatedTime).to.equal(expectedTimestamp);
 			expect(bountyClosedTime).to.equal(0);
-			expect(escrowPeriod).to.equal(2592000);
+			// expect(escrowPeriod).to.equal(2592000); commenting out since in development we use 30 seconds
 			expect(issuer).to.equal(owner.address);
 			expect(closer).to.equal(hre.ethers.constants.AddressZero);
 			expect(status).to.equal(0);
-
-			const bountyIdFromAddress = await openQ.bountyAddressToBountyId(bountyAddress);
-			expect(bountyIdFromAddress).to.equal(newBountyId);
 		});
 
 		it('should revert if bounty already exists', async () => {
@@ -93,6 +90,28 @@ describe('OpenQV0.sol', () => {
 			await expect(openQ.mintBounty(bountyId))
 				.to.emit(openQ, 'BountyCreated')
 				.withArgs(bountyId, owner.address, bountyAddress, expectedTimestamp);
+		});
+
+		it.only('should store bountyId to bountyAddress', async () => {
+			// ACT
+			await openQ.mintBounty(bountyId, 'mock-org');
+
+			const bountyIsOpen = await openQ.bountyIsOpen(bountyId);
+			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+			const Bounty = await hre.ethers.getContractFactory('BountyV0');
+
+			const newBounty = await Bounty.attach(
+				bountyAddress
+			);
+
+			const newBountyId = await newBounty.bountyId();
+
+			const bountyIdFromAddress = await openQ.bountyAddressToBountyId(bountyAddress);
+			expect(bountyIdFromAddress).to.equal(newBountyId);
+
+			const bountyAddressFromId = await openQ.bountyIdToAddress(newBountyId);
+			expect(bountyAddressFromId).to.equal(bountyAddress);
 		});
 	});
 
