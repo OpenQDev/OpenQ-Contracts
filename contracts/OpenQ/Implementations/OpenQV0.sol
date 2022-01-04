@@ -71,13 +71,13 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         public
         onlyOwner
     {
-        address bountyAddress = bountyIdToAddress(_id);
-        Bounty bounty = BountyV0(bountyAddress);
-
         require(
-            bountyIsOpen(bounty.bountyId()) == true,
+            bountyIsOpen(_id) == true,
             'Cannot claim a bounty that is already closed.'
         );
+
+        address bountyAddress = bountyIdToAddress(_id);
+        Bounty bounty = BountyV0(bountyAddress);
 
         for (uint256 i = 0; i < bounty.getBountyTokenAddresses().length; i++) {
             address tokenAddress = bounty.bountyTokenAddresses(i);
