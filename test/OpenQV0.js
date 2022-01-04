@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe.only('OpenQV0.sol', () => {
+describe('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -79,20 +79,7 @@ describe.only('OpenQV0.sol', () => {
 			await expect(openQ.mintBounty(bountyId, 'mock-org')).to.be.revertedWith('Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId');
 		});
 
-		it.skip('should emit an BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
-			// ARRANGE
-			const bountyAddress = "0x68D0190b345d712Cc724345B78E1B6bdf4bf3782";
-
-			const expectedTimestamp = await setNextBlockTimestamp();
-
-			// ACT
-			// ASSERT
-			await expect(openQ.mintBounty(bountyId))
-				.to.emit(openQ, 'BountyCreated')
-				.withArgs(bountyId, owner.address, bountyAddress, expectedTimestamp);
-		});
-
-		it.only('should store bountyId to bountyAddress', async () => {
+		it('should store bountyId to bountyAddress', async () => {
 			// ACT
 			await openQ.mintBounty(bountyId, 'mock-org');
 
@@ -113,9 +100,84 @@ describe.only('OpenQV0.sol', () => {
 			const bountyAddressFromId = await openQ.bountyIdToAddress(newBountyId);
 			expect(bountyAddressFromId).to.equal(bountyAddress);
 		});
+
+		it.skip('should emit an BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
+			// ARRANGE
+			const bountyAddress = "0x68D0190b345d712Cc724345B78E1B6bdf4bf3782";
+
+			const expectedTimestamp = await setNextBlockTimestamp();
+
+			// ACT
+			// ASSERT
+			await expect(openQ.mintBounty(bountyId))
+				.to.emit(openQ, 'BountyCreated')
+				.withArgs(bountyId, owner.address, bountyAddress, expectedTimestamp);
+		});
 	});
 
 	describe('fundBounty', () => {
+		it('should revert if bounty is already closed', async () => {
+			// ARRANGE
+			await openQ.mintBounty(bountyId, 'mock-org');
+			await openQ.claimBounty(bountyId, owner.address);
+
+			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+			await mockLink.approve(bountyAddress, 10000000);
+			await mockDai.approve(bountyAddress, 10000000);
+
+			// ACT + ASSERT
+			await expect(openQ.fundBounty(bountyAddress, mockLink.address, 10000000)).to.be.revertedWith('Cannot fund a closed bounty');
+		});
+
+		it('should revert if the bounty does not exist', async () => {
+			// ACT + ASSERT
+			const OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
+			openQProxy = await OpenQProxy.deploy(openQ.address, []);
+			await openQProxy.deployed();
+
+			await expect(openQ.fundBounty(openQProxy.address, mockLink.address, 10000000)).to.be.revertedWith('Attempting to fund a bounty that does not exist.');
+		});
+
+		it.only('should deposit the correct amount from sender to bounty', async () => {
+			// ARRANGE
+			await openQ.mintBounty(bountyId, 'mock-org');
+			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+			const Bounty = await hre.ethers.getContractFactory('BountyV0');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			const initialFunderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
+			const initialFunderMockDaiBalance = (await mockLink.balanceOf(owner.address)).toString();
+			expect(initialFunderMockLinkBalance).to.equal('10000000000000000000000');
+			expect(initialFunderMockDaiBalance).to.equal('10000000000000000000000');
+
+			const initialIssueMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
+			const initialIssueMockDaiBalance = (await mockDai.balanceOf(bounty.address)).toString();
+			expect(initialIssueMockLinkBalance).to.equal('0');
+			expect(initialIssueMockDaiBalance).to.equal('0');
+
+			// ARRANGE
+			await mockLink.approve(bounty.address, 10000000);
+			await mockDai.approve(bounty.address, 10000000);
+
+			// ACT
+			const value = 100;
+			await openQ.fundBounty(bountyAddress, mockLink.address, value);
+			await openQ.fundBounty(bountyAddress, mockDai.address, value);
+
+			// // ASSERT
+			const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
+			const funderFakeTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
+			expect(funderMockLinkBalance).to.equal('9999999999999999999900');
+			expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
+
+			const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
+			const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+			expect(bountyMockTokenBalance).to.equal('100');
+			expect(bountyFakeTokenBalance).to.equal('100');
+		});
+
 		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, value and timestamp', async () => {
 			// ARRANGE
 			await openQ.mintBounty(bountyId, 'mock-org');

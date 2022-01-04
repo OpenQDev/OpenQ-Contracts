@@ -40,16 +40,16 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         address _tokenAddress,
         uint256 _volume
     ) public returns (bool success) {
+        require(
+            bytes(bountyAddressToBountyId(_bountyAddress)).length != 0,
+            'Attempting to fund a bounty that does not exist.'
+        );
+
         Bounty bounty = BountyV0(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
             'Cannot fund a closed bounty'
-        );
-
-        require(
-            bytes(bountyAddressToBountyId(_bountyAddress)).length != 0,
-            'Attempting to fund a bounty that does not exist.'
         );
 
         bounty.receiveFunds(msg.sender, _tokenAddress, _volume);
