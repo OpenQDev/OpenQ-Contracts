@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe.only('OpenQProxy.sol', () => {
+describe('OpenQProxy.sol', () => {
 	let openQ;
 	let openQStorage;
 	let openQProxy;

@@ -16,22 +16,22 @@ async function deployBounties() {
 	const githubIssueIdsOtherOrgs = ['I_kwDOD3_dQM5APoQW', 'I_kwDOAOvK984_H_5E', 'MDU6SXNzdWU4MzYyNjUzMzc=', 'I_kwDOCHE8585AYvGo'];
 
 	console.log('Minting Bounty 1...');
-	await openQ.mintBounty(githubIssueIds[0], 'openqdev');
+	await openQ.mintBounty(githubIssueIds[0], 'OpenQDev');
 	await optionalSleep(10000);
 	console.log('Bounty 1 deployed');
 
 	console.log('Minting Bounty 2...');
-	await openQ.mintBounty(githubIssueIds[1], 'openqdev');
+	await openQ.mintBounty(githubIssueIds[1], 'OpenQDev');
 	await optionalSleep(10000);
 	console.log('Bounty 2 deployed');
 
 	console.log('Minting Bounty 3...');
-	await openQ.mintBounty(githubIssueIds[2], 'openqdev');
+	await openQ.mintBounty(githubIssueIds[2], 'OpenQDev');
 	await optionalSleep(10000);
 	console.log('Bounty 3 deployed');
 
 	console.log('Minting Bounty 4...');
-	await openQ.mintBounty(githubIssueIds[3], 'openqdev');
+	await openQ.mintBounty(githubIssueIds[3], 'OpenQDev');
 	await optionalSleep(10000);
 	console.log('Bounty 4 deployed');
 
