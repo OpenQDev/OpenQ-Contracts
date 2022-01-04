@@ -31,7 +31,16 @@ describe('OpenQV0.sol', () => {
 		openQStorage = await OpenQStorage.deploy();
 		await openQStorage.deployed();
 
-		await openQ.setOpenQStorage(openQStorage.address);
+		// Since in production we access OpenQV0 through a proxy, we do the same in testing.
+		// To achieve this, we deploy the OpenQProxy, set its storage contract, and then attach the OpenQV0 ABI to this address
+		const OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
+		let openQProxy = await OpenQProxy.deploy(openQ.address, []);
+		await openQProxy.deployed();
+		await openQProxy.setOpenQStorage(openQStorage.address);
+
+		openQ = await OpenQ.attach(
+			openQProxy.address
+		);
 	});
 
 	describe('mintBounty', () => {
