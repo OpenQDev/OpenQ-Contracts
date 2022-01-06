@@ -443,6 +443,42 @@ describe('OpenQV0.sol', () => {
 				// ASSERT
 				await expect(openQ.refundBountyDeposits(bountyAddress)).to.be.revertedWith('Only funders of this bounty can reclaim funds after 30 days.');
 			});
+
+			it('should revert if bounty is closed', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId, 'mock-org');
+				await openQ.claimBounty(bountyId, owner.address);
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				// ACT + ASSERT
+				await expect(openQ.refundBountyDeposits(bountyAddress)).to.be.revertedWith('Cannot request refund on a closed bounty');
+			});
+
+			it('should revert if called by someone who is not a funder', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId, 'mock-org');
+
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				const twoDays = 172800;
+				ethers.provider.send("evm_increaseTime", [twoDays]);
+
+				await mockLink.approve(bountyAddress, 10000000);
+				const value = 100;
+				await openQ.fundBounty(bountyAddress, mockLink.address, value);
+
+				// ASSUME
+				await expect(openQ.refundBountyDeposits(bountyAddress)).to.not.be.revertedWith('Only funders of this bounty can reclaim funds after 30 days.');
+
+				// ARRANGE
+				const [, notFunder] = await ethers.getSigners();
+				const nonFunderOpenQ = openQ.connect(notFunder);
+
+				// ACT
+				// ASSERT
+				await expect(nonFunderOpenQ.refundBountyDeposits(bountyAddress)).to.be.revertedWith('Only funders of this bounty can reclaim funds after 30 days.');
+			});
 		});
 
 		describe('transfer', () => {
