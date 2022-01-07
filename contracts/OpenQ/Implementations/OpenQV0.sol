@@ -10,6 +10,7 @@ import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
 import '../../BountyFactory/BountyFactory.sol';
 import '@openzeppelin/contracts/proxy/Clones.sol';
+import 'hardhat/console.sol';
 
 contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
     // Transactions
@@ -17,12 +18,6 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         public
         returns (address bountyAddress)
     {
-        require(
-            bountyIdToAddress(_id) == address(0),
-            'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
-        );
-        BountyFactory bountyFactory = BountyFactory(bountyFactoryAddress);
-
         address bountyAddress = bountyFactory.mintBounty(
             _id,
             msg.sender,
@@ -45,12 +40,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         address _tokenAddress,
         uint256 _volume
     ) public returns (bool success) {
-        require(
-            bytes(bountyAddressToBountyId(_bountyAddress)).length != 0,
-            'Attempting to fund a bounty that does not exist.'
-        );
-
-        Bounty bounty = BountyV0(_bountyAddress);
+        BountyV0 bounty = BountyV0(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -159,22 +149,27 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
     }
 
     // Convenience Methods
-    function bountyIsOpen(string memory id_) public view returns (bool) {
-        Bounty bounty = BountyV0(bountyIdToAddress(id_));
+    function bountyIsOpen(string memory _id) public view returns (bool) {
+        address bountyAddress = bountyIdToAddress(_id);
+        Bounty bounty = BountyV0(bountyAddress);
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
 
-    function bountyIdToAddress(bytes32 _id) public returns (address) {
-        BountyFactory bountyFactory = BountyFactory(bountyFactoryAddress);
+    function bountyIdToAddress(string memory _id)
+        public
+        view
+        returns (address)
+    {
         return bountyFactory.predictDeterministicAddress(_id);
     }
 
-    function getBountyIdFromAddress(address bountyAddress)
+    function bountyAddressToBountyId(address bountyAddress)
         public
+        view
         returns (string memory)
     {
-        Bounty bounty = BountyV0(bountyAddress);
+        BountyV0 bounty = BountyV0(bountyAddress);
         return bounty.bountyId();
     }
 }

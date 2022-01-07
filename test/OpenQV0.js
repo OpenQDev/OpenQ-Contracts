@@ -14,6 +14,7 @@ describe('OpenQV0.sol', () => {
 	beforeEach(async () => {
 		const OpenQStorage = await hre.ethers.getContractFactory('OpenQStorage');
 		const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
+		const BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 		const MockLink = await hre.ethers.getContractFactory('MockLink');
 		const MockDai = await hre.ethers.getContractFactory('MockDai');
 
@@ -31,12 +32,16 @@ describe('OpenQV0.sol', () => {
 		openQStorage = await OpenQStorage.deploy();
 		await openQStorage.deployed();
 
+		bountyFactory = await BountyFactory.deploy();
+		await bountyFactory.deployed();
+
 		// Since in production we access OpenQV0 through a proxy, we do the same in testing.
 		// To achieve this, we deploy the OpenQProxy, set its storage contract, and then attach the OpenQV0 ABI to this address
 		const OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		let openQProxy = await OpenQProxy.deploy(openQ.address, []);
 		await openQProxy.deployed();
 		await openQProxy.setOpenQStorage(openQStorage.address);
+		await openQProxy.setBountyFactory(bountyFactory.address);
 
 		openQ = await OpenQ.attach(
 			openQProxy.address
@@ -85,7 +90,7 @@ describe('OpenQV0.sol', () => {
 			await openQ.mintBounty(bountyId, 'mock-org');
 
 			// ASSERT
-			await expect(openQ.mintBounty(bountyId, 'mock-org')).to.be.revertedWith('Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId');
+			await expect(openQ.mintBounty(bountyId, 'mock-org')).to.be.revertedWith('ERC1167: create2 failed');
 		});
 
 		it('should store bountyId to bountyAddress', async () => {
@@ -145,7 +150,7 @@ describe('OpenQV0.sol', () => {
 			openQProxy = await OpenQProxy.deploy(openQ.address, []);
 			await openQProxy.deployed();
 
-			await expect(openQ.fundBounty(openQProxy.address, mockLink.address, 10000000)).to.be.revertedWith('Attempting to fund a bounty that does not exist.');
+			await expect(openQ.fundBounty(openQProxy.address, mockLink.address, 10000000)).to.be.reverted;
 		});
 
 		it('should deposit the correct amount from sender to bounty', async () => {

@@ -7,7 +7,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 import './Bountyable.sol';
 
-abstract contract Bounty is Bountyable, Initializable, Ownable {
+abstract contract Bounty is Bountyable, Initializable {
     function initialize(
         string memory _id,
         address _issuer,
@@ -21,6 +21,7 @@ abstract contract Bounty is Bountyable, Initializable, Ownable {
         bountyId = _id;
         issuer = _issuer;
         organization = _organization;
+        bountyCreatedTime = block.timestamp;
     }
 
     // Bounty Accounting
@@ -33,7 +34,7 @@ abstract contract Bounty is Bountyable, Initializable, Ownable {
 
     // Issue Metadata
     string public bountyId;
-    uint256 public bountyCreatedTime = block.timestamp;
+    uint256 public bountyCreatedTime;
     uint256 public bountyClosedTime;
     uint256 public escrowPeriod = 30 seconds;
     address public issuer;
