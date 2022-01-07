@@ -8,6 +8,8 @@ import '../../Bounty/Implementations/BountyV0.sol';
 import '../../Helpers/TransferHelper.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
+import '../../BountyFactory/BountyFactory.sol';
+import '@openzeppelin/contracts/proxy/Clones.sol';
 
 contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
     // Transactions
@@ -19,10 +21,13 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
             bountyIdToAddress(_id) == address(0),
             'Bounty already exists for given id. Find its address by calling bountyIdToAddress on this contract with the bountyId'
         );
+        BountyFactory bountyFactory = BountyFactory(bountyFactoryAddress);
 
-        bountyAddress = address(new BountyV0(_id, msg.sender, _organization));
-        setBountyIdToAddress(_id, bountyAddress);
-        setBountyAddressToBountyId(bountyAddress, _id);
+        address bountyAddress = bountyFactory.mintBounty(
+            _id,
+            msg.sender,
+            _organization
+        );
 
         emit BountyCreated(
             _id,
@@ -158,5 +163,18 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         Bounty bounty = BountyV0(bountyIdToAddress(id_));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
+    }
+
+    function bountyIdToAddress(bytes32 _id) public returns (address) {
+        BountyFactory bountyFactory = BountyFactory(bountyFactoryAddress);
+        return bountyFactory.predictDeterministicAddress(_id);
+    }
+
+    function getBountyIdFromAddress(address bountyAddress)
+        public
+        returns (string memory)
+    {
+        Bounty bounty = BountyV0(bountyAddress);
+        return bounty.bountyId();
     }
 }

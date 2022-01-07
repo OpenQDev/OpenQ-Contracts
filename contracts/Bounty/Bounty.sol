@@ -3,25 +3,24 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 import './Bountyable.sol';
 
-abstract contract Bounty is Bountyable, Ownable {
-    constructor(
+abstract contract Bounty is Bountyable, Initializable, Ownable {
+    function initialize(
         string memory _id,
         address _issuer,
         string memory _organization
-    ) {
+    ) public initializer {
         require(bytes(_id).length != 0, 'id cannot be empty string!');
         require(
             bytes(_organization).length != 0,
             'organization cannot be empty string!'
         );
-
         bountyId = _id;
         issuer = _issuer;
         organization = _organization;
-        status = BountyStatus.OPEN;
     }
 
     // Bounty Accounting

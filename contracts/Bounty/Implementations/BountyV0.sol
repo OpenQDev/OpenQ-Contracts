@@ -6,12 +6,6 @@ import '../../Helpers/TransferHelper.sol';
 import '../Bounty.sol';
 
 contract BountyV0 is Bounty {
-    constructor(
-        string memory _id,
-        address _issuer,
-        string memory _organization
-    ) Bounty(_id, _issuer, _organization) {}
-
     // Transactions
     function receiveFunds(
         address _funder,

@@ -6,9 +6,14 @@ import '../Storage/OpenQStorage.sol';
 
 abstract contract OpenQStorable {
     OpenQStorage public openQStorage;
+    address public bountyFactoryAddress;
 
     function setOpenQStorage(address _openQStorage) public {
         openQStorage = OpenQStorage(_openQStorage);
+    }
+
+    function setBountyFactoryAddress(address _bountyFactoryAddress) public {
+        bountyFactoryAddress = _bountyFactoryAddress;
     }
 
     // Storage Setters/Getters
