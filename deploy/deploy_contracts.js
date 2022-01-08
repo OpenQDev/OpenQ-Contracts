@@ -35,6 +35,13 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OpenQStorage Deployed to ${openQStorage.address}\n`);
 
+	console.log('Deploying BountyFactory...');
+	const BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
+	const bountyFactory = await BountyFactory.deploy();
+	await bountyFactory.deployed();
+	await optionalSleep(10000);
+	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
+
 	console.log('Deploying OpenQProxy...');
 	const OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 	const openQProxy = await OpenQProxy.deploy(openQ.address, []);
@@ -47,12 +54,19 @@ async function deployContracts() {
 	console.log(`OpenQV0 deployed to: ${openQ.address}`);
 	console.log(`OpenQStorage deployed to: ${openQStorage.address}`);
 	console.log(`OpenQProxy deployed to: ${openQProxy.address}`);
+	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 
-	console.log('\nConfiguring OpenQProxy...');
+	console.log('\nConfiguring OpenQProxy with OpenQStorage...');
 	console.log(`Setting OpenQStorage on OpenQProxy to ${openQStorage.address}...`);
 	await openQProxy.setOpenQStorage(openQStorage.address);
 	await optionalSleep(10000);
 	console.log(`OpenQStorage successfully set on OpenQProxy to ${openQStorage.address}`);
+
+	console.log('\nConfiguring OpenQProxy with BountyFactory...');
+	console.log(`Setting BountyFactory on OpenQProxy to ${bountyFactory.address}...`);
+	await openQProxy.setBountyFactory(bountyFactory.address);
+	await optionalSleep(10000);
+	console.log(`BountyFactory successfully set on OpenQProxy to ${bountyFactory.address}`);
 
 	console.log('\nContracts deployed and configured successfully!');
 
