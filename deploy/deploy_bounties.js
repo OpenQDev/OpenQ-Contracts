@@ -13,7 +13,7 @@ async function deployBounties() {
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq'];
-	const githubIssueIdsOtherOrgs = ['I_kwDOD3_dQM5APoQW', 'I_kwDOAOvK984_H_5E', 'MDU6SXNzdWU4MzYyNjUzMzc=', 'I_kwDOCHE8585AYvGo'];
+	const githubIssueIdsOtherOrgs = ['I_kwDOD3_dQM5APoQW', 'I_kwDOAOvK984_H_5E', 'MDU6SXNzdWU4MzYyNjUzMzc=', 'I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW'];
 
 	console.log('Minting Bounty 1...');
 	await openQ.mintBounty(githubIssueIds[0], 'OpenQDev');
@@ -54,6 +54,11 @@ async function deployBounties() {
 	await openQ.mintBounty(githubIssueIdsOtherOrgs[3], 'ProjectOpenSea');
 	await optionalSleep(10000);
 	console.log('Bounty 8 deployed');
+
+	console.log('Minting Bounty 9...');
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[4], 'OpenQDev');
+	await optionalSleep(10000);
+	console.log('Bounty 9 deployed');
 
 	// await sleep(2000);
 

@@ -14,3 +14,4 @@ nohup.out
 .env.mumbai
 .env.polygon
 .env.docker
+.DS_Store
