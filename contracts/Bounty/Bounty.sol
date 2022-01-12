@@ -2,16 +2,17 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 import './Bountyable.sol';
 
-abstract contract Bounty is Bountyable, Initializable {
+abstract contract Bounty is Bountyable, Initializable, OwnableUpgradeable {
     function initialize(
         string memory _id,
         address _issuer,
-        string memory _organization
+        string memory _organization,
+        address _owner
     ) public initializer {
         require(bytes(_id).length != 0, 'id cannot be empty string!');
         require(
@@ -22,6 +23,8 @@ abstract contract Bounty is Bountyable, Initializable {
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
+        __Ownable_init();
+        transferOwnership(_owner);
     }
 
     // Bounty Accounting

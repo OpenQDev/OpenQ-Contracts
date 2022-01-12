@@ -15,13 +15,16 @@ contract BountyFactory {
     function mintBounty(
         string memory _id,
         address _issuer,
-        string memory _organization
+        string memory _organization,
+        address _owner
     ) external returns (address) {
         address clone = Clones.cloneDeterministic(
             bountyImplementation,
             keccak256(abi.encode(_id))
         );
-        BountyV0(clone).initialize(_id, _issuer, _organization);
+
+        BountyV0(clone).initialize(_id, _issuer, _organization, msg.sender);
+
         return clone;
     }
 

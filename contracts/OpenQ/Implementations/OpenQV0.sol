@@ -21,7 +21,8 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
         address bountyAddress = bountyFactory.mintBounty(
             _id,
             msg.sender,
-            _organization
+            _organization,
+            address(this)
         );
 
         emit BountyCreated(
