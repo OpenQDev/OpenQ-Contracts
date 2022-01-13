@@ -2,17 +2,24 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 import './Bountyable.sol';
 
-abstract contract Bounty is Bountyable, Initializable, OwnableUpgradeable {
-    function initialize(
+abstract contract Bounty is Bountyable, Initializable {
+
+	address openQImplementation;
+
+	modifier onlyOpenQ() {
+			require(msg.sender == openQImplementation, "Method is only callable by the current OpenQ implementation");
+			_;
+	}
+
+	function initialize(	
         string memory _id,
         address _issuer,
         string memory _organization,
-        address _owner
+				address _openQImplementation
     ) public initializer {
         require(bytes(_id).length != 0, 'id cannot be empty string!');
         require(
@@ -23,8 +30,8 @@ abstract contract Bounty is Bountyable, Initializable, OwnableUpgradeable {
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
-        __Ownable_init();
-        transferOwnership(_owner);
+				openQImplementation = _openQImplementation;
+				escrowPeriod = 30 seconds;
     }
 
     // Bounty Accounting
@@ -39,7 +46,7 @@ abstract contract Bounty is Bountyable, Initializable, OwnableUpgradeable {
     string public bountyId;
     uint256 public bountyCreatedTime;
     uint256 public bountyClosedTime;
-    uint256 public escrowPeriod = 30 seconds;
+    uint256 public escrowPeriod;
     address public issuer;
     string public organization;
     address public closer;

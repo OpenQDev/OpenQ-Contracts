@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe('Bounty.sol', () => {
+describe.only('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -24,7 +24,7 @@ describe('Bounty.sol', () => {
 
 		bounty = await BountyV0.deploy();
 		await bounty.deployed();
-		await bounty.initialize(mockId, owner.address, organization);
+		await bounty.initialize(mockId, owner.address, organization, owner.address);
 
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
@@ -55,7 +55,7 @@ describe('Bounty.sol', () => {
 			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
 			bounty = await BountyV0.deploy();
 
-			await expect(bounty.initialize("", owner.address, organization)).to.be.revertedWith('id cannot be empty string!');
+			await expect(bounty.initialize("", owner.address, organization, owner.address)).to.be.revertedWith('id cannot be empty string!');
 		});
 
 		it('should revert if organization is empty', async () => {
@@ -63,20 +63,20 @@ describe('Bounty.sol', () => {
 			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
 			bounty = await BountyV0.deploy();
 
-			await expect(bounty.initialize(mockId, owner.address, "")).to.be.revertedWith('organization cannot be empty string!');
+			await expect(bounty.initialize(mockId, owner.address, "", owner.address)).to.be.revertedWith('organization cannot be empty string!');
 		});
 	});
 
 	describe('receiveFunds', () => {
 		describe('require and revert', () => {
-			it.skip('should revert if not called by owner', async () => {
+			it('should revert if not called by OpenQ contract', async () => {
 				// ARRANGE
 				const [, notOwner] = await ethers.getSigners();
 				const value = 10000;
 				let bountyWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
 			});
 
 			it('should revert if no value is sent', async () => {
@@ -268,13 +268,13 @@ describe('Bounty.sol', () => {
 	});
 
 	describe('closeBounty', () => {
-		it.skip('should revert if not called by owner', async () => {
+		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 			let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 			// ASSERT
-			await expect(issueWithNonOwnerAccount.closeBounty(owner.address)).to.be.revertedWith('Ownable: caller is not the owner');
+			await expect(issueWithNonOwnerAccount.closeBounty(owner.address)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
 		});
 
 		it('should revert if already closed', async () => {
@@ -316,14 +316,14 @@ describe('Bounty.sol', () => {
 
 	describe('claimBounty', () => {
 		describe('require and revert', () => {
-			it.skip('should revert if not called by owner', async () => {
+			it('should revert if not called by OpenQ contract', async () => {
 				// ARRANGE
 				const [, notOwner] = await ethers.getSigners();
 				const value = 10000;
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
 			});
 
 			it('should revert if issue is already closed', async () => {
@@ -374,12 +374,12 @@ describe('Bounty.sol', () => {
 
 	describe('refundBountyDeposit', () => {
 		describe('require and revert', () => {
-			it.skip('should revert if not called by owner', async () => {
+			it('should revert if not called by OpenQ contract', async () => {
 				// ARRANGE
 				const [, notOwner] = await ethers.getSigners();
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Ownable: caller is not the owner');
+				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
 			});
 		});
 

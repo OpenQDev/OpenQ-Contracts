@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -115,17 +115,24 @@ describe('OpenQV0.sol', () => {
 			expect(bountyAddressFromId).to.equal(bountyAddress);
 		});
 
-		it.skip('should emit an BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
+		it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
 			// ARRANGE
-			const bountyAddress = "0x68D0190b345d712Cc724345B78E1B6bdf4bf3782";
-
+			const bountyFactoryAddress = await openQ.bountyFactory();
+			
+			const BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
+			bountyFactory = await BountyFactory.attach(bountyFactoryAddress);
+			await bountyFactory.deployed();
+			
+			const mockOrg = "OpenQDev"
+			const expectedBountyAddress = await bountyFactory.predictDeterministicAddress(bountyId)
+			
 			const expectedTimestamp = await setNextBlockTimestamp();
 
 			// ACT
 			// ASSERT
-			await expect(openQ.mintBounty(bountyId))
+			await expect(openQ.mintBounty(bountyId, mockOrg))
 				.to.emit(openQ, 'BountyCreated')
-				.withArgs(bountyId, owner.address, bountyAddress, expectedTimestamp);
+				.withArgs(bountyId, mockOrg, owner.address, expectedBountyAddress, expectedTimestamp);
 		});
 	});
 
@@ -427,25 +434,42 @@ describe('OpenQV0.sol', () => {
 		});
 
 		describe('requires and reverts', () => {
-			// skipping while refund escrow is set low for development
-			it.skip('should revert if attempt to withdraw too early, or if not funder', async () => {
+			it('should revert if attempt to withdraw too early, or if not funder', async () => {
 				// ARRANGE
-				await openQ.mintBounty(bountyId, 'mock-org');
 
+				// Mint Bounty
+				await openQ.mintBounty(bountyId, 'mock-org');
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
 
-				const twoDays = 172800;
-				ethers.provider.send("evm_increaseTime", [twoDays]);
+				// Get Escrow Period
+				const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
+				bounty = await BountyV0.attach(bountyAddress);
+				const escrowPeriod = await bounty.escrowPeriod();
 
-				// ACT
-				// ASSERT
+				// Fund Bounty
+				await mockDai.approve(bountyAddress, 100000)
+				await openQ.fundBounty(bountyAddress, mockDai.address, 100000)
+
+				// ACT / ASSERT
 				await expect(openQ.refundBountyDeposits(bountyAddress)).to.be.revertedWith('Too early to withdraw funds');
+			});
 
+			it('should revert if not funder', async () => {
+				// ARRANGE
+				// Mint Bounty
+				await openQ.mintBounty(bountyId, 'mock-org');
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				// Get Escrow Period
+				const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
+				bounty = await BountyV0.attach(bountyAddress);
+				const escrowPeriod = await bounty.escrowPeriod();
+
+				// ADVANCE TIME
 				const thirtyTwoDays = 2765000;
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
 
-				// ACT
-				// ASSERT
+				// ACT / ASSERT
 				await expect(openQ.refundBountyDeposits(bountyAddress)).to.be.revertedWith('Only funders of this bounty can reclaim funds after 30 days.');
 			});
 

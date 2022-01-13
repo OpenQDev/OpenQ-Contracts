@@ -1,5 +1,6 @@
 {
 	"name": "OpenQ-Contracts",
+	"license": "MIT",
 	"description": "OpenQ Contracts",
 	"version": "1.0.0",
 	"private": true,

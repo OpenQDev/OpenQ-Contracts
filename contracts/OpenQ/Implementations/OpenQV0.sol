@@ -1,4 +1,3 @@
-// contracts/OpenQ.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -22,7 +21,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
             _id,
             msg.sender,
             _organization,
-            address(this)
+						address(this)
         );
 
         emit BountyCreated(

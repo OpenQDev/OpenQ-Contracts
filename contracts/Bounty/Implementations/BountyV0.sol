@@ -1,4 +1,3 @@
-// contracts/Bounty.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -11,7 +10,7 @@ contract BountyV0 is Bounty {
         address _funder,
         address _tokenAddress,
         uint256 _volume
-    ) public onlyOwner returns (bool success) {
+    ) public onlyOpenQ returns (bool success) {
         require(_volume != 0, 'Must send a non-zero volume of tokens.');
 
         // If is a new deposit for that denomination for the entire bounty
@@ -40,7 +39,7 @@ contract BountyV0 is Bounty {
 
     function claim(address _payoutAddress, address _tokenAddress)
         public
-        onlyOwner
+				onlyOpenQ
         returns (bool success)
     {
         require(
@@ -61,7 +60,7 @@ contract BountyV0 is Bounty {
 
     function closeBounty(address _payoutAddress)
         public
-        onlyOwner
+				onlyOpenQ
         returns (bool success)
     {
         require(
@@ -76,7 +75,7 @@ contract BountyV0 is Bounty {
 
     function refundBountyDeposit(address _funder, address _tokenAddress)
         public
-        onlyOwner
+				onlyOpenQ
         returns (bool success)
     {
         TransferHelper.safeTransfer(
