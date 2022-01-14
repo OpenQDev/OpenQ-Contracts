@@ -8,15 +8,17 @@ import '../../Helpers/TransferHelper.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
 import '../../BountyFactory/BountyFactory.sol';
-import '@openzeppelin/contracts/proxy/Clones.sol';
 
 // Upgradable
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 
-contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable {
+contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
     function initialize() public initializer {
         __Ownable_init();
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)

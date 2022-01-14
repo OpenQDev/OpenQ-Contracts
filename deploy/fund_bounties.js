@@ -14,7 +14,7 @@ async function fundBounties() {
 	const mockDai = await MockDai.attach(process.env.MOCK_DAI_TOKEN_ADDRESS);
 
 	const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
-	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
+	const openQ = await OpenQ.attach(process.env.OPENQ_ADDRESS);
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq'];
 	const githubIssueIdsOtherOrgs = ['I_kwDOD3_dQM5APoQW', 'I_kwDOAOvK984_H_5E', 'MDU6SXNzdWU4MzYyNjUzMzc=', 'I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW'];

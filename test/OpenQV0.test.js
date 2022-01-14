@@ -21,7 +21,7 @@ describe.only('OpenQV0.sol', () => {
 
 		[owner] = await ethers.getSigners();
 
-		openQ = await upgrades.deployProxy(OpenQ, []);
+		openQ = await upgrades.deployProxy(OpenQ, [], { kind: 'uups' });
 		await openQ.deployed();
 
 		mockLink = await MockLink.deploy();
