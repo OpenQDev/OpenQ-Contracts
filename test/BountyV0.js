@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe.only('Bounty.sol', () => {
+describe('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;

@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe.only('OpenQV0.sol', () => {
+describe('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -117,14 +117,8 @@ describe.only('OpenQV0.sol', () => {
 
 		it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
 			// ARRANGE
-			const bountyFactoryAddress = await openQ.bountyFactory();
-			
-			const BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
-			bountyFactory = await BountyFactory.attach(bountyFactoryAddress);
-			await bountyFactory.deployed();
-			
 			const mockOrg = "OpenQDev"
-			const expectedBountyAddress = await bountyFactory.predictDeterministicAddress(bountyId)
+			const expectedBountyAddress = await openQ.bountyIdToAddress(bountyId)
 			
 			const expectedTimestamp = await setNextBlockTimestamp();
 
