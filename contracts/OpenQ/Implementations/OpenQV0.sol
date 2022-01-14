@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
+// import 'hardhat/console.sol';
 import '../../Bounty/Bounty.sol';
 import '../../Bounty/Implementations/BountyV0.sol';
 import '../../Helpers/TransferHelper.sol';
@@ -9,9 +9,15 @@ import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
 import '../../BountyFactory/BountyFactory.sol';
 import '@openzeppelin/contracts/proxy/Clones.sol';
-import 'hardhat/console.sol';
 
-contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
+// Upgradable
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+
+contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable {
+    function initialize() public initializer {
+        __Ownable_init();
+    }
+
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
         public
@@ -21,7 +27,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, Ownable {
             _id,
             msg.sender,
             _organization,
-						address(this)
+            address(this)
         );
 
         emit BountyCreated(
