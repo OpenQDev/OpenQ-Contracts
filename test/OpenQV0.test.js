@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
 const { ethers, upgrades } = require("hardhat");
 
-describe.only('OpenQV0.sol', () => {
+describe('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;

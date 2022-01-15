@@ -16,9 +16,14 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
     function initialize() public initializer {
         __Ownable_init();
+        __UUPSUpgradeable_init();
     }
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
+
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
+    }
 
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
