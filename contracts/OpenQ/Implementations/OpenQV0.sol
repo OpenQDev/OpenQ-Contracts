@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 // import 'hardhat/console.sol';
 import '../../Bounty/Bounty.sol';
 import '../../Bounty/Implementations/BountyV0.sol';
-import '../../Helpers/TransferHelper.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
 import '../../BountyFactory/BountyFactory.sol';

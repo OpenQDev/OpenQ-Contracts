@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '../../Helpers/TransferHelper.sol';
 import '../Bounty.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 contract BountyV0 is Bounty {
+    using SafeERC20 for IERC20;
+
     // Transactions
     function receiveFunds(
         address _funder,
@@ -20,12 +23,9 @@ contract BountyV0 is Bounty {
 
         uint256 balanceBefore = getERC20Balance(_tokenAddress);
 
-        TransferHelper.safeTransferFrom(
-            _tokenAddress,
-            _funder,
-            address(this),
-            _volume
-        );
+        IERC20 token = IERC20(_tokenAddress);
+
+        token.safeTransferFrom(_funder, address(this), _volume);
 
         isAFunder[_funder] = true;
 
@@ -35,6 +35,9 @@ contract BountyV0 is Bounty {
         }
 
         uint256 balanceAfter = getERC20Balance(_tokenAddress);
+
+        require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
+
         uint256 volumeReceived = balanceAfter - balanceBefore;
 
         // Increment the volume that funder has deposited for that denomination
@@ -54,15 +57,9 @@ contract BountyV0 is Bounty {
             this.status() == BountyStatus.OPEN,
             'This is bounty is closed. Cannot withdraw again.'
         );
-
         uint256 bountyBalance = getERC20Balance(_tokenAddress);
-
-        TransferHelper.safeTransfer(
-            _tokenAddress,
-            _payoutAddress,
-            bountyBalance
-        );
-
+        IERC20 token = IERC20(_tokenAddress);
+        token.safeTransfer(_payoutAddress, bountyBalance);
         return true;
     }
 
@@ -86,11 +83,9 @@ contract BountyV0 is Bounty {
         onlyOpenQ
         returns (bool success)
     {
-        TransferHelper.safeTransfer(
-            _tokenAddress,
-            _funder,
-            funderDeposits[_funder][_tokenAddress]
-        );
+        IERC20 token = IERC20(_tokenAddress);
+
+        token.safeTransfer(_funder, funderDeposits[_funder][_tokenAddress]);
 
         // Decrement the volume that funder has deposited for that denomination
         funderDeposits[_funder][_tokenAddress] -= funderDeposits[_funder][

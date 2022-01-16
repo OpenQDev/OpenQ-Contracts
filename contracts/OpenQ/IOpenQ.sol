@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import '../Bounty/Bounty.sol';
 import '../Bounty/Bountyable.sol';
-import '../Helpers/TransferHelper.sol';
 
 interface IOpenQ {
     // Events

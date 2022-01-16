@@ -1,25 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 import './Bountyable.sol';
 
 abstract contract Bounty is Bountyable, Initializable {
+    address openQImplementation;
 
-	address openQImplementation;
+    modifier onlyOpenQ() {
+        require(
+            msg.sender == openQImplementation,
+            'Method is only callable by the current OpenQ implementation'
+        );
+        _;
+    }
 
-	modifier onlyOpenQ() {
-			require(msg.sender == openQImplementation, "Method is only callable by the current OpenQ implementation");
-			_;
-	}
-
-	function initialize(	
+    function initialize(
         string memory _id,
         address _issuer,
         string memory _organization,
-				address _openQImplementation
+        address _openQImplementation
     ) public initializer {
         require(bytes(_id).length != 0, 'id cannot be empty string!');
         require(
@@ -30,8 +32,8 @@ abstract contract Bounty is Bountyable, Initializable {
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
-				openQImplementation = _openQImplementation;
-				escrowPeriod = 30 seconds;
+        openQImplementation = _openQImplementation;
+        escrowPeriod = 30 seconds;
     }
 
     // Bounty Accounting
@@ -63,7 +65,7 @@ abstract contract Bounty is Bountyable, Initializable {
         view
         returns (uint256 balance)
     {
-        ERC20 tokenAddress = ERC20(_tokenAddress);
+        IERC20 tokenAddress = IERC20(_tokenAddress);
         return tokenAddress.balanceOf(address(this));
     }
 

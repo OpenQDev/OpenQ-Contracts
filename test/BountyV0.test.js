@@ -93,7 +93,7 @@ describe('Bounty.sol', () => {
 				// ACT
 				// ASSERT
 				const greaterThanAllowance = 100000000;
-				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance)).to.be.revertedWith('TransferHelper::transferFrom: transferFrom failed');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance)).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
 			});
 		});
 
