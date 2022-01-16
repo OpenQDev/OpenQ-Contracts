@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers, upgrades } = require("hardhat");
 
-describe.only('OpenQV0Upgrade', () => {
+describe('OpenQV0Upgrade', () => {
 	let openQ;
 	let openQStorage;
 

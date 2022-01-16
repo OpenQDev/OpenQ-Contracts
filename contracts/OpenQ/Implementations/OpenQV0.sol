@@ -14,17 +14,6 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 
 contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
-    function initialize() public initializer {
-        __Ownable_init();
-        __UUPSUpgradeable_init();
-    }
-
-    function _authorizeUpgrade(address) internal override onlyOwner {}
-
-    function getImplementation() external view returns (address) {
-        return _getImplementation();
-    }
-
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
         public
@@ -60,7 +49,11 @@ contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
             'Cannot fund a closed bounty'
         );
 
-        bounty.receiveFunds(msg.sender, _tokenAddress, _volume);
+        uint256 volumeReceived = bounty.receiveFunds(
+            msg.sender,
+            _tokenAddress,
+            _volume
+        );
 
         emit DepositReceived(
             bounty.bountyId(),
@@ -68,7 +61,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
             _bountyAddress,
             _tokenAddress,
             msg.sender,
-            _volume,
+            volumeReceived,
             block.timestamp
         );
 
@@ -184,5 +177,17 @@ contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
     {
         BountyV0 bounty = BountyV0(bountyAddress);
         return bounty.bountyId();
+    }
+
+    // Upgrades
+    function initialize() public initializer {
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+    }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
+
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 }

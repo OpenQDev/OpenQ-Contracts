@@ -10,13 +10,15 @@ contract BountyV0 is Bounty {
         address _funder,
         address _tokenAddress,
         uint256 _volume
-    ) public onlyOpenQ returns (bool success) {
+    ) public onlyOpenQ returns (uint256) {
         require(_volume != 0, 'Must send a non-zero volume of tokens.');
 
         // If is a new deposit for that denomination for the entire bounty
         if (getERC20Balance(_tokenAddress) == 0) {
             bountyTokenAddresses.push(_tokenAddress);
         }
+
+        uint256 balanceBefore = getERC20Balance(_tokenAddress);
 
         TransferHelper.safeTransferFrom(
             _tokenAddress,
@@ -32,14 +34,20 @@ contract BountyV0 is Bounty {
             funderTokenAddresses[_funder].push(_tokenAddress);
         }
 
+        uint256 balanceAfter = getERC20Balance(_tokenAddress);
+        uint256 volumeReceived = balanceAfter - balanceBefore;
+
         // Increment the volume that funder has deposited for that denomination
-        funderDeposits[_funder][_tokenAddress] += _volume;
-        return success;
+        // NOTE: The reason we take the balanceBefore and balanceAfter rather than the raw deposited amount
+        // is because certain ERC20's like USDT take fees on transfers, so the received amount after transferFrom
+        // will be lower than the raw volume
+        funderDeposits[_funder][_tokenAddress] += volumeReceived;
+        return volumeReceived;
     }
 
     function claim(address _payoutAddress, address _tokenAddress)
         public
-				onlyOpenQ
+        onlyOpenQ
         returns (bool success)
     {
         require(
@@ -60,7 +68,7 @@ contract BountyV0 is Bounty {
 
     function closeBounty(address _payoutAddress)
         public
-				onlyOpenQ
+        onlyOpenQ
         returns (bool success)
     {
         require(
@@ -75,7 +83,7 @@ contract BountyV0 is Bounty {
 
     function refundBountyDeposit(address _funder, address _tokenAddress)
         public
-				onlyOpenQ
+        onlyOpenQ
         returns (bool success)
     {
         TransferHelper.safeTransfer(

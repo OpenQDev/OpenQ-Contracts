@@ -6,7 +6,7 @@ interface Bountyable {
         address,
         address,
         uint256
-    ) external returns (bool);
+    ) external returns (uint256);
 
     function claim(address, address) external returns (bool);
 

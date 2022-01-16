@@ -238,7 +238,6 @@ describe('OpenQV0.sol', () => {
 				// ARRANGE
 				// ASSUME
 				let itsowner = await openQ.owner();
-				console.log(itsowner);
 				await openQ.mintBounty(bountyId, 'mock-org');
 
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
