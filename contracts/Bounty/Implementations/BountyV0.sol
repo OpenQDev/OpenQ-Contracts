@@ -4,9 +4,11 @@ pragma solidity ^0.8.0;
 import '../Bounty.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
 contract BountyV0 is Bounty {
     using SafeERC20 for IERC20;
+    using SafeMath for uint256;
 
     // Transactions
     function receiveFunds(
@@ -38,13 +40,16 @@ contract BountyV0 is Bounty {
 
         require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
 
-        uint256 volumeReceived = balanceAfter - balanceBefore;
+        uint256 volumeReceived = balanceAfter.sub(balanceBefore);
 
         // Increment the volume that funder has deposited for that denomination
         // NOTE: The reason we take the balanceBefore and balanceAfter rather than the raw deposited amount
         // is because certain ERC20's like USDT take fees on transfers, so the received amount after transferFrom
         // will be lower than the raw volume
-        funderDeposits[_funder][_tokenAddress] += volumeReceived;
+        funderDeposits[_funder][_tokenAddress] = funderDeposits[_funder][
+            _tokenAddress
+        ].add(volumeReceived);
+
         return volumeReceived;
     }
 
@@ -88,9 +93,9 @@ contract BountyV0 is Bounty {
         token.safeTransfer(_funder, funderDeposits[_funder][_tokenAddress]);
 
         // Decrement the volume that funder has deposited for that denomination
-        funderDeposits[_funder][_tokenAddress] -= funderDeposits[_funder][
+        funderDeposits[_funder][_tokenAddress] = funderDeposits[_funder][
             _tokenAddress
-        ];
+        ].sub(funderDeposits[_funder][_tokenAddress]);
 
         return true;
     }

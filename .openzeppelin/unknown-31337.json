@@ -364,19 +364,19 @@
     },
     "9bee3f86e04a2ba05d605426dafdf70817d4ce54fa86c4e1b81b7535dbd072a7": {
       "address": "0x02df3a3F960393F5B349E40A599FEda91a7cc1A7",
-      "txHash": "0x44946e571305ca5b2d7ce3bfa5babc73f466095377a4ff6ed6f5d3dc4a7d5171",
+      "txHash": "0x2c3f5eea86ba64afb6680dca68674de1a25a24cc934278876711d425391ae5bf",
       "layout": {
         "storage": [
           {
             "contract": "OpenQStorable",
             "label": "openQStorage",
-            "type": "t_contract(OpenQStorage)4365",
+            "type": "t_contract(OpenQStorage)4384",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
           {
             "contract": "OpenQStorable",
             "label": "bountyFactory",
-            "type": "t_contract(BountyFactory)3358",
+            "type": "t_contract(BountyFactory)3377",
             "src": "contracts/OpenQ/OpenQStorable.sol:10"
           },
           {
@@ -432,10 +432,10 @@
           "t_bool": {
             "label": "bool"
           },
-          "t_contract(OpenQStorage)4365": {
+          "t_contract(OpenQStorage)4384": {
             "label": "contract OpenQStorage"
           },
-          "t_contract(BountyFactory)3358": {
+          "t_contract(BountyFactory)3377": {
             "label": "contract BountyFactory"
           }
         }
