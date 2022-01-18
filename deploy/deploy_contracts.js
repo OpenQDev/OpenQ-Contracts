@@ -1,8 +1,9 @@
-const { ethers, upgrades } = require("hardhat");
+const { ethers, upgrades, network } = require('hardhat');
 const fs = require('fs');
 const { optionalSleep } = require('./utils');
 
 async function deployContracts() {
+	console.log(network.name);
 	console.log('\n------------------------------------------');
 	console.log('DEPLOY CONTRACTS');
 	console.log('------------------------------------------');

@@ -1,6 +1,8 @@
+const { network } = require('hardhat');
+
 const optionalSleep = async (time) => {
 	return new Promise(async (resolve) => {
-		if (process.env.DEPLOY_ENV != 'docker') {
+		if (network.name != 'docker') {
 			await sleep(time);
 			resolve();
 		} else {
