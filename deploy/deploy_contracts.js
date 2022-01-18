@@ -3,9 +3,8 @@ const fs = require('fs');
 const { optionalSleep } = require('./utils');
 
 async function deployContracts() {
-	console.log(network.name);
 	console.log('\n------------------------------------------');
-	console.log('DEPLOY CONTRACTS');
+	console.log(`DEPLOY CONTRACTS to ${network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
 
 	console.log('Deploying MockLink...');
@@ -27,7 +26,9 @@ async function deployContracts() {
 	const openQ = await upgrades.deployProxy(OpenQ, [], { kind: 'uups' });
 	await openQ.deployed();
 	await optionalSleep(10000);
-	console.log(`OpenQV0 Deployed to ${openQ.address}\n`);
+	console.log(`OpenQV0 (Proxy) Deployed to ${openQ.address}`);
+	const openQImplementation = await openQ.getImplementation();
+	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation}\n`);
 
 	console.log('Deploying OpenQStorage...');
 	const OpenQStorage = await ethers.getContractFactory('OpenQStorage');
@@ -42,28 +43,35 @@ async function deployContracts() {
 	await bountyFactory.deployed();
 	await optionalSleep(10000);
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
+	const bountyImplementation = await bountyFactory.bountyImplementation();
+	console.log(`BountyV0 (Implementation) Deployed to ${bountyImplementation}\n`);
 
 	console.log(`MockLink deployed to: ${mockLink.address}`);
 	console.log(`MockDai deployed to: ${mockDai.address}`);
-	console.log(`OpenQV0 deployed to: ${openQ.address}`);
+	console.log(`OpenQV0 (Proxy) deployed to: ${openQ.address}`);
+	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation}`);
 	console.log(`OpenQStorage deployed to: ${openQStorage.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
+	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
 
-	console.log('\nConfiguring OpenQProxy with OpenQStorage...');
-	console.log(`Setting OpenQStorage on OpenQProxy to ${openQStorage.address}...`);
+	console.log('\nConfiguring OpenQV0 with OpenQStorage...');
+	console.log(`Setting OpenQStorage on OpenQV0 to ${openQStorage.address}...`);
 	await openQ.setOpenQStorage(openQStorage.address);
 	await optionalSleep(10000);
-	console.log(`OpenQStorage successfully set on OpenQProxy to ${openQStorage.address}`);
+	console.log(`OpenQStorage successfully set on OpenQV0 to ${openQStorage.address}`);
 
-	console.log('\nConfiguring OpenQProxy with BountyFactory...');
-	console.log(`Setting BountyFactory on OpenQProxy to ${bountyFactory.address}...`);
+	console.log('\nConfiguring OpenQV0 with BountyFactory...');
+	console.log(`Setting BountyFactory on OpenQV0 to ${bountyFactory.address}...`);
 	await openQ.setBountyFactory(bountyFactory.address);
 	await optionalSleep(10000);
-	console.log(`BountyFactory successfully set on OpenQProxy to ${bountyFactory.address}`);
+	console.log(`BountyFactory successfully set on OpenQV0 to ${bountyFactory.address}`);
 
 	console.log('\nContracts deployed and configured successfully!');
 
-	// Write contract addresses to .env.contracts file for use in OpenQ-Frontend and OpenQ-Oracle
+	/* Write newly deployed contract addresses to .env.contracts for use in:
+	   - docker-compose environment
+		 - other hardhat scripts
+	*/
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"
 MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"`;

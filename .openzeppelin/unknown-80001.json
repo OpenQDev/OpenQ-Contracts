@@ -1,0 +1,91 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x74ac0232269f93E362867e1CCBB787ef329d2a2F",
+      "txHash": "0x5dcf1c9199214dfa85816b990126c7407985e6339d5ea891e422f02334e57281",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "9bee3f86e04a2ba05d605426dafdf70817d4ce54fa86c4e1b81b7535dbd072a7": {
+      "address": "0xF6879e63dd4DABcE5Fcd695B1Bd49d86ab3eb520",
+      "txHash": "0x22ffde9ff6e61b8f471b61741a45f55b12f2d23d2057ddafa4436494b13f0fb2",
+      "layout": {
+        "storage": [
+          {
+            "contract": "OpenQStorable",
+            "label": "openQStorage",
+            "type": "t_contract(OpenQStorage)4955",
+            "src": "contracts/OpenQ/OpenQStorable.sol:9"
+          },
+          {
+            "contract": "OpenQStorable",
+            "label": "bountyFactory",
+            "type": "t_contract(BountyFactory)3948",
+            "src": "contracts/OpenQ/OpenQStorable.sol:10"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:215"
+          }
+        ],
+        "types": {
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(OpenQStorage)4955": {
+            "label": "contract OpenQStorage"
+          },
+          "t_contract(BountyFactory)3948": {
+            "label": "contract BountyFactory"
+          }
+        }
+      }
+    }
+  }
+}
