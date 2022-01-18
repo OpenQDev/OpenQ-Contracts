@@ -25,7 +25,7 @@ describe('OpenQV0Upgrade', () => {
 	describe('constructor', () => {
 		it('should initiatlize with implementation address', async () => {
 			// ASSUME
-			expect(await openQ.getImplementation()).equals("0x5FbDB2315678afecb367f032d93F642f64180aa3");
+			expect(await openQ.getImplementation()).equals("0x02df3a3F960393F5B349E40A599FEda91a7cc1A7");
 
 			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 			newOpenQ = await OpenQ.deploy();
@@ -44,7 +44,7 @@ describe('OpenQV0Upgrade', () => {
 	describe('upgradeTo', () => {
 		it('should revert if not called by owner', async () => {
 			// ASSUME
-			expect(await openQ.getImplementation()).equals("0x5FbDB2315678afecb367f032d93F642f64180aa3");
+			expect(await openQ.getImplementation()).equals("0x02df3a3F960393F5B349E40A599FEda91a7cc1A7");
 
 			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 			newOpenQ = await OpenQ.deploy();
@@ -61,7 +61,7 @@ describe('OpenQV0Upgrade', () => {
 
 		it('should update implementation address', async () => {
 			// ASSUME
-			expect(await openQ.getImplementation()).equals("0x5FbDB2315678afecb367f032d93F642f64180aa3");
+			expect(await openQ.getImplementation()).equals("0x02df3a3F960393F5B349E40A599FEda91a7cc1A7");
 
 			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 			newOpenQ = await OpenQ.deploy();
