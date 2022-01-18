@@ -32,10 +32,10 @@
 		"fs": "^0.0.1-security",
 		"hardhat": "^2.6.2",
 		"hardhat-tracer": "^1.0.0-alpha.6",
-		"truffle-assertions": "^0.9.2"
+		"truffle-assertions": "^0.9.2",
+		"@openzeppelin/hardhat-upgrades": "^1.13.0"
 	},
 	"devDependencies": {
-		"@openzeppelin/hardhat-upgrades": "^1.13.0",
 		"eslint": "^8.1.0",
 		"eslint-config-prettier": "^6.11.0",
 		"eslint-plugin-prettier": "^3.1.4",
