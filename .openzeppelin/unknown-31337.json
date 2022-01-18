@@ -2,11 +2,6 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x127cf72360e08b43c81e63b95224639905efea2a33e2f05bd996ec3821887d94",
-      "kind": "uups"
-    },
-    {
       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "txHash": "0xf6faeb19a7ab174c3ada09217920662803843c18f8ed075bb8a3f68429a47b4b",
       "kind": "uups"
@@ -280,6 +275,11 @@
       "address": "0xB468647B04bF657C9ee2de65252037d781eABafD",
       "txHash": "0xe217de2e12b0115f4dcdc2a8ff25d497006a1ab5d8e8e0338bd18d1668efdad0",
       "kind": "uups"
+    },
+    {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "txHash": "0xe3bd6601f427f55479b1ded615ba396c5b0b0176648bcca9f77cddfedda2e161",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -363,20 +363,20 @@
       }
     },
     "9bee3f86e04a2ba05d605426dafdf70817d4ce54fa86c4e1b81b7535dbd072a7": {
-      "address": "0x02df3a3F960393F5B349E40A599FEda91a7cc1A7",
-      "txHash": "0x2c3f5eea86ba64afb6680dca68674de1a25a24cc934278876711d425391ae5bf",
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0x6620f010637e639e1cd8b0bf665c1a1f8321361cf8cd249b2630e3d0421df879",
       "layout": {
         "storage": [
           {
             "contract": "OpenQStorable",
             "label": "openQStorage",
-            "type": "t_contract(OpenQStorage)4384",
+            "type": "t_contract(OpenQStorage)4955",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
           {
             "contract": "OpenQStorable",
             "label": "bountyFactory",
-            "type": "t_contract(BountyFactory)3377",
+            "type": "t_contract(BountyFactory)3948",
             "src": "contracts/OpenQ/OpenQStorable.sol:10"
           },
           {
@@ -432,10 +432,10 @@
           "t_bool": {
             "label": "bool"
           },
-          "t_contract(OpenQStorage)4384": {
+          "t_contract(OpenQStorage)4955": {
             "label": "contract OpenQStorage"
           },
-          "t_contract(BountyFactory)3377": {
+          "t_contract(BountyFactory)3948": {
             "label": "contract BountyFactory"
           }
         }
