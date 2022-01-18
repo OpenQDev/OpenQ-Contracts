@@ -1,5 +1,5 @@
 const hre = require('hardhat');
-const { optionalSleep, sleep } = require('./utils');
+const { optionalSleep } = require('./utils');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
@@ -83,5 +83,16 @@ async function deployBounties() {
 
 	console.log('\nBounties Deployed Successfully!');
 }
+
+async function main() {
+	await deployBounties();
+}
+
+main()
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error(error);
+		process.exit(1);
+	});
 
 module.exports = deployBounties;

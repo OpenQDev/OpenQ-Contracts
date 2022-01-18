@@ -98,4 +98,15 @@ async function fundBounties() {
 	console.log('\nBounties funded successfully!\n');
 }
 
+async function main() {
+	await fundBounties();
+}
+
+main()
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error(error);
+		process.exit(1);
+	});
+
 module.exports = fundBounties;

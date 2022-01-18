@@ -70,4 +70,15 @@ MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"`;
 	fs.writeFileSync('.env.contracts', addresses);
 }
 
+async function main() {
+	await deployContracts();
+}
+
+main()
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error(error);
+		process.exit(1);
+	});
+
 module.exports = deployContracts;
