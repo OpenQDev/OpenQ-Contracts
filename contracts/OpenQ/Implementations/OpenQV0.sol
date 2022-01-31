@@ -7,12 +7,25 @@ import '../../Bounty/Implementations/BountyV0.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
 import '../../BountyFactory/BountyFactory.sol';
+import '../../Oracle/Oraclize.sol';
 
 // Upgradable
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 
-contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
+contract OpenQV0 is
+    OpenQStorable,
+    IOpenQ,
+    OwnableUpgradeable,
+    UUPSUpgradeable,
+    Oraclize
+{
+    function initialize(address oracle) public initializer {
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+        __Oraclize_init(oracle);
+    }
+
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
         public
@@ -69,7 +82,7 @@ contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
 
     function claimBounty(string calldata _id, address _payoutAddress)
         public
-        onlyOwner
+        onlyOracle
     {
         require(
             bountyIsOpen(_id) == true,
@@ -179,14 +192,14 @@ contract OpenQV0 is OpenQStorable, IOpenQ, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     // Upgrades
-    function initialize() public initializer {
-        __Ownable_init();
-        __UUPSUpgradeable_init();
-    }
-
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function getImplementation() external view returns (address) {
         return _getImplementation();
+    }
+
+    // Oracle
+    function getOracle() external view returns (address) {
+        return oracle();
     }
 }

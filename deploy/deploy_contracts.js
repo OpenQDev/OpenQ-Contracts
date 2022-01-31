@@ -1,6 +1,7 @@
 const { ethers, upgrades, network } = require('hardhat');
 const fs = require('fs');
 const { optionalSleep } = require('./utils');
+require('dotenv').config();
 
 async function deployContracts() {
 	console.log('\n------------------------------------------');
@@ -54,6 +55,12 @@ async function deployContracts() {
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
 
+	console.log('\nConfiguring OpenQV0 with Oracle address...');
+	console.log(`Setting OpenQStorage on OpenQV0 to ${process.env.ORACLE_ADDRESS}...`);
+	await openQ.transferOracle(process.env.ORACLE_ADDRESS);
+	await optionalSleep(10000);
+	console.log(`Oracle successfully set on OpenQV0 to ${process.env.ORACLE_ADDRESS}`);
+
 	console.log('\nConfiguring OpenQV0 with OpenQStorage...');
 	console.log(`Setting OpenQStorage on OpenQV0 to ${openQStorage.address}...`);
 	await openQ.setOpenQStorage(openQStorage.address);
@@ -69,7 +76,7 @@ async function deployContracts() {
 	console.log('\nContracts deployed and configured successfully!');
 
 	/* Write newly deployed contract addresses to .env.contracts for use in:
-	   - docker-compose environment
+		 - docker-compose environment
 		 - other hardhat scripts
 	*/
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"

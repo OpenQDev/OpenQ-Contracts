@@ -1,5 +1,6 @@
 require('@nomiclabs/hardhat-waffle');
 require('@openzeppelin/hardhat-upgrades');
+require("@nomiclabs/hardhat-etherscan");
 require('dotenv').config();
 require('hardhat-tracer');
 
@@ -30,6 +31,9 @@ module.exports = (function () {
 				gas: 9999999
 			},
 		},
+		etherscan: {
+			apiKey: process.env.POLYGON_SCAN_API_KEY
+		}
 	};
 
 	return config;

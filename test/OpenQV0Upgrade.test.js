@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers, upgrades } = require("hardhat");
 
-describe('OpenQV0Upgrade', () => {
+describe.only('OpenQV0Upgrade', () => {
 	let openQ;
 	let openQStorage;
 
@@ -15,7 +15,7 @@ describe('OpenQV0Upgrade', () => {
 
 		[owner] = await ethers.getSigners();
 
-		openQ = await upgrades.deployProxy(OpenQ, []);
+		openQ = await upgrades.deployProxy(OpenQ, ['0x5fd59ca7cf4b6be52aeaf35b3fccb55db58983f0']);
 		await openQ.deployed();
 
 		openQStorage = await OpenQStorage.deploy();
@@ -25,7 +25,7 @@ describe('OpenQV0Upgrade', () => {
 	describe('constructor', () => {
 		it('should initiatlize with implementation address', async () => {
 			// ASSUME
-			expect(await openQ.getImplementation()).equals("0x02df3a3F960393F5B349E40A599FEda91a7cc1A7");
+			expect(await openQ.getImplementation()).equals("0x5FbDB2315678afecb367f032d93F642f64180aa3");
 
 			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 			newOpenQ = await OpenQ.deploy();
@@ -44,7 +44,7 @@ describe('OpenQV0Upgrade', () => {
 	describe('upgradeTo', () => {
 		it('should revert if not called by owner', async () => {
 			// ASSUME
-			expect(await openQ.getImplementation()).equals("0x02df3a3F960393F5B349E40A599FEda91a7cc1A7");
+			expect(await openQ.getImplementation()).equals("0x5FbDB2315678afecb367f032d93F642f64180aa3");
 
 			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 			newOpenQ = await OpenQ.deploy();
@@ -61,7 +61,7 @@ describe('OpenQV0Upgrade', () => {
 
 		it('should update implementation address', async () => {
 			// ASSUME
-			expect(await openQ.getImplementation()).equals("0x02df3a3F960393F5B349E40A599FEda91a7cc1A7");
+			expect(await openQ.getImplementation()).equals("0x5FbDB2315678afecb367f032d93F642f64180aa3");
 
 			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
 			newOpenQ = await OpenQ.deploy();
@@ -86,6 +86,14 @@ describe('OpenQV0Upgrade', () => {
 
 			// ASSERT
 			expect(await openQ.openQStorage()).equals(openQStorage.address);
+		});
+	});
+
+	describe('set oracle', () => {
+		it('should set the oracle address', async () => {
+			// ASSERT
+			const oracleAddress = await openQ.getOracle();
+			expect(oracleAddress).equals('0x5FD59cA7Cf4B6BE52aEAF35b3FCcb55DB58983f0');
 		});
 	});
 

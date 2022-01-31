@@ -11,14 +11,14 @@ interface IOpenQ {
         string bountyId,
         string organization,
         address issuerAddress,
-        address bountyAddress,
+        address indexed bountyAddress,
         uint256 bountyMintTime
     );
 
     event BountyClosed(
         string bountyId,
         string organization,
-        address bountyAddress,
+        address indexed bountyAddress,
         address payoutAddress,
         uint256 bountyClosedTime
     );
@@ -26,7 +26,7 @@ interface IOpenQ {
     event DepositReceived(
         string bountyId,
         string organization,
-        address bountyAddress,
+        address indexed bountyAddress,
         address tokenAddress,
         address sender,
         uint256 volume,
@@ -36,7 +36,7 @@ interface IOpenQ {
     event DepositRefunded(
         string bountyId,
         string organization,
-        address bountyAddress,
+        address indexed bountyAddress,
         address tokenAddress,
         address sender,
         uint256 volume,
@@ -46,7 +46,7 @@ interface IOpenQ {
     event BountyPaidout(
         string bountyId,
         string organization,
-        address bountyAddress,
+        address indexed bountyAddress,
         address tokenAddress,
         address payoutAddress,
         uint256 volume,

@@ -28,7 +28,7 @@ async function fundBounties() {
 	const two = hre.ethers.BigNumber.from('2000000000000000000');
 	const four = hre.ethers.BigNumber.from('4000000000000000000');
 
-	await mockLink.approve(bounty1Address, one);
+	await mockLink.approve(bounty1Address, two);
 	await optionalSleep(5000);
 
 	await mockDai.approve(bounty1Address, two);
@@ -41,6 +41,9 @@ async function fundBounties() {
 	await optionalSleep(5000);
 
 	console.log('Funding approved for Client 1');
+
+	await openQ.fundBounty(bounty1Address, mockLink.address, one);
+	await optionalSleep(5000);
 
 	await openQ.fundBounty(bounty1Address, mockLink.address, one);
 	await optionalSleep(5000);

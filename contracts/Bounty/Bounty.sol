@@ -33,7 +33,7 @@ abstract contract Bounty is Bountyable, Initializable {
         organization = _organization;
         bountyCreatedTime = block.timestamp;
         openQImplementation = _openQImplementation;
-        escrowPeriod = 30 seconds;
+        escrowPeriod = 2 seconds;
     }
 
     // Bounty Accounting
