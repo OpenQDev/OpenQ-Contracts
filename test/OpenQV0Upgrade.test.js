@@ -96,6 +96,4 @@ describe.only('OpenQV0Upgrade', () => {
 			expect(oracleAddress).equals('0x5FD59cA7Cf4B6BE52aEAF35b3FCcb55DB58983f0');
 		});
 	});
-
-
 });
