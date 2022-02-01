@@ -58,7 +58,7 @@ contract OpenQV0 is
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
-            'Cannot fund a closed bounty'
+            'FUNDING_CLOSED_BOUNTY'
         );
 
         uint256 volumeReceived = bounty.receiveFunds(
@@ -84,10 +84,7 @@ contract OpenQV0 is
         public
         onlyOracle
     {
-        require(
-            bountyIsOpen(_id) == true,
-            'Cannot claim a bounty that is already closed.'
-        );
+        require(bountyIsOpen(_id) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress(_id);
         Bounty bounty = BountyV0(bountyAddress);
@@ -128,18 +125,18 @@ contract OpenQV0 is
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
-            'Cannot request refund on a closed bounty'
+            'REFUNDING_CLOSED_BOUNTY'
         );
 
         require(
             block.timestamp >=
                 bounty.bountyCreatedTime() + bounty.escrowPeriod(),
-            'Too early to withdraw funds'
+            'PREMATURE_REFUND_REQUEST'
         );
 
         require(
             bounty.isAFunder(msg.sender) == true,
-            'Only funders of this bounty can reclaim funds after 30 days.'
+            'ONLY_FUNDERS_CAN_REQUEST_REFUND'
         );
 
         for (

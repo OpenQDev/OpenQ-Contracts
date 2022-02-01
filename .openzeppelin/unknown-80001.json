@@ -2,21 +2,21 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0xEA4dbdC453B927ECf492A2caF211B4462756871e",
-      "txHash": "0xbc6e8ab6426d53767091c691fa4a0e21bb31acf2fdad82abe21e4fda437c87f7",
+      "address": "0x95a4019b6AfeceDBb95b939D01A2B2AF517B6338",
+      "txHash": "0xe6bf97191c0e26fd350189118cfa7c18f0595b1c25b5144029ce24f347e9c14a",
       "kind": "uups"
     }
   ],
   "impls": {
-    "5aee6d1f92ba2228a8baeec4f29cd30d86d5c574f9ce9f1c61b8fe7d4a6a2721": {
-      "address": "0x9cfb8063EF28d50e18FDf0f4cF61BF7b60E65ad6",
-      "txHash": "0x93e18d979214dc7adb1b379a9f06ade5dbabd95928ad402d3420e82137ebfacf",
+    "7c9e7d4a4d74f09bea9ea97996ed344aaca0068d283c062826bf3eaaa1a25f4e": {
+      "address": "0x65fb921e10b33BC868b1F69019C87f77bef92E3E",
+      "txHash": "0x0ada3617c082e493856216f2b0315581074cad955bf853e194843dd74bbe1768",
       "layout": {
         "storage": [
           {
             "contract": "OpenQStorable",
             "label": "openQStorage",
-            "type": "t_contract(OpenQStorage)4955",
+            "type": "t_contract(OpenQStorage)5065",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
           {
@@ -38,6 +38,12 @@
             "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
           },
           {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:215"
+          },
+          {
             "contract": "ContextUpgradeable",
             "label": "__gap",
             "type": "t_array(t_uint256)50_storage",
@@ -56,29 +62,29 @@
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
           },
           {
-            "contract": "ERC1967UpgradeUpgradeable",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:215"
+            "contract": "Oraclize",
+            "label": "_oracle",
+            "type": "t_address",
+            "src": "contracts/Oracle/Oraclize.sol:8"
           }
         ],
         "types": {
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          },
           "t_address": {
             "label": "address"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"
           },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
           "t_bool": {
             "label": "bool"
           },
-          "t_contract(OpenQStorage)4955": {
+          "t_contract(OpenQStorage)5065": {
             "label": "contract OpenQStorage"
           },
           "t_contract(BountyFactory)3948": {

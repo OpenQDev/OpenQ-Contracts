@@ -7,13 +7,10 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import './Bountyable.sol';
 
 abstract contract Bounty is Bountyable, Initializable {
-    address openQImplementation;
+    address openQ;
 
     modifier onlyOpenQ() {
-        require(
-            msg.sender == openQImplementation,
-            'Method is only callable by the current OpenQ implementation'
-        );
+        require(msg.sender == openQ, 'Method is only callable by OpenQ');
         _;
     }
 
@@ -21,7 +18,7 @@ abstract contract Bounty is Bountyable, Initializable {
         string memory _id,
         address _issuer,
         string memory _organization,
-        address _openQImplementation
+        address _openQ
     ) public initializer {
         require(bytes(_id).length != 0, 'id cannot be empty string!');
         require(
@@ -32,7 +29,7 @@ abstract contract Bounty is Bountyable, Initializable {
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
-        openQImplementation = _openQImplementation;
+        openQ = _openQ;
         escrowPeriod = 2 seconds;
     }
 
