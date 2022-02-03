@@ -13,6 +13,9 @@ import '../../Oracle/Oraclize.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 
+// Utils
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+
 contract OpenQV0 is
     OpenQStorable,
     IOpenQ,
@@ -20,6 +23,8 @@ contract OpenQV0 is
     UUPSUpgradeable,
     Oraclize
 {
+    using SafeMath for uint256;
+
     function initialize(address oracle) public initializer {
         __Ownable_init();
         __UUPSUpgradeable_init();
@@ -61,7 +66,7 @@ contract OpenQV0 is
             'FUNDING_CLOSED_BOUNTY'
         );
 
-        uint256 volumeReceived = bounty.receiveFunds(
+        (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds(
             msg.sender,
             _tokenAddress,
             _volume
@@ -74,7 +79,8 @@ contract OpenQV0 is
             _tokenAddress,
             msg.sender,
             volumeReceived,
-            block.timestamp
+            block.timestamp,
+            depositId
         );
 
         return true;
@@ -117,7 +123,7 @@ contract OpenQV0 is
         );
     }
 
-    function refundBountyDeposits(address _bountyAddress)
+    function refundBountyDeposits(address _bountyAddress, bytes32 depositId)
         public
         returns (bool success)
     {
@@ -129,36 +135,36 @@ contract OpenQV0 is
         );
 
         require(
-            block.timestamp >=
-                bounty.bountyCreatedTime() + bounty.escrowPeriod(),
-            'PREMATURE_REFUND_REQUEST'
-        );
-
-        require(
             bounty.isAFunder(msg.sender) == true,
             'ONLY_FUNDERS_CAN_REQUEST_REFUND'
         );
 
-        for (
-            uint256 i = 0;
-            i < bounty.getFunderTokenAddresses(msg.sender).length;
-            i++
-        ) {
-            address tokenAddress = bounty.funderTokenAddresses(msg.sender, i);
-            uint256 volume = bounty.funderDeposits(msg.sender, tokenAddress);
+        (
+            bytes32 depositId,
+            address tokenAddress,
+            address funder,
+            uint256 volume,
+            uint256 depositTime,
+            bool refunded
+        ) = bounty.funderDeposits(msg.sender, depositId);
 
-            bounty.refundBountyDeposit(msg.sender, tokenAddress);
+        require(
+            block.timestamp >= depositTime.add(bounty.escrowPeriod()),
+            'PREMATURE_REFUND_REQUEST'
+        );
 
-            emit DepositRefunded(
-                bounty.bountyId(),
-                bounty.organization(),
-                _bountyAddress,
-                tokenAddress,
-                msg.sender,
-                volume,
-                block.timestamp
-            );
-        }
+        bounty.refundBountyDeposit(msg.sender, depositId);
+
+        emit DepositRefunded(
+            bounty.bountyId(),
+            bounty.organization(),
+            _bountyAddress,
+            tokenAddress,
+            msg.sender,
+            volume,
+            block.timestamp,
+            depositId
+        );
 
         return true;
     }

@@ -6,20 +6,15 @@ interface Bountyable {
         address,
         address,
         uint256
-    ) external returns (uint256);
+    ) external returns (bytes32, uint256);
 
     function claim(address, address) external returns (bool);
 
     function closeBounty(address) external returns (bool);
 
-    function refundBountyDeposit(address, address) external returns (bool);
+    function refundBountyDeposit(address, bytes32) external returns (bool);
 
     function getERC20Balance(address) external view returns (uint256);
-
-    function getFunderTokenAddresses(address)
-        external
-        view
-        returns (address[] memory);
 
     function getBountyTokenAddresses() external view returns (address[] memory);
 }

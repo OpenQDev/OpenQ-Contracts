@@ -7,7 +7,35 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import './Bountyable.sol';
 
 abstract contract Bounty is Bountyable, Initializable {
+    // OpenQ Contract
     address openQ;
+
+    // Bounty Accounting
+    address[] public bountyTokenAddresses;
+
+    // Funder Accounting
+    // funder -> [ tokenAddres -> [Deposit] ]
+    mapping(address => mapping(bytes32 => Deposit)) public funderDeposits;
+    mapping(address => bool) public isAFunder;
+
+    // Bounty Metadata
+    string public bountyId;
+    uint256 public bountyCreatedTime;
+    uint256 public bountyClosedTime;
+    uint256 public escrowPeriod;
+    address public issuer;
+    string public organization;
+    address public closer;
+    BountyStatus public status;
+
+    struct Deposit {
+        bytes32 depositId;
+        address funder;
+        address tokenAddress;
+        uint256 volume;
+        uint256 depositTime;
+        bool refunded;
+    }
 
     modifier onlyOpenQ() {
         require(msg.sender == openQ, 'Method is only callable by OpenQ');
@@ -33,24 +61,6 @@ abstract contract Bounty is Bountyable, Initializable {
         escrowPeriod = 2 seconds;
     }
 
-    // Bounty Accounting
-    address[] public bountyTokenAddresses;
-
-    // Funder Accounting
-    mapping(address => address[]) public funderTokenAddresses;
-    mapping(address => mapping(address => uint256)) public funderDeposits;
-    mapping(address => bool) public isAFunder;
-
-    // Issue Metadata
-    string public bountyId;
-    uint256 public bountyCreatedTime;
-    uint256 public bountyClosedTime;
-    uint256 public escrowPeriod;
-    address public issuer;
-    string public organization;
-    address public closer;
-    BountyStatus public status;
-
     enum BountyStatus {
         OPEN,
         CLOSED
@@ -64,14 +74,6 @@ abstract contract Bounty is Bountyable, Initializable {
     {
         IERC20 tokenAddress = IERC20(_tokenAddress);
         return tokenAddress.balanceOf(address(this));
-    }
-
-    function getFunderTokenAddresses(address _funder)
-        public
-        view
-        returns (address[] memory)
-    {
-        return funderTokenAddresses[_funder];
     }
 
     function getBountyTokenAddresses() public view returns (address[] memory) {

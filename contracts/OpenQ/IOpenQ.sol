@@ -30,7 +30,8 @@ interface IOpenQ {
         address tokenAddress,
         address sender,
         uint256 volume,
-        uint256 receiveTime
+        uint256 receiveTime,
+        bytes32 depositId
     );
 
     event DepositRefunded(
@@ -40,7 +41,8 @@ interface IOpenQ {
         address tokenAddress,
         address sender,
         uint256 volume,
-        uint256 refundTime
+        uint256 refundTime,
+        bytes32 depositId
     );
 
     event BountyPaidout(
@@ -65,7 +67,7 @@ interface IOpenQ {
 
     function claimBounty(string calldata, address) external;
 
-    function refundBountyDeposits(address) external returns (bool);
+    function refundBountyDeposits(address, bytes32) external returns (bool);
 
     function bountyIsOpen(string memory) external view returns (bool);
 }

@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 
-describe('Bounty.sol', () => {
+describe.only('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -76,7 +76,7 @@ describe('Bounty.sol', () => {
 				let bountyWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
+				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
 			it('should revert if no value is sent', async () => {
@@ -153,83 +153,26 @@ describe('Bounty.sol', () => {
 			});
 		});
 
-		describe('funderTokenAddresses', () => {
-			it('should add that token address to fundersTokenAddresses if its a new address', async () => {
-				// ARRANGE
-				const value = 10000;
-
-				// ASSUME
-				const zeroLength = await bounty.getFunderTokenAddresses(owner.address);
-				expect(zeroLength.length).to.equal(0);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-
-				// ASSERT
-				const fundersTokenAddress = await bounty.getFunderTokenAddresses(owner.address);
-				expect(fundersTokenAddress[0]).to.equal(mockLink.address);
-			});
-
-			it('should NOT add that token address to fundersTokenAddresses if its NOT a new address', async () => {
-				// ARRANGE
-				const value = 10000;
-
-				// ASSUME
-				const zeroLength = await bounty.getFunderTokenAddresses(owner.address);
-				expect(zeroLength.length).to.equal(0);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-
-				// ASSERT
-				const fundersTokenAddress = await bounty.getFunderTokenAddresses(owner.address);
-				expect(fundersTokenAddress[0]).to.equal(mockLink.address);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-
-				// ASSERT
-				const fundersTokenNewAddress = await bounty.getFunderTokenAddresses(owner.address);
-				expect(fundersTokenNewAddress.length).to.equal(1);
-			});
-		});
-
 		describe('fundersDeposits', () => {
-			it('should increment fundersDeposits at tokenAddress by value', async () => {
+			it('should add new Deposit for funder in funderDeposits', async () => {
 				// ARRANGE
-				const value = 10000;
+				const volume = 10000;
+				const timestamp = await setNextBlockTimestamp();
 
 				// ASSUME
-				const zeroValue = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
-				expect(zeroValue).to.equal(0);
+				const depositId = generateDepositId(owner.address, mockLink.address, timestamp);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
+				await bounty.receiveFunds(owner.address, mockLink.address, volume);
 
 				// ASSERT
-				const funderDepositsForTokenAddress = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
-				expect(funderDepositsForTokenAddress).to.equal(value);
+				const newDeposit = await bounty.funderDeposits(owner.address, depositId);
 
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-
-				// ASSERT
-				const funderNewDeposits = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
-				expect(funderNewDeposits).to.equal(value + value);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockDai.address, value);
-
-				// ASSERT
-				const funderNewDepositsOnOtherAddress = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
-				expect(funderNewDepositsOnOtherAddress).to.equal(value);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockDai.address, value);
-
-				// ASSERT
-				const funderNewDepositsOnOtherAddressNewer = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
-				expect(funderNewDepositsOnOtherAddressNewer).to.equal(value + value);
+				expect(newDeposit.depositId).to.equal(depositId);
+				expect(newDeposit.tokenAddress).to.equal(mockLink.address);
+				expect(newDeposit.funder).to.equal(owner.address);
+				expect(newDeposit.volume).to.equal(10000);
+				expect(newDeposit.depositTime).to.equal(timestamp);
 			});
 		});
 
@@ -274,7 +217,7 @@ describe('Bounty.sol', () => {
 			let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 			// ASSERT
-			await expect(issueWithNonOwnerAccount.closeBounty(owner.address)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
+			await expect(issueWithNonOwnerAccount.closeBounty(owner.address)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should revert if already closed', async () => {
@@ -323,7 +266,7 @@ describe('Bounty.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
+				await expect(issueWithNonOwnerAccount.claim(notOwner.address, mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
 			it('should revert if issue is already closed', async () => {
@@ -378,43 +321,57 @@ describe('Bounty.sol', () => {
 				// ARRANGE
 				const [, notOwner] = await ethers.getSigners();
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
+
+				const mockDepositId = generateDepositId(owner.address, mockLink.address, 123);
+
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockLink.address)).to.be.revertedWith('Method is only callable by the current OpenQ implementation');
+				await expect(issueWithNonOwnerAccount.refundBountyDeposit(notOwner.address, mockDepositId)).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 		});
 
 		describe('fundersDeposits', () => {
-			it('should decrement fundersDeposits at tokenAddress by value refunded', async () => {
+			it('should set deposit refunded to true on refund', async () => {
 				// ARRANGE
-				const value = 100;
-
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-				await bounty.receiveFunds(owner.address, mockDai.address, value);
-
-				// ASSUME
-				const funderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
-				expect(funderMockTokenDeposit).to.equal(value);
-				const funderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
-				expect(funderFakeTokenDeposit).to.equal(value);
+				const volume = 100;
 
 				// ACT
-				await bounty.refundBountyDeposit(owner.address, mockLink.address);
-				await bounty.refundBountyDeposit(owner.address, mockDai.address);
+				const linkTimestamp = await setNextBlockTimestamp();
+				await bounty.receiveFunds(owner.address, mockLink.address, volume);
+				const linkDepositId = generateDepositId(owner.address, mockLink.address, linkTimestamp);
+
+				const daiTimestamp = await setNextBlockTimestamp();
+				await bounty.receiveFunds(owner.address, mockDai.address, volume);
+				const daiDepositId = generateDepositId(owner.address, mockDai.address, daiTimestamp);
 
 				// ASSERT
-				const decrementedFunderMockTokenDeposit = (await bounty.funderDeposits(owner.address, mockLink.address)).toNumber();
-				expect(decrementedFunderMockTokenDeposit).to.equal(0);
-				const decrementedFunderFakeTokenDeposit = (await bounty.funderDeposits(owner.address, mockDai.address)).toNumber();
-				expect(decrementedFunderFakeTokenDeposit).to.equal(0);
+				const linkDeposit = await bounty.funderDeposits(owner.address, linkDepositId);
+				const daiDeposit = await bounty.funderDeposits(owner.address, daiDepositId);
+
+				// ACT
+				await bounty.refundBountyDeposit(owner.address, linkDepositId);
+				await bounty.refundBountyDeposit(owner.address, daiDepositId);
+
+				// ASSERT
+				const refundedLinkDeposit = await bounty.funderDeposits(owner.address, linkDepositId);
+				const refundedDaiDeposit = await bounty.funderDeposits(owner.address, daiDepositId);
+
+				expect(refundedLinkDeposit.refunded).to.equal(true);
+				expect(refundedDaiDeposit.refunded).to.equal(true);
 			});
 		});
 
 		describe('transfer', () => {
 			it('should transfer refunded asset from bounty contract to funder', async () => {
 				// ARRANGE
-				const value = 100;
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-				await bounty.receiveFunds(owner.address, mockDai.address, value);
+				const volume = 100;
+
+				const linkTimestamp = await setNextBlockTimestamp();
+				await bounty.receiveFunds(owner.address, mockLink.address, volume);
+				const linkDepositId = generateDepositId(owner.address, mockLink.address, linkTimestamp);
+
+				const daiTimestamp = await setNextBlockTimestamp();
+				await bounty.receiveFunds(owner.address, mockDai.address, volume);
+				const daiDepositId = generateDepositId(owner.address, mockDai.address, daiTimestamp);
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
@@ -428,10 +385,10 @@ describe('Bounty.sol', () => {
 				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
 
 				// // ACT
-				await bounty.refundBountyDeposit(owner.address, mockLink.address);
-				await bounty.refundBountyDeposit(owner.address, mockDai.address);
+				await bounty.refundBountyDeposit(owner.address, linkDepositId);
+				await bounty.refundBountyDeposit(owner.address, daiDepositId);
 
-				// // ASSERT
+				// // // ASSERT
 				const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
 				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
 				expect(newBountyMockLinkBalance).to.equal('0');
@@ -446,6 +403,13 @@ describe('Bounty.sol', () => {
 	});
 
 });
+
+function generateDepositId(address, tokenAddress, timestamp) {
+	const abiCoder = new ethers.utils.AbiCoder;
+	const abiEncodedParams = abiCoder.encode(['address', 'address', 'uint256'], [address, tokenAddress, timestamp]);
+	const depositId = ethers.utils.keccak256(abiEncodedParams);
+	return depositId;
+}
 
 async function setNextBlockTimestamp() {
 	return new Promise(async (resolve,) => {
