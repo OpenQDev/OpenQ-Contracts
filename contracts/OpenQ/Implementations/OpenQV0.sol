@@ -123,7 +123,7 @@ contract OpenQV0 is
         );
     }
 
-    function refundBountyDeposits(address _bountyAddress, bytes32 depositId)
+    function refundBountyDeposit(address _bountyAddress, bytes32 depositId)
         public
         returns (bool success)
     {
@@ -141,8 +141,8 @@ contract OpenQV0 is
 
         (
             bytes32 depositId,
-            address tokenAddress,
             address funder,
+            address tokenAddress,
             uint256 volume,
             uint256 depositTime,
             bool refunded

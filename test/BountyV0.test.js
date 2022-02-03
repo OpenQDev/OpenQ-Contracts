@@ -3,8 +3,9 @@ const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
+const { generateDepositId } = require('./utils');
 
-describe.only('Bounty.sol', () => {
+describe('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -403,13 +404,6 @@ describe.only('Bounty.sol', () => {
 	});
 
 });
-
-function generateDepositId(address, tokenAddress, timestamp) {
-	const abiCoder = new ethers.utils.AbiCoder;
-	const abiEncodedParams = abiCoder.encode(['address', 'address', 'uint256'], [address, tokenAddress, timestamp]);
-	const depositId = ethers.utils.keccak256(abiEncodedParams);
-	return depositId;
-}
 
 async function setNextBlockTimestamp() {
 	return new Promise(async (resolve,) => {
