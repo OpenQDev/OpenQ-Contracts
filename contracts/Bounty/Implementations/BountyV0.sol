@@ -16,7 +16,7 @@ contract BountyV0 is Bounty {
         address _funder,
         address _tokenAddress,
         uint256 _volume
-    ) public onlyOpenQ returns (bytes32, uint256) {
+    ) public onlyOpenQ nonReentrant returns (bytes32, uint256) {
         require(_volume != 0, 'Must send a non-zero volume of tokens.');
 
         // If is a new deposit for that denomination for the entire bounty
@@ -63,6 +63,7 @@ contract BountyV0 is Bounty {
     function claim(address _payoutAddress, address _tokenAddress)
         public
         onlyOpenQ
+        nonReentrant
         returns (bool success)
     {
         require(
@@ -96,10 +97,12 @@ contract BountyV0 is Bounty {
         onlyOpenQ
         returns (bool success)
     {
-        IERC20 token = IERC20(funderDeposits[_funder][depositId].tokenAddress);
-        token.safeTransfer(_funder, funderDeposits[_funder][depositId].volume);
         Deposit storage deposit = funderDeposits[_funder][depositId];
+        require(deposit.refunded == false, 'BOUNTY_ALREADY_REFUNDED');
         deposit.refunded = true;
+        IERC20 token = IERC20(deposit.tokenAddress);
+        token.safeTransfer(_funder, deposit.volume);
+        deposit.volume = 0;
         return true;
     }
 

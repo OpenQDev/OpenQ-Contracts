@@ -3,10 +3,11 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 
 import './Bountyable.sol';
 
-abstract contract Bounty is Bountyable, Initializable {
+abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
     // OpenQ Contract
     address openQ;
 
@@ -59,6 +60,8 @@ abstract contract Bounty is Bountyable, Initializable {
         bountyCreatedTime = block.timestamp;
         openQ = _openQ;
         escrowPeriod = 2 seconds;
+
+        __ReentrancyGuard_init();
     }
 
     enum BountyStatus {
