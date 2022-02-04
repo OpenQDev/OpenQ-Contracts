@@ -86,7 +86,7 @@ describe('Bounty.sol', () => {
 				const value = 0;
 
 				// ASSERT
-				await expect(bounty.receiveFunds(owner.address, mockLink.address, value)).to.be.revertedWith('Must send a non-zero volume of tokens.');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, value)).to.be.revertedWith('ZERO_VOLUME_SENT');
 			});
 
 			it('should revert if funder tries to send more than allowance', async () => {
@@ -225,7 +225,7 @@ describe('Bounty.sol', () => {
 			// ARRANGE
 			bounty.closeBounty(owner.address);
 			//ACT / ASSERT
-			await expect(bounty.closeBounty(owner.address)).to.be.revertedWith('This is bounty is already closed. Cannot close again.');
+			await expect(bounty.closeBounty(owner.address)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
 		});
 
 		it('should change status to CLOSED (1)', async () => {
@@ -275,7 +275,7 @@ describe('Bounty.sol', () => {
 				await bounty.closeBounty(owner.address);
 
 				// ASSERT
-				await expect(bounty.claim(owner.address, mockLink.address)).to.be.revertedWith('This is bounty is closed. Cannot withdraw again.');
+				await expect(bounty.claim(owner.address, mockLink.address)).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
 			});
 		});
 

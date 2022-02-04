@@ -17,7 +17,7 @@ contract BountyV0 is Bounty {
         address _tokenAddress,
         uint256 _volume
     ) public onlyOpenQ nonReentrant returns (bytes32, uint256) {
-        require(_volume != 0, 'Must send a non-zero volume of tokens.');
+        require(_volume != 0, 'ZERO_VOLUME_SENT');
 
         // If is a new deposit for that denomination for the entire bounty
         if (getERC20Balance(_tokenAddress) == 0) {
@@ -66,10 +66,7 @@ contract BountyV0 is Bounty {
         nonReentrant
         returns (bool success)
     {
-        require(
-            this.status() == BountyStatus.OPEN,
-            'This is bounty is closed. Cannot withdraw again.'
-        );
+        require(this.status() == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
         uint256 bountyBalance = getERC20Balance(_tokenAddress);
         IERC20 token = IERC20(_tokenAddress);
         token.safeTransfer(_payoutAddress, bountyBalance);
@@ -82,10 +79,7 @@ contract BountyV0 is Bounty {
         onlyOpenQ
         returns (bool success)
     {
-        require(
-            this.status() == BountyStatus.OPEN,
-            'This is bounty is already closed. Cannot close again.'
-        );
+        require(this.status() == BountyStatus.OPEN, 'CLOSING_CLOSED_BOUNTY');
         status = BountyStatus.CLOSED;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;

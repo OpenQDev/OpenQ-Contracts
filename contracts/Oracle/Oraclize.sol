@@ -17,14 +17,14 @@ abstract contract Oraclize is OwnableUpgradeable {
     }
 
     /**
-     * @dev Returns the address of the current owner.
+     * @dev Returns the address of the current oracle.
      */
     function oracle() public view virtual returns (address) {
         return _oracle;
     }
 
     /**
-     * @dev Throws if called by any account other than the owner.
+     * @dev Throws if called by any account other than the oracle.
      */
     modifier onlyOracle() {
         require(
@@ -35,7 +35,7 @@ abstract contract Oraclize is OwnableUpgradeable {
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * @dev Transfers oracle of the contract to a new account (`newOracle`).
      * Internal function without access restriction.
      */
     function _transferOracle(address newOracle) internal virtual {
@@ -45,13 +45,13 @@ abstract contract Oraclize is OwnableUpgradeable {
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * @dev Transfers oracle of the contract to a new account (`newOracle`).
      * Can only be called by the current owner.
      */
     function transferOracle(address newOracle) public virtual onlyOwner {
         require(
             newOracle != address(0),
-            'Ownable: new owner is the zero address'
+            'Oraclize: new oracle is the zero address'
         );
         _transferOracle(newOracle);
     }
