@@ -12,6 +12,7 @@ import '../../Oracle/Oraclize.sol';
 // Upgradable
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 
 // Utils
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
@@ -21,6 +22,7 @@ contract OpenQV0 is
     IOpenQ,
     OwnableUpgradeable,
     UUPSUpgradeable,
+    ReentrancyGuardUpgradeable,
     Oraclize
 {
     using SafeMath for uint256;
@@ -29,11 +31,13 @@ contract OpenQV0 is
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Oraclize_init(oracle);
+        __ReentrancyGuard_init();
     }
 
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
         public
+        nonReentrant
         returns (address bountyAddress)
     {
         address bountyAddress = bountyFactory.mintBounty(
@@ -58,7 +62,7 @@ contract OpenQV0 is
         address _bountyAddress,
         address _tokenAddress,
         uint256 _volume
-    ) public returns (bool success) {
+    ) public nonReentrant returns (bool success) {
         BountyV0 bounty = BountyV0(_bountyAddress);
 
         require(
@@ -89,6 +93,7 @@ contract OpenQV0 is
     function claimBounty(string calldata _id, address _payoutAddress)
         public
         onlyOracle
+        nonReentrant
     {
         require(bountyIsOpen(_id) == true, 'CLAIMING_CLOSED_BOUNTY');
 
@@ -125,6 +130,7 @@ contract OpenQV0 is
 
     function refundBountyDeposit(address _bountyAddress, bytes32 depositId)
         public
+        nonReentrant
         returns (bool success)
     {
         Bounty bounty = BountyV0(_bountyAddress);
@@ -204,5 +210,10 @@ contract OpenQV0 is
     // Oracle
     function getOracle() external view returns (address) {
         return oracle();
+    }
+
+    // Revert any attempts to send ETH or unknown calldata
+    fallback() external {
+        revert();
     }
 }

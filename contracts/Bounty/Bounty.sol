@@ -82,4 +82,9 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
     function getBountyTokenAddresses() public view returns (address[] memory) {
         return bountyTokenAddresses;
     }
+
+    // Revert any attempts to send ETH or unknown calldata
+    fallback() external {
+        revert();
+    }
 }

@@ -95,20 +95,22 @@ contract BountyV0 is Bounty {
     function refundBountyDeposit(address _funder, bytes32 depositId)
         public
         onlyOpenQ
+        nonReentrant
         returns (bool success)
     {
         Deposit storage deposit = funderDeposits[_funder][depositId];
-        require(deposit.refunded == false, 'BOUNTY_ALREADY_REFUNDED');
-        deposit.refunded = true;
-        IERC20 token = IERC20(deposit.tokenAddress);
-        token.safeTransfer(_funder, deposit.volume);
-        deposit.volume = 0;
-        return true;
-    }
+        uint256 amount = deposit.volume;
 
-    // Fallback and Receive
-    // Revert any attempts to send ETH or unknown calldata
-    fallback() external {
-        revert();
+        // Check
+        require(deposit.refunded == false, 'BOUNTY_ALREADY_REFUNDED');
+
+        // Effects
+        deposit.volume = 0;
+        deposit.refunded = true;
+
+        // Interactions
+        IERC20 token = IERC20(deposit.tokenAddress);
+        token.safeTransfer(_funder, amount);
+        return true;
     }
 }
