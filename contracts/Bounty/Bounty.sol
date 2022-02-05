@@ -11,7 +11,7 @@ import './Bountyable.sol';
 
 abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
     // OpenQ Contract
-    address openQ;
+    address public openQ;
 
     // Bounty Accounting
     address[] public bountyTokenAddresses;
@@ -40,34 +40,33 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
         bool refunded;
     }
 
-    modifier onlyOpenQ() {
-        require(msg.sender == openQ, 'Method is only callable by OpenQ');
-        _;
-    }
-
     function initialize(
         string memory _id,
         address _issuer,
         string memory _organization,
         address _openQ
     ) public initializer {
-        require(bytes(_id).length != 0, 'id cannot be empty string!');
-        require(
-            bytes(_organization).length != 0,
-            'organization cannot be empty string!'
-        );
+        require(bytes(_id).length != 0, 'NO_EMPTY_BOUNTY_ID');
+        require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
         bountyId = _id;
         issuer = _issuer;
         organization = _organization;
-        bountyCreatedTime = block.timestamp;
         openQ = _openQ;
+        bountyCreatedTime = block.timestamp;
         escrowPeriod = 2 seconds;
         __ReentrancyGuard_init();
     }
 
+    // Enums
     enum BountyStatus {
         OPEN,
         CLOSED
+    }
+
+    // Modifiers
+    modifier onlyOpenQ() {
+        require(msg.sender == openQ, 'Method is only callable by OpenQ');
+        _;
     }
 
     // View Methods

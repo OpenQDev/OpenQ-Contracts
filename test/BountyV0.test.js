@@ -10,6 +10,7 @@ describe('Bounty.sol', () => {
 	let mockLink;
 	let mockDai;
 	let owner;
+	let initializationTimestamp;
 
 	const mockId = "mockId";
 	let issuer;
@@ -25,6 +26,9 @@ describe('Bounty.sol', () => {
 
 		bounty = await BountyV0.deploy();
 		await bounty.deployed();
+
+		// Passing in owner.address as _openQ for unit testing
+		initializationTimestamp = await setNextBlockTimestamp();
 		await bounty.initialize(mockId, owner.address, organization, owner.address);
 
 		mockLink = await MockLink.deploy();
@@ -37,18 +41,24 @@ describe('Bounty.sol', () => {
 	});
 
 	describe('constructor', () => {
-		it('should initialize by setting the bountyId, issuer and organization and is OPEN correctly', async () => {
+		it.only('should initialize bounty with correct bountyId, issuer, organization, status, openQ implementation, bountyCreatedTime, and escrowPeriod', async () => {
 			// ARRANGE
 			const actualBountyId = await bounty.bountyId();
 			const actualIssuer = await bounty.issuer();
 			const actualOrganization = await bounty.organization();
 			const actualStatus = await bounty.status();
+			const actualOpenQ = await bounty.openQ();
+			const actualBounyCreatedTime = await bounty.bountyCreatedTime();
+			const actualEscrowPeriod = await bounty.escrowPeriod();
 
 			// ASSERT
 			await expect(actualBountyId).equals(mockId);
 			await expect(actualIssuer).equals(issuer);
 			await expect(organization).equals(organization);
 			await expect(actualStatus).equals(0);
+			await expect(actualOpenQ).equals(issuer);
+			await expect(actualBounyCreatedTime).equals(initializationTimestamp);
+			await expect(actualEscrowPeriod).equals(2);
 		});
 
 		it('should revert if id is empty', async () => {
@@ -56,7 +66,7 @@ describe('Bounty.sol', () => {
 			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
 			bounty = await BountyV0.deploy();
 
-			await expect(bounty.initialize("", owner.address, organization, owner.address)).to.be.revertedWith('id cannot be empty string!');
+			await expect(bounty.initialize("", owner.address, organization, owner.address)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 		});
 
 		it('should revert if organization is empty', async () => {
@@ -64,7 +74,7 @@ describe('Bounty.sol', () => {
 			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
 			bounty = await BountyV0.deploy();
 
-			await expect(bounty.initialize(mockId, owner.address, "", owner.address)).to.be.revertedWith('organization cannot be empty string!');
+			await expect(bounty.initialize(mockId, owner.address, "", owner.address)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 		});
 	});
 
