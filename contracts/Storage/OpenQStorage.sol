@@ -1,8 +1,11 @@
-// SPDX-License-Identifier: GPL-3.0-only
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.11;
 
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+// Third Party
 import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+
+// Custom
 import './interfaces/EternalStorage.sol';
 
 /// @title The primary persistent storage for Rocket Pool

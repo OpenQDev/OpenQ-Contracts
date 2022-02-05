@@ -9,7 +9,7 @@ module.exports = (function () {
 	const chainIdInt = parseInt(chainId);
 
 	const config = {
-		solidity: '0.8.8',
+		solidity: '0.8.11',
 		networks: {
 			localhost: {
 				url: process.env.PROVIDER_URL,

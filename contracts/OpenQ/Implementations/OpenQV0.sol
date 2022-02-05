@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.11;
 
-// import 'hardhat/console.sol';
+// Third Part
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+
+// Custom
 import '../../Bounty/Bounty.sol';
 import '../../Bounty/Implementations/BountyV0.sol';
+import '../../BountyFactory/BountyFactory.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
-import '../../BountyFactory/BountyFactory.sol';
 import '../../Oracle/Oraclize.sol';
-
-// Upgradable
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-
-// Utils
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
 contract OpenQV0 is
     OpenQStorable,

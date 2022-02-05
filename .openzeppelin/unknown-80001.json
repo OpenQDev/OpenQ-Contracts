@@ -2,27 +2,27 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x94A248B5569f3B1e3837B589aC0C71C31C8E76a9",
-      "txHash": "0x1041e7dfc7a6ea891587a3ff536441ec9ea9dc39d08b70f87ec4068ac282761f",
+      "address": "0xCd15D204482A7D7a8ECBcd702B0C877c45440e00",
+      "txHash": "0xb07c7a4df6bcb03ef5e78d80f63afb442c5c1c27c6c4cc0f898a24950ec46122",
       "kind": "uups"
     }
   ],
   "impls": {
-    "7c9e7d4a4d74f09bea9ea97996ed344aaca0068d283c062826bf3eaaa1a25f4e": {
-      "address": "0x3021838A5ebe80Ed07e8b6AB0351DF42483cE000",
-      "txHash": "0x4983229fe379855f0184f6aef105dcb28420d8193c3ecb1532b8f2b201ba4946",
+    "07c14b4278b581eb14ca085e4194b4e224d53691d2a611466dabded78376c831": {
+      "address": "0xD23cB3e04819CFE9021D5dEb179221ff64da3CdE",
+      "txHash": "0x4437712218f4161f9de2e97c7e1fedf0e128a748f9299668f4771a17d1b08c85",
       "layout": {
         "storage": [
           {
             "contract": "OpenQStorable",
             "label": "openQStorage",
-            "type": "t_contract(OpenQStorage)5065",
+            "type": "t_contract(OpenQStorage)5162",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
           {
             "contract": "OpenQStorable",
             "label": "bountyFactory",
-            "type": "t_contract(BountyFactory)3948",
+            "type": "t_contract(BountyFactory)4025",
             "src": "contracts/OpenQ/OpenQStorable.sol:10"
           },
           {
@@ -62,6 +62,18 @@
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
           },
           {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:68"
+          },
+          {
             "contract": "Oraclize",
             "label": "_oracle",
             "type": "t_address",
@@ -72,11 +84,11 @@
           "t_address": {
             "label": "address"
           },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
           "t_uint256": {
             "label": "uint256"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
           },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"
@@ -84,10 +96,10 @@
           "t_bool": {
             "label": "bool"
           },
-          "t_contract(OpenQStorage)5065": {
+          "t_contract(OpenQStorage)5162": {
             "label": "contract OpenQStorage"
           },
-          "t_contract(BountyFactory)3948": {
+          "t_contract(BountyFactory)4025": {
             "label": "contract BountyFactory"
           }
         }

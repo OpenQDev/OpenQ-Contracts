@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.11;
 
+// Third Party
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 
+// Custom
 import './Bountyable.sol';
 
 abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
@@ -60,7 +62,6 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
         bountyCreatedTime = block.timestamp;
         openQ = _openQ;
         escrowPeriod = 2 seconds;
-
         __ReentrancyGuard_init();
     }
 

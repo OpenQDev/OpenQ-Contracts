@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.11;
 
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+// Third Party
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
 abstract contract Oraclize is OwnableUpgradeable {
     address private _oracle;

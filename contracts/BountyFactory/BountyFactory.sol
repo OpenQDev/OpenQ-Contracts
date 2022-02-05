@@ -1,6 +1,5 @@
-// contracts/BountyFactory.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.11;
 
 import '@openzeppelin/contracts/proxy/Clones.sol';
 import '../Bounty/Implementations/BountyV0.sol';
