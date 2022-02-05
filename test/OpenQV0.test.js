@@ -205,7 +205,7 @@ describe('OpenQV0.sol', () => {
 			);
 
 			const expectedTimestamp = await setNextBlockTimestamp();
-			const depositId = generateDepositId(owner.address, mockLink.address, expectedTimestamp);
+			const depositId = generateDepositId(owner.address, mockLink.address, 0);
 
 			// ACT
 			// ASSERT
@@ -417,7 +417,7 @@ describe('OpenQV0.sol', () => {
 
 				const value = 100;
 				const depositedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(owner.address, mockLink.address, depositedTimestamp);
+				const depositId = generateDepositId(owner.address, mockLink.address, 0);
 				await openQ.fundBounty(bountyAddress, mockLink.address, value);
 
 				const expectedTimestamp = await setNextBlockTimestamp(2764800);
@@ -431,9 +431,7 @@ describe('OpenQV0.sol', () => {
 		});
 
 		describe('requires and reverts', () => {
-			it('should revert if attempt to withdraw too early, or if not funder', async () => {
-				// ARRANGE
-
+			it('should revert if attempt to withdraw too early', async () => {
 				// Mint Bounty
 				await openQ.mintBounty(bountyId, 'mock-org');
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
@@ -441,13 +439,11 @@ describe('OpenQV0.sol', () => {
 				// Get Escrow Period
 				const BountyV0 = await ethers.getContractFactory('BountyV0');
 				bounty = await BountyV0.attach(bountyAddress);
-				const escrowPeriod = await bounty.escrowPeriod();
 
 				// Fund Bounty
 				await mockDai.approve(bountyAddress, 100000);
 
-				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(owner.address, mockDai.address, expectedTimestamp);
+				const depositId = generateDepositId(owner.address, mockDai.address, 0);
 				await openQ.fundBounty(bountyAddress, mockDai.address, 100000);
 
 				// ACT / ASSERT
@@ -470,7 +466,7 @@ describe('OpenQV0.sol', () => {
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
 
 				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(owner.address, mockDai.address, expectedTimestamp);
+				const depositId = generateDepositId(owner.address, mockDai.address, 0);
 
 				// ACT / ASSERT
 				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDERS_CAN_REQUEST_REFUND');
@@ -489,34 +485,6 @@ describe('OpenQV0.sol', () => {
 				// ACT + ASSERT
 				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('REFUNDING_CLOSED_BOUNTY');
 			});
-
-			it('should revert if called by someone who is not a funder', async () => {
-				// ARRANGE
-				await openQ.mintBounty(bountyId, 'mock-org');
-
-				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
-
-				const twoDays = 172800;
-				ethers.provider.send("evm_increaseTime", [twoDays]);
-
-				await mockLink.approve(bountyAddress, 10000000);
-				const value = 100;
-
-				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(owner.address, mockDai.address, expectedTimestamp);
-				await openQ.fundBounty(bountyAddress, mockLink.address, value);
-
-				// ASSUME
-				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.not.be.revertedWith('PREMATURE_REFUND_REQUEST');
-
-				// ARRANGE
-				const [, notFunder] = await ethers.getSigners();
-				const nonFunderOpenQ = openQ.connect(notFunder);
-
-				// ACT
-				// ASSERT
-				await expect(nonFunderOpenQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDERS_CAN_REQUEST_REFUND');
-			});
 		});
 
 		describe('transfer', () => {
@@ -530,12 +498,10 @@ describe('OpenQV0.sol', () => {
 				await mockDai.approve(bountyAddress, 10000000);
 				const value = 100;
 
-				const expectedTimestampLink = await setNextBlockTimestamp();
-				const linkDepositId = generateDepositId(owner.address, mockLink.address, expectedTimestampLink);
+				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
 				await openQ.fundBounty(bountyAddress, mockLink.address, value);
 
-				const expectedTimestampDai = await setNextBlockTimestamp();
-				const daiDepositId = generateDepositId(owner.address, mockDai.address, expectedTimestampDai);
+				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
 				await openQ.fundBounty(bountyAddress, mockDai.address, value);
 
 				const thirtyTwoDays = 2765000;
@@ -557,15 +523,15 @@ describe('OpenQV0.sol', () => {
 				await openQ.refundBountyDeposit(bountyAddress, daiDepositId);
 
 				// // // ASSERT
-				// const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
-				// const newBountyFakeTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
-				// expect(newBountyMockTokenBalance).to.equal('0');
-				// expect(newBountyFakeTokenBalance).to.equal('0');
+				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
+				expect(newBountyMockTokenBalance).to.equal('0');
+				expect(newBountyFakeTokenBalance).to.equal('0');
 
-				// const newFunderMockTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
-				// const newFunderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
-				// expect(newFunderMockTokenBalance).to.equal('10000000000000000000000');
-				// expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
+				const newFunderMockTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
+				const newFunderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
+				expect(newFunderMockTokenBalance).to.equal('10000000000000000000000');
+				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
 			});
 		});
 	});

@@ -10,7 +10,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import './Bountyable.sol';
 
 abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
-    // OpenQ Contract
+    // OpenQ Proxy Contract
     address public openQ;
 
     // Bounty Accounting
@@ -30,6 +30,7 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
     string public organization;
     address public closer;
     BountyStatus public status;
+    uint256 public depositCount;
 
     struct Deposit {
         bytes32 depositId;
@@ -40,27 +41,27 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
         bool refunded;
     }
 
+    // Enums
+    enum BountyStatus {
+        OPEN,
+        CLOSED
+    }
+
     function initialize(
-        string memory _id,
+        string memory _bountyId,
         address _issuer,
         string memory _organization,
         address _openQ
     ) public initializer {
         require(bytes(_id).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
-        bountyId = _id;
+        bountyId = _bountyId;
         issuer = _issuer;
         organization = _organization;
         openQ = _openQ;
         bountyCreatedTime = block.timestamp;
         escrowPeriod = 2 seconds;
         __ReentrancyGuard_init();
-    }
-
-    // Enums
-    enum BountyStatus {
-        OPEN,
-        CLOSED
     }
 
     // Modifiers

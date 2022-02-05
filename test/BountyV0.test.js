@@ -40,8 +40,8 @@ describe('Bounty.sol', () => {
 		await mockDai.approve(bounty.address, 10000000);
 	});
 
-	describe('constructor', () => {
-		it.only('should initialize bounty with correct bountyId, issuer, organization, status, openQ implementation, bountyCreatedTime, and escrowPeriod', async () => {
+	describe('initializer', () => {
+		it('should initialize bounty with correct bountyId, issuer, organization, status, openQ implementation, bountyCreatedTime, and escrowPeriod', async () => {
 			// ARRANGE
 			const actualBountyId = await bounty.bountyId();
 			const actualIssuer = await bounty.issuer();
@@ -61,7 +61,7 @@ describe('Bounty.sol', () => {
 			await expect(actualEscrowPeriod).equals(2);
 		});
 
-		it('should revert if id is empty', async () => {
+		it('should revert if bountyId is empty', async () => {
 			// ASSERT
 			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
 			bounty = await BountyV0.deploy();
@@ -90,13 +90,13 @@ describe('Bounty.sol', () => {
 				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, value)).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
-			it('should revert if no value is sent', async () => {
+			it('should revert if no volume is sent', async () => {
 				// ARRANGE
 				const [, notOwner] = await ethers.getSigners();
-				const value = 0;
+				const volume = 0;
 
 				// ASSERT
-				await expect(bounty.receiveFunds(owner.address, mockLink.address, value)).to.be.revertedWith('ZERO_VOLUME_SENT');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, volume)).to.be.revertedWith('ZERO_VOLUME_SENT');
 			});
 
 			it('should revert if funder tries to send more than allowance', async () => {
@@ -171,7 +171,7 @@ describe('Bounty.sol', () => {
 				const timestamp = await setNextBlockTimestamp();
 
 				// ASSUME
-				const depositId = generateDepositId(owner.address, mockLink.address, timestamp);
+				const depositId = generateDepositId(owner.address, mockLink.address, 0);
 
 				// ACT
 				await bounty.receiveFunds(owner.address, mockLink.address, volume);
@@ -346,13 +346,11 @@ describe('Bounty.sol', () => {
 				const volume = 100;
 
 				// ACT
-				const linkTimestamp = await setNextBlockTimestamp();
 				await bounty.receiveFunds(owner.address, mockLink.address, volume);
-				const linkDepositId = generateDepositId(owner.address, mockLink.address, linkTimestamp);
+				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
 
-				const daiTimestamp = await setNextBlockTimestamp();
 				await bounty.receiveFunds(owner.address, mockDai.address, volume);
-				const daiDepositId = generateDepositId(owner.address, mockDai.address, daiTimestamp);
+				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
 
 				// ASSERT
 				const linkDeposit = await bounty.funderDeposits(owner.address, linkDepositId);
@@ -376,13 +374,11 @@ describe('Bounty.sol', () => {
 				// ARRANGE
 				const volume = 100;
 
-				const linkTimestamp = await setNextBlockTimestamp();
 				await bounty.receiveFunds(owner.address, mockLink.address, volume);
-				const linkDepositId = generateDepositId(owner.address, mockLink.address, linkTimestamp);
+				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
 
-				const daiTimestamp = await setNextBlockTimestamp();
 				await bounty.receiveFunds(owner.address, mockDai.address, volume);
-				const daiDepositId = generateDepositId(owner.address, mockDai.address, daiTimestamp);
+				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();

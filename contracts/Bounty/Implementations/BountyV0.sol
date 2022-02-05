@@ -21,7 +21,7 @@ contract BountyV0 is Bounty {
     ) public onlyOpenQ nonReentrant returns (bytes32, uint256) {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
 
-        // If is a new deposit for that denomination for the entire bounty
+        // Add to token addresses if it's a new token address
         if (getERC20Balance(_tokenAddress) == 0) {
             bountyTokenAddresses.push(_tokenAddress);
         }
@@ -32,20 +32,17 @@ contract BountyV0 is Bounty {
 
         token.safeTransferFrom(_funder, address(this), _volume);
 
-        isAFunder[_funder] = true;
-
         uint256 balanceAfter = getERC20Balance(_tokenAddress);
 
         require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
 
+        // NOTE: The reason we take the balanceBefore and balanceAfter rather than the raw deposited amount
+        // is because certain ERC20's like USDT take fees on transfers. Therefore the volume received after transferFrom
+        // can be lower than the raw volume sent by the sender
         uint256 volumeReceived = balanceAfter.sub(balanceBefore);
 
-        // Increment the volume that funder has deposited for that denomination
-        // NOTE: The reason we take the balanceBefore and balanceAfter rather than the raw deposited amount
-        // is because certain ERC20's like USDT take fees on transfers, so the received amount after transferFrom
-        // will be lower than the raw volume
         bytes32 depositId = keccak256(
-            abi.encode(_funder, _tokenAddress, block.timestamp)
+            abi.encode(_funder, _tokenAddress, depositCount)
         );
 
         Deposit memory deposit = Deposit(
@@ -58,7 +55,8 @@ contract BountyV0 is Bounty {
         );
 
         funderDeposits[_funder][depositId] = deposit;
-
+        isAFunder[_funder] = true;
+        depositCount++;
         return (depositId, volumeReceived);
     }
 
