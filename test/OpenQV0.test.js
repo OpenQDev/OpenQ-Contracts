@@ -142,15 +142,6 @@ describe('OpenQV0.sol', () => {
 			await expect(openQ.fundBounty(bountyAddress, mockLink.address, 10000000)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
-		it('should revert if the bounty does not exist', async () => {
-			// ACT + ASSERT
-			const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
-			openQProxy = await OpenQProxy.deploy(openQ.address, []);
-			await openQProxy.deployed();
-
-			await expect(openQ.fundBounty(openQProxy.address, mockLink.address, 10000000)).to.be.reverted;
-		});
-
 		it('should deposit the correct amount from sender to bounty', async () => {
 			// ARRANGE
 			await openQ.mintBounty(bountyId, 'mock-org');

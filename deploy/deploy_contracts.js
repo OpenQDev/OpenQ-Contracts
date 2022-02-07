@@ -80,8 +80,8 @@ async function deployContracts() {
 		 - other hardhat scripts
 	*/
 	const addresses = `OPENQ_ADDRESS="${openQ.address}"
-MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
-MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"`;
+MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
+MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"`;
 
 	fs.writeFileSync('.env.contracts', addresses);
 }

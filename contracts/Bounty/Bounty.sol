@@ -53,7 +53,7 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
         string memory _organization,
         address _openQ
     ) public initializer {
-        require(bytes(_id).length != 0, 'NO_EMPTY_BOUNTY_ID');
+        require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
         bountyId = _bountyId;
         issuer = _issuer;
