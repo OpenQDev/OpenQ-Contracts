@@ -78,7 +78,7 @@ The implementation contract hardcoded into the BountyFactory is [BountyV0](https
 
 ### [OpenQV0](https://github.com/OpenQDev/OpenQ-Contracts/blob/main/contracts/OpenQ/Implementations/OpenQV0.sol)
 
-This is the core contract with which both the frontend and the [OpenQ Oracle](https://github.com/OpenQDev/OpenQ-OZ-Claim-AutoTask) interacts.
+This is the core contract with which both the frontend and the [OpenQ Oracle](https://github.com/OpenQDev/OpenQ-OZ-Claim-Autotask) interacts.
 
 It is hosted behind an ERC-1967 [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable) contract.
 
@@ -94,7 +94,7 @@ Oraclize is a contract based off of OpenZeppelin's [Ownable](https://github.com/
 
 The OpenQ Oracle private keys are held in a vault and transaction signer hosted on [OpenZepplelin Defender Relay](https://docs.openzeppelin.com/defender/relay). 
 
-The OpenQ Oracle calls `claimBounty` when the [OpenZeppelin Defender Autotask](https://docs.openzeppelin.com/defender/autotasks) confirms that the person authenticated by the GitHub OAuth token present in the [X-Authorization header](https://github.com/OpenQDev/OpenQ-OZ-Claim-AutoTask/blob/main/main.js#L11) is indeed the person who [closed the bounty with their pull request](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
+The OpenQ Oracle calls `claimBounty` when the [OpenZeppelin Defender Autotask](https://docs.openzeppelin.com/defender/autotasks) confirms that the person authenticated by the GitHub OAuth token present in the [X-Authorization header](https://github.com/OpenQDev/OpenQ-OZ-Claim-Autotask/blob/main/main.js#L11) is indeed the person who [closed the bounty with their pull request](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
 
 ### [OpenQStorage](https://github.com/OpenQDev/OpenQ-Contracts/blob/main/contracts/Storage/OpenQStorage.sol)
 
