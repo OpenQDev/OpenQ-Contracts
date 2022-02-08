@@ -74,7 +74,7 @@ contract OpenQV0 is
             bytes32 depositId,
             BountyV0.TokenStandard tokenStandard,
             uint256 volumeReceived
-        ) = bounty.receiveFunds(
+        ) = bounty.receiveFunds{value: msg.value}(
                 msg.sender,
                 _tokenAddress,
                 _volume,

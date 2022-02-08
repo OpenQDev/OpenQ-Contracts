@@ -38,7 +38,6 @@ contract BountyV0 is Bounty {
         uint256 volumeReceived;
 
         if (_tokenAddress == address(0)) {
-            payable(address(this)).transfer(msg.value);
             volumeReceived = msg.value;
         } else if (_isNft) {
             IERC721 nft = IERC721(_tokenAddress);
@@ -155,8 +154,13 @@ contract BountyV0 is Bounty {
         deposit.refunded = true;
 
         // Interactions
-        IERC20 token = IERC20(deposit.tokenAddress);
-        token.safeTransfer(_funder, amount);
+        if (deposit.tokenStandard == TokenStandard.PROTOCOL) {
+            payable(_funder).transfer(deposit.volume);
+        } else if (deposit.tokenStandard == TokenStandard.ERC20) {
+            IERC20 token = IERC20(deposit.tokenAddress);
+            token.safeTransfer(_funder, amount);
+        }
+
         return true;
     }
 }
