@@ -5,10 +5,19 @@ interface Bountyable {
     function receiveFunds(
         address,
         address,
+        uint256,
+        bool,
         uint256
-    ) external returns (bytes32, uint256);
+    )
+        external
+        payable
+        returns (
+            bytes32,
+            string memory,
+            uint256
+        );
 
-    function claim(address, address) external returns (bool);
+    function claim(address, bytes32) external returns (bool);
 
     function closeBounty(address) external returns (bool);
 

@@ -30,7 +30,9 @@ interface IOpenQ {
         address sender,
         uint256 volume,
         uint256 receiveTime,
-        bytes32 depositId
+        bytes32 depositId,
+        string tokenStandard,
+        uint256 tokenId
     );
 
     event DepositRefunded(
@@ -44,14 +46,16 @@ interface IOpenQ {
         bytes32 depositId
     );
 
-    event BountyPaidout(
+    event DepositClaimed(
         string bountyId,
         string organization,
         address indexed bountyAddress,
         address tokenAddress,
         address payoutAddress,
         uint256 volume,
-        uint256 payoutTime
+        uint256 payoutTime,
+        string tokenStandard,
+        uint256 tokenId
     );
 
     function mintBounty(string calldata, string calldata)
@@ -61,8 +65,10 @@ interface IOpenQ {
     function fundBounty(
         address,
         address,
+        uint256,
+        bool,
         uint256
-    ) external returns (bool);
+    ) external payable returns (bool);
 
     function claimBounty(string calldata, address) external;
 

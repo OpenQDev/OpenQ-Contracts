@@ -15,6 +15,8 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
 
     // Bounty Accounting
     address[] public bountyTokenAddresses;
+    Deposit[] public deposits;
+    mapping(bytes32 => Deposit) depositIdToDeposit;
 
     // Funder Accounting
     // funder -> [ tokenAddres -> [Deposit] ]
@@ -39,6 +41,10 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
         uint256 volume;
         uint256 depositTime;
         bool refunded;
+        bool claimed;
+        string tokenStandard;
+        address payoutAddress;
+        uint256 tokenId;
     }
 
     // Enums
@@ -84,8 +90,30 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
         return bountyTokenAddresses;
     }
 
+    function getDeposits() public view returns (Deposit[] memory) {
+        return deposits;
+    }
+
+    function depositAvailable(bytes32 depositId) public view returns (bool) {
+        return (!depositIdToDeposit[depositId].claimed ||
+            !depositIdToDeposit[depositId].claimed);
+    }
+
     // Revert any attempts to send ETH or unknown calldata
     fallback() external {
         revert();
+    }
+
+    function stringEquals(string memory a, string memory b)
+        internal
+        returns (bool)
+    {
+        if (bytes(a).length != bytes(b).length) {
+            return false;
+        } else {
+            return
+                keccak256(abi.encodePacked(a)) ==
+                keccak256(abi.encodePacked(b));
+        }
     }
 }

@@ -59,8 +59,10 @@ contract OpenQV0 is
     function fundBounty(
         address _bountyAddress,
         address _tokenAddress,
-        uint256 _volume
-    ) external nonReentrant returns (bool success) {
+        uint256 _volume,
+        bool _isNft,
+        uint256 _tokenId
+    ) external payable nonReentrant returns (bool success) {
         BountyV0 bounty = BountyV0(_bountyAddress);
 
         require(
@@ -68,11 +70,17 @@ contract OpenQV0 is
             'FUNDING_CLOSED_BOUNTY'
         );
 
-        (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds(
-            msg.sender,
-            _tokenAddress,
-            _volume
-        );
+        (
+            bytes32 depositId,
+            string memory tokenStandard,
+            uint256 volumeReceived
+        ) = bounty.receiveFunds(
+                msg.sender,
+                _tokenAddress,
+                _volume,
+                _isNft,
+                _tokenId
+            );
 
         emit DepositReceived(
             bounty.bountyId(),
@@ -82,47 +90,77 @@ contract OpenQV0 is
             msg.sender,
             volumeReceived,
             block.timestamp,
-            depositId
+            depositId,
+            tokenStandard,
+            _tokenId
         );
 
         return true;
     }
 
-    function claimBounty(string calldata _id, address _payoutAddress)
+    struct Deposit {
+        bytes32 depositId;
+        address funder;
+        address tokenAddress;
+        uint256 volume;
+        uint256 depositTime;
+        bool refunded;
+        bool claimed;
+        string tokenStandard;
+        address payoutAddress;
+        uint256 tokenId;
+    }
+
+    function claimBounty(string calldata _bountyId, address _payoutAddress)
         external
         onlyOracle
         nonReentrant
     {
-        require(bountyIsOpen(_id) == true, 'CLAIMING_CLOSED_BOUNTY');
+        require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
-        address bountyAddress = bountyIdToAddress(_id);
+        address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = BountyV0(bountyAddress);
 
-        for (uint256 i = 0; i < bounty.getBountyTokenAddresses().length; i++) {
-            address tokenAddress = bounty.bountyTokenAddresses(i);
-            uint256 volume = bounty.getERC20Balance(tokenAddress);
+        for (uint256 i = 0; i < bounty.getDeposits().length; i++) {
+            (
+                bytes32 depositId,
+                ,
+                address tokenAddress,
+                uint256 volume,
+                ,
+                ,
+                ,
+                string memory tokenStandard,
+                address payoutAddress,
+                uint256 tokenId
+            ) = bounty.deposits(i);
 
-            if (volume == 0) {
+            if (
+                bounty.getERC20Balance(tokenAddress) == 0 ||
+                !bounty.depositAvailable(depositId)
+            ) {
                 continue;
             }
 
-            bounty.claim(_payoutAddress, tokenAddress);
+            bounty.claim(_payoutAddress, depositId);
 
-            emit BountyPaidout(
+            emit DepositClaimed(
                 bounty.bountyId(),
                 bounty.organization(),
                 bountyAddress,
                 tokenAddress,
                 _payoutAddress,
                 volume,
-                block.timestamp
+                block.timestamp,
+                tokenStandard,
+                tokenId
             );
         }
 
         bounty.closeBounty(_payoutAddress);
 
         emit BountyClosed(
-            _id,
+            _bountyId,
             bounty.organization(),
             bountyAddress,
             _payoutAddress,
@@ -153,7 +191,11 @@ contract OpenQV0 is
             address tokenAddress,
             uint256 volume,
             uint256 depositTime,
-            bool refunded
+            ,
+            ,
+            string memory tokenStandard,
+            address payoutAddress,
+
         ) = bounty.funderDeposits(msg.sender, depositId);
 
         require(

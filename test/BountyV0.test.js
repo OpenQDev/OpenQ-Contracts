@@ -219,6 +219,16 @@ describe('Bounty.sol', () => {
 				expect(bountyFakeTokenBalance).to.equal('100');
 			});
 		});
+
+		describe.only('protocol token', () => {
+			it('should', async () => {
+				const volume = ethers.utils.parseEther("1.0");
+				console.log(bounty);
+				await bounty.receiveFunds(owner.address, ethers.utils.AddressZero, volume, { value: volume });
+				// const bountyProtocolTokenBalance = await bounty.provider.getBalance(bounty.address);
+				// expect(bountyProtocolTokenBalance).to.equal('100');
+			});
+		});
 	});
 
 	describe('closeBounty', () => {
