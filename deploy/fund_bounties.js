@@ -41,20 +41,20 @@ async function fundBounties() {
 	await optionalSleep(5000);
 
 	console.log('Funding approved for Client 1');
+	await openQ.fundBounty(bounty1Address, mockLink.address, one, false, 0);
+	await optionalSleep(5000);
+	console.log('Funded  for Client 1');
 
-	await openQ.fundBounty(bounty1Address, mockLink.address, one);
+	await openQ.fundBounty(bounty1Address, mockLink.address, one, false, 0);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty1Address, mockLink.address, one);
+	await openQ.fundBounty(bounty1Address, mockDai.address, two, false, 0);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty1Address, mockDai.address, two);
+	await openQ.fundBounty(bounty2Address, mockLink.address, one, false, 0);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty2Address, mockLink.address, one);
-	await optionalSleep(5000);
-
-	await openQ.fundBounty(bounty2Address, mockDai.address, two);
+	await openQ.fundBounty(bounty2Address, mockDai.address, two, false, 0);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 1');
@@ -84,16 +84,16 @@ async function fundBounties() {
 
 	console.log('Funding approved for Client 2');
 
-	await openQ.connect(contributor).fundBounty(bounty1Address, mockLink.address, one);
+	await openQ.connect(contributor).fundBounty(bounty1Address, mockLink.address, one, false, 0);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBounty(bounty1Address, mockDai.address, two);
+	await openQ.connect(contributor).fundBounty(bounty1Address, mockDai.address, two, false, 0);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBounty(bounty2Address, mockLink.address, one);
+	await openQ.connect(contributor).fundBounty(bounty2Address, mockLink.address, one, false, 0);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBounty(bounty2Address, mockDai.address, two);
+	await openQ.connect(contributor).fundBounty(bounty2Address, mockDai.address, two, false, 0);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 2');

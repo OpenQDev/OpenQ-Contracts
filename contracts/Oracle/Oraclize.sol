@@ -13,8 +13,8 @@ abstract contract Oraclize is OwnableUpgradeable {
         address indexed newOracle
     );
 
-    function __Oraclize_init(address oracle) internal onlyInitializing {
-        _oracle = oracle;
+    function __Oraclize_init(address _newOracle) internal onlyInitializing {
+        _oracle = _newOracle;
     }
 
     /**

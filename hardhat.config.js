@@ -13,6 +13,7 @@ module.exports = (function () {
 		networks: {
 			localhost: {
 				url: process.env.PROVIDER_URL,
+				accounts: [process.env.CLIENT, process.env.CONTRIBUTOR]
 			},
 			docker: {
 				url: process.env.PROVIDER_URL,

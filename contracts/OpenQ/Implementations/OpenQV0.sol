@@ -36,7 +36,7 @@ contract OpenQV0 is
     function mintBounty(string calldata _id, string calldata _organization)
         external
         nonReentrant
-        returns (address bountyAddress)
+        returns (address)
     {
         address bountyAddress = bountyFactory.mintBounty(
             _id,
@@ -118,7 +118,7 @@ contract OpenQV0 is
                 ,
                 ,
                 BountyV0.TokenStandard tokenStandard,
-                address payoutAddress,
+                ,
                 uint256 tokenId
             ) = bounty.deposits(i);
 
@@ -148,7 +148,7 @@ contract OpenQV0 is
         );
     }
 
-    function refundBountyDeposit(address _bountyAddress, bytes32 depositId)
+    function refundBountyDeposit(address _bountyAddress, bytes32 _depositId)
         external
         nonReentrant
         returns (bool success)
@@ -166,24 +166,24 @@ contract OpenQV0 is
         );
 
         (
-            bytes32 depositId,
-            address funder,
+            ,
+            ,
             address tokenAddress,
             uint256 volume,
             uint256 depositTime,
             ,
             ,
-            BountyV0.TokenStandard tokenStandard,
-            address payoutAddress,
+            ,
+            ,
 
-        ) = bounty.funderDeposits(msg.sender, depositId);
+        ) = bounty.funderDeposits(msg.sender, _depositId);
 
         require(
             block.timestamp >= depositTime.add(bounty.escrowPeriod()),
             'PREMATURE_REFUND_REQUEST'
         );
 
-        bounty.refundBountyDeposit(msg.sender, depositId);
+        bounty.refundBountyDeposit(msg.sender, _depositId);
 
         emit DepositRefunded(
             bounty.bountyId(),
@@ -193,7 +193,7 @@ contract OpenQV0 is
             msg.sender,
             volume,
             block.timestamp,
-            depositId
+            _depositId
         );
 
         return true;

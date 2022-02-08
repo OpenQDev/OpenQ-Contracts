@@ -12,6 +12,7 @@
 		"console:local": "hardhat console --network localhost",
 		"accounts": "hardhat accounts --network localhost",
 		"test": "hardhat test",
+		"deploy:localhost": "yarn deploy-contracts:localhost && yarn deploy-contracts:localhost && yarn deploy-bounties:localhost && yarn fund-bounties:localhost",
 		"deploy:docker": "rm -rf ./.openzeppelin/unknown-31337.json && yarn deploy-contracts:docker && yarn deploy-bounties:docker && yarn fund-bounties:docker",
 		"deploy:mumbai": "rm -rf ./.openzeppelin/unknown-80001.json && yarn deploy-contracts:mumbai && yarn deploy-bounties:mumbai && yarn fund-bounties:mumbai",
 		"deploy:polygon": "yarn deploy-contracts:polygon && yarn deploy-bounties:polygon && yarn fund-bounties:polygon",
@@ -23,7 +24,10 @@
 		"fund-bounties:mumbai": "hardhat run --network mumbai deploy/fund_bounties.js",
 		"deploy-contracts:polygon": "hardhat run --network polygon deploy/deploy_contracts.js",
 		"deploy-bounties:polygon": "hardhat run --network polygon deploy/deploy_bounties.js",
-		"fund-bounties:polygon": "hardhat run --network polygon deploy/fund_bounties.js"
+		"fund-bounties:polygon": "hardhat run --network polygon deploy/fund_bounties.js",
+		"deploy-contracts:localhost": "hardhat run --network localhost deploy/deploy_contracts.js",
+		"deploy-bounties:localhost": "hardhat run --network localhost deploy/deploy_bounties.js",
+		"fund-bounties:localhost": "hardhat run --network localhost deploy/fund_bounties.js"
 	},
 	"dependencies": {
 		"@nomiclabs/hardhat-ethers": "^2.0.4",

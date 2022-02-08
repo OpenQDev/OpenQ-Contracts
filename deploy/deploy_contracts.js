@@ -10,7 +10,7 @@ async function deployContracts() {
 
 	let mockLink;
 	let mockDai;
-	if (network.name === 'docker') {
+	if (network.name === 'docker' || network.name === 'localhost') {
 		console.log('Deploying MockLink...');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		mockLink = await MockLink.deploy();
