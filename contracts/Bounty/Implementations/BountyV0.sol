@@ -18,7 +18,7 @@ contract BountyV0 is Bounty {
         address _funder,
         address _tokenAddress,
         uint256 _volume
-    ) public onlyOpenQ nonReentrant returns (bytes32, uint256) {
+    ) external onlyOpenQ nonReentrant returns (bytes32, uint256) {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
 
         // Add to token addresses if it's a new token address
@@ -61,7 +61,7 @@ contract BountyV0 is Bounty {
     }
 
     function claim(address _payoutAddress, address _tokenAddress)
-        public
+        external
         onlyOpenQ
         nonReentrant
         returns (bool success)
@@ -76,7 +76,7 @@ contract BountyV0 is Bounty {
     }
 
     function closeBounty(address _payoutAddress)
-        public
+        external
         onlyOpenQ
         returns (bool success)
     {
@@ -88,7 +88,7 @@ contract BountyV0 is Bounty {
     }
 
     function refundBountyDeposit(address _funder, bytes32 depositId)
-        public
+        external
         onlyOpenQ
         nonReentrant
         returns (bool success)
