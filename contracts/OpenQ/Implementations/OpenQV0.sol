@@ -63,7 +63,7 @@ contract OpenQV0 is
         bool _isNft,
         uint256 _tokenId
     ) external payable nonReentrant returns (bool success) {
-        BountyV0 bounty = BountyV0(_bountyAddress);
+        BountyV0 bounty = BountyV0(payable(_bountyAddress));
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -106,7 +106,7 @@ contract OpenQV0 is
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress(_bountyId);
-        BountyV0 bounty = BountyV0(bountyAddress);
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
 
         for (uint256 i = 0; i < bounty.getDeposits().length; i++) {
             (
@@ -160,7 +160,7 @@ contract OpenQV0 is
         nonReentrant
         returns (bool success)
     {
-        BountyV0 bounty = BountyV0(_bountyAddress);
+        BountyV0 bounty = BountyV0(payable(_bountyAddress));
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -209,7 +209,7 @@ contract OpenQV0 is
     // Convenience Methods
     function bountyIsOpen(string memory _id) public view returns (bool) {
         address bountyAddress = bountyIdToAddress(_id);
-        BountyV0 bounty = BountyV0(bountyAddress);
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
@@ -227,7 +227,7 @@ contract OpenQV0 is
         view
         returns (string memory)
     {
-        BountyV0 bounty = BountyV0(bountyAddress);
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
         return bounty.bountyId();
     }
 

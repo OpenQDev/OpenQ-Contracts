@@ -126,44 +126,6 @@ describe('Bounty.sol', () => {
 			});
 		});
 
-		describe('bountyTokenAddresses', () => {
-			it('should add that token address to bountyTokenAddresses if current balance is zero for that token', async () => {
-				// ARRANGE
-				const value = 10000;
-
-				// ASSUME
-				const zeroLength = await bounty.getBountyTokenAddresses();
-				expect(zeroLength.length).to.equal(0);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-
-				// ASSERT
-				const newTokenAddress = await bounty.bountyTokenAddresses(0);
-				expect(newTokenAddress).to.equal(mockLink.address);
-			});
-
-			it('should NOT add that token address to tokenAddresses if it is already there', async () => {
-				// ARRANGE
-				const value = 10000;
-
-				// ASSUME
-				const zeroLength = await bounty.getBountyTokenAddresses();
-				expect(zeroLength.length).to.equal(0);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-				await bounty.receiveFunds(owner.address, mockLink.address, value);
-
-				// ASSERT
-				const newTokenAddress = await bounty.bountyTokenAddresses(0);
-				expect(newTokenAddress).to.equal(mockLink.address);
-
-				const tokenAddresses = await bounty.getBountyTokenAddresses();
-				expect(tokenAddresses.length).to.equal(1);
-			});
-		});
-
 		describe('fundersDeposits', () => {
 			it('should add new Deposit for funder in funderDeposits', async () => {
 				// ARRANGE
@@ -174,7 +136,7 @@ describe('Bounty.sol', () => {
 				const depositId = generateDepositId(owner.address, mockLink.address, 0);
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, volume);
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
 
 				// ASSERT
 				const newDeposit = await bounty.funderDeposits(owner.address, depositId);
@@ -184,6 +146,34 @@ describe('Bounty.sol', () => {
 				expect(newDeposit.funder).to.equal(owner.address);
 				expect(newDeposit.volume).to.equal(10000);
 				expect(newDeposit.depositTime).to.equal(timestamp);
+			});
+		});
+
+		describe('depositIdToDeposit', () => {
+			it.only('should add new Deposit to depositIdToDeposit', async () => {
+				// ARRANGE
+				const volume = 10000;
+				const timestamp = await setNextBlockTimestamp();
+
+				// ASSUME
+				const depositId = generateDepositId(owner.address, mockLink.address, 0);
+
+				// ACT
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
+
+				// ASSERT
+				const newDeposit = await bounty.depositIdToDeposit(depositId);
+
+				expect(newDeposit.depositId).to.equal(depositId);
+				expect(newDeposit.tokenAddress).to.equal(mockLink.address);
+				expect(newDeposit.funder).to.equal(owner.address);
+				expect(newDeposit.volume).to.equal(10000);
+				expect(newDeposit.depositTime).to.equal(timestamp);
+				expect(newDeposit.refunded).to.equal(false);
+				expect(newDeposit.claimed).to.equal(false);
+				expect(newDeposit.tokenStandard).to.equal(1);
+				expect(newDeposit.payoutAddress).to.equal(ethers.constants.AddressZero);
+				expect(newDeposit.tokenId).to.equal(0);
 			});
 		});
 
@@ -220,13 +210,12 @@ describe('Bounty.sol', () => {
 			});
 		});
 
-		describe.only('protocol token', () => {
-			it('should', async () => {
+		describe('protocol token funding', () => {
+			it('should transfer protocol token if token address is zero address', async () => {
 				const volume = ethers.utils.parseEther("1.0");
-				console.log(bounty);
-				await bounty.receiveFunds(owner.address, ethers.utils.AddressZero, volume, { value: volume });
-				// const bountyProtocolTokenBalance = await bounty.provider.getBalance(bounty.address);
-				// expect(bountyProtocolTokenBalance).to.equal('100');
+				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, false, 0, { value: volume });
+				const bountyProtocolTokenBalance = await bounty.provider.getBalance(bounty.address);
+				expect(bountyProtocolTokenBalance).to.equal(volume);
 			});
 		});
 	});

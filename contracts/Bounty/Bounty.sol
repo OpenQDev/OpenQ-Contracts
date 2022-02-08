@@ -23,7 +23,7 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
     // Bounty Accounting
     address[] public bountyTokenAddresses;
     Deposit[] public deposits;
-    mapping(bytes32 => Deposit) depositIdToDeposit;
+    mapping(bytes32 => Deposit) public depositIdToDeposit;
 
     // Funder Accounting
     // funder -> [ tokenAddres -> [Deposit] ]
@@ -100,8 +100,12 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
             !depositIdToDeposit[depositId].claimed);
     }
 
-    // Revert any attempts to send ETH or unknown calldata
+    // Revert any attempts to send unknown calldata
     fallback() external {
         revert();
+    }
+
+    receive() external payable {
+        // React to receiving protocol token
     }
 }

@@ -22,7 +22,12 @@ contract BountyFactory {
             keccak256(abi.encode(_id))
         );
 
-        BountyV0(clone).initialize(_id, _issuer, _organization, _openQ);
+        BountyV0(payable(clone)).initialize(
+            _id,
+            _issuer,
+            _organization,
+            _openQ
+        );
 
         return clone;
     }

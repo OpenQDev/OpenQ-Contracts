@@ -37,10 +37,8 @@ contract BountyV0 is Bounty {
 
         uint256 volumeReceived;
 
-        console.log(volumeReceived);
-
         if (_tokenAddress == address(0)) {
-            payable(_funder).transfer(msg.value);
+            payable(address(this)).transfer(msg.value);
             volumeReceived = msg.value;
         } else if (_isNft) {
             IERC721 nft = IERC721(_tokenAddress);
