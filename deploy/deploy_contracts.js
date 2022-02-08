@@ -5,22 +5,26 @@ require('dotenv').config();
 
 async function deployContracts() {
 	console.log('\n------------------------------------------');
-	console.log(`DEPLOY CONTRACTS to ${network.name.toUpperCase()}`);
+	console.log(`DEPLOYING CONTRACTS to ${network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
 
-	console.log('Deploying MockLink...');
-	const MockLink = await ethers.getContractFactory('MockLink');
-	const mockLink = await MockLink.deploy();
-	await mockLink.deployed();
-	await optionalSleep(10000);
-	console.log(`MockLink Deployed to ${mockLink.address}\n`);
+	let mockLink;
+	let mockDai;
+	if (network.name === 'docker') {
+		console.log('Deploying MockLink...');
+		const MockLink = await ethers.getContractFactory('MockLink');
+		mockLink = await MockLink.deploy();
+		await mockLink.deployed();
+		await optionalSleep(10000);
+		console.log(`MockLink Deployed to ${mockLink.address}\n`);
 
-	console.log('Deploying MockDai...');
-	const MockDai = await ethers.getContractFactory('MockDai');
-	const mockDai = await MockDai.deploy();
-	await mockDai.deployed();
-	await optionalSleep(10000);
-	console.log(`MockDai Deployed to ${mockDai.address}\n`);
+		console.log('Deploying MockDai...');
+		const MockDai = await ethers.getContractFactory('MockDai');
+		mockDai = await MockDai.deploy();
+		await mockDai.deployed();
+		await optionalSleep(10000);
+		console.log(`MockDai Deployed to ${mockDai.address}\n`);
+	}
 
 	console.log('Deploying OpenQV0...');
 	const OpenQ = await ethers.getContractFactory('OpenQV0');
@@ -47,13 +51,15 @@ async function deployContracts() {
 	const bountyImplementation = await bountyFactory.bountyImplementation();
 	console.log(`BountyV0 (Implementation) Deployed to ${bountyImplementation}\n`);
 
-	console.log(`MockLink deployed to: ${mockLink.address}`);
-	console.log(`MockDai deployed to: ${mockDai.address}`);
 	console.log(`OpenQV0 (Proxy) deployed to: ${openQ.address}`);
 	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation}`);
 	console.log(`OpenQStorage deployed to: ${openQStorage.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
+	if (network.name === 'docker') {
+		console.log(`MockLink deployed to: ${mockLink.address}`);
+		console.log(`MockDai deployed to: ${mockDai.address}`);
+	}
 
 	console.log('\nConfiguring OpenQV0 with Oracle address...');
 	console.log(`Setting OpenQStorage on OpenQV0 to ${process.env.ORACLE_ADDRESS}...`);
@@ -79,9 +85,17 @@ async function deployContracts() {
 		 - docker-compose environment
 		 - other hardhat scripts
 	*/
-	const addresses = `OPENQ_ADDRESS="${openQ.address}"
-MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
-MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"`;
+	let addresses;
+	if (network.name === 'docker') {
+		addresses = `OPENQ_ADDRESS="${openQ.address}"
+		MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
+		MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"`;
+	} else {
+		addresses = `OPENQ_ADDRESS="${openQ.address}"
+		MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+		MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"`;
+	}
+
 
 	fs.writeFileSync('.env.contracts', addresses);
 }
@@ -97,4 +111,4 @@ main()
 		process.exit(1);
 	});
 
-module.exports = deployContracts;
+module.exports = deployContracts;;

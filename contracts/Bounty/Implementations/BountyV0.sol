@@ -69,6 +69,7 @@ contract BountyV0 is Bounty {
         require(this.status() == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
         uint256 bountyBalance = getERC20Balance(_tokenAddress);
         IERC20 token = IERC20(_tokenAddress);
+
         token.safeTransfer(_payoutAddress, bountyBalance);
 
         return true;

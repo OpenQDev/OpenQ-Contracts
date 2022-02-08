@@ -5,7 +5,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') })
 
 async function fundBounties() {
 	console.log('\n------------------------------------------');
-	console.log('FUND BOUNTIES');
+	console.log('FUNDING BOUNTIES with MOCK LINK and DUMMY ERC20');
 	console.log('------------------------------------------');
 	const MockLink = await hre.ethers.getContractFactory('MockLink');
 	const mockLink = await MockLink.attach(process.env.MOCK_LINK_TOKEN_ADDRESS);
@@ -62,7 +62,7 @@ async function fundBounties() {
 	// Contributor 2
 	const [, contributor] = await hre.ethers.getSigners();
 
-	console.log('Transferring mLink and mDai to Client 2');
+	console.log('Transferring LINK and DERC20 to Client 2');
 	await mockDai.transfer(contributor.address, four);
 	await optionalSleep(5000);
 

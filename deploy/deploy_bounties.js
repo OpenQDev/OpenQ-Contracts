@@ -1,13 +1,13 @@
-const hre = require('hardhat');
+const { ethers, network } = require('hardhat');
 const { optionalSleep } = require('./utils');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 async function deployBounties() {
 	console.log('\n------------------------------------------');
-	console.log('DEPLOY BOUNTIES');
+	console.log(`DEPLOYING BOUNTIES to ${network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
-	const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
+	const OpenQ = await ethers.getContractFactory('OpenQV0');
 
 	// We fetch the contract factory for the implementation contract (OpenQV0) but attach it to the address of OpenQProxy
 	const openQ = await OpenQ.attach(process.env.OPENQ_ADDRESS);

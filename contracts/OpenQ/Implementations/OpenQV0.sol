@@ -102,6 +102,10 @@ contract OpenQV0 is
             address tokenAddress = bounty.bountyTokenAddresses(i);
             uint256 volume = bounty.getERC20Balance(tokenAddress);
 
+            if (volume == 0) {
+                continue;
+            }
+
             bounty.claim(_payoutAddress, tokenAddress);
 
             emit BountyPaidout(

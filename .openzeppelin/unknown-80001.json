@@ -2,27 +2,27 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0xBd008f4f3A29E952cff2863b1515BBcdC27F2515",
-      "txHash": "0x68e60a04195b3bcb08bfeee09a5d70130f5b7fc9496a5a7e185af379d390617d",
+      "address": "0x64B7A469fF84Ef4540C6f69e3bd1F8bD72Da0836",
+      "txHash": "0xdf97ed958b3539559f31091dd40d9de6717bfcf6bec43ed8a4d2660c88ffcc1a",
       "kind": "uups"
     }
   ],
   "impls": {
     "e12746be797a9a5dfe24b730bbe02e295dbf27d80f7da9b3a77db5757149e4aa": {
-      "address": "0x820EADf0Cc5601A6be821acB86CC785Fdf8e284E",
-      "txHash": "0xce8a5e6a9ec3d1722d95198a72023dbfc0511403e51b03b3651cb4263c8c840c",
+      "address": "0x26CFF0BafBb43C6b54e5cf1fAE0bdD806DD3748B",
+      "txHash": "0x11700d731d53b6cc7c85fcbb1c769200c900764eb02fb449079c7c83f43a6878",
       "layout": {
         "storage": [
           {
             "contract": "OpenQStorable",
             "label": "openQStorage",
-            "type": "t_contract(OpenQStorage)5165",
+            "type": "t_contract(OpenQStorage)4515",
             "src": "contracts/OpenQ/OpenQStorable.sol:8"
           },
           {
             "contract": "OpenQStorable",
             "label": "bountyFactory",
-            "type": "t_contract(BountyFactory)4028",
+            "type": "t_contract(BountyFactory)3418",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
           {
@@ -62,6 +62,12 @@
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
           },
           {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:81"
+          },
+          {
             "contract": "ReentrancyGuardUpgradeable",
             "label": "_status",
             "type": "t_uint256",
@@ -96,10 +102,10 @@
           "t_bool": {
             "label": "bool"
           },
-          "t_contract(OpenQStorage)5165": {
+          "t_contract(OpenQStorage)4515": {
             "label": "contract OpenQStorage"
           },
-          "t_contract(BountyFactory)4028": {
+          "t_contract(BountyFactory)3418": {
             "label": "contract BountyFactory"
           }
         }
