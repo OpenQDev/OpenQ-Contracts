@@ -72,7 +72,7 @@ contract OpenQV0 is
 
         (
             bytes32 depositId,
-            string memory tokenStandard,
+            BountyV0.TokenStandard tokenStandard,
             uint256 volumeReceived
         ) = bounty.receiveFunds(
                 msg.sender,
@@ -98,19 +98,6 @@ contract OpenQV0 is
         return true;
     }
 
-    struct Deposit {
-        bytes32 depositId;
-        address funder;
-        address tokenAddress;
-        uint256 volume;
-        uint256 depositTime;
-        bool refunded;
-        bool claimed;
-        string tokenStandard;
-        address payoutAddress;
-        uint256 tokenId;
-    }
-
     function claimBounty(string calldata _bountyId, address _payoutAddress)
         external
         onlyOracle
@@ -119,7 +106,7 @@ contract OpenQV0 is
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress(_bountyId);
-        Bounty bounty = BountyV0(bountyAddress);
+        BountyV0 bounty = BountyV0(bountyAddress);
 
         for (uint256 i = 0; i < bounty.getDeposits().length; i++) {
             (
@@ -130,7 +117,7 @@ contract OpenQV0 is
                 ,
                 ,
                 ,
-                string memory tokenStandard,
+                BountyV0.TokenStandard tokenStandard,
                 address payoutAddress,
                 uint256 tokenId
             ) = bounty.deposits(i);
@@ -173,7 +160,7 @@ contract OpenQV0 is
         nonReentrant
         returns (bool success)
     {
-        Bounty bounty = BountyV0(_bountyAddress);
+        BountyV0 bounty = BountyV0(_bountyAddress);
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -193,7 +180,7 @@ contract OpenQV0 is
             uint256 depositTime,
             ,
             ,
-            string memory tokenStandard,
+            BountyV0.TokenStandard tokenStandard,
             address payoutAddress,
 
         ) = bounty.funderDeposits(msg.sender, depositId);
@@ -222,7 +209,7 @@ contract OpenQV0 is
     // Convenience Methods
     function bountyIsOpen(string memory _id) public view returns (bool) {
         address bountyAddress = bountyIdToAddress(_id);
-        Bounty bounty = BountyV0(bountyAddress);
+        BountyV0 bounty = BountyV0(bountyAddress);
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }

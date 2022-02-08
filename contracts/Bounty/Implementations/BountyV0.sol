@@ -29,7 +29,7 @@ contract BountyV0 is Bounty {
         nonReentrant
         returns (
             bytes32,
-            string memory,
+            BountyV0.TokenStandard,
             uint256
         )
     {
@@ -65,13 +65,13 @@ contract BountyV0 is Bounty {
             abi.encode(_funder, _tokenAddress, depositCount)
         );
 
-        string memory tokenStandard;
+        TokenStandard tokenStandard;
         if (_tokenAddress == address(0)) {
-            tokenStandard = 'protocol';
+            tokenStandard = TokenStandard.PROTOCOL;
         } else if (_isNft) {
-            tokenStandard = 'erc721';
+            tokenStandard = TokenStandard.ERC721;
         } else {
-            tokenStandard = 'erc20';
+            tokenStandard = TokenStandard.ERC20;
         }
 
         Deposit memory deposit = Deposit(
@@ -108,9 +108,9 @@ contract BountyV0 is Bounty {
         require(!deposit.refunded, 'CLAIMING_REFUNDED_DEPOSIT');
         require(!deposit.claimed, 'CLAIMING_CLAIMED_DEPOSIT');
 
-        if (stringEquals(deposit.tokenStandard, 'protocol')) {
+        if (deposit.tokenStandard == TokenStandard.PROTOCOL) {
             payable(_payoutAddress).transfer(deposit.volume);
-        } else if (stringEquals(deposit.tokenStandard, 'erc20')) {
+        } else if (deposit.tokenStandard == TokenStandard.ERC20) {
             IERC20 token = IERC20(deposit.tokenAddress);
             token.safeTransfer(_payoutAddress, deposit.volume);
         } else {

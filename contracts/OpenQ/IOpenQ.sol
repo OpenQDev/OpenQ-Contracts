@@ -2,7 +2,6 @@
 pragma solidity 0.8.11;
 
 import '../Bounty/Bounty.sol';
-import '../Bounty/Bountyable.sol';
 
 interface IOpenQ {
     // Events
@@ -31,7 +30,7 @@ interface IOpenQ {
         uint256 volume,
         uint256 receiveTime,
         bytes32 depositId,
-        string tokenStandard,
+        Bounty.TokenStandard tokenStandard,
         uint256 tokenId
     );
 
@@ -54,7 +53,7 @@ interface IOpenQ {
         address payoutAddress,
         uint256 volume,
         uint256 payoutTime,
-        string tokenStandard,
+        Bounty.TokenStandard tokenStandard,
         uint256 tokenId
     );
 

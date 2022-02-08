@@ -6,10 +6,17 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 
-// Custom
-import './Bountyable.sol';
+abstract contract Bounty is ReentrancyGuardUpgradeable {
+    enum BountyStatus {
+        OPEN,
+        CLOSED
+    }
 
-abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
+    enum TokenStandard {
+        PROTOCOL,
+        ERC20,
+        ERC721
+    }
     // OpenQ Proxy Contract
     address public openQ;
 
@@ -42,15 +49,9 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
         uint256 depositTime;
         bool refunded;
         bool claimed;
-        string tokenStandard;
+        TokenStandard tokenStandard;
         address payoutAddress;
         uint256 tokenId;
-    }
-
-    // Enums
-    enum BountyStatus {
-        OPEN,
-        CLOSED
     }
 
     function initialize(
@@ -102,18 +103,5 @@ abstract contract Bounty is Bountyable, ReentrancyGuardUpgradeable {
     // Revert any attempts to send ETH or unknown calldata
     fallback() external {
         revert();
-    }
-
-    function stringEquals(string memory a, string memory b)
-        internal
-        returns (bool)
-    {
-        if (bytes(a).length != bytes(b).length) {
-            return false;
-        } else {
-            return
-                keccak256(abi.encodePacked(a)) ==
-                keccak256(abi.encodePacked(b));
-        }
     }
 }
