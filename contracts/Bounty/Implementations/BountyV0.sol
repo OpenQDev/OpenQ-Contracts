@@ -150,7 +150,6 @@ contract BountyV0 is Bounty {
         require(deposit.refunded == false, 'BOUNTY_ALREADY_REFUNDED');
 
         // Effects
-        deposit.volume = 0;
         deposit.refunded = true;
 
         // Interactions

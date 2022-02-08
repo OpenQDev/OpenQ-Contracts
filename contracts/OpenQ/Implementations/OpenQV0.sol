@@ -122,13 +122,6 @@ contract OpenQV0 is
                 uint256 tokenId
             ) = bounty.deposits(i);
 
-            if (
-                bounty.getERC20Balance(tokenAddress) == 0 ||
-                !bounty.depositAvailable(depositId)
-            ) {
-                continue;
-            }
-
             bounty.claim(_payoutAddress, depositId);
 
             emit DepositClaimed(

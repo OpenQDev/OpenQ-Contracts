@@ -5,8 +5,9 @@ const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
 const { ethers, upgrades } = require("hardhat");
 const { generateDepositId } = require('./utils');
+const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -139,7 +140,7 @@ describe('OpenQV0.sol', () => {
 			await mockDai.approve(bountyAddress, 10000000);
 
 			// ACT + ASSERT
-			await expect(openQ.fundBounty(bountyAddress, mockLink.address, 10000000)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
+			await expect(openQ.fundBounty(bountyAddress, mockLink.address, 10000000, false, 0)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
 		it('should deposit the correct amount from sender to bounty', async () => {
@@ -166,8 +167,8 @@ describe('OpenQV0.sol', () => {
 
 			// ACT
 			const value = 100;
-			await openQ.fundBounty(bountyAddress, mockLink.address, value);
-			await openQ.fundBounty(bountyAddress, mockDai.address, value);
+			await openQ.fundBounty(bountyAddress, mockLink.address, value, false, 0);
+			await openQ.fundBounty(bountyAddress, mockDai.address, value, false, 0);
 
 			// // ASSERT
 			const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -181,7 +182,7 @@ describe('OpenQV0.sol', () => {
 			expect(bountyFakeTokenBalance).to.equal('100');
 		});
 
-		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, and depositId', async () => {
+		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, depositId, tokenStandard and tokenId', async () => {
 			// ARRANGE
 			await openQ.mintBounty(bountyId, 'mock-org');
 
@@ -200,9 +201,9 @@ describe('OpenQV0.sol', () => {
 
 			// ACT
 			// ASSERT
-			await expect(openQ.fundBounty(bountyAddress, mockLink.address, 100))
+			await expect(openQ.fundBounty(bountyAddress, mockLink.address, 100, false, 0))
 				.to.emit(openQ, 'DepositReceived')
-				.withArgs(bountyId, 'mock-org', bountyAddress, mockLink.address, owner.address, 100, expectedTimestamp, depositId);
+				.withArgs(bountyId, 'mock-org', bountyAddress, mockLink.address, owner.address, 100, expectedTimestamp, depositId, 1, 0);
 		});
 	});
 
@@ -308,39 +309,44 @@ describe('OpenQV0.sol', () => {
 		describe('transfer', () => {
 			it('should transfer all assets from bounty contract to claimer', async () => {
 				// ARRANGE
+				const volume = 100;
 				await openQ.mintBounty(bountyId, 'mock-org');
 
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
 
 				await mockLink.approve(bountyAddress, 10000000);
 				await mockDai.approve(bountyAddress, 10000000);
-				const value = 100;
 
-				await openQ.fundBounty(bountyAddress, mockLink.address, value);
-				await openQ.fundBounty(bountyAddress, mockDai.address, value);
+				await openQ.fundBounty(bountyAddress, mockLink.address, volume, false, 0);
+				await openQ.fundBounty(bountyAddress, mockDai.address, volume, false, 0);
+				await openQ.fundBounty(bountyAddress, ethers.constants.AddressZero, volume, false, 0, { value: volume });
 
 				const [, claimer] = await ethers.getSigners();
 
 				// ASSUME
 				const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
 				const bountyDaiTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
+				const bountyProtcolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();
 				expect(bountyMockLinkTokenBalance).to.equal('100');
 				expect(bountyDaiTokenBalance).to.equal('100');
+				expect(bountyProtcolTokenBalance).to.equal('100');
 
 				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
 				const claimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
 				expect(claimerMockTokenBalance).to.equal('0');
 				expect(claimerFakeTokenBalance).to.equal('0');
 
-				// ACT
+				// // // ACT
 				const oracleContract = openQ.connect(oracle);
 				await oracleContract.claimBounty(bountyId, claimer.address);
 
-				// ASSERT
+				// // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
 				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
+				const newBountyProtocolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();
 				expect(newBountyMockTokenBalance).to.equal('0');
 				expect(newBountyFakeTokenBalance).to.equal('0');
+				expect(newBountyProtocolTokenBalance).to.equal('0');
 
 				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
 				const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
@@ -350,7 +356,7 @@ describe('OpenQV0.sol', () => {
 		});
 
 		describe('Event Emissions', () => {
-			it('should emit a BountyPaidout event with proper bounty id, bounty Address, tokenAddress, payout address, value, and bounty closed time', async () => {
+			it('should emit a DepositClaimed event with proper bounty id, bounty Address, tokenAddress, payout address, value, and bounty closed time', async () => {
 				// ARRANGE
 				await openQ.mintBounty(bountyId, 'mock-org');
 
@@ -361,18 +367,19 @@ describe('OpenQV0.sol', () => {
 
 				const expectedTimestamp = await setNextBlockTimestamp();
 
-				const value = 100;
-				await openQ.fundBounty(bountyAddress, mockLink.address, value);
-				await openQ.fundBounty(bountyAddress, mockDai.address, value);
+				const volume = 100;
+				await openQ.fundBounty(bountyAddress, mockLink.address, volume, false, 0);
+				await openQ.fundBounty(bountyAddress, mockDai.address, volume, false, 0);
+				await openQ.fundBounty(bountyAddress, ethers.constants.AddressZero, volume, false, 0, { value: volume });
 
 				// ACT
 				// ASSERT
-				// Since the BountyPaidout time stamp happens in a for loop, its hard to predict to the ms what it will be
+				// Since the DepositClaimed time stamp happens in a for loop, its hard to predict to the ms what it will be
 				// Usually add + 2 works....
 				const oracleContract = openQ.connect(oracle);
 				await expect(oracleContract.claimBounty(bountyId, owner.address))
-					.to.emit(openQ, 'BountyPaidout')
-					.withArgs(bountyId, 'mock-org', bountyAddress, mockLink.address, owner.address, value, expectedTimestamp + 2);
+					.to.emit(openQ, 'DepositClaimed')
+					.withArgs(bountyId, 'mock-org', bountyAddress, mockLink.address, owner.address, volume, expectedTimestamp + 2, 1, 0);
 			});
 
 			it('should emit a BountyClosed event with proper bounty id, bounty Address, payout address, and bounty closed time', async () => {
@@ -398,7 +405,7 @@ describe('OpenQV0.sol', () => {
 
 	describe('refundBountyDeposits', () => {
 		describe('Event Emissions', () => {
-			it('should emit DepositRefunded event for deposit', async () => {
+			it('should emit DepositRefunded event for refunded deposit', async () => {
 				// ARRANGE
 				await openQ.mintBounty(bountyId, 'mock-org');
 
@@ -406,10 +413,13 @@ describe('OpenQV0.sol', () => {
 
 				await mockLink.approve(bountyAddress, 10000000);
 
-				const value = 100;
+				const volume = 100;
 				const depositedTimestamp = await setNextBlockTimestamp();
 				const depositId = generateDepositId(owner.address, mockLink.address, 0);
-				await openQ.fundBounty(bountyAddress, mockLink.address, value);
+				await openQ.fundBounty(bountyAddress, mockLink.address, volume, false, 0);
+
+				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 1);
+				await openQ.fundBounty(bountyAddress, ethers.constants.AddressZero, volume, false, 0, { value: volume });
 
 				const expectedTimestamp = await setNextBlockTimestamp(2764800);
 
@@ -418,6 +428,12 @@ describe('OpenQV0.sol', () => {
 				await expect(openQ.refundBountyDeposit(bountyAddress, depositId))
 					.to.emit(openQ, 'DepositRefunded')
 					.withArgs(bountyId, 'mock-org', bountyAddress, mockLink.address, owner.address, 100, expectedTimestamp, depositId);
+
+				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
+
+				await expect(openQ.refundBountyDeposit(bountyAddress, protocolDepositId))
+					.to.emit(openQ, 'DepositRefunded')
+					.withArgs(bountyId, 'mock-org', bountyAddress, ethers.constants.AddressZero, owner.address, 100, secondExpectedTimestamp, protocolDepositId);
 			});
 		});
 
@@ -435,7 +451,7 @@ describe('OpenQV0.sol', () => {
 				await mockDai.approve(bountyAddress, 100000);
 
 				const depositId = generateDepositId(owner.address, mockDai.address, 0);
-				await openQ.fundBounty(bountyAddress, mockDai.address, 100000);
+				await openQ.fundBounty(bountyAddress, mockDai.address, 100000, false, 0);
 
 				// ACT / ASSERT
 				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
@@ -487,13 +503,16 @@ describe('OpenQV0.sol', () => {
 
 				await mockLink.approve(bountyAddress, 10000000);
 				await mockDai.approve(bountyAddress, 10000000);
-				const value = 100;
+				const volume = 100;
 
 				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
-				await openQ.fundBounty(bountyAddress, mockLink.address, value);
+				await openQ.fundBounty(bountyAddress, mockLink.address, volume, false, 0);
 
 				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
-				await openQ.fundBounty(bountyAddress, mockDai.address, value);
+				await openQ.fundBounty(bountyAddress, mockDai.address, volume, false, 0);
+
+				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 2);
+				await openQ.fundBounty(bountyAddress, ethers.constants.AddressZero, volume, false, 0, { value: volume });
 
 				const thirtyTwoDays = 2765000;
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
@@ -501,8 +520,10 @@ describe('OpenQV0.sol', () => {
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
 				const bountyFakeTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
+				const bountyProtocolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();
 				expect(bountyMockTokenBalance).to.equal('100');
 				expect(bountyFakeTokenBalance).to.equal('100');
+				expect(bountyProtocolTokenBalance).to.equal('100');
 
 				const funderMockTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
 				const funderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -512,12 +533,15 @@ describe('OpenQV0.sol', () => {
 				// ACT
 				await openQ.refundBountyDeposit(bountyAddress, linkDepositId);
 				await openQ.refundBountyDeposit(bountyAddress, daiDepositId);
+				await openQ.refundBountyDeposit(bountyAddress, protocolDepositId);
 
 				// // // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
 				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
+				const newBountyProtocolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();
 				expect(newBountyMockTokenBalance).to.equal('0');
 				expect(newBountyFakeTokenBalance).to.equal('0');
+				expect(newBountyProtocolTokenBalance).to.equal('0');
 
 				const newFunderMockTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
 				const newFunderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
