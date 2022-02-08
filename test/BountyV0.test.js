@@ -1,6 +1,7 @@
 /* eslint-disable */
 const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
+const { ethers } = require("hardhat");
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
@@ -17,9 +18,9 @@ describe.only('Bounty.sol', () => {
 	const organization = "mockOrg";
 
 	beforeEach(async () => {
-		const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
-		const MockLink = await hre.ethers.getContractFactory('MockLink');
-		const MockDai = await hre.ethers.getContractFactory('MockDai');
+		const BountyV0 = await ethers.getContractFactory('BountyV0');
+		const MockLink = await ethers.getContractFactory('MockLink');
+		const MockDai = await ethers.getContractFactory('MockDai');
 
 		[owner] = await ethers.getSigners();
 		issuer = owner.address;
@@ -63,7 +64,7 @@ describe.only('Bounty.sol', () => {
 
 		it('should revert if bountyId is empty', async () => {
 			// ASSERT
-			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
+			const BountyV0 = await ethers.getContractFactory('BountyV0');
 			bounty = await BountyV0.deploy();
 
 			await expect(bounty.initialize("", owner.address, organization, owner.address)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
@@ -71,7 +72,7 @@ describe.only('Bounty.sol', () => {
 
 		it('should revert if organization is empty', async () => {
 			// ASSERT
-			const BountyV0 = await hre.ethers.getContractFactory('BountyV0');
+			const BountyV0 = await ethers.getContractFactory('BountyV0');
 			bounty = await BountyV0.deploy();
 
 			await expect(bounty.initialize(mockId, owner.address, "", owner.address)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
@@ -264,7 +265,7 @@ describe.only('Bounty.sol', () => {
 
 		it('should set closer to payout address', async () => {
 			// ASSUME
-			await expect(await bounty.closer()).equals(hre.ethers.constants.AddressZero);
+			await expect(await bounty.closer()).equals(ethers.constants.AddressZero);
 			//ACT
 			await bounty.closeBounty(owner.address);
 			// ASSERT
@@ -314,7 +315,6 @@ describe.only('Bounty.sol', () => {
 
 				const [, claimer] = await ethers.getSigners();
 				const initialClaimerProtocolBalance = (await bounty.provider.getBalance(claimer.address));
-				console.log(initialClaimerProtocolBalance);
 
 				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
 				await bounty.receiveFunds(owner.address, mockDai.address, volume, false, 0);
@@ -426,29 +426,31 @@ describe.only('Bounty.sol', () => {
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
 				const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+				const bountyProtocolTokenBalance = (await ethers.provider.getBalance(bounty.address)).toString();
 
 				expect(bountyMockTokenBalance).to.equal('100');
 				expect(bountyFakeTokenBalance).to.equal('100');
+				expect(bountyProtocolTokenBalance).to.equal('100');
 
-				// const funderMockLinkBalance = (await mockLink.balanceOf(owner.address)).toString();
-				// const funderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
-				// expect(funderMockLinkBalance).to.equal('9999999999999999999900');
-				// expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
+				const funderMockLinkBalance = (await mockLink.balanceOf(owner.address)).toString();
+				const funderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
+				expect(funderMockLinkBalance).to.equal('9999999999999999999900');
+				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
 
 				// // // ACT
-				// await bounty.refundBountyDeposit(owner.address, linkDepositId);
-				// await bounty.refundBountyDeposit(owner.address, daiDepositId);
+				await bounty.refundBountyDeposit(owner.address, linkDepositId);
+				await bounty.refundBountyDeposit(owner.address, daiDepositId);
 
 				// // // // ASSERT
-				// const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
-				// const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
-				// expect(newBountyMockLinkBalance).to.equal('0');
-				// expect(newBountyFakeTokenBalance).to.equal('0');
+				const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
+				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+				expect(newBountyMockLinkBalance).to.equal('0');
+				expect(newBountyFakeTokenBalance).to.equal('0');
 
-				// const newFunderMockLinkBalance = (await mockLink.balanceOf(owner.address)).toString();
-				// const newFunderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
-				// expect(newFunderMockLinkBalance).to.equal('10000000000000000000000');
-				// expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
+				const newFunderMockLinkBalance = (await mockLink.balanceOf(owner.address)).toString();
+				const newFunderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
+				expect(newFunderMockLinkBalance).to.equal('10000000000000000000000');
+				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
 			});
 		});
 	});
@@ -457,8 +459,8 @@ describe.only('Bounty.sol', () => {
 
 async function setNextBlockTimestamp() {
 	return new Promise(async (resolve,) => {
-		const blockNumBefore = await hre.ethers.provider.getBlockNumber();
-		const blockBefore = await hre.ethers.provider.getBlock(blockNumBefore);
+		const blockNumBefore = await ethers.provider.getBlockNumber();
+		const blockBefore = await ethers.provider.getBlock(blockNumBefore);
 		const timestampBefore = blockBefore.timestamp;
 		const expectedTimestamp = timestampBefore + 10;
 		await network.provider.send("evm_setNextBlockTimestamp", [expectedTimestamp]);
