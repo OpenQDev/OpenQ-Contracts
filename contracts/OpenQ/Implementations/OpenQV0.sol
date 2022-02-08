@@ -34,7 +34,7 @@ contract OpenQV0 is
 
     // Transactions
     function mintBounty(string calldata _id, string calldata _organization)
-        public
+        external
         nonReentrant
         returns (address bountyAddress)
     {
@@ -60,7 +60,7 @@ contract OpenQV0 is
         address _bountyAddress,
         address _tokenAddress,
         uint256 _volume
-    ) public nonReentrant returns (bool success) {
+    ) external nonReentrant returns (bool success) {
         BountyV0 bounty = BountyV0(_bountyAddress);
 
         require(
@@ -89,7 +89,7 @@ contract OpenQV0 is
     }
 
     function claimBounty(string calldata _id, address _payoutAddress)
-        public
+        external
         onlyOracle
         nonReentrant
     {
@@ -131,7 +131,7 @@ contract OpenQV0 is
     }
 
     function refundBountyDeposit(address _bountyAddress, bytes32 depositId)
-        public
+        external
         nonReentrant
         returns (bool success)
     {
