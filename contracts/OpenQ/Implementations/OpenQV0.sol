@@ -115,14 +115,16 @@ contract OpenQV0 is
                 address tokenAddress,
                 uint256 volume,
                 ,
-                ,
+                bool refunded,
                 ,
                 BountyV0.TokenStandard tokenStandard,
                 ,
                 uint256 tokenId
             ) = bounty.deposits(i);
 
-            bounty.claim(_payoutAddress, depositId);
+            if (!refunded) {
+                bounty.claim(_payoutAddress, depositId);
+            }
 
             emit DepositClaimed(
                 bounty.bountyId(),
@@ -133,7 +135,8 @@ contract OpenQV0 is
                 volume,
                 block.timestamp,
                 tokenStandard,
-                tokenId
+                tokenId,
+                depositId
             );
         }
 

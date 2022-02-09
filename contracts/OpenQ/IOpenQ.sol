@@ -54,7 +54,8 @@ interface IOpenQ {
         uint256 volume,
         uint256 payoutTime,
         Bounty.TokenStandard tokenStandard,
-        uint256 tokenId
+        uint256 tokenId,
+        bytes32 depositId
     );
 
     function mintBounty(string calldata, string calldata)
