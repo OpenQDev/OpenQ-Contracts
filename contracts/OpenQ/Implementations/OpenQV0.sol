@@ -56,12 +56,46 @@ contract OpenQV0 is
         return bountyAddress;
     }
 
-    function fundBounty(
+    function fundBountyNFT(
+        address _bountyAddress,
+        address _tokenAddress,
+        uint256 _tokenId,
+        uint256 _expiration
+    ) external nonReentrant returns (bool success) {
+        BountyV0 bounty = BountyV0(payable(_bountyAddress));
+
+        require(
+            bountyIsOpen(bounty.bountyId()) == true,
+            'FUNDING_CLOSED_BOUNTY'
+        );
+
+        bytes32 depositId = bounty.receiveNft(
+            msg.sender,
+            _tokenAddress,
+            _tokenId,
+            _expiration
+        );
+
+        emit NFTDepositReceived(
+            depositId,
+            _bountyAddress,
+            bounty.bountyId(),
+            bounty.organization(),
+            _tokenAddress,
+            block.timestamp,
+            msg.sender,
+            _expiration,
+            _tokenId
+        );
+
+        return true;
+    }
+
+    function fundBountyToken(
         address _bountyAddress,
         address _tokenAddress,
         uint256 _volume,
-        bool _isNft,
-        uint256 _tokenId
+        uint256 _expiration
     ) external payable nonReentrant returns (bool success) {
         BountyV0 bounty = BountyV0(payable(_bountyAddress));
 
@@ -70,35 +104,26 @@ contract OpenQV0 is
             'FUNDING_CLOSED_BOUNTY'
         );
 
-        (
-            bytes32 depositId,
-            BountyV0.TokenStandard tokenStandard,
-            uint256 volumeReceived
-        ) = bounty.receiveFunds{value: msg.value}(
-                msg.sender,
-                _tokenAddress,
-                _volume,
-                _isNft,
-                _tokenId
-            );
+        (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
+            value: msg.value
+        }(msg.sender, _tokenAddress, _volume, _expiration);
 
-        emit DepositReceived(
+        emit TokenDepositReceived(
+            depositId,
+            _bountyAddress,
             bounty.bountyId(),
             bounty.organization(),
-            _bountyAddress,
             _tokenAddress,
-            msg.sender,
-            volumeReceived,
             block.timestamp,
-            depositId,
-            tokenStandard,
-            _tokenId
+            msg.sender,
+            _expiration,
+            volumeReceived
         );
 
         return true;
     }
 
-    function claimBounty(string calldata _bountyId, address _payoutAddress)
+    function claimBounty(string calldata _bountyId, address _closer)
         external
         onlyOracle
         nonReentrant
@@ -109,47 +134,31 @@ contract OpenQV0 is
         BountyV0 bounty = BountyV0(payable(bountyAddress));
 
         for (uint256 i = 0; i < bounty.getDeposits().length; i++) {
-            (
-                bytes32 depositId,
-                ,
-                address tokenAddress,
-                uint256 volume,
-                ,
-                bool refunded,
-                ,
-                BountyV0.TokenStandard tokenStandard,
-                ,
-                uint256 tokenId,
+            bytes32 depositId = bounty.deposits(i);
 
-            ) = bounty.depositIdToDeposit(bounty.deposits(i));
-
-            if (!refunded) {
-                bounty.claim(_payoutAddress, depositId);
+            if (!bounty.refunded(depositId)) {
+                bounty.claim(_closer, depositId);
 
                 emit DepositClaimed(
+                    depositId,
                     bounty.bountyId(),
-                    bounty.organization(),
                     bountyAddress,
-                    tokenAddress,
-                    _payoutAddress,
-                    volume,
-                    block.timestamp,
-                    tokenStandard,
-                    tokenId,
-                    depositId
+                    bounty.organization(),
+                    _closer,
+                    block.timestamp
                 );
             } else {
                 continue;
             }
         }
 
-        bounty.closeBounty(_payoutAddress);
+        bounty.closeBounty(_closer);
 
         emit BountyClosed(
             _bountyId,
-            bounty.organization(),
             bountyAddress,
-            _payoutAddress,
+            bounty.organization(),
+            _closer,
             block.timestamp
         );
     }
@@ -171,36 +180,22 @@ contract OpenQV0 is
             'ONLY_FUNDERS_CAN_REQUEST_REFUND'
         );
 
-        (
-            ,
-            ,
-            address tokenAddress,
-            uint256 volume,
-            uint256 depositTime,
-            ,
-            ,
-            ,
-            ,
-            ,
-
-        ) = bounty.depositIdToDeposit(_depositId);
-
         require(
-            block.timestamp >= depositTime.add(bounty.escrowPeriod()),
+            block.timestamp >=
+                bounty.depositTime(_depositId).add(
+                    bounty.expiration(_depositId)
+                ),
             'PREMATURE_REFUND_REQUEST'
         );
 
         bounty.refundBountyDeposit(_depositId);
 
         emit DepositRefunded(
+            _depositId,
             bounty.bountyId(),
-            bounty.organization(),
             _bountyAddress,
-            tokenAddress,
-            msg.sender,
-            volume,
-            block.timestamp,
-            _depositId
+            bounty.organization(),
+            block.timestamp
         );
 
         return true;

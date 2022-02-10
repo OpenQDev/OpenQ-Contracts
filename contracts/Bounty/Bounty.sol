@@ -12,17 +12,8 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         CLOSED
     }
 
-    enum TokenStandard {
-        PROTOCOL,
-        ERC20,
-        ERC721
-    }
     // OpenQ Proxy Contract
     address public openQ;
-
-    // Bounty Accounting
-    bytes32[] public deposits;
-    mapping(bytes32 => Deposit) public depositIdToDeposit;
 
     mapping(address => bool) public isAFunder;
 
@@ -30,26 +21,25 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
     string public bountyId;
     uint256 public bountyCreatedTime;
     uint256 public bountyClosedTime;
-    uint256 public escrowPeriod;
     address public issuer;
     string public organization;
     address public closer;
     BountyStatus public status;
-    uint256 public depositCount;
 
-    struct Deposit {
-        bytes32 depositId;
-        address funder;
-        address tokenAddress;
-        uint256 volume;
-        uint256 depositTime;
-        bool refunded;
-        bool claimed;
-        TokenStandard tokenStandard;
-        address payoutAddress;
-        uint256 tokenId;
-        uint256 expiration;
-    }
+    // Deposit Data - A Deconstructed Deposit Struct
+    mapping(bytes32 => address) public funder;
+    mapping(bytes32 => address) public tokenAddress;
+    mapping(bytes32 => uint256) public volume;
+    mapping(bytes32 => uint256) public depositTime;
+    mapping(bytes32 => bool) public refunded;
+    mapping(bytes32 => bool) public claimed;
+    mapping(bytes32 => address) public payoutAddress;
+    mapping(bytes32 => uint256) public tokenId;
+    mapping(bytes32 => uint256) public expiration;
+    mapping(bytes32 => bool) public isNFT;
+
+    // Deposit Count and IDs
+    bytes32[] public deposits;
 
     function initialize(
         string memory _bountyId,
@@ -64,7 +54,6 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         organization = _organization;
         openQ = _openQ;
         bountyCreatedTime = block.timestamp;
-        escrowPeriod = 2 seconds;
         __ReentrancyGuard_init();
     }
 
@@ -86,11 +75,6 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
 
     function getDeposits() public view returns (bytes32[] memory) {
         return deposits;
-    }
-
-    function depositAvailable(bytes32 depositId) public view returns (bool) {
-        return (!depositIdToDeposit[depositId].claimed ||
-            !depositIdToDeposit[depositId].claimed);
     }
 
     // Revert any attempts to send unknown calldata

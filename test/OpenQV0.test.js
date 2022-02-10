@@ -65,7 +65,6 @@ describe('OpenQV0.sol', () => {
 			const newBountyId = await newBounty.bountyId();
 			const bountyCreatedTime = (await newBounty.bountyCreatedTime()).toNumber();
 			const bountyClosedTime = await newBounty.bountyClosedTime();
-			const escrowPeriod = (await newBounty.escrowPeriod()).toNumber();
 			const issuer = await newBounty.issuer();
 			const closer = await newBounty.closer();
 			const status = await newBounty.status();
@@ -74,7 +73,6 @@ describe('OpenQV0.sol', () => {
 			expect(bountyId).to.equal(newBountyId);
 			expect(bountyCreatedTime).to.equal(expectedTimestamp);
 			expect(bountyClosedTime).to.equal(0);
-			// expect(escrowPeriod).to.equal(2592000); commenting out since in development we use 30 seconds
 			expect(issuer).to.equal(owner.address);
 			expect(closer).to.equal(ethers.constants.AddressZero);
 			expect(status).to.equal(0);
@@ -211,10 +209,10 @@ describe('OpenQV0.sol', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ Oracle', async () => {
 				// ARRANGE
-				const payoutAddress = '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690';
+				const closer = '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690';
 
 				// ASSERT
-				await expect(openQ.claimBounty(bountyId, payoutAddress)).to.be.revertedWith('Oraclize: caller is not the current OpenQ Oracle');
+				await expect(openQ.claimBounty(bountyId, closer)).to.be.revertedWith('Oraclize: caller is not the current OpenQ Oracle');
 			});
 
 			it('should revert if bounty is already closed', async () => {
@@ -466,14 +464,16 @@ describe('OpenQV0.sol', () => {
 				// Get Escrow Period
 				const BountyV0 = await ethers.getContractFactory('BountyV0');
 				bounty = await BountyV0.attach(bountyAddress);
-				const escrowPeriod = await bounty.escrowPeriod();
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+				const depositId = generateDepositId(owner.address, mockDai.address, 0);
+
+				const deposit = await bounty.depositIdToDeposit(depositId);
+				const escrowPeriod = await deposit.expiration;
 
 				// ADVANCE TIME
 				const thirtyTwoDays = 2765000;
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
-
-				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(owner.address, mockDai.address, 0);
 
 				// ACT / ASSERT
 				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDERS_CAN_REQUEST_REFUND');

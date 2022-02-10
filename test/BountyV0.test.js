@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe.only('Bounty.sol', () => {
+describe('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -50,7 +50,6 @@ describe.only('Bounty.sol', () => {
 			const actualStatus = await bounty.status();
 			const actualOpenQ = await bounty.openQ();
 			const actualBounyCreatedTime = await bounty.bountyCreatedTime();
-			const actualEscrowPeriod = await bounty.escrowPeriod();
 
 			// ASSERT
 			await expect(actualBountyId).equals(mockId);
@@ -59,7 +58,6 @@ describe.only('Bounty.sol', () => {
 			await expect(actualStatus).equals(0);
 			await expect(actualOpenQ).equals(issuer);
 			await expect(actualBounyCreatedTime).equals(initializationTimestamp);
-			await expect(actualEscrowPeriod).equals(2);
 		});
 
 		it('should revert if bountyId is empty', async () => {
@@ -150,7 +148,7 @@ describe.only('Bounty.sol', () => {
 				expect(newDeposit.refunded).to.equal(false);
 				expect(newDeposit.claimed).to.equal(false);
 				expect(newDeposit.tokenStandard).to.equal(1);
-				expect(newDeposit.payoutAddress).to.equal(ethers.constants.AddressZero);
+				expect(newDeposit.closer).to.equal(ethers.constants.AddressZero);
 				expect(newDeposit.tokenId).to.equal(0);
 			});
 		});
