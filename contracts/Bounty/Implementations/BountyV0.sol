@@ -81,15 +81,15 @@ contract BountyV0 is Bounty {
             false,
             tokenStandard,
             address(0),
-            _tokenId
+            _tokenId,
+            30 days
         );
 
-        funderDeposits[_funder][depositId] = deposit;
-        deposits.push(deposit);
+        deposits.push(depositId);
         depositIdToDeposit[depositId] = deposit;
+        depositCount++;
 
         isAFunder[_funder] = true;
-        depositCount++;
 
         return (depositId, tokenStandard, volumeReceived);
     }
@@ -137,13 +137,13 @@ contract BountyV0 is Bounty {
         return true;
     }
 
-    function refundBountyDeposit(address _funder, bytes32 depositId)
+    function refundBountyDeposit(bytes32 depositId)
         external
         onlyOpenQ
         nonReentrant
         returns (bool success)
     {
-        Deposit storage deposit = funderDeposits[_funder][depositId];
+        Deposit storage deposit = depositIdToDeposit[depositId];
         uint256 amount = deposit.volume;
 
         // Check
@@ -154,10 +154,10 @@ contract BountyV0 is Bounty {
 
         // Interactions
         if (deposit.tokenStandard == TokenStandard.PROTOCOL) {
-            payable(_funder).transfer(deposit.volume);
+            payable(deposit.funder).transfer(deposit.volume);
         } else if (deposit.tokenStandard == TokenStandard.ERC20) {
             IERC20 token = IERC20(deposit.tokenAddress);
-            token.safeTransfer(_funder, amount);
+            token.safeTransfer(deposit.funder, amount);
         }
 
         return true;

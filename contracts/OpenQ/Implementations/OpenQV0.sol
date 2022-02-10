@@ -119,25 +119,28 @@ contract OpenQV0 is
                 ,
                 BountyV0.TokenStandard tokenStandard,
                 ,
-                uint256 tokenId
-            ) = bounty.deposits(i);
+                uint256 tokenId,
+
+            ) = bounty.depositIdToDeposit(bounty.deposits(i));
 
             if (!refunded) {
                 bounty.claim(_payoutAddress, depositId);
-            }
 
-            emit DepositClaimed(
-                bounty.bountyId(),
-                bounty.organization(),
-                bountyAddress,
-                tokenAddress,
-                _payoutAddress,
-                volume,
-                block.timestamp,
-                tokenStandard,
-                tokenId,
-                depositId
-            );
+                emit DepositClaimed(
+                    bounty.bountyId(),
+                    bounty.organization(),
+                    bountyAddress,
+                    tokenAddress,
+                    _payoutAddress,
+                    volume,
+                    block.timestamp,
+                    tokenStandard,
+                    tokenId,
+                    depositId
+                );
+            } else {
+                continue;
+            }
         }
 
         bounty.closeBounty(_payoutAddress);
@@ -178,15 +181,16 @@ contract OpenQV0 is
             ,
             ,
             ,
+            ,
 
-        ) = bounty.funderDeposits(msg.sender, _depositId);
+        ) = bounty.depositIdToDeposit(_depositId);
 
         require(
             block.timestamp >= depositTime.add(bounty.escrowPeriod()),
             'PREMATURE_REFUND_REQUEST'
         );
 
-        bounty.refundBountyDeposit(msg.sender, _depositId);
+        bounty.refundBountyDeposit(_depositId);
 
         emit DepositRefunded(
             bounty.bountyId(),

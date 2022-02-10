@@ -21,13 +21,9 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
     address public openQ;
 
     // Bounty Accounting
-    address[] public bountyTokenAddresses;
-    Deposit[] public deposits;
+    bytes32[] public deposits;
     mapping(bytes32 => Deposit) public depositIdToDeposit;
 
-    // Funder Accounting
-    // funder -> [ tokenAddres -> [Deposit] ]
-    mapping(address => mapping(bytes32 => Deposit)) public funderDeposits;
     mapping(address => bool) public isAFunder;
 
     // Bounty Metadata
@@ -52,6 +48,7 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         TokenStandard tokenStandard;
         address payoutAddress;
         uint256 tokenId;
+        uint256 expiration;
     }
 
     function initialize(
@@ -87,11 +84,7 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         return tokenAddress.balanceOf(address(this));
     }
 
-    function getBountyTokenAddresses() public view returns (address[] memory) {
-        return bountyTokenAddresses;
-    }
-
-    function getDeposits() public view returns (Deposit[] memory) {
+    function getDeposits() public view returns (bytes32[] memory) {
         return deposits;
     }
 
