@@ -2,10 +2,8 @@
 pragma solidity 0.8.11;
 
 // Third Party
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import 'hardhat/console.sol';
 
 // Custom
@@ -25,23 +23,10 @@ contract BountyV0 is Bounty {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
 
         uint256 volumeReceived;
-
         if (_tokenAddress == address(0)) {
             volumeReceived = msg.value;
         } else {
-            uint256 balanceBefore = getERC20Balance(_tokenAddress);
-            IERC20 token = IERC20(_tokenAddress);
-            token.safeTransferFrom(_funder, address(this), _volume);
-            uint256 balanceAfter = getERC20Balance(_tokenAddress);
-            require(
-                balanceAfter >= balanceBefore,
-                'TOKEN_TRANSFER_IN_OVERFLOW'
-            );
-
-            // NOTE: The reason we take the balanceBefore and balanceAfter rather than the raw deposited amount
-            // is because certain ERC20's like USDT take fees on transfers. Therefore the volume received after transferFrom
-            // can be lower than the raw volume sent by the sender
-            volumeReceived = balanceAfter.sub(balanceBefore);
+            volumeReceived = _receiveERC20(_tokenAddress, _funder, _volume);
         }
 
         bytes32 depositId = keccak256(
@@ -68,8 +53,7 @@ contract BountyV0 is Bounty {
         uint256 _tokenId,
         uint256 _expiration
     ) public onlyOpenQ nonReentrant returns (bytes32) {
-        IERC721 nft = IERC721(_tokenAddress);
-        nft.safeTransferFrom(_sender, address(this), _tokenId);
+        _receiveNft(_tokenAddress, _sender, _tokenId);
 
         bytes32 depositId = keccak256(
             abi.encode(_sender, _tokenAddress, deposits.length)
@@ -96,22 +80,23 @@ contract BountyV0 is Bounty {
         returns (bool success)
     {
         require(this.status() == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
-
         require(!refunded[depositId], 'CLAIMING_REFUNDED_DEPOSIT');
         require(!claimed[depositId], 'CLAIMING_CLAIMED_DEPOSIT');
 
         if (tokenAddress[depositId] == address(0)) {
-            payable(_payoutAddress).transfer(volume[depositId]);
+            _transferProtocolToken(_payoutAddress, volume[depositId]);
         } else if (isNFT[depositId]) {
-            IERC721 nft = IERC721(tokenAddress[depositId]);
-            nft.safeTransferFrom(
-                address(this),
+            _transferNft(
+                tokenAddress[depositId],
                 _payoutAddress,
                 tokenId[depositId]
             );
         } else {
-            IERC20 token = IERC20(tokenAddress[depositId]);
-            token.safeTransfer(_payoutAddress, volume[depositId]);
+            _transferERC20(
+                tokenAddress[depositId],
+                _payoutAddress,
+                volume[depositId]
+            );
         }
 
         claimed[depositId] = true;
@@ -140,23 +125,34 @@ contract BountyV0 is Bounty {
     {
         // Check
         require(refunded[_depositId] == false, 'BOUNTY_ALREADY_REFUNDED');
+        require(
+            isAFunder[msg.sender] == true,
+            'ONLY_FUNDERS_CAN_REQUEST_REFUND'
+        );
+        require(
+            block.timestamp >=
+                depositTime[_depositId].add(expiration[_depositId]),
+            'PREMATURE_REFUND_REQUEST'
+        );
 
         // Effects
         refunded[_depositId] = true;
 
         // Interactions
         if (tokenAddress[_depositId] == address(0)) {
-            payable(funder[_depositId]).transfer(volume[_depositId]);
+            _transferProtocolToken(funder[_depositId], volume[_depositId]);
         } else if (isNFT[_depositId]) {
-            IERC721 nft = IERC721(tokenAddress[_depositId]);
-            nft.safeTransferFrom(
-                address(this),
+            _transferNft(
+                tokenAddress[_depositId],
                 funder[_depositId],
                 tokenId[_depositId]
             );
         } else {
-            IERC20 token = IERC20(tokenAddress[_depositId]);
-            token.safeTransfer(funder[_depositId], volume[_depositId]);
+            _transferERC20(
+                tokenAddress[_depositId],
+                funder[_depositId],
+                volume[_depositId]
+            );
         }
 
         return true;
