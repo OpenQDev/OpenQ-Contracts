@@ -141,6 +141,24 @@ describe.only('OpenQV0.sol', () => {
 			await expect(openQ.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
+		it('should set funder to msg.sender', async () => {
+			// ARRANGE
+			await openQ.mintBounty(bountyId, 'mock-org');
+			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV0');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT
+			const depositId = await generateDepositId(owner.address, mockLink.address, 0);
+			await mockLink.approve(bountyAddress, 10000000);
+			openQ.fundBountyToken(bountyAddress, mockLink.address, 100, 1);
+
+			const deposits = await bounty.getDeposits();
+
+			// // ASSERT
+			expect(await bounty.funder(depositId)).to.equal(owner.address);
+		});
+
 		it('should deposit the correct amount from sender to bounty', async () => {
 			// ARRANGE
 			await openQ.mintBounty(bountyId, 'mock-org');
@@ -451,7 +469,7 @@ describe.only('OpenQV0.sol', () => {
 				await mockDai.approve(bountyAddress, 100000);
 
 				const depositId = generateDepositId(owner.address, mockDai.address, 0);
-				await openQ.fundBountyToken(bountyAddress, mockDai.address, 100000, 1);
+				await openQ.fundBountyToken(bountyAddress, mockDai.address, 100000, 276000);
 
 				// ACT / ASSERT
 				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
@@ -477,7 +495,7 @@ describe.only('OpenQV0.sol', () => {
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
 
 				// ACT / ASSERT
-				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDERS_CAN_REQUEST_REFUND');
+				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
 			});
 
 			it('should revert if bounty is closed', async () => {
@@ -496,7 +514,7 @@ describe.only('OpenQV0.sol', () => {
 		});
 
 		describe('transfer', () => {
-			it.only('should transfer refunded deposit volume from bounty contract to funder', async () => {
+			it('should transfer refunded deposit volume from bounty contract to funder', async () => {
 				// ARRANGE
 				await openQ.mintBounty(bountyId, 'mock-org');
 
@@ -531,12 +549,18 @@ describe.only('OpenQV0.sol', () => {
 				expect(funderMockTokenBalance).to.equal('9999999999999999999900');
 				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
 
+				const Bounty = await ethers.getContractFactory('BountyV0');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+
 				// ACT
 				await openQ.refundBountyDeposit(bountyAddress, linkDepositId);
 				await openQ.refundBountyDeposit(bountyAddress, daiDepositId);
 				await openQ.refundBountyDeposit(bountyAddress, protocolDepositId);
 
-				// // // ASSERT
+				// // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
 				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
 				const newBountyProtocolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();

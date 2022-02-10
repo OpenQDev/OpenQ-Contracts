@@ -48,35 +48,35 @@ async function fundBounties() {
 	await optionalSleep(5000);
 
 	console.log('Funding approved for Client 1');
-	await openQ.fundBounty(bounty1Address, mockLink.address, one, false, 0);
+	await openQ.fundBountyToken(bounty1Address, mockLink.address, one, 1);
 	await optionalSleep(5000);
 	console.log('Funded  for Client 1');
 
-	await openQ.fundBounty(bounty1Address, mockLink.address, one, false, 0);
+	await openQ.fundBountyToken(bounty1Address, mockLink.address, one, 1);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty1Address, mockDai.address, two, false, 0);
+	await openQ.fundBountyToken(bounty1Address, mockDai.address, two, 1);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty2Address, mockLink.address, one, false, 0);
+	await openQ.fundBountyToken(bounty2Address, mockLink.address, one, 1);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty2Address, mockDai.address, two, false, 0);
+	await openQ.fundBountyToken(bounty2Address, mockDai.address, two, 1);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty2Address, ethers.constants.AddressZero, two, false, 0, { value: two });
+	await openQ.fundBountyToken(bounty2Address, ethers.constants.AddressZero, two, 1, { value: two });
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty3Address, ethers.constants.AddressZero, two, false, 0, { value: two });
+	await openQ.fundBountyToken(bounty3Address, ethers.constants.AddressZero, two, 1, { value: two });
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty3Address, ethers.constants.AddressZero, two, false, 0, { value: two });
+	await openQ.fundBountyToken(bounty3Address, ethers.constants.AddressZero, two, 1, { value: two });
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty3Address, mockDai.address, two, false, 0);
+	await openQ.fundBountyToken(bounty3Address, mockDai.address, two, 1);
 	await optionalSleep(5000);
 
-	await openQ.fundBounty(bounty3Address, mockLink.address, two, false, 0);
+	await openQ.fundBountyToken(bounty3Address, mockLink.address, two, 1);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 1');
@@ -106,16 +106,16 @@ async function fundBounties() {
 
 	console.log('Funding approved for Client 2');
 
-	await openQ.connect(contributor).fundBounty(bounty1Address, mockLink.address, one, false, 0);
+	await openQ.connect(contributor).fundBountyToken(bounty1Address, mockLink.address, one, 1);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBounty(bounty1Address, mockDai.address, two, false, 0);
+	await openQ.connect(contributor).fundBountyToken(bounty1Address, mockDai.address, two, 1);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBounty(bounty2Address, mockLink.address, one, false, 0);
+	await openQ.connect(contributor).fundBountyToken(bounty2Address, mockLink.address, one, 1);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBounty(bounty2Address, mockDai.address, two, false, 0);
+	await openQ.connect(contributor).fundBountyToken(bounty2Address, mockDai.address, two, 1);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 2');

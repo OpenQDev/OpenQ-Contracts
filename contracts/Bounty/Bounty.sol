@@ -21,8 +21,6 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
     // OpenQ Proxy Contract
     address public openQ;
 
-    mapping(address => bool) public isAFunder;
-
     // Bounty Metadata
     string public bountyId;
     uint256 public bountyCreatedTime;
@@ -77,7 +75,7 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         uint256 _expiration
     ) public virtual returns (bytes32);
 
-    function refundBountyDeposit(bytes32 _depositId)
+    function refundBountyDeposit(bytes32 _depositId, address _funder)
         external
         virtual
         returns (bool success);

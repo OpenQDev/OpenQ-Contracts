@@ -175,8 +175,8 @@ contract OpenQV0 is
         );
 
         require(
-            bounty.isAFunder(msg.sender) == true,
-            'ONLY_FUNDERS_CAN_REQUEST_REFUND'
+            bounty.funder(_depositId) == msg.sender,
+            'ONLY_FUNDER_CAN_REQUEST_REFUND'
         );
 
         require(
@@ -187,7 +187,7 @@ contract OpenQV0 is
             'PREMATURE_REFUND_REQUEST'
         );
 
-        bounty.refundBountyDeposit(_depositId);
+        bounty.refundBountyDeposit(_depositId, msg.sender);
 
         emit DepositRefunded(
             _depositId,

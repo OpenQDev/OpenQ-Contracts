@@ -49,8 +49,6 @@ contract BountyV0 is Bounty {
 
         deposits.push(depositId);
 
-        isAFunder[_funder] = true;
-
         return (depositId, volumeReceived);
     }
 
@@ -74,8 +72,6 @@ contract BountyV0 is Bounty {
         isNFT[depositId] = true;
 
         deposits.push(depositId);
-
-        isAFunder[_sender] = true;
 
         return (depositId);
     }
@@ -126,7 +122,7 @@ contract BountyV0 is Bounty {
         return true;
     }
 
-    function refundBountyDeposit(bytes32 _depositId)
+    function refundBountyDeposit(bytes32 _depositId, address _funder)
         external
         override
         onlyOpenQ
@@ -136,8 +132,8 @@ contract BountyV0 is Bounty {
         // Check
         require(refunded[_depositId] == false, 'BOUNTY_ALREADY_REFUNDED');
         require(
-            isAFunder[msg.sender] == true,
-            'ONLY_FUNDERS_CAN_REQUEST_REFUND'
+            funder[_depositId] == _funder,
+            'ONLY_FUNDER_CAN_REQUEST_REFUND'
         );
         require(
             block.timestamp >=
