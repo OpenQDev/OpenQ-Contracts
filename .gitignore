@@ -10,6 +10,7 @@ yarn-error.log
 nohup.out
 
 **/artifacts
+**/.deps
 .env
 .env.mumbai
 .env.polygon
