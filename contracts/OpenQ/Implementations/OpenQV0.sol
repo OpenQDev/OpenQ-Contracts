@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-// Third Part
+// Third Party
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
 // Custom
 import '../../Bounty/Bounty.sol';
-import '../../Bounty/Implementations/BountyV0.sol';
 import '../../BountyFactory/BountyFactory.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
@@ -62,7 +61,7 @@ contract OpenQV0 is
         uint256 _tokenId,
         uint256 _expiration
     ) external nonReentrant returns (bool success) {
-        BountyV0 bounty = BountyV0(payable(_bountyAddress));
+        Bounty bounty = Bounty(payable(_bountyAddress));
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -97,7 +96,7 @@ contract OpenQV0 is
         uint256 _volume,
         uint256 _expiration
     ) external payable nonReentrant returns (bool success) {
-        BountyV0 bounty = BountyV0(payable(_bountyAddress));
+        Bounty bounty = Bounty(payable(_bountyAddress));
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -131,7 +130,7 @@ contract OpenQV0 is
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress(_bountyId);
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        Bounty bounty = Bounty(payable(bountyAddress));
 
         for (uint256 i = 0; i < bounty.getDeposits().length; i++) {
             bytes32 depositId = bounty.deposits(i);
@@ -168,7 +167,7 @@ contract OpenQV0 is
         nonReentrant
         returns (bool success)
     {
-        BountyV0 bounty = BountyV0(payable(_bountyAddress));
+        Bounty bounty = Bounty(payable(_bountyAddress));
 
         require(
             bountyIsOpen(bounty.bountyId()) == true,
@@ -204,7 +203,7 @@ contract OpenQV0 is
     // Convenience Methods
     function bountyIsOpen(string memory _id) public view returns (bool) {
         address bountyAddress = bountyIdToAddress(_id);
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        Bounty bounty = Bounty(payable(bountyAddress));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
@@ -222,7 +221,7 @@ contract OpenQV0 is
         view
         returns (string memory)
     {
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        Bounty bounty = Bounty(payable(bountyAddress));
         return bounty.bountyId();
     }
 

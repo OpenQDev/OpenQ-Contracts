@@ -63,6 +63,36 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         __ReentrancyGuard_init();
     }
 
+    function receiveFunds(
+        address _funder,
+        address _tokenAddress,
+        uint256 _volume,
+        uint256 _expiration
+    ) public payable virtual returns (bytes32, uint256);
+
+    function receiveNft(
+        address _sender,
+        address _tokenAddress,
+        uint256 _tokenId,
+        uint256 _expiration
+    ) public virtual returns (bytes32);
+
+    function refundBountyDeposit(bytes32 _depositId)
+        external
+        virtual
+        returns (bool success);
+
+    function claim(address _payoutAddress, bytes32 depositId)
+        external
+        virtual
+        returns (bool success);
+
+    function closeBounty(address _payoutAddress)
+        external
+        virtual
+        returns (bool success);
+
+    // Transfer Helpers
     function _receiveERC20(
         address _tokenAddress,
         address _funder,
@@ -74,9 +104,9 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         uint256 balanceAfter = getERC20Balance(_tokenAddress);
         require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
 
-        // NOTE: The reason we take the balanceBefore and balanceAfter rather than the raw deposited amount
-        // is because certain ERC20's like USDT take fees on transfers. Therefore the volume received after transferFrom
-        // can be lower than the raw volume sent by the sender
+        /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
+           is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
+					 Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
         return balanceAfter.sub(balanceBefore);
     }
 
@@ -125,8 +155,8 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         view
         returns (uint256 balance)
     {
-        IERC20 tokenAddress = IERC20(_tokenAddress);
-        return tokenAddress.balanceOf(address(this));
+        IERC20 token = IERC20(_tokenAddress);
+        return token.balanceOf(address(this));
     }
 
     function getDeposits() public view returns (bytes32[] memory) {

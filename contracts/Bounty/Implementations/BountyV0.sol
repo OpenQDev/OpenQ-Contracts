@@ -19,7 +19,14 @@ contract BountyV0 is Bounty {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) public payable onlyOpenQ nonReentrant returns (bytes32, uint256) {
+    )
+        public
+        payable
+        override
+        onlyOpenQ
+        nonReentrant
+        returns (bytes32, uint256)
+    {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
 
         uint256 volumeReceived;
@@ -52,7 +59,7 @@ contract BountyV0 is Bounty {
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
-    ) public onlyOpenQ nonReentrant returns (bytes32) {
+    ) public override onlyOpenQ nonReentrant returns (bytes32) {
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
         bytes32 depositId = keccak256(
@@ -75,6 +82,7 @@ contract BountyV0 is Bounty {
 
     function claim(address _payoutAddress, bytes32 depositId)
         external
+        override
         onlyOpenQ
         nonReentrant
         returns (bool success)
@@ -107,6 +115,7 @@ contract BountyV0 is Bounty {
 
     function closeBounty(address _payoutAddress)
         external
+        override
         onlyOpenQ
         returns (bool success)
     {
@@ -119,6 +128,7 @@ contract BountyV0 is Bounty {
 
     function refundBountyDeposit(bytes32 _depositId)
         external
+        override
         onlyOpenQ
         nonReentrant
         returns (bool success)

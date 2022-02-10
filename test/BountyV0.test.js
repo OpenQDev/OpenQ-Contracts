@@ -86,7 +86,7 @@ describe('Bounty.sol', () => {
 				let bountyWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, volume, false, 0)).to.be.revertedWith('Method is only callable by OpenQ');
+				await expect(bountyWithNonOwnerAccount.receiveFunds(notOwner.address, mockLink.address, volume, 2765000)).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
 			it('should revert if no volume is sent', async () => {
@@ -95,7 +95,7 @@ describe('Bounty.sol', () => {
 				const volume = 0;
 
 				// ASSERT
-				await expect(bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0)).to.be.revertedWith('ZERO_VOLUME_SENT');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, volume, 2765000)).to.be.revertedWith('ZERO_VOLUME_SENT');
 			});
 
 			it('should revert if funder tries to send more than allowance', async () => {
@@ -103,7 +103,7 @@ describe('Bounty.sol', () => {
 				// ACT
 				// ASSERT
 				const greaterThanAllowance = 100000000;
-				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance, false, 0)).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance, 2765000)).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
 			});
 		});
 
@@ -117,7 +117,7 @@ describe('Bounty.sol', () => {
 				expect(isNotAFunder).to.be.false;
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, 2765000);
 
 				// ASSERT
 				const isAFunderNow = await bounty.isAFunder(owner.address);
@@ -125,44 +125,16 @@ describe('Bounty.sol', () => {
 			});
 		});
 
-		describe('depositIdToDeposit', () => {
-			it('should add new Deposit to depositIdToDeposit', async () => {
-				// ARRANGE
-				const volume = 10000;
-				const timestamp = await setNextBlockTimestamp();
-
-				// ASSUME
-				const depositId = generateDepositId(owner.address, mockLink.address, 0);
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
-
-				// ASSERT
-				const newDeposit = await bounty.depositIdToDeposit(depositId);
-
-				expect(newDeposit.depositId).to.equal(depositId);
-				expect(newDeposit.tokenAddress).to.equal(mockLink.address);
-				expect(newDeposit.funder).to.equal(owner.address);
-				expect(newDeposit.volume).to.equal(10000);
-				expect(newDeposit.depositTime).to.equal(timestamp);
-				expect(newDeposit.refunded).to.equal(false);
-				expect(newDeposit.claimed).to.equal(false);
-				expect(newDeposit.tokenStandard).to.equal(1);
-				expect(newDeposit.closer).to.equal(ethers.constants.AddressZero);
-				expect(newDeposit.tokenId).to.equal(0);
-			});
-		});
-
 		describe('deposits', () => {
 			it('should push deposit id onto deposits', async () => {
 				const protocolVolume = ethers.utils.parseEther("1.0");
-				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, protocolVolume, false, 0, { value: protocolVolume });
+				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, protocolVolume, 2765000, { value: protocolVolume });
 				const mockProtocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 0);
 				let protocolDepositId = await bounty.deposits(0);
 				expect(protocolDepositId).to.equal(mockProtocolDepositId);
 
 				const erc20Volume = 10000;
-				await bounty.receiveFunds(owner.address, mockLink.address, erc20Volume, false, 0);
+				await bounty.receiveFunds(owner.address, mockLink.address, erc20Volume, 2765000);
 				const mockErc20DepositId = generateDepositId(owner.address, mockLink.address, 1);
 				let erc20DepositId = await bounty.deposits(1);
 				expect(erc20DepositId).to.equal(mockErc20DepositId);
@@ -186,8 +158,8 @@ describe('Bounty.sol', () => {
 				const value = 100;
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value, false, 0);
-				await bounty.receiveFunds(owner.address, mockDai.address, value, false, 0);
+				await bounty.receiveFunds(owner.address, mockLink.address, value, 2765000);
+				await bounty.receiveFunds(owner.address, mockDai.address, value, 2765000);
 
 				// ASSERT
 				const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -205,7 +177,7 @@ describe('Bounty.sol', () => {
 		describe('protocol token funding', () => {
 			it('should accept msg.value if token address is zero address', async () => {
 				const volume = ethers.utils.parseEther("1.0");
-				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, false, 0, { value: volume });
+				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 2765000, { value: volume });
 				const bountyProtocolTokenBalance = await bounty.provider.getBalance(bounty.address);
 				expect(bountyProtocolTokenBalance).to.equal(volume);
 			});
@@ -259,7 +231,7 @@ describe('Bounty.sol', () => {
 		});
 	});
 
-	describe('claimBounty', () => {
+	describe('claimDeposit', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ contract', async () => {
 				// ARRANGE
@@ -291,9 +263,9 @@ describe('Bounty.sol', () => {
 				const [, claimer] = await ethers.getSigners();
 				const initialClaimerProtocolBalance = (await bounty.provider.getBalance(claimer.address));
 
-				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
-				await bounty.receiveFunds(owner.address, mockDai.address, volume, false, 0);
-				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, false, 0, { value: volume });
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, 2765000);
+				await bounty.receiveFunds(owner.address, mockDai.address, volume, 2765000);
+				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 2765000, { value: volume });
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
@@ -348,25 +320,20 @@ describe('Bounty.sol', () => {
 			});
 		});
 
-		describe('depositIdToDeposit', () => {
+		describe('refunded', () => {
 			it('should set deposit refunded to true on refund', async () => {
 				// ARRANGE
 				const volume = 100;
 
 				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
 				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
 
-				await bounty.receiveFunds(owner.address, mockDai.address, volume, false, 0);
+				await bounty.receiveFunds(owner.address, mockDai.address, volume, 1);
 				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
 
-				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, false, 0, { value: volume });
+				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
 				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 2);
-
-				// ASSERT
-				const linkDeposit = await bounty.depositIdToDeposit(linkDepositId);
-				const daiDeposit = await bounty.depositIdToDeposit(daiDepositId);
-				const protocolDeposit = await bounty.depositIdToDeposit(protocolDepositId);
 
 				// ACT
 				await bounty.refundBountyDeposit(linkDepositId);
@@ -374,13 +341,9 @@ describe('Bounty.sol', () => {
 				await bounty.refundBountyDeposit(protocolDepositId);
 
 				// // ASSERT
-				const refundedLinkDeposit = await bounty.depositIdToDeposit(linkDepositId);
-				const refundedDaiDeposit = await bounty.depositIdToDeposit(daiDepositId);
-				const refundedProtocolDeposit = await bounty.depositIdToDeposit(protocolDepositId);
-
-				expect(refundedLinkDeposit.refunded).to.equal(true);
-				expect(refundedDaiDeposit.refunded).to.equal(true);
-				expect(refundedProtocolDeposit.refunded).to.equal(true);
+				expect(await bounty.refunded(linkDepositId)).to.equal(true);
+				expect(await bounty.refunded(daiDepositId)).to.equal(true);
+				expect(await bounty.refunded(protocolDepositId)).to.equal(true);
 			});
 		});
 
@@ -389,13 +352,13 @@ describe('Bounty.sol', () => {
 				// ARRANGE
 				const volume = 100;
 
-				await bounty.receiveFunds(owner.address, mockLink.address, volume, false, 0);
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
 				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
 
-				await bounty.receiveFunds(owner.address, mockDai.address, volume, false, 0);
+				await bounty.receiveFunds(owner.address, mockDai.address, volume, 1);
 				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
 
-				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, false, 0, { value: volume });
+				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
 				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 2);
 
 				// ASSUME
