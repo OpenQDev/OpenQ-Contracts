@@ -88,12 +88,12 @@ async function deployContracts() {
 	let addresses;
 	if (network.name === 'docker') {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
-		MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
-		MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"`;
+MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
+MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"`;
 	} else {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
-		MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
-		MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"`;
+MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"`;
 	}
 
 
