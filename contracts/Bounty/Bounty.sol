@@ -75,7 +75,7 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         uint256 _expiration
     ) public virtual returns (bytes32);
 
-    function refundBountyDeposit(bytes32 _depositId, address _funder)
+    function refundDeposit(bytes32 _depositId, address _funder)
         external
         virtual
         returns (bool success);
@@ -85,7 +85,7 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
         virtual
         returns (bool success);
 
-    function closeBounty(address _payoutAddress)
+    function close(address _payoutAddress)
         external
         virtual
         returns (bool success);
@@ -148,6 +148,14 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
     }
 
     // View Methods
+    function generateDepositId(address _sender, address _tokenAddress)
+        public
+        view
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(_sender, _tokenAddress, deposits.length));
+    }
+
     function getERC20Balance(address _tokenAddress)
         public
         view

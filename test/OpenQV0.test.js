@@ -421,7 +421,7 @@ describe.only('OpenQV0.sol', () => {
 		});
 	});
 
-	describe('refundBountyDeposits', () => {
+	describe('refundDeposits', () => {
 		describe('Event Emissions', () => {
 			it('should emit DepositRefunded event for refunded deposit', async () => {
 				// ARRANGE
@@ -443,13 +443,13 @@ describe.only('OpenQV0.sol', () => {
 
 				// ACT
 				// ASSERT
-				await expect(openQ.refundBountyDeposit(bountyAddress, depositId))
+				await expect(openQ.refundDeposit(bountyAddress, depositId))
 					.to.emit(openQ, 'DepositRefunded')
 					.withArgs(depositId, bountyId, bountyAddress, 'mock-org', expectedTimestamp);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
-				await expect(openQ.refundBountyDeposit(bountyAddress, protocolDepositId))
+				await expect(openQ.refundDeposit(bountyAddress, protocolDepositId))
 					.to.emit(openQ, 'DepositRefunded')
 					.withArgs(protocolDepositId, bountyId, bountyAddress, 'mock-org', secondExpectedTimestamp);
 			});
@@ -472,7 +472,7 @@ describe.only('OpenQV0.sol', () => {
 				await openQ.fundBountyToken(bountyAddress, mockDai.address, 100000, 276000);
 
 				// ACT / ASSERT
-				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+				await expect(openQ.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 			});
 
 			it('should revert if not funder', async () => {
@@ -495,7 +495,7 @@ describe.only('OpenQV0.sol', () => {
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
 
 				// ACT / ASSERT
-				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
+				await expect(openQ.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
 			});
 
 			it('should revert if bounty is closed', async () => {
@@ -509,7 +509,7 @@ describe.only('OpenQV0.sol', () => {
 				const depositId = generateDepositId(owner.address, mockDai.address, 0);
 
 				// ACT + ASSERT
-				await expect(openQ.refundBountyDeposit(bountyAddress, depositId)).to.be.revertedWith('REFUNDING_CLOSED_BOUNTY');
+				await expect(openQ.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('REFUNDING_CLOSED_BOUNTY');
 			});
 		});
 
@@ -556,9 +556,9 @@ describe.only('OpenQV0.sol', () => {
 				);
 
 				// ACT
-				await openQ.refundBountyDeposit(bountyAddress, linkDepositId);
-				await openQ.refundBountyDeposit(bountyAddress, daiDepositId);
-				await openQ.refundBountyDeposit(bountyAddress, protocolDepositId);
+				await openQ.refundDeposit(bountyAddress, linkDepositId);
+				await openQ.refundDeposit(bountyAddress, daiDepositId);
+				await openQ.refundDeposit(bountyAddress, protocolDepositId);
 
 				// // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();

@@ -82,7 +82,7 @@ interface IOpenQ {
 
     function claimBounty(string calldata, address) external;
 
-    function refundBountyDeposit(address, bytes32) external returns (bool);
+    function refundDeposit(address, bytes32) external returns (bool);
 
     function bountyIsOpen(string memory) external view returns (bool);
 }

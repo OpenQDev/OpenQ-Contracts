@@ -151,7 +151,7 @@ contract OpenQV0 is
             }
         }
 
-        bounty.closeBounty(_closer);
+        bounty.close(_closer);
 
         emit BountyClosed(
             _bountyId,
@@ -162,7 +162,7 @@ contract OpenQV0 is
         );
     }
 
-    function refundBountyDeposit(address _bountyAddress, bytes32 _depositId)
+    function refundDeposit(address _bountyAddress, bytes32 _depositId)
         external
         nonReentrant
         returns (bool success)
@@ -187,7 +187,7 @@ contract OpenQV0 is
             'PREMATURE_REFUND_REQUEST'
         );
 
-        bounty.refundBountyDeposit(_depositId, msg.sender);
+        bounty.refundDeposit(_depositId, msg.sender);
 
         emit DepositRefunded(
             _depositId,

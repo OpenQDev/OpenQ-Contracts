@@ -29,16 +29,14 @@ contract BountyV0 is Bounty {
     {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
 
+        bytes32 depositId = generateDepositId(_funder, _tokenAddress);
+
         uint256 volumeReceived;
         if (_tokenAddress == address(0)) {
             volumeReceived = msg.value;
         } else {
             volumeReceived = _receiveERC20(_tokenAddress, _funder, _volume);
         }
-
-        bytes32 depositId = keccak256(
-            abi.encode(_funder, _tokenAddress, deposits.length)
-        );
 
         funder[depositId] = _funder;
         tokenAddress[depositId] = _tokenAddress;
@@ -60,9 +58,7 @@ contract BountyV0 is Bounty {
     ) public override onlyOpenQ nonReentrant returns (bytes32) {
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
-        bytes32 depositId = keccak256(
-            abi.encode(_sender, _tokenAddress, deposits.length)
-        );
+        bytes32 depositId = generateDepositId(_sender, _tokenAddress);
 
         funder[depositId] = _sender;
         tokenAddress[depositId] = _tokenAddress;
@@ -76,53 +72,7 @@ contract BountyV0 is Bounty {
         return (depositId);
     }
 
-    function claim(address _payoutAddress, bytes32 depositId)
-        external
-        override
-        onlyOpenQ
-        nonReentrant
-        returns (bool success)
-    {
-        require(this.status() == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
-        require(!refunded[depositId], 'CLAIMING_REFUNDED_DEPOSIT');
-        require(!claimed[depositId], 'CLAIMING_CLAIMED_DEPOSIT');
-
-        if (tokenAddress[depositId] == address(0)) {
-            _transferProtocolToken(_payoutAddress, volume[depositId]);
-        } else if (isNFT[depositId]) {
-            _transferNft(
-                tokenAddress[depositId],
-                _payoutAddress,
-                tokenId[depositId]
-            );
-        } else {
-            _transferERC20(
-                tokenAddress[depositId],
-                _payoutAddress,
-                volume[depositId]
-            );
-        }
-
-        claimed[depositId] = true;
-        payoutAddress[depositId] = _payoutAddress;
-
-        return true;
-    }
-
-    function closeBounty(address _payoutAddress)
-        external
-        override
-        onlyOpenQ
-        returns (bool success)
-    {
-        require(this.status() == BountyStatus.OPEN, 'CLOSING_CLOSED_BOUNTY');
-        status = BountyStatus.CLOSED;
-        closer = _payoutAddress;
-        bountyClosedTime = block.timestamp;
-        return true;
-    }
-
-    function refundBountyDeposit(bytes32 _depositId, address _funder)
+    function refundDeposit(bytes32 _depositId, address _funder)
         external
         override
         onlyOpenQ
@@ -161,6 +111,52 @@ contract BountyV0 is Bounty {
             );
         }
 
+        return true;
+    }
+
+    function claim(address _payoutAddress, bytes32 depositId)
+        external
+        override
+        onlyOpenQ
+        nonReentrant
+        returns (bool success)
+    {
+        require(this.status() == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
+        require(!refunded[depositId], 'CLAIMING_REFUNDED_DEPOSIT');
+        require(!claimed[depositId], 'CLAIMING_CLAIMED_DEPOSIT');
+
+        if (tokenAddress[depositId] == address(0)) {
+            _transferProtocolToken(_payoutAddress, volume[depositId]);
+        } else if (isNFT[depositId]) {
+            _transferNft(
+                tokenAddress[depositId],
+                _payoutAddress,
+                tokenId[depositId]
+            );
+        } else {
+            _transferERC20(
+                tokenAddress[depositId],
+                _payoutAddress,
+                volume[depositId]
+            );
+        }
+
+        claimed[depositId] = true;
+        payoutAddress[depositId] = _payoutAddress;
+
+        return true;
+    }
+
+    function close(address _payoutAddress)
+        external
+        override
+        onlyOpenQ
+        returns (bool success)
+    {
+        require(this.status() == BountyStatus.OPEN, 'CLOSING_CLOSED_BOUNTY');
+        status = BountyStatus.CLOSED;
+        closer = _payoutAddress;
+        bountyClosedTime = block.timestamp;
         return true;
     }
 }
