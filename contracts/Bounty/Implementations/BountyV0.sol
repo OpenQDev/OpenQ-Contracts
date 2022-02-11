@@ -29,7 +29,7 @@ contract BountyV0 is Bounty {
     {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
 
-        bytes32 depositId = generateDepositId(_funder, _tokenAddress);
+        bytes32 depositId = _generateDepositId(_funder, _tokenAddress);
 
         uint256 volumeReceived;
         if (_tokenAddress == address(0)) {
@@ -58,7 +58,7 @@ contract BountyV0 is Bounty {
     ) public override onlyOpenQ nonReentrant returns (bytes32) {
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
-        bytes32 depositId = generateDepositId(_sender, _tokenAddress);
+        bytes32 depositId = _generateDepositId(_sender, _tokenAddress);
 
         funder[depositId] = _sender;
         tokenAddress[depositId] = _tokenAddress;

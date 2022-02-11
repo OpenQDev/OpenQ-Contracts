@@ -15,29 +15,42 @@ describe('Bounty.sol', () => {
 	const thirtyDays = 2765000;
 
 	const mockId = "mockId";
-	let issuer;
 	const organization = "mockOrg";
 
 	beforeEach(async () => {
 		const BountyV0 = await ethers.getContractFactory('BountyV0');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
+		const MockNft = await ethers.getContractFactory('MockNft');
 
 		[owner] = await ethers.getSigners();
-		issuer = owner.address;
 
 		bounty = await BountyV0.deploy();
 		await bounty.deployed();
 
-		// Passing in owner.address as _openQ for unit testing
+		// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
 		initializationTimestamp = await setNextBlockTimestamp();
 		await bounty.initialize(mockId, owner.address, organization, owner.address);
 
+		// Deploy mock assets
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
+
 		mockDai = await MockDai.deploy();
 		await mockDai.deployed();
 
+		mockNft = await MockNft.deploy();
+		await mockNft.deployed();
+
+		await mockNft.safeMint(owner.address);
+		await mockNft.safeMint(owner.address);
+		await mockNft.safeMint(owner.address);
+
+		await mockNft.approve(bounty.address, 0);
+		await mockNft.approve(bounty.address, 1);
+		await mockNft.approve(bounty.address, 2);
+
+		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(bounty.address, 10000000);
 		await mockDai.approve(bounty.address, 10000000);
 	});
@@ -60,10 +73,10 @@ describe('Bounty.sol', () => {
 
 			// ASSERT
 			await expect(actualBountyId).equals(mockId);
-			await expect(actualIssuer).equals(issuer);
+			await expect(actualIssuer).equals(owner.address);
 			await expect(organization).equals(organization);
 			await expect(actualStatus).equals(0);
-			await expect(actualOpenQ).equals(issuer);
+			await expect(actualOpenQ).equals(owner.address);
 			await expect(actualBounyCreatedTime).equals(initializationTimestamp);
 		});
 
@@ -229,15 +242,46 @@ describe('Bounty.sol', () => {
 					expiration
 					isNft
 			`, async () => {
+				// ARRANGE
+				const depositId = generateDepositId(owner.address, mockNft.address, 0);
 
+				// ACT
+				const expectedTimestamp = await setNextBlockTimestamp();
+				await bounty.receiveNft(owner.address, mockNft.address, 1, thirtyDays);
+
+				// ASSERT
+				expect(await bounty.funder(depositId)).to.equal(owner.address);
+				expect(await bounty.tokenAddress(depositId)).to.equal(mockNft.address);
+				expect(await bounty.tokenId(depositId)).to.equal(1);
+				expect(await bounty.expiration(depositId)).to.equal(thirtyDays);
+				expect(await bounty.isNFT(depositId)).to.equal(true);
+
+				const depositTime = await bounty.depositTime(depositId);
+				expect(depositTime.toString()).to.equal(expectedTimestamp.toString());
 			});
 
 			it('should push deposit id onto deposits', async () => {
-
+				await bounty.receiveNft(owner.address, mockNft.address, 1, thirtyDays);
+				const depositId = generateDepositId(owner.address, mockNft.address, 0);
+				let actualDepositId = await bounty.deposits(0);
+				expect(actualDepositId).to.equal(depositId);
 			});
 
 			it('should return depositId', async () => {
 
+			});
+		});
+
+		describe('transfer', () => {
+			it('should transfer NFT from owner to bounty contract', async () => {
+				// ASSUME
+				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
+
+				// ACT
+				await bounty.receiveNft(owner.address, mockNft.address, 0, 1);
+
+				// ASSERT
+				expect(await mockNft.ownerOf(0)).to.equal(bounty.address);
 			});
 		});
 	});
@@ -288,7 +332,7 @@ describe('Bounty.sol', () => {
 		});
 
 		describe('transfer', () => {
-			it('should transfer refunded asset from bounty contract to funder', async () => {
+			it('should transfer refunded ERC20 and protocol token asset from bounty contract to funder', async () => {
 				// ARRANGE
 				const volume = 100;
 
@@ -330,6 +374,24 @@ describe('Bounty.sol', () => {
 				expect(newFunderMockLinkBalance).to.equal('10000000000000000000000');
 				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
 			});
+
+			it('should transfer NFT from bounty to sender', async () => {
+				// ASSUME
+				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
+
+				// ARRANGE
+				const depositId = generateDepositId(owner.address, mockNft.address, 0);
+				await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
+
+				// ASSUME
+				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);
+
+				// ACT
+				await bounty.refundDeposit(depositId, owner.address);
+
+				// ASSERT
+				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
+			});
 		});
 	});
 
@@ -351,6 +413,38 @@ describe('Bounty.sol', () => {
 
 				// ASSERT
 				await expect(bounty.claim(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
+			});
+
+			describe('deposit updates', () => {
+				it('should set claimed to true for deposit', async () => {
+					// ARRANGE
+					const depositId = generateDepositId(owner.address, mockNft.address, 0);
+					await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
+
+					// ASSUME
+					expect(await bounty.claimed(depositId)).to.be.false;
+
+					// ACT
+					await bounty.claim(owner.address, depositId);
+
+					// ASSERT
+					expect(await bounty.claimed(depositId)).to.be.true;
+				});
+
+				it('should set payoutAddress for deposit', async () => {
+					// ARRANGE
+					const depositId = generateDepositId(owner.address, mockNft.address, 0);
+					await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
+
+					// ASSUME
+					expect(await bounty.payoutAddress(depositId)).to.equal(ethers.constants.AddressZero);
+
+					// ACT
+					await bounty.claim(owner.address, depositId);
+
+					// ASSERT
+					expect(await bounty.payoutAddress(depositId)).to.equal(owner.address);
+				});
 			});
 		});
 
@@ -404,6 +498,24 @@ describe('Bounty.sol', () => {
 				expect(newClaimerMockTokenBalance).to.equal('100');
 				expect(newClaimerFakeTokenBalance).to.equal('100');
 				// expect(newClaimedProtocolTokenBalance).to.equal(initialClaimerProtocolBalance);
+			});
+
+			it('should transfer NFT deposit from bounty contract to claimer', async () => {
+				// ASSUME
+				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
+
+				// ARRANGE
+				const depositId = generateDepositId(owner.address, mockNft.address, 0);
+				await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
+
+				// ASSUME
+				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);
+
+				// ACT
+				await bounty.claim(owner.address, depositId);
+
+				// ASSERT
+				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 			});
 		});
 	});

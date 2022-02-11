@@ -8,8 +8,12 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 
-abstract contract Bounty is ReentrancyGuardUpgradeable {
+abstract contract Bounty is
+    ReentrancyGuardUpgradeable,
+    IERC721ReceiverUpgradeable
+{
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
@@ -148,8 +152,8 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
     }
 
     // View Methods
-    function generateDepositId(address _sender, address _tokenAddress)
-        public
+    function _generateDepositId(address _sender, address _tokenAddress)
+        internal
         view
         returns (bytes32)
     {
@@ -176,5 +180,17 @@ abstract contract Bounty is ReentrancyGuardUpgradeable {
 
     receive() external payable {
         // React to receiving protocol token
+    }
+
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4) {
+        return
+            bytes4(
+                keccak256('onERC721Received(address,address,uint256,bytes)')
+            );
     }
 }

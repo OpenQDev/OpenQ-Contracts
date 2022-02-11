@@ -122,7 +122,7 @@ contract OpenQV0 is
         return true;
     }
 
-    function claimBounty(string calldata _bountyId, address _closer)
+    function claimBounty(string calldata _bountyId, address closer)
         external
         onlyOracle
         nonReentrant
@@ -136,14 +136,14 @@ contract OpenQV0 is
             bytes32 depositId = bounty.deposits(i);
 
             if (!bounty.refunded(depositId)) {
-                bounty.claim(_closer, depositId);
+                bounty.claim(closer, depositId);
 
                 emit DepositClaimed(
                     depositId,
                     bounty.bountyId(),
                     bountyAddress,
                     bounty.organization(),
-                    _closer,
+                    closer,
                     block.timestamp
                 );
             } else {
@@ -151,13 +151,13 @@ contract OpenQV0 is
             }
         }
 
-        bounty.close(_closer);
+        bounty.close(closer);
 
         emit BountyClosed(
             _bountyId,
             bountyAddress,
             bounty.organization(),
-            _closer,
+            closer,
             block.timestamp
         );
     }
