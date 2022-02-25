@@ -7,7 +7,6 @@
 	"scripts": {
 		"ethnode": "hardhat node",
 		"hardhat:clean": "hardhat clean",
-		"start:docker": "nodemon --watch contracts -e sol --exec yarn deploy:docker",
 		"hardhat:compile": "hardhat compile",
 		"console:local": "hardhat console --network localhost",
 		"accounts": "hardhat accounts --network localhost",

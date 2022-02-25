@@ -232,11 +232,6 @@ contract OpenQV0 is
         return _getImplementation();
     }
 
-    // Oracle
-    function getOracle() external view returns (address) {
-        return oracle();
-    }
-
     // Revert any attempts to send ETH or unknown calldata
     fallback() external {
         revert();

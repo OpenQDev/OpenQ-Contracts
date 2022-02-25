@@ -5,4 +5,4 @@ RUN apk update && apk upgrade && \
 COPY package.json .
 RUN yarn
 COPY . .
-CMD yarn start:docker
+CMD yarn deploy:docker
