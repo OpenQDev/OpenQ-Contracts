@@ -67,14 +67,14 @@ interface IOpenQ {
         returns (address);
 
     function fundBountyNFT(
-        address,
+        string calldata,
         address,
         uint256,
         uint256
     ) external returns (bool);
 
     function fundBountyToken(
-        address,
+        string calldata,
         address,
         uint256,
         uint256
@@ -82,7 +82,7 @@ interface IOpenQ {
 
     function claimBounty(string calldata, address) external;
 
-    function refundDeposit(address, bytes32) external returns (bool);
+    function refundDeposit(string calldata, bytes32) external returns (bool);
 
     function bountyIsOpen(string memory) external view returns (bool);
 }

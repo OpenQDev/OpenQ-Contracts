@@ -32,20 +32,19 @@ contract OpenQV0 is
     }
 
     // Transactions
-    function mintBounty(string calldata _id, string calldata _organization)
-        external
-        nonReentrant
-        returns (address)
-    {
+    function mintBounty(
+        string calldata _bountyId,
+        string calldata _organization
+    ) external nonReentrant returns (address) {
         address bountyAddress = bountyFactory.mintBounty(
-            _id,
+            _bountyId,
             msg.sender,
             _organization,
             address(this)
         );
 
         emit BountyCreated(
-            _id,
+            _bountyId,
             _organization,
             msg.sender,
             bountyAddress,
@@ -56,17 +55,15 @@ contract OpenQV0 is
     }
 
     function fundBountyNFT(
-        address _bountyAddress,
+        string calldata _bountyId,
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
     ) external nonReentrant returns (bool success) {
-        Bounty bounty = Bounty(payable(_bountyAddress));
+        address bountyAddress = bountyIdToAddress(_bountyId);
+        Bounty bounty = Bounty(payable(bountyAddress));
 
-        require(
-            bountyIsOpen(bounty.bountyId()) == true,
-            'FUNDING_CLOSED_BOUNTY'
-        );
+        require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
 
         bytes32 depositId = bounty.receiveNft(
             msg.sender,
@@ -77,8 +74,8 @@ contract OpenQV0 is
 
         emit NFTDepositReceived(
             depositId,
-            _bountyAddress,
-            bounty.bountyId(),
+            bountyAddress,
+            _bountyId,
             bounty.organization(),
             _tokenAddress,
             block.timestamp,
@@ -91,17 +88,15 @@ contract OpenQV0 is
     }
 
     function fundBountyToken(
-        address _bountyAddress,
+        string calldata _bountyId,
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
     ) external payable nonReentrant returns (bool success) {
-        Bounty bounty = Bounty(payable(_bountyAddress));
+        address bountyAddress = bountyIdToAddress(_bountyId);
+        Bounty bounty = Bounty(payable(bountyAddress));
 
-        require(
-            bountyIsOpen(bounty.bountyId()) == true,
-            'FUNDING_CLOSED_BOUNTY'
-        );
+        require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
             value: msg.value
@@ -109,8 +104,8 @@ contract OpenQV0 is
 
         emit TokenDepositReceived(
             depositId,
-            _bountyAddress,
-            bounty.bountyId(),
+            bountyAddress,
+            _bountyId,
             bounty.organization(),
             _tokenAddress,
             block.timestamp,
@@ -162,17 +157,15 @@ contract OpenQV0 is
         );
     }
 
-    function refundDeposit(address _bountyAddress, bytes32 _depositId)
+    function refundDeposit(string calldata _bountyId, bytes32 _depositId)
         external
         nonReentrant
         returns (bool success)
     {
-        Bounty bounty = Bounty(payable(_bountyAddress));
+        address bountyAddress = bountyIdToAddress(_bountyId);
+        Bounty bounty = Bounty(payable(bountyAddress));
 
-        require(
-            bountyIsOpen(bounty.bountyId()) == true,
-            'REFUNDING_CLOSED_BOUNTY'
-        );
+        require(bountyIsOpen(_bountyId) == true, 'REFUNDING_CLOSED_BOUNTY');
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -191,8 +184,8 @@ contract OpenQV0 is
 
         emit DepositRefunded(
             _depositId,
-            bounty.bountyId(),
-            _bountyAddress,
+            _bountyId,
+            bountyAddress,
             bounty.organization(),
             block.timestamp
         );
@@ -201,19 +194,23 @@ contract OpenQV0 is
     }
 
     // Convenience Methods
-    function bountyIsOpen(string memory _id) public view returns (bool) {
-        address bountyAddress = bountyIdToAddress(_id);
+    function bountyIsOpen(string calldata _bountyId)
+        public
+        view
+        returns (bool)
+    {
+        address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
         bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
         return isOpen;
     }
 
-    function bountyIdToAddress(string memory _id)
+    function bountyIdToAddress(string calldata _bountyId)
         public
         view
         returns (address)
     {
-        return bountyFactory.predictDeterministicAddress(_id);
+        return bountyFactory.predictDeterministicAddress(_bountyId);
     }
 
     function bountyAddressToBountyId(address bountyAddress)

@@ -8,6 +8,7 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
+import '@openzeppelin/contracts/utils/Address.sol';
 
 abstract contract Bounty is
     ReentrancyGuardUpgradeable,
@@ -15,6 +16,7 @@ abstract contract Bounty is
 {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using Address for address payable;
 
     enum BountyStatus {
         OPEN,
@@ -123,7 +125,7 @@ abstract contract Bounty is
     function _transferProtocolToken(address _payoutAddress, uint256 _volume)
         internal
     {
-        payable(_payoutAddress).transfer(_volume);
+        payable(_payoutAddress).sendValue(_volume);
     }
 
     function _receiveNft(

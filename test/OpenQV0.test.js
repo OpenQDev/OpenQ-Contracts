@@ -7,7 +7,7 @@ const { ethers, upgrades } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -147,7 +147,7 @@ describe('OpenQV0.sol', () => {
 			await mockDai.approve(bountyAddress, 10000000);
 
 			// ACT + ASSERT
-			await expect(openQ.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
+			await expect(openQ.fundBountyToken(bountyId, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
 		it('should set funder to msg.sender', async () => {
@@ -160,7 +160,7 @@ describe('OpenQV0.sol', () => {
 			// ACT
 			const depositId = await generateDepositId(owner.address, mockLink.address, 0);
 			await mockLink.approve(bountyAddress, 10000000);
-			openQ.fundBountyToken(bountyAddress, mockLink.address, 100, 1);
+			openQ.fundBountyToken(bountyId, mockLink.address, 100, 1);
 
 			const deposits = await bounty.getDeposits();
 
@@ -192,8 +192,8 @@ describe('OpenQV0.sol', () => {
 
 			// ACT
 			const value = 100;
-			await openQ.fundBountyToken(bountyAddress, mockLink.address, value, 1);
-			await openQ.fundBountyToken(bountyAddress, mockDai.address, value, 1);
+			await openQ.fundBountyToken(bountyId, mockLink.address, value, 1);
+			await openQ.fundBountyToken(bountyId, mockDai.address, value, 1);
 
 			// // ASSERT
 			const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -217,7 +217,7 @@ describe('OpenQV0.sol', () => {
 			expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 			// ACT
-			await openQ.fundBountyNFT(bountyAddress, mockNft.address, 1, 1);
+			await openQ.fundBountyNFT(bountyId, mockNft.address, 1, 1);
 
 			// ASSERT
 			expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
@@ -242,7 +242,7 @@ describe('OpenQV0.sol', () => {
 
 			// ACT
 			// ASSERT
-			await expect(openQ.fundBountyToken(bountyAddress, mockLink.address, 100, 1))
+			await expect(openQ.fundBountyToken(bountyId, mockLink.address, 100, 1))
 				.to.emit(openQ, 'TokenDepositReceived')
 				.withArgs(depositId, bountyAddress, bountyId, 'mock-org', mockLink.address, expectedTimestamp, owner.address, 1, 100);
 		});
@@ -355,9 +355,9 @@ describe('OpenQV0.sol', () => {
 				await mockLink.approve(bountyAddress, 10000000);
 				await mockDai.approve(bountyAddress, 10000000);
 
-				await openQ.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-				await openQ.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
-				await openQ.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await openQ.fundBountyToken(bountyId, mockLink.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, mockDai.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				const [, claimer] = await ethers.getSigners();
 
@@ -422,9 +422,9 @@ describe('OpenQV0.sol', () => {
 				const expectedTimestamp = await setNextBlockTimestamp();
 
 				const volume = 100;
-				await openQ.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-				await openQ.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
-				await openQ.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await openQ.fundBountyToken(bountyId, mockLink.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, mockDai.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				const mockLinkDepositId = generateDepositId(owner.address, mockLink.address, 0);
 
@@ -467,22 +467,22 @@ describe('OpenQV0.sol', () => {
 				const volume = 100;
 				const depositedTimestamp = await setNextBlockTimestamp();
 				const depositId = generateDepositId(owner.address, mockLink.address, 0);
-				await openQ.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, mockLink.address, volume, 1);
 
 				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 1);
-				await openQ.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await openQ.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				const expectedTimestamp = await setNextBlockTimestamp(2764800);
 
 				// ACT
 				// ASSERT
-				await expect(openQ.refundDeposit(bountyAddress, depositId))
+				await expect(openQ.refundDeposit(bountyId, depositId))
 					.to.emit(openQ, 'DepositRefunded')
 					.withArgs(depositId, bountyId, bountyAddress, 'mock-org', expectedTimestamp);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
-				await expect(openQ.refundDeposit(bountyAddress, protocolDepositId))
+				await expect(openQ.refundDeposit(bountyId, protocolDepositId))
 					.to.emit(openQ, 'DepositRefunded')
 					.withArgs(protocolDepositId, bountyId, bountyAddress, 'mock-org', secondExpectedTimestamp);
 			});
@@ -502,10 +502,10 @@ describe('OpenQV0.sol', () => {
 				await mockDai.approve(bountyAddress, 100000);
 
 				const depositId = generateDepositId(owner.address, mockDai.address, 0);
-				await openQ.fundBountyToken(bountyAddress, mockDai.address, 100000, 276000);
+				await openQ.fundBountyToken(bountyId, mockDai.address, 100000, 276000);
 
 				// ACT / ASSERT
-				await expect(openQ.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+				await expect(openQ.refundDeposit(bountyId, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 			});
 
 			it('should revert if not funder', async () => {
@@ -528,7 +528,7 @@ describe('OpenQV0.sol', () => {
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
 
 				// ACT / ASSERT
-				await expect(openQ.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
+				await expect(openQ.refundDeposit(bountyId, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
 			});
 
 			it('should revert if bounty is closed', async () => {
@@ -542,7 +542,7 @@ describe('OpenQV0.sol', () => {
 				const depositId = generateDepositId(owner.address, mockDai.address, 0);
 
 				// ACT + ASSERT
-				await expect(openQ.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('REFUNDING_CLOSED_BOUNTY');
+				await expect(openQ.refundDeposit(bountyId, depositId)).to.be.revertedWith('REFUNDING_CLOSED_BOUNTY');
 			});
 		});
 
@@ -558,13 +558,13 @@ describe('OpenQV0.sol', () => {
 				const volume = 100;
 
 				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
-				await openQ.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, mockLink.address, volume, 1);
 
 				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
-				await openQ.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, mockDai.address, volume, 1);
 
 				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 2);
-				await openQ.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await openQ.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				const thirtyTwoDays = 2765000;
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
@@ -589,9 +589,9 @@ describe('OpenQV0.sol', () => {
 				);
 
 				// ACT
-				await openQ.refundDeposit(bountyAddress, linkDepositId);
-				await openQ.refundDeposit(bountyAddress, daiDepositId);
-				await openQ.refundDeposit(bountyAddress, protocolDepositId);
+				await openQ.refundDeposit(bountyId, linkDepositId);
+				await openQ.refundDeposit(bountyId, daiDepositId);
+				await openQ.refundDeposit(bountyId, protocolDepositId);
 
 				// // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -617,13 +617,13 @@ describe('OpenQV0.sol', () => {
 				await mockNft.approve(bountyAddress, 1);
 
 				const depositId = generateDepositId(owner.address, mockNft.address, 0);
-				await openQ.fundBountyNFT(bountyAddress, mockNft.address, 1, 1);
+				await openQ.fundBountyNFT(bountyId, mockNft.address, 1, 1);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
 
 				// ACT
-				await openQ.refundDeposit(bountyAddress, depositId);
+				await openQ.refundDeposit(bountyId, depositId);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
