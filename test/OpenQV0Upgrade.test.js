@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers, upgrades } = require("hardhat");
 
-describe('OpenQV0Upgrade', () => {
+describe.only('OpenQV0Upgrade', () => {
 	let openQ;
 	let openQStorage;
 	let oracle;
@@ -93,7 +93,7 @@ describe('OpenQV0Upgrade', () => {
 	describe('set oracle', () => {
 		it('should set the oracle address', async () => {
 			// ASSERT
-			const oracleAddress = await openQ.getOracle();
+			const oracleAddress = await openQ.oracle();
 			expect(oracleAddress).equals(oracle.address);
 		});
 	});

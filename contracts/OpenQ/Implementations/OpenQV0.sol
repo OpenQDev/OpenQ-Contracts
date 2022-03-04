@@ -229,6 +229,14 @@ contract OpenQV0 is
         return _getImplementation();
     }
 
+    function setOpenQStorage(address _openQStorage) external onlyOwner {
+        openQStorage = OpenQStorage(_openQStorage);
+    }
+
+    function setBountyFactory(address _bountyFactory) external onlyOwner {
+        bountyFactory = BountyFactory(_bountyFactory);
+    }
+
     // Revert any attempts to send ETH or unknown calldata
     fallback() external {
         revert();
