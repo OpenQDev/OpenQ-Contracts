@@ -35,7 +35,7 @@ contract OpenQV0 is
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization
-    ) external nonReentrant returns (address) {
+    ) external nonReentrant onlyProxy returns (address) {
         address bountyAddress = bountyFactory.mintBounty(
             _bountyId,
             msg.sender,
@@ -59,7 +59,7 @@ contract OpenQV0 is
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
-    ) external nonReentrant returns (bool success) {
+    ) external nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
@@ -92,7 +92,7 @@ contract OpenQV0 is
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) external payable nonReentrant returns (bool success) {
+    ) external payable nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
@@ -160,6 +160,7 @@ contract OpenQV0 is
     function refundDeposit(string calldata _bountyId, bytes32 _depositId)
         external
         nonReentrant
+        onlyProxy
         returns (bool success)
     {
         address bountyAddress = bountyIdToAddress(_bountyId);
@@ -229,11 +230,19 @@ contract OpenQV0 is
         return _getImplementation();
     }
 
-    function setOpenQStorage(address _openQStorage) external onlyOwner {
+    function setOpenQStorage(address _openQStorage)
+        external
+        onlyOwner
+        onlyProxy
+    {
         openQStorage = OpenQStorage(_openQStorage);
     }
 
-    function setBountyFactory(address _bountyFactory) external onlyOwner {
+    function setBountyFactory(address _bountyFactory)
+        external
+        onlyOwner
+        onlyProxy
+    {
         bountyFactory = BountyFactory(_bountyFactory);
     }
 

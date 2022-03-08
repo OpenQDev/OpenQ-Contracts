@@ -2,27 +2,27 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x848f62C85AC418bcCA82cA1cDf237934D3D09d38",
-      "txHash": "0x9ca6fa38dc349d7c8f95a08d896fc7cf09456d8899fd9519b25ffd1f043c41d6",
+      "address": "0xD64A84995f023Ef9693673a63fd0053e1BaAEE35",
+      "txHash": "0x610ecebcf80557d031ecc02a6a039ecd3f3a23df8c896c5b07f238c68d95b5b1",
       "kind": "uups"
     }
   ],
   "impls": {
-    "857b4f5ee8c63c20bb72bc4eff95166215d7a5f2fb7dccc18ae822b0d7fe97f2": {
-      "address": "0xC2A0e80e426F074AE742Dc9141Ca65340cC9F53D",
-      "txHash": "0xee6a0f34b9431924216b1556ee86af1b2018845ac6c5614b6673217f6ba959c1",
+    "2bfe5456c0537f5907e20d7a1003b3c80e0d64176b2806d4b3dbe87d01af56ed": {
+      "address": "0xd4969e9c5f6af4A55BCD04F4Dc871Bf67975C690",
+      "txHash": "0xed6c3da62e2465fc11b0bc80fadeb918824e2b3a9747eb035adde221c5440945",
       "layout": {
         "storage": [
           {
             "contract": "OpenQStorable",
             "label": "openQStorage",
-            "type": "t_contract(OpenQStorage)6293",
+            "type": "t_contract(OpenQStorage)6306",
             "src": "contracts/OpenQ/OpenQStorable.sol:8"
           },
           {
             "contract": "OpenQStorable",
             "label": "bountyFactory",
-            "type": "t_contract(BountyFactory)5106",
+            "type": "t_contract(BountyFactory)5109",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
           {
@@ -102,10 +102,10 @@
           "t_bool": {
             "label": "bool"
           },
-          "t_contract(OpenQStorage)6293": {
+          "t_contract(OpenQStorage)6306": {
             "label": "contract OpenQStorage"
           },
-          "t_contract(BountyFactory)5106": {
+          "t_contract(BountyFactory)5109": {
             "label": "contract BountyFactory"
           }
         }

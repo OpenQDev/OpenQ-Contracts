@@ -9,6 +9,8 @@ cache/
 yarn-error.log
 nohup.out
 
+mcore*/
+
 **/artifacts
 **/.deps
 .env

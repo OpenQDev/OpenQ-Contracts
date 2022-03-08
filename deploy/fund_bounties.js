@@ -52,35 +52,35 @@ async function fundBounties() {
 	const thirtyDays = 2592000;
 
 	console.log('Funding approved for Client 1');
-	await openQ.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);
+	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
 	await optionalSleep(5000);
 	console.log('Funded  for Client 1');
 
-	await openQ.fundBountyToken(bounty1Address, mockLink.address, one, thirtyDays);
+	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtyDays);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty1Address, mockDai.address, two, thirtySeconds);
+	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockDai.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty2Address, mockLink.address, one, fifteenDays);
+	await openQ.fundBountyToken(githubIssueIds[1], mockLink.address, one, fifteenDays);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty2Address, mockDai.address, two, thirtySeconds);
+	await openQ.fundBountyToken(githubIssueIds[1], mockDai.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty2Address, ethers.constants.AddressZero, two, fifteenDays, { value: two });
+	await openQ.fundBountyToken(githubIssueIds[1], ethers.constants.AddressZero, one, fifteenDays, { value: one });
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty3Address, ethers.constants.AddressZero, two, thirtySeconds, { value: two });
+	await openQ.fundBountyToken(githubIssueIds[5], ethers.constants.AddressZero, one, thirtySeconds, { value: one });
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty3Address, ethers.constants.AddressZero, two, thirtySeconds, { value: two });
+	await openQ.fundBountyToken(githubIssueIds[5], ethers.constants.AddressZero, one, thirtySeconds, { value: one });
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty3Address, mockDai.address, two, fifteenDays);
+	await openQ.fundBountyToken(githubIssueIds[5], mockDai.address, two, fifteenDays);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(bounty3Address, mockLink.address, two, thirtySeconds);
+	await openQ.fundBountyToken(githubIssueIds[5], mockLink.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 1');
@@ -89,10 +89,10 @@ async function fundBounties() {
 	const [, contributor] = await ethers.getSigners();
 
 	console.log('Transferring LINK and DERC20 to Client 2');
-	await mockDai.transfer(contributor.address, four);
+	await mockDai.transfer(contributor.address, two);
 	await optionalSleep(5000);
 
-	await mockLink.transfer(contributor.address, four);
+	await mockLink.transfer(contributor.address, two);
 	await optionalSleep(5000);
 	console.log('Transfer to Client 2 succeeded');
 
@@ -110,16 +110,16 @@ async function fundBounties() {
 
 	console.log('Funding approved for Client 2');
 
-	await openQ.connect(contributor).fundBountyToken(bounty1Address, mockLink.address, one, thirtyDays);
+	await openQ.connect(contributor).fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtyDays);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBountyToken(bounty1Address, mockDai.address, two, thirtySeconds);
+	await openQ.connect(contributor).fundBountyToken(githubIssueIdsOtherOrgs[0], mockDai.address, one, thirtySeconds);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBountyToken(bounty2Address, mockLink.address, one, fifteenDays);
+	await openQ.connect(contributor).fundBountyToken(githubIssueIds[1], mockLink.address, one, fifteenDays);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBountyToken(bounty2Address, mockDai.address, two, thirtyDays);
+	await openQ.connect(contributor).fundBountyToken(githubIssueIds[1], mockDai.address, one, thirtyDays);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 2');
