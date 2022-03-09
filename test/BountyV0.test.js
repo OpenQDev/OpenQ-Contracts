@@ -118,7 +118,7 @@ describe('Bounty.sol', () => {
 
 			it('should revert if funder tries to send more than allowance', async () => {
 				const greaterThanAllowance = 100000000;
-				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance, thirtyDays)).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance, thirtyDays)).to.be.revertedWith('ERC20: insufficient allowance');
 			});
 		});
 
