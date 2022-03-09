@@ -4091,7 +4091,7 @@ hardhat-tracer@^1.0.0-alpha.6:
   dependencies:
     ethers "^5.0.24"
 
-hardhat@^2.6.2:
+hardhat@^2.9.1:
   version "2.9.1"
   resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.9.1.tgz#f69f82bb4d98e28744584779483caa7c5cfbde8b"
   integrity sha512-q0AkYXV7R26RzyAkHGQRhhQjk508pseVvH3wSwZwwPUbvA+tjl0vMIrD4aFQDonRXkrnXX4+5KglozzjSd0//Q==
