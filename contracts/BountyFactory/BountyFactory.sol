@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.11;
+pragma solidity 0.8.7;
 
 import '@openzeppelin/contracts/proxy/Clones.sol';
 import '../Bounty/Implementations/BountyV0.sol';
@@ -33,7 +33,7 @@ contract BountyFactory {
     }
 
     function predictDeterministicAddress(string memory _id)
-        public
+        external
         view
         returns (address predicted)
     {

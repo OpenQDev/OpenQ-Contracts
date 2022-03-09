@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.11;
+pragma solidity 0.8.7;
 
 // Third Party
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
@@ -19,7 +19,7 @@ contract BountyV0 is Bounty {
         uint256 _volume,
         uint256 _expiration
     )
-        public
+        external
         payable
         override
         onlyOpenQ
@@ -54,7 +54,7 @@ contract BountyV0 is Bounty {
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
-    ) public override onlyOpenQ nonReentrant returns (bytes32) {
+    ) external override onlyOpenQ nonReentrant returns (bytes32) {
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
         bytes32 depositId = _generateDepositId(_sender, _tokenAddress);

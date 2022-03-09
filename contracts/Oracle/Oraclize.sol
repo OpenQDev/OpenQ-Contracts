@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.11;
+pragma solidity 0.8.7;
 
 // Third Party
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
@@ -20,7 +20,7 @@ abstract contract Oraclize is OwnableUpgradeable {
     /**
      * @dev Returns the address of the current oracle.
      */
-    function oracle() public view virtual returns (address) {
+    function oracle() external view virtual returns (address) {
         return _oracle;
     }
 
@@ -49,7 +49,7 @@ abstract contract Oraclize is OwnableUpgradeable {
      * @dev Transfers oracle of the contract to a new account (`newOracle`).
      * Can only be called by the current owner.
      */
-    function transferOracle(address newOracle) public virtual onlyOwner {
+    function transferOracle(address newOracle) external virtual onlyOwner {
         require(
             newOracle != address(0),
             'Oraclize: new oracle is the zero address'

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.11;
+pragma solidity 0.8.7;
 
 // Third Party
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
@@ -55,7 +55,7 @@ abstract contract Bounty is
         address _issuer,
         string memory _organization,
         address _openQ
-    ) public initializer {
+    ) external initializer {
         require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
         bountyId = _bountyId;
@@ -71,14 +71,14 @@ abstract contract Bounty is
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) public payable virtual returns (bytes32, uint256);
+    ) external payable virtual returns (bytes32, uint256);
 
     function receiveNft(
         address _sender,
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
-    ) public virtual returns (bytes32);
+    ) external virtual returns (bytes32);
 
     function refundDeposit(bytes32 _depositId, address _funder)
         external
@@ -170,7 +170,7 @@ abstract contract Bounty is
         return token.balanceOf(address(this));
     }
 
-    function getDeposits() public view returns (bytes32[] memory) {
+    function getDeposits() external view returns (bytes32[] memory) {
         return deposits;
     }
 
@@ -188,7 +188,7 @@ abstract contract Bounty is
         address,
         uint256,
         bytes calldata
-    ) external pure returns (bytes4) {
+    ) external pure override returns (bytes4) {
         return
             bytes4(
                 keccak256('onERC721Received(address,address,uint256,bytes)')

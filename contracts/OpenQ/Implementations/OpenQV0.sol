@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.11;
+pragma solidity 0.8.7;
 
 // Third Party
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
@@ -24,7 +24,7 @@ contract OpenQV0 is
 {
     using SafeMath for uint256;
 
-    function initialize(address oracle) public initializer {
+    function initialize(address oracle) external initializer {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Oraclize_init(oracle);
@@ -35,7 +35,7 @@ contract OpenQV0 is
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization
-    ) external nonReentrant onlyProxy returns (address) {
+    ) external override nonReentrant onlyProxy returns (address) {
         address bountyAddress = bountyFactory.mintBounty(
             _bountyId,
             msg.sender,
@@ -59,7 +59,7 @@ contract OpenQV0 is
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
-    ) external nonReentrant onlyProxy returns (bool success) {
+    ) external override nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
@@ -92,7 +92,7 @@ contract OpenQV0 is
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) external payable nonReentrant onlyProxy returns (bool success) {
+    ) external payable override nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
@@ -119,6 +119,7 @@ contract OpenQV0 is
 
     function claimBounty(string calldata _bountyId, address closer)
         external
+        override
         onlyOracle
         nonReentrant
     {
@@ -159,6 +160,7 @@ contract OpenQV0 is
 
     function refundDeposit(string calldata _bountyId, bytes32 _depositId)
         external
+        override
         nonReentrant
         onlyProxy
         returns (bool success)
@@ -198,6 +200,7 @@ contract OpenQV0 is
     function bountyIsOpen(string calldata _bountyId)
         public
         view
+        override
         returns (bool)
     {
         address bountyAddress = bountyIdToAddress(_bountyId);
@@ -215,7 +218,7 @@ contract OpenQV0 is
     }
 
     function bountyAddressToBountyId(address bountyAddress)
-        public
+        external
         view
         returns (string memory)
     {
