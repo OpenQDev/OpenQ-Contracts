@@ -124,6 +124,9 @@ contract BountyV0 is Bounty {
         require(!refunded[depositId], 'CLAIMING_REFUNDED_DEPOSIT');
         require(!claimed[depositId], 'CLAIMING_CLAIMED_DEPOSIT');
 
+        claimed[depositId] = true;
+        payoutAddress[depositId] = _payoutAddress;
+
         if (tokenAddress[depositId] == address(0)) {
             _transferProtocolToken(_payoutAddress, volume[depositId]);
         } else if (isNFT[depositId]) {
@@ -139,9 +142,6 @@ contract BountyV0 is Bounty {
                 volume[depositId]
             );
         }
-
-        claimed[depositId] = true;
-        payoutAddress[depositId] = _payoutAddress;
 
         return true;
     }
