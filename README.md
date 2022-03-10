@@ -4,7 +4,14 @@ Welcome! By luck or misfortune you've found yourself in the OpenQ on-chain unive
 
 ## Core User Actions
 
-OpenQ revolves around five core user actions.
+OpenQ revolves around six core user actions.
+
+- BountyCreated
+- BountyClosed
+- TokenDepositReceived
+- NFTDepositReceived
+- DepositRefunded
+- DepositClaimed
 
 Each action corresponds to one Solidity Event. These events are declared in [IOpenQ](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/IOpenQ.sol). 
 
@@ -12,7 +19,7 @@ Each event emitted is indexed by [The Graph](https://thegraph.com/en/) to aggreg
 
 We will cover how we handle each of these five core actions on-chain in brief below.
 
-The in the [Contracts](https://github.com/OpenQDev/OpenQ-Contracts#contracts) section, we will then cover the specifics in code of how our smart contracts enable these actions.
+Then in the [Contracts](https://github.com/OpenQDev/OpenQ-Contracts#contracts) section, we will then cover the specifics in code of how our smart contracts enable these actions.
 
 ### Mint Bounty
 
@@ -40,7 +47,7 @@ Closing a bounty simply sets bounty status to `CLOSED` and the `bountyClosedTime
 
 ## Contracts
 
-The five core OpenQ actions defined above are composed across five contracts.
+The six core OpenQ actions defined above are composed across five contracts.
 
 - OpenQV0 (Proxy) Deployed automatically by the [hardhat-upgrades](https://www.npmjs.com/package/@openzeppelin/hardhat-upgrades) plugin. It is an ERC-1967 [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable) contract.
 - [OpenQV0 (Implementation)](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV0.sol)
@@ -65,6 +72,8 @@ This flexiibility allows us to accept any ERC-20, and in the future ERC-721, as 
 Since only the [runtime bytecode](https://medium.com/authereum/bytecode-and-init-code-and-runtime-code-oh-my-7bcd89065904) is available, which does not include the constructor the BountyV0 implementation only has an [initialize](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Bounty/Bounty.sol#L53) method.
 
 The initialize method is protected from being called mutiple times by [OpenZeppelin's Initializable](https://github.com/OpenZeppelin/openzeppelin-upgrades/blob/master/packages/core/contracts/Initializable.sol) interface.
+
+### Modifiers
 
 #### onlyOpenQ
 
@@ -96,7 +105,17 @@ The OpenQ Oracle private keys are held in a vault and transaction signer hosted 
 
 The OpenQ Oracle calls `claimBounty` when the [OpenZeppelin Defender Autotask](https://docs.openzeppelin.com/defender/autotasks) confirms that the person authenticated by the GitHub OAuth token present in the [X-Authorization header](https://github.com/OpenQDev/OpenQ-OZ-Claim-Autotask/blob/development/main.js#L12) is indeed the person who [closed the bounty with their pull request](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
 
-### [OpenQStorage](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Storage/OpenQStorage.sol)
+#### onlyProxy
+
+We do not want to allow users to maliciously or accidentally call the OpenQV0.sol contract directly. If they were to do so, the Event would be emitted from the implementation and not from the proxy. Since our subgraph is indexing only the proxy address, this would break our accounting.
+
+`onlyProxy` is from the Open Zeppelin contract-upgradeable library on the [UUPSUpgradable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol#L38) contract.
+
+`onlyProxy` requries that `address(this)` (the caller) is NOT an immutable `_self` set when the implementation contract is deployed.
+
+### Storage
+
+#### [OpenQStorage](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Storage/OpenQStorage.sol)
 
 OpenQStorage employs the [EternalStorage pattern](https://fravoll.github.io/solidity-patterns/eternal_storage.html).
 
