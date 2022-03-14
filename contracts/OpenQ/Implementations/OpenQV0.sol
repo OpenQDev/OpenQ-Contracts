@@ -24,6 +24,8 @@ contract OpenQV0 is
 {
     using SafeMath for uint256;
 
+    constructor() {}
+
     function initialize(address oracle) external initializer {
         __Ownable_init();
         __UUPSUpgradeable_init();

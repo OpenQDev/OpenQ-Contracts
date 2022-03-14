@@ -19,6 +19,7 @@
 		"deploy-bounties:docker": "hardhat run --network docker deploy/deploy_bounties.js",
 		"fund-bounties:docker": "hardhat run --network docker deploy/fund_bounties.js",
 		"deploy-contracts:mumbai": "hardhat run --network mumbai deploy/deploy_contracts.js",
+		"verify-contracts:mumbai": "hardhat run --network mumbai deploy/verify_contracts.js",
 		"deploy-bounties:mumbai": "hardhat run --network mumbai deploy/deploy_bounties.js",
 		"deploy-contracts:polygon": "hardhat run --network polygon deploy/deploy_contracts.js",
 		"deploy-bounties:polygon": "hardhat run --network polygon deploy/deploy_bounties.js",

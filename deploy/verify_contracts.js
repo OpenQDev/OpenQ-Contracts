@@ -1,6 +1,6 @@
 const hre = require('hardhat');
 const fs = require('fs');
-require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 async function verifyContracts() {
 	console.log('\n------------------------------------------');

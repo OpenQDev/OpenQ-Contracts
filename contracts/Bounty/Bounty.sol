@@ -50,6 +50,8 @@ abstract contract Bounty is
     // Deposit Count and IDs
     bytes32[] public deposits;
 
+    constructor() {}
+
     function initialize(
         string memory _bountyId,
         address _issuer,
