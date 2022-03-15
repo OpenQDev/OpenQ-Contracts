@@ -1,8 +1,9 @@
 require('@nomiclabs/hardhat-waffle');
 require('@openzeppelin/hardhat-upgrades');
 require("@nomiclabs/hardhat-etherscan");
-require('dotenv').config();
+require('hardhat-contract-sizer');
 require('hardhat-tracer');
+require('dotenv').config();
 
 module.exports = (function () {
 	let chainId = process.env.CHAIN_ID;
@@ -34,6 +35,12 @@ module.exports = (function () {
 		},
 		etherscan: {
 			apiKey: process.env.POLYGON_SCAN_API_KEY
+		},
+		contractSizer: {
+			alphaSort: true,
+			disambiguatePaths: false,
+			runOnCompile: true,
+			strict: true
 		}
 	};
 
