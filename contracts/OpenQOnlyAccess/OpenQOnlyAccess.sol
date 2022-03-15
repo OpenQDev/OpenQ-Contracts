@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.12;
 
-abstract contract OpenQOnlyAccess {
+import '@openzeppelin/contracts/utils/Context.sol';
+
+abstract contract OpenQOnlyAccess is Context {
     // OpenQ Proxy Contract
     address public openQ;
 
@@ -11,7 +13,7 @@ abstract contract OpenQOnlyAccess {
 
     // Modifiers
     modifier onlyOpenQ() {
-        require(msg.sender == openQ, 'Method is only callable by OpenQ');
+        require(_msgSender() == openQ, 'Method is only callable by OpenQ');
         _;
     }
 }

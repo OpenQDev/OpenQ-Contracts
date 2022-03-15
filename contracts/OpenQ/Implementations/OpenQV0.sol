@@ -251,9 +251,4 @@ contract OpenQV0 is
     {
         bountyFactory = BountyFactory(_bountyFactory);
     }
-
-    // Revert any attempts to send ETH or unknown calldata
-    fallback() external {
-        revert();
-    }
 }

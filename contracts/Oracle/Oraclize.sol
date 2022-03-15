@@ -2,7 +2,6 @@
 pragma solidity 0.8.12;
 
 // Third Party
-import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
 abstract contract Oraclize is OwnableUpgradeable {

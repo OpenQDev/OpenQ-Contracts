@@ -7,7 +7,7 @@ const { ethers, upgrades } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -45,7 +45,7 @@ describe('OpenQV0.sol', () => {
 		openQStorage = await OpenQStorage.deploy();
 		await openQStorage.deployed();
 
-		bountyFactory = await BountyFactory.deploy();
+		bountyFactory = await BountyFactory.deploy(openQ.address);
 		await bountyFactory.deployed();
 
 		await openQ.setOpenQStorage(openQStorage.address);
