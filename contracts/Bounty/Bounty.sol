@@ -10,9 +10,13 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 
+// Custom
+import '../OpenQOnlyAccess/OpenQOnlyAccess.sol';
+
 abstract contract Bounty is
     ReentrancyGuardUpgradeable,
-    IERC721ReceiverUpgradeable
+    IERC721ReceiverUpgradeable,
+    OpenQOnlyAccess
 {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -22,9 +26,6 @@ abstract contract Bounty is
         OPEN,
         CLOSED
     }
-
-    // OpenQ Proxy Contract
-    address public openQ;
 
     // Bounty Metadata
     string public bountyId;
@@ -63,9 +64,9 @@ abstract contract Bounty is
         bountyId = _bountyId;
         issuer = _issuer;
         organization = _organization;
-        openQ = _openQ;
         bountyCreatedTime = block.timestamp;
         __ReentrancyGuard_init();
+        __OpenQOnlyAccess_init(_openQ);
     }
 
     function receiveFunds(
@@ -146,12 +147,6 @@ abstract contract Bounty is
     ) internal {
         IERC721 nft = IERC721(_tokenAddress);
         nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
-    }
-
-    // Modifiers
-    modifier onlyOpenQ() {
-        require(msg.sender == openQ, 'Method is only callable by OpenQ');
-        _;
     }
 
     // View Methods

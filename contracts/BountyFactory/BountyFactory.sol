@@ -4,11 +4,12 @@ pragma solidity 0.8.12;
 import '@openzeppelin/contracts/proxy/Clones.sol';
 import '../Bounty/Implementations/BountyV0.sol';
 
-contract BountyFactory {
+contract BountyFactory is OpenQOnlyAccess {
     address public immutable bountyImplementation;
 
-    constructor() {
+    constructor(address _openQ) {
         bountyImplementation = address(new BountyV0());
+        __OpenQOnlyAccess_init(_openQ);
     }
 
     function mintBounty(
@@ -16,7 +17,7 @@ contract BountyFactory {
         address _issuer,
         string memory _organization,
         address _openQ
-    ) external returns (address) {
+    ) external onlyOpenQ returns (address) {
         address clone = Clones.cloneDeterministic(
             bountyImplementation,
             keccak256(abi.encode(_id))
