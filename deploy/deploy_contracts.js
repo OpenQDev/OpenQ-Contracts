@@ -44,7 +44,7 @@ async function deployContracts() {
 
 	console.log('Deploying BountyFactory...');
 	const BountyFactory = await ethers.getContractFactory('BountyFactory');
-	const bountyFactory = await BountyFactory.deploy();
+	const bountyFactory = await BountyFactory.deploy(openQ.address);
 	await bountyFactory.deployed();
 	await optionalSleep(10000);
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);

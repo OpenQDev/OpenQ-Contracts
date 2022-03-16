@@ -39,7 +39,7 @@ module.exports = (function () {
 		contractSizer: {
 			alphaSort: true,
 			disambiguatePaths: false,
-			runOnCompile: true,
+			runOnCompile: false,
 			strict: true
 		}
 	};
