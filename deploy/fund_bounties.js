@@ -16,7 +16,7 @@ async function fundBounties() {
 	const OpenQ = await ethers.getContractFactory('OpenQV0');
 	const openQ = await OpenQ.attach(process.env.OPENQ_ADDRESS);
 
-	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGAqhQc48U54v', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq', 'I_kwDOGWnnz85CZwGJ', 'I_kwDOGWnnz85AkiDt'];
+	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGWnnz85GjwA1', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq', 'I_kwDOGWnnz85CZwGJ', 'I_kwDOGWnnz85AkiDt'];
 	const githubIssueIdsOtherOrgs = ['I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW'];
 
 	const bounty1Address = await openQ.bountyIdToAddress(githubIssueIdsOtherOrgs[0]);

@@ -27,7 +27,7 @@ contract OpenQV0 is
 
     constructor() {}
 
-    function initialize(address oracle) external initializer {
+    function initialize(address oracle) external initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Oraclize_init(oracle);
