@@ -30,9 +30,9 @@ async function deployContracts() {
 	const OpenQ = await ethers.getContractFactory('OpenQV0');
 	const openQ = await upgrades.deployProxy(OpenQ, [process.env.ORACLE_ADDRESS], { kind: 'uups' });
 	console.log(`OpenQV0 Deploy Transaction: ${openQ.deployTransaction.hash}`);
-	await openQ.deployed();
-	await optionalSleep(10000);
-	console.log(`OpenQV0 (Proxy) Deployed to ${openQ.address}`);
+	const confirmation = await openQ.deployed();
+	await optionalSleep(10000); 25879700;
+	console.log(`OpenQV0 (Proxy) Deployed to ${openQ.address} in block number ${confirmation.provider._emitted.block}`);
 	const openQImplementation = await openQ.getImplementation();
 	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation}\n`);
 
