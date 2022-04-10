@@ -31,8 +31,9 @@ async function deployContracts() {
 	const openQ = await upgrades.deployProxy(OpenQ, [process.env.ORACLE_ADDRESS], { kind: 'uups' });
 	console.log(`OpenQV0 Deploy Transaction: ${openQ.deployTransaction.hash}`);
 	const confirmation = await openQ.deployed();
+	const deployBlockNumber = parseInt(confirmation.provider._emitted.block);
 	await optionalSleep(10000); 25879700;
-	console.log(`OpenQV0 (Proxy) Deployed to ${openQ.address} in block number ${confirmation.provider._emitted.block}`);
+	console.log(`OpenQV0 (Proxy) Deployed to ${openQ.address} in block number ${deployBlockNumber}`);
 	const openQImplementation = await openQ.getImplementation();
 	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation}\n`);
 
@@ -89,15 +90,17 @@ async function deployContracts() {
 	let addresses;
 	if (network.name === 'docker') {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
+OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
 MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
 `;
 	} else {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
+OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
 MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
 `;
 	}
 
