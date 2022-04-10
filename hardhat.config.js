@@ -1,6 +1,6 @@
 require('@nomiclabs/hardhat-waffle');
 require('@openzeppelin/hardhat-upgrades');
-require("@nomiclabs/hardhat-etherscan");
+require('@nomiclabs/hardhat-etherscan');
 require('hardhat-contract-sizer');
 require('hardhat-tracer');
 require('dotenv').config();
@@ -10,7 +10,12 @@ module.exports = (function () {
 	const chainIdInt = parseInt(chainId);
 
 	const config = {
-		solidity: '0.8.12',
+		solidity: {
+			compilers: [
+				{ version: '0.8.2' },
+				{ version: '0.8.12' }
+			],
+		},
 		networks: {
 			localhost: {
 				url: process.env.PROVIDER_URL,
@@ -30,7 +35,8 @@ module.exports = (function () {
 				url: process.env.PROVIDER_URL,
 				accounts: [process.env.CLIENT, process.env.CONTRIBUTOR],
 				chainId: chainIdInt,
-				gas: 9999999
+				gas: 9999999,
+				gasPrice: 100000000000
 			},
 		},
 		etherscan: {

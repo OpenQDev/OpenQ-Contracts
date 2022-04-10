@@ -2,22 +2,22 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x7855337A877D82623FFdDF6F7B986dcBc14f963A",
-      "txHash": "0x43a12440da267e3b886d18c9a35fd5fd3134e561cbd8766f99eedbc62ed0bc38",
+      "address": "0x3F25E77BbA716E2294efE75E9B3d13d7dE18B0B0",
+      "txHash": "0x13279206c6e3c6490d1c0bfe8384e783ac10382af68d802123462198e64c7f8e",
       "kind": "uups"
     }
   ],
   "impls": {
-    "3d33d56f186d547338b3ab2107ed5912aa8f7be8ee8bf72d06166a6bdf2546a7": {
-      "address": "0x0bBeB64594b2f3ed8670774b71Ba35EC12844fd9",
-      "txHash": "0x5e68054093def8df7469d414f2b74a5ef21b8685c0e16c4a0414c79c88e3ae5d",
+    "47a76987834fbf00d59807b821f4f9a0764dacbb9efa2b1d1e6612e7ef822608": {
+      "address": "0xE25E32217352a135F2fD3333abE00984Dd126238",
+      "txHash": "0xbf4d253033105314308522076b4a83fe247c3a8d9c3ef344ddfdc2bb574e6cf2",
       "layout": {
         "storage": [
           {
             "label": "openQStorage",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(OpenQStorage)4576",
+            "type": "t_contract(OpenQStorage)7863",
             "contract": "OpenQStorable",
             "src": "contracts/OpenQ/OpenQStorable.sol:8"
           },
@@ -25,7 +25,7 @@
             "label": "bountyFactory",
             "offset": 0,
             "slot": "1",
-            "type": "t_contract(BountyFactory)3361",
+            "type": "t_contract(BountyFactory)6619",
             "contract": "OpenQStorable",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
@@ -107,30 +107,37 @@
             "slot": "252",
             "type": "t_address",
             "contract": "Oraclize",
-            "src": "contracts/Oracle/Oraclize.sol:9"
+            "src": "contracts/Oracle/Oraclize.sol:8"
           }
         ],
         "types": {
           "t_address": {
-            "label": "address"
+            "label": "address",
+            "numberOfBytes": "20"
           },
           "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
           },
           "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
           },
           "t_bool": {
-            "label": "bool"
+            "label": "bool",
+            "numberOfBytes": "1"
           },
-          "t_contract(BountyFactory)3361": {
-            "label": "contract BountyFactory"
+          "t_contract(BountyFactory)6619": {
+            "label": "contract BountyFactory",
+            "numberOfBytes": "20"
           },
-          "t_contract(OpenQStorage)4576": {
-            "label": "contract OpenQStorage"
+          "t_contract(OpenQStorage)7863": {
+            "label": "contract OpenQStorage",
+            "numberOfBytes": "20"
           },
           "t_uint256": {
-            "label": "uint256"
+            "label": "uint256",
+            "numberOfBytes": "32"
           }
         }
       }
