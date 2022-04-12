@@ -13,7 +13,7 @@ async function deployBounties() {
 	const openQ = await OpenQ.attach(process.env.OPENQ_ADDRESS);
 
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGWnnz85GjwA1', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq', 'I_kwDOGWnnz85CZwGJ', 'I_kwDOGWnnz85AkiDt'];
-	const githubIssueIdsOtherOrgs = ['I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW'];
+	const githubIssueIdsOtherOrgs = ['I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW', 'I_kwDOB7jojM5HoxGM', 'I_kwDOBhc8WM5Fqi_o', 'I_kwDOCQWAHM5EzBw7'];
 
 	console.log('Minting Bounty 1...');
 	await openQ.mintBounty(githubIssueIds[0], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4');
@@ -69,6 +69,22 @@ async function deployBounties() {
 	await openQ.mintBounty(githubIssueIdsOtherOrgs[1], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4');
 	await optionalSleep(10000);
 	console.log('Bounty 9 deployed');
+
+
+	console.log('Minting Bounty 10...');
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[2], 'MDEyOk9yZ2FuaXphdGlvbjM4OTE3MTM3');
+	await optionalSleep(10000);
+	console.log('Bounty 10 deployed');
+
+	console.log('Minting Bounty 11...');
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[3], 'MDEyOk9yZ2FuaXphdGlvbjI0OTU0NDY4');
+	await optionalSleep(10000);
+	console.log('Bounty 11 deployed');
+
+	console.log('Minting Bounty 12...');
+	await openQ.mintBounty(githubIssueIdsOtherOrgs[4], 'MDEyOk9yZ2FuaXphdGlvbjEyNTIzMDI1');
+	await optionalSleep(10000);
+	console.log('Bounty 12 deployed');
 
 	// await sleep(2000);
 
