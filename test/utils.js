@@ -1,8 +1,8 @@
 const ethers = require('ethers');
 
-function generateDepositId(address, tokenAddress, depositCount) {
+function generateDepositId(bountyId, depositCount) {
 	const abiCoder = new ethers.utils.AbiCoder;
-	const abiEncodedParams = abiCoder.encode(['address', 'address', 'uint256'], [address, tokenAddress, depositCount]);
+	const abiEncodedParams = abiCoder.encode(['string', 'uint256'], [bountyId, depositCount]);
 	const depositId = ethers.utils.keccak256(abiEncodedParams);
 	return depositId;
 }

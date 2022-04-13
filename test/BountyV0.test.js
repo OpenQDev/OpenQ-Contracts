@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe('Bounty.sol', () => {
+describe.only('BountyV0.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -135,10 +135,9 @@ describe('Bounty.sol', () => {
 				// ARRANGE
 
 				// ACT
+				const depositId = generateDepositId(mockId, 0);
 				const expectedTimestamp = await setNextBlockTimestamp();
 				await bounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
-				const deposits = await bounty.getDeposits();
-				const depositId = deposits[0];
 
 				// ASSERT
 				expect(await bounty.funder(depositId)).to.equal(owner.address);
@@ -182,10 +181,6 @@ describe('Bounty.sol', () => {
 				const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
 				expect(bountyMockTokenBalance).to.equal('100');
 				expect(bountyFakeTokenBalance).to.equal('100');
-			});
-
-			it('should transfer volume of ERC20 from sender to bounty (transfer fee ERC20)', async () => {
-
 			});
 		});
 
@@ -235,9 +230,8 @@ describe('Bounty.sol', () => {
 
 				// ACT
 				const expectedTimestamp = await setNextBlockTimestamp();
+				const depositId = generateDepositId(mockId, 0);
 				await bounty.receiveNft(owner.address, mockNft.address, 1, thirtyDays);
-				const deposits = await bounty.getDeposits();
-				const depositId = deposits[0];
 
 				// ASSERT
 				expect(await bounty.funder(depositId)).to.equal(owner.address);
@@ -248,10 +242,6 @@ describe('Bounty.sol', () => {
 
 				const depositTime = await bounty.depositTime(depositId);
 				expect(depositTime.toString()).to.equal(expectedTimestamp.toString());
-			});
-
-			it('should return depositId', async () => {
-
 			});
 		});
 
@@ -289,19 +279,16 @@ describe('Bounty.sol', () => {
 				const volume = 100;
 
 				// ASSUME
+				const linkDepositId = generateDepositId(mockId, 0);
 				await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
-				const linkDeposits = await bounty.getDeposits();
-				const linkDepositId = linkDeposits[0];
 				expect(await bounty.refunded(linkDepositId)).to.equal(false);
 
+				const daiDepositId = generateDepositId(mockId, 1);
 				await bounty.receiveFunds(owner.address, mockDai.address, volume, 1);
-				const daiDeposits = await bounty.getDeposits();
-				const daiDepositId = daiDeposits[1];
 				expect(await bounty.refunded(daiDepositId)).to.equal(false);
 
+				const protocolDepositId = generateDepositId(mockId, 2);
 				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
-				const protocolDeposits = await bounty.getDeposits();
-				const protocolDepositId = protocolDeposits[2];
 				expect(await bounty.refunded(protocolDepositId)).to.equal(false);
 
 				// ACT
@@ -321,17 +308,14 @@ describe('Bounty.sol', () => {
 				// ARRANGE
 				const volume = 100;
 
+				const linkDepositId = generateDepositId(mockId, 0);
 				await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
-				const linkDeposits = await bounty.getDeposits();
-				const linkDepositId = linkDeposits[0];
 
+				const daiDepositId = generateDepositId(mockId, 1);
 				await bounty.receiveFunds(owner.address, mockDai.address, volume, 1);
-				const daiDeposits = await bounty.getDeposits();
-				const daiDepositId = daiDeposits[1];
 
+				const protocolDepositId = generateDepositId(mockId, 2);
 				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
-				const protocolDeposits = await bounty.getDeposits();
-				const protocolDepositId = protocolDeposits[1];
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
@@ -368,9 +352,8 @@ describe('Bounty.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 				// ARRANGE
+				const depositId = generateDepositId(mockId, 0);
 				await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
-				const deposits = await bounty.getDeposits();
-				const depositId = deposits[0];
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);
@@ -407,7 +390,7 @@ describe('Bounty.sol', () => {
 			describe('deposit updates', () => {
 				it('should set claimed to true for deposit', async () => {
 					// ARRANGE
-					const depositId = generateDepositId(owner.address, mockNft.address, 0);
+					const depositId = generateDepositId(mockId, 0);
 					await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
 
 					// ASSUME
@@ -422,7 +405,7 @@ describe('Bounty.sol', () => {
 
 				it('should set payoutAddress for deposit', async () => {
 					// ARRANGE
-					const depositId = generateDepositId(owner.address, mockNft.address, 0);
+					const depositId = generateDepositId(mockId, 0);
 					await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
 
 					// ASSUME
@@ -496,9 +479,8 @@ describe('Bounty.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 				// ARRANGE
+				const depositId = generateDepositId(mockId, 0);
 				await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
-				const deposits = await bounty.getDeposits();
-				const depositId = deposits[0];
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);

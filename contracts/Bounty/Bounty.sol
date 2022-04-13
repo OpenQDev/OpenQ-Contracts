@@ -151,7 +151,7 @@ abstract contract Bounty is
 
     // View Methods
     function _generateDepositId() internal view returns (bytes32) {
-        return keccak256(abi.encode(deposits.length, bountyId));
+        return keccak256(abi.encode(bountyId, deposits.length));
     }
 
     function getERC20Balance(address _tokenAddress)
