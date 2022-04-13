@@ -37,6 +37,13 @@ async function deployContracts() {
 	const openQImplementation = await openQ.getImplementation();
 	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation}\n`);
 
+	console.log('Deploying new OpenQV0...');
+	const OpenQImpl = await ethers.getContractFactory('OpenQV0');
+	const openQImplemen = await OpenQImpl.deploy();
+	await openQImplemen.deployed();
+	await optionalSleep(10000);
+	console.log(`Deployed new OpenQV0 to ${openQImplemen.address}\n`);
+
 	console.log('Deploying OpenQStorage...');
 	const OpenQStorage = await ethers.getContractFactory('OpenQStorage');
 	const openQStorage = await OpenQStorage.deploy();

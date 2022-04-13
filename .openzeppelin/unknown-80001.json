@@ -2,52 +2,22 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x3F25E77BbA716E2294efE75E9B3d13d7dE18B0B0",
-      "txHash": "0x13279206c6e3c6490d1c0bfe8384e783ac10382af68d802123462198e64c7f8e",
-      "kind": "uups"
-    },
-    {
-      "address": "0xa1f93752A09cb11EE84CE3F05CdfA59D8ad072Ba",
-      "txHash": "0x3e8febb5e425f54e18ceb48b961fc80fae1a1f3fc7083bc93160a5e49c156d06",
-      "kind": "uups"
-    },
-    {
-      "address": "0xdC9DDD5ea515e2b24C68877C0EC1eA5282C92045",
-      "txHash": "0x444638d5582c5f6e60a8c1663d21c7773926aeefcb2d455828969c36d32e3fd5",
-      "kind": "uups"
-    },
-    {
-      "address": "0xe7089F5655187d91b8913e4312EC3397aa0C96Ee",
-      "txHash": "0x30ce3163b0485b742037073e7797d7fdf3898373f21f3d8be7b148801bfd4879",
-      "kind": "uups"
-    },
-    {
-      "address": "0x6E5C91cDB36ec6809Da927Be162a91a05Cba8A00",
-      "txHash": "0x8018d346c7ea49b4f05d588ebc312a8e34d329470cfeb0c2aec6cfb427f50289",
-      "kind": "uups"
-    },
-    {
-      "address": "0xCcEE97Cd9e6bC05F821016E16b023958176c3205",
-      "txHash": "0xbdf04a3cd05785ded6561519e90449ac8c10f6a215d879bc4fa1a261faa9e08e",
-      "kind": "uups"
-    },
-    {
-      "address": "0x388f0002f32f2CF770fB996Ab096aeB8FA6694F7",
-      "txHash": "0x6cebaff92134a4e59276aafbd8f2b688b3dc57bd6ce9e49e9cfdaea55808f50d",
+      "address": "0x4F4800Aa07F7b00E87CDa3E76b578acB0fFB9A7E",
+      "txHash": "0x5013cd2ac5d000ffe490461a32e7c38abed6408eaa983859209fac2c71668edd",
       "kind": "uups"
     }
   ],
   "impls": {
     "47a76987834fbf00d59807b821f4f9a0764dacbb9efa2b1d1e6612e7ef822608": {
-      "address": "0xE25E32217352a135F2fD3333abE00984Dd126238",
-      "txHash": "0xbf4d253033105314308522076b4a83fe247c3a8d9c3ef344ddfdc2bb574e6cf2",
+      "address": "0x53063AFb7266c1DdeDcCd9CeF252CDdc7949455b",
+      "txHash": "0x7b90810feb33bb2f04112622ac357184273a8a58934b3a6d375f64f97ef57ce3",
       "layout": {
         "storage": [
           {
             "label": "openQStorage",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(OpenQStorage)7863",
+            "type": "t_contract(OpenQStorage)6038",
             "contract": "OpenQStorable",
             "src": "contracts/OpenQ/OpenQStorable.sol:8"
           },
@@ -55,7 +25,7 @@
             "label": "bountyFactory",
             "offset": 0,
             "slot": "1",
-            "type": "t_contract(BountyFactory)6619",
+            "type": "t_contract(BountyFactory)4794",
             "contract": "OpenQStorable",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
@@ -157,11 +127,11 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(BountyFactory)6619": {
+          "t_contract(BountyFactory)4794": {
             "label": "contract BountyFactory",
             "numberOfBytes": "20"
           },
-          "t_contract(OpenQStorage)7863": {
+          "t_contract(OpenQStorage)6038": {
             "label": "contract OpenQStorage",
             "numberOfBytes": "20"
           },

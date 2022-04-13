@@ -5,22 +5,11 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') })
 
 async function verifyContracts() {
 	console.log('\n------------------------------------------');
-	console.log(`VERIFYING CONTRACTS to ${hre.network.name.toUpperCase()}`);
+	console.log(`VERIFYING OPENQ IMPLEMENTATION CONTRACT on ${hre.network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
 
-	// Verify Implementation
 	await hre.run('verify:verify', {
 		address: process.env.OPENQ_IMPLEMENTATION_ADDRESS,
-	});
-
-	await hre.run('verify:verify', {
-		address: process.env.OPENQ_ADDRESS,
-	});
-
-	// Verify Proxy
-	await hre.run("verify:verify", {
-		address: process.env.OPENQ_ADDRESS,
-		constructorArguments: [process.env.OPENQ_IMPLEMENTATION_ADDRESS, '0x'],
 	});
 }
 

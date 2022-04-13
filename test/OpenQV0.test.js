@@ -158,11 +158,11 @@ describe.only('OpenQV0.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			// ACT
-			const depositId = await generateDepositId(owner.address, mockLink.address, 0);
 			await mockLink.approve(bountyAddress, 10000000);
 			openQ.fundBountyToken(bountyId, mockLink.address, 100, 1);
 
 			const deposits = await bounty.getDeposits();
+			const depositId = deposits[0];
 
 			// // ASSERT
 			expect(await bounty.funder(depositId)).to.equal(owner.address);
@@ -456,35 +456,39 @@ describe.only('OpenQV0.sol', () => {
 
 	describe('refundDeposits', () => {
 		describe('Event Emissions', () => {
-			it('should emit DepositRefunded event for refunded deposit', async () => {
+			it.only('should emit DepositRefunded event for refunded deposit', async () => {
 				// ARRANGE
 				await openQ.mintBounty(bountyId, 'mock-org');
 
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+				const Bounty = await ethers.getContractFactory('BountyV0');
+				const bounty = await Bounty.attach(bountyAddress);
 
 				await mockLink.approve(bountyAddress, 10000000);
 
 				const volume = 100;
 				const depositedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(owner.address, mockLink.address, 0);
 				await openQ.fundBountyToken(bountyId, mockLink.address, volume, 1);
+				const tokenDeposits = await bounty.getDeposits();
+				const tokenDepositId = tokenDeposits[0];
 
-				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 1);
 				await openQ.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
+				const protocolDeposits = await bounty.getDeposits();
+				const protocolDepositId = protocolDeposits[1];
 
 				const expectedTimestamp = await setNextBlockTimestamp(2764800);
 
 				// ACT
 				// ASSERT
-				await expect(openQ.refundDeposit(bountyId, depositId))
+				await expect(openQ.refundDeposit(bountyId, protocolDepositId))
 					.to.emit(openQ, 'DepositRefunded')
-					.withArgs(depositId, bountyId, bountyAddress, 'mock-org', expectedTimestamp);
+					.withArgs(protocolDepositId, bountyId, bountyAddress, 'mock-org', expectedTimestamp);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
-				await expect(openQ.refundDeposit(bountyId, protocolDepositId))
+				await expect(openQ.refundDeposit(bountyId, tokenDepositId))
 					.to.emit(openQ, 'DepositRefunded')
-					.withArgs(protocolDepositId, bountyId, bountyAddress, 'mock-org', secondExpectedTimestamp);
+					.withArgs(tokenDepositId, bountyId, bountyAddress, 'mock-org', secondExpectedTimestamp);
 			});
 		});
 
