@@ -270,13 +270,11 @@ describe.only('Bounty.sol', () => {
 		});
 
 		describe('refunded', () => {
-			it.only('should set deposit refunded to true on refund', async () => {
+			it('should set deposit refunded to true on refund', async () => {
 				// ARRANGE
 				const volume = 100;
 
 				// ASSUME
-
-				// ACT
 				await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
 				const linkDeposits = await bounty.getDeposits();
 				const linkDepositId = linkDeposits[0];
@@ -292,12 +290,12 @@ describe.only('Bounty.sol', () => {
 				const protocolDepositId = protocolDeposits[2];
 				expect(await bounty.refunded(protocolDepositId)).to.equal(false);
 
-				// // ACT
+				// ACT
 				await bounty.refundDeposit(linkDepositId, owner.address);
 				await bounty.refundDeposit(daiDepositId, owner.address);
 				await bounty.refundDeposit(protocolDepositId, owner.address);
 
-				// // // ASSERT
+				// ASSERT
 				expect(await bounty.refunded(linkDepositId)).to.equal(true);
 				expect(await bounty.refunded(daiDepositId)).to.equal(true);
 				expect(await bounty.refunded(protocolDepositId)).to.equal(true);
@@ -310,13 +308,16 @@ describe.only('Bounty.sol', () => {
 				const volume = 100;
 
 				await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
-				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
+				const linkDeposits = await bounty.getDeposits();
+				const linkDepositId = linkDeposits[0];
 
 				await bounty.receiveFunds(owner.address, mockDai.address, volume, 1);
-				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
+				const daiDeposits = await bounty.getDeposits();
+				const daiDepositId = daiDeposits[1];
 
 				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
-				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 2);
+				const protocolDeposits = await bounty.getDeposits();
+				const protocolDepositId = protocolDeposits[1];
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
@@ -353,8 +354,9 @@ describe.only('Bounty.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 				// ARRANGE
-				const depositId = generateDepositId(owner.address, mockNft.address, 0);
 				await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
+				const deposits = await bounty.getDeposits();
+				const depositId = deposits[0];
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);
@@ -425,9 +427,6 @@ describe.only('Bounty.sol', () => {
 			it('should transfer deposit assets from bounty contract to claimer', async () => {
 				// ARRANGE
 				const volume = 100;
-				const linkDepositId = generateDepositId(owner.address, mockLink.address, 0);
-				const daiDepositId = generateDepositId(owner.address, mockDai.address, 1);
-				const protocolDepositId = generateDepositId(owner.address, ethers.constants.AddressZero, 2);
 
 				const [, claimer] = await ethers.getSigners();
 				const initialClaimerProtocolBalance = (await bounty.provider.getBalance(claimer.address));
@@ -435,6 +434,11 @@ describe.only('Bounty.sol', () => {
 				await bounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
 				await bounty.receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
 				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
+
+				const deposits = await bounty.getDeposits();
+				const linkDepositId = deposits[0];
+				const daiDepositId = deposits[1];
+				const protocolDepositId = deposits[2];
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
@@ -478,8 +482,9 @@ describe.only('Bounty.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 				// ARRANGE
-				const depositId = generateDepositId(owner.address, mockNft.address, 0);
 				await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
+				const deposits = await bounty.getDeposits();
+				const depositId = deposits[0];
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);
