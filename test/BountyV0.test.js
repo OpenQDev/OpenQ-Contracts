@@ -6,19 +6,20 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe.only('Bounty.sol', () => {
+describe('Bounty.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
 	let owner;
 	let initializationTimestamp;
 	const thirtyDays = 2765000;
+	let BountyV0;
 
 	const mockId = "mockId";
 	const organization = "mockOrg";
 
 	beforeEach(async () => {
-		const BountyV0 = await ethers.getContractFactory('BountyV0');
+		BountyV0 = await ethers.getContractFactory('BountyV0');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
@@ -197,9 +198,22 @@ describe.only('Bounty.sol', () => {
 			});
 		});
 
-		describe('return values', () => {
-			it('should return correct depositId and volumeReceived', async () => {
+		describe('globally unique deposit ids', () => {
+			it('should create a globally unique deposit id across all bounties', async () => {
+				await bounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+				const deposits = await bounty.getDeposits();
+				const depositId = deposits[0];
 
+				const newBounty = await BountyV0.deploy();
+				await newBounty.deployed();
+				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address);
+
+				await mockLink.approve(newBounty.address, 20000);
+				await newBounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+				const newDeposits = await newBounty.getDeposits();
+				const newDepositId = newDeposits[0];
+
+				expect(newDepositId).to.not.equal(depositId);
 			});
 		});
 	});
