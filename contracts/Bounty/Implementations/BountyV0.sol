@@ -133,9 +133,10 @@ contract BountyV0 is Bounty {
         nonReentrant
         returns (bool success)
     {
+        uint256 volume = tokenBalance[_tokenAddress];
         tokenBalance[_tokenAddress] = 0;
         if (_tokenAddress == address(0)) {
-            _transferProtocolToken(_payoutAddress, tokenBalance[_tokenAddress]);
+            _transferProtocolToken(_payoutAddress, volume);
         } else {
             _transferERC20(
                 _tokenAddress,

@@ -367,6 +367,77 @@ describe.only('BountyV0.sol', () => {
 		});
 	});
 
+	describe('claimBalance', () => {
+		it('should transfer protocol token from contract to payout address and set token balance to zero', async () => {
+			// ARRANGE
+			const volume = 100;
+
+			const [, claimer] = await ethers.getSigners();
+			const initialClaimerProtocolBalance = (await bounty.provider.getBalance(claimer.address));
+
+			await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
+
+			const deposits = await bounty.getDeposits();
+			const protocolDepositId = deposits[0];
+
+			// ASSUME
+			const bountyProtocolTokenBalance = (await bounty.provider.getBalance(bounty.address)).toString();
+			expect(bountyProtocolTokenBalance).to.equal('100');
+
+			const claimerProtocolBalance = (await ethers.provider.getBalance(claimer.address));
+
+			// ACT
+			await bounty.claimBalance(claimer.address, ethers.constants.AddressZero);
+
+			// ASSERT
+			const newBountyProtocolTokenBalance = (await bounty.provider.getBalance(bounty.address)).toString();
+			const tokenBalance = await bounty.tokenBalance(ethers.constants.AddressZero);
+			expect(newBountyProtocolTokenBalance).to.equal('0');
+			expect(tokenBalance).to.equal('0');
+		});
+
+		it('should ERC20 token from contract to payout address and set token balance to zero', async () => {
+			// ARRANGE
+			const volume = 100;
+
+			const [, claimer] = await ethers.getSigners();
+			const initialClaimerProtocolBalance = (await bounty.provider.getBalance(claimer.address));
+
+			await bounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+			await bounty.receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
+
+			const deposits = await bounty.getDeposits();
+			const linkDepositId = deposits[0];
+			const daiDepositId = deposits[1];
+
+			// ASSUME
+			const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
+			const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+			expect(bountyMockTokenBalance).to.equal('100');
+			expect(bountyFakeTokenBalance).to.equal('100');
+
+			const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+			const claimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
+			expect(claimerMockTokenBalance).to.equal('0');
+			expect(claimerFakeTokenBalance).to.equal('0');
+
+			// // ACT
+			await bounty.claim(claimer.address, linkDepositId);
+			await bounty.claim(claimer.address, daiDepositId);
+
+			// // // ASSERT
+			const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
+			const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+			expect(newBountyMockLinkBalance).to.equal('0');
+			expect(newBountyFakeTokenBalance).to.equal('0');
+
+			const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+			const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
+			expect(newClaimerMockTokenBalance).to.equal('100');
+			expect(newClaimerFakeTokenBalance).to.equal('100');
+		});
+	});
+
 	describe('claimDeposit', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ contract', async () => {
