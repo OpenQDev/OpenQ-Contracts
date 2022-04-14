@@ -90,6 +90,25 @@ contract OpenQV0 is
         return true;
     }
 
+    // address public openqTokenWhitelist;
+    // mapping(string => address) public organizationTokenWhitelist;
+
+    // function addOrganizationToken(
+    //     string calldata organization,
+    //     address _tokenAddress
+    // ) onlyOracle {
+    //     orgWhitelist = organizationTokenWhitelist[organization];
+    //     orgWhitelist.whitelist[_tokenAddress] = true;
+    // }
+
+    // function isWhitelisted(address tokenAddress, string calldata organization)
+    //     public
+    // {
+    //     return
+    //         openqTokenWhitelist.whitelist[tokenAddress] ||
+    //         organizationTokenWhitelist.whitelist[tokenAddress];
+    // }
+
     function fundBountyToken(
         string calldata _bountyId,
         address _tokenAddress,
@@ -99,6 +118,7 @@ contract OpenQV0 is
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
+        // require(isWhitelisted(_tokenAddress) == true, 'TOKEN_NOT_ACCEPTED');
         require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
@@ -131,6 +151,13 @@ contract OpenQV0 is
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
+        // Claim Balances
+        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
+            address tokenAddress = bounty.tokenAddresses(i);
+            bounty.claimBalance(closer, tokenAddress);
+        }
+
+        // Transfer NFT Deposits
         for (uint256 i = 0; i < bounty.getDeposits().length; i++) {
             bytes32 depositId = bounty.deposits(i);
 
@@ -251,4 +278,12 @@ contract OpenQV0 is
     {
         bountyFactory = BountyFactory(_bountyFactory);
     }
+
+    // function setTokenWhitelist(address _openqTokenWhitelist)
+    //     external
+    //     onlyOwner
+    //     onlyProxy
+    // {
+    //     openqTokenWhitelist = _openqTokenWhitelist;
+    // }
 }

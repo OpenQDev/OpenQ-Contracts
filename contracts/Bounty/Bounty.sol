@@ -51,6 +51,14 @@ abstract contract Bounty is
     // Deposit Count and IDs
     bytes32[] public deposits;
 
+    // Token Addresses and Volumes
+    address[] public tokenAddresses;
+    mapping(address => uint256) public tokenBalance;
+
+    function getTokenAddresses() public view returns (address[] memory) {
+        return tokenAddresses;
+    }
+
     constructor() {}
 
     function initialize(
@@ -92,6 +100,12 @@ abstract contract Bounty is
         external
         virtual
         returns (bool success);
+
+    function claimBalance(address _payoutAddress, address _tokenAddress)
+        external
+        virtual
+        returns (bool success)
+    {}
 
     function close(address _payoutAddress)
         external

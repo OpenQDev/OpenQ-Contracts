@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
+// NO HACKERS ALLOWED PLEASE THANKS!
 pragma solidity 0.8.12;
 
 // Third Party
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import 'hardhat/console.sol';
 
 // Custom
 import '../Bounty.sol';
@@ -46,6 +48,14 @@ contract BountyV0 is Bounty {
 
         deposits.push(depositId);
 
+        if (tokenBalance[_tokenAddress] == 0) {
+            tokenAddresses.push(_tokenAddress);
+        }
+
+        tokenBalance[_tokenAddress] = tokenBalance[_tokenAddress].add(
+            volumeReceived
+        );
+
         return (depositId, volumeReceived);
     }
 
@@ -79,7 +89,7 @@ contract BountyV0 is Bounty {
         returns (bool success)
     {
         // Check
-        require(refunded[_depositId] == false, 'BOUNTY_ALREADY_REFUNDED');
+        require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
         require(
             funder[_depositId] == _funder,
             'ONLY_FUNDER_CAN_REQUEST_REFUND'
@@ -92,6 +102,9 @@ contract BountyV0 is Bounty {
 
         // Effects
         refunded[_depositId] = true;
+        address depositTokenAddress = tokenAddress[_depositId];
+        tokenBalance[depositTokenAddress] = tokenBalance[depositTokenAddress]
+            .sub(volume[_depositId]);
 
         // Interactions
         if (tokenAddress[_depositId] == address(0)) {
@@ -107,6 +120,27 @@ contract BountyV0 is Bounty {
                 tokenAddress[_depositId],
                 funder[_depositId],
                 volume[_depositId]
+            );
+        }
+
+        return true;
+    }
+
+    function claimBalance(address _payoutAddress, address _tokenAddress)
+        external
+        override
+        onlyOpenQ
+        nonReentrant
+        returns (bool success)
+    {
+        tokenBalance[_tokenAddress] = 0;
+        if (_tokenAddress == address(0)) {
+            _transferProtocolToken(_payoutAddress, tokenBalance[_tokenAddress]);
+        } else {
+            _transferERC20(
+                _tokenAddress,
+                _payoutAddress,
+                tokenBalance[_tokenAddress]
             );
         }
 
