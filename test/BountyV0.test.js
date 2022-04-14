@@ -422,8 +422,8 @@ describe.only('BountyV0.sol', () => {
 			expect(claimerFakeTokenBalance).to.equal('0');
 
 			// // ACT
-			await bounty.claim(claimer.address, linkDepositId);
-			await bounty.claim(claimer.address, daiDepositId);
+			await bounty.claimDeposit(claimer.address, linkDepositId);
+			await bounty.claimDeposit(claimer.address, daiDepositId);
 
 			// // // ASSERT
 			const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
@@ -447,7 +447,7 @@ describe.only('BountyV0.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claim(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
+				await expect(issueWithNonOwnerAccount.claimDeposit(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
 			it('should revert if issue is already closed', async () => {
@@ -455,7 +455,7 @@ describe.only('BountyV0.sol', () => {
 				await bounty.close(owner.address);
 
 				// ASSERT
-				await expect(bounty.claim(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
+				await expect(bounty.claimDeposit(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
 			});
 
 			describe('deposit updates', () => {
@@ -468,7 +468,7 @@ describe.only('BountyV0.sol', () => {
 					expect(await bounty.claimed(depositId)).to.be.false;
 
 					// ACT
-					await bounty.claim(owner.address, depositId);
+					await bounty.claimDeposit(owner.address, depositId);
 
 					// ASSERT
 					expect(await bounty.claimed(depositId)).to.be.true;
@@ -483,7 +483,7 @@ describe.only('BountyV0.sol', () => {
 					expect(await bounty.payoutAddress(depositId)).to.equal(ethers.constants.AddressZero);
 
 					// ACT
-					await bounty.claim(owner.address, depositId);
+					await bounty.claimDeposit(owner.address, depositId);
 
 					// ASSERT
 					expect(await bounty.payoutAddress(depositId)).to.equal(owner.address);
@@ -525,9 +525,9 @@ describe.only('BountyV0.sol', () => {
 				// expect(claimerProtocolBalance).to.equal(initialClaimerProtocolBalance.sub(100));
 
 				// // ACT
-				await bounty.claim(claimer.address, linkDepositId);
-				await bounty.claim(claimer.address, daiDepositId);
-				await bounty.claim(claimer.address, protocolDepositId);
+				await bounty.claimDeposit(claimer.address, linkDepositId);
+				await bounty.claimDeposit(claimer.address, daiDepositId);
+				await bounty.claimDeposit(claimer.address, protocolDepositId);
 
 				// // // ASSERT
 				const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
@@ -557,7 +557,7 @@ describe.only('BountyV0.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);
 
 				// ACT
-				await bounty.claim(owner.address, depositId);
+				await bounty.claimDeposit(owner.address, depositId);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);

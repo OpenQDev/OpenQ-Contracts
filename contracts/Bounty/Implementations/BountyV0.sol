@@ -148,7 +148,7 @@ contract BountyV0 is Bounty {
         return true;
     }
 
-    function claim(address _payoutAddress, bytes32 depositId)
+    function claimDeposit(address _payoutAddress, bytes32 depositId)
         external
         override
         onlyOpenQ

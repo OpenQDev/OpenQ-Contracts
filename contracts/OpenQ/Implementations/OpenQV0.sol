@@ -162,7 +162,7 @@ contract OpenQV0 is
             bytes32 depositId = bounty.deposits(i);
 
             if (!bounty.refunded(depositId)) {
-                bounty.claim(closer, depositId);
+                bounty.claimDeposit(closer, depositId);
 
                 emit DepositClaimed(
                     depositId,
