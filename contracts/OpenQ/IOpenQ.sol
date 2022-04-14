@@ -53,13 +53,14 @@ interface IOpenQ {
         uint256 refundTime
     );
 
-    event DepositClaimed(
-        bytes32 depositId,
+    event TokenBalanceClaimed(
         string bountyId,
         address indexed bountyAddress,
         string organization,
         address closer,
-        uint256 payoutTime
+        uint256 payoutTime,
+        address tokenAddress,
+        uint256 volume
     );
 
     function mintBounty(string calldata, string calldata)

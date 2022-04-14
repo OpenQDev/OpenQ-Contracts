@@ -20,7 +20,7 @@ contract OpenQTokenWhitelist is Ownable {
         whitelist[tokenAddress] = false;
     }
 
-    function whitelisted(address tokenAddress) external returns (bool) {
+    function whitelisted(address tokenAddress) external view returns (bool) {
         return whitelist[tokenAddress];
     }
 }

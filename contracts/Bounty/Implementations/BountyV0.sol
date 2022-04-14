@@ -103,7 +103,6 @@ contract BountyV0 is Bounty {
 
         // Effects
         refunded[_depositId] = true;
-        address depositTokenAddress = tokenAddress[_depositId];
 
         // Interactions
         if (tokenAddress[_depositId] == address(0)) {
@@ -130,19 +129,19 @@ contract BountyV0 is Bounty {
         override
         onlyOpenQ
         nonReentrant
-        returns (bool success)
+        returns (uint256)
     {
+        uint256 claimedBalance;
+
         if (_tokenAddress == address(0)) {
-            _transferProtocolToken(_payoutAddress, address(this).balance);
+            claimedBalance = address(this).balance;
+            _transferProtocolToken(_payoutAddress, claimedBalance);
         } else {
-            _transferERC20(
-                _tokenAddress,
-                _payoutAddress,
-                getERC20Balance(_tokenAddress)
-            );
+            claimedBalance = getERC20Balance(_tokenAddress);
+            _transferERC20(_tokenAddress, _payoutAddress, claimedBalance);
         }
 
-        return true;
+        return claimedBalance;
     }
 
     function claimNft(address _payoutAddress, bytes32 depositId)

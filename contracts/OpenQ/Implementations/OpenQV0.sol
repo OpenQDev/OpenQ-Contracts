@@ -93,10 +93,7 @@ contract OpenQV0 is
 
     OpenQTokenWhitelist public openQTokenWhitelist;
 
-    function isWhitelisted(address tokenAddress, string calldata organization)
-        public
-        returns (bool)
-    {
+    function isWhitelisted(address tokenAddress) public returns (bool) {
         return openQTokenWhitelist.whitelisted(tokenAddress);
     }
 
@@ -143,7 +140,18 @@ contract OpenQV0 is
         Bounty bounty = Bounty(payable(bountyAddress));
 
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-            bounty.claimBalance(closer, bounty.getTokenAddresses()[i]);
+            address tokenAddress = bounty.getTokenAddresses()[i];
+            uint256 volume = bounty.claimBalance(closer, tokenAddress);
+
+            emit TokenBalanceClaimed(
+                bounty.bountyId(),
+                bountyAddress,
+                bounty.organization(),
+                closer,
+                block.timestamp,
+                tokenAddress,
+                volume
+            );
         }
 
         for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {

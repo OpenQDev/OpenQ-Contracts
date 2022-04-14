@@ -10,6 +10,7 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import 'hardhat/console.sol';
 
 // Custom
 import '../OpenQOnlyAccess/OpenQOnlyAccess.sol';
@@ -44,7 +45,6 @@ abstract contract Bounty is
     mapping(bytes32 => uint256) public volume;
     mapping(bytes32 => uint256) public depositTime;
     mapping(bytes32 => bool) public refunded;
-    mapping(bytes32 => bool) public claimed;
     mapping(bytes32 => address) public payoutAddress;
     mapping(bytes32 => uint256) public tokenId;
     mapping(bytes32 => uint256) public expiration;
@@ -100,7 +100,7 @@ abstract contract Bounty is
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
         virtual
-        returns (bool success)
+        returns (uint256 claimedBalance)
     {}
 
     function claimNft(address _payoutAddress, bytes32 depositId)
