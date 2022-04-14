@@ -50,10 +50,14 @@ abstract contract Bounty is
 
     // Deposit Count and IDs
     bytes32[] public deposits;
+    bytes32[] public nftDeposits;
 
     // Token Addresses and Volumes
     address[] public tokenAddresses;
     mapping(address => uint256) public tokenBalance;
+
+    // Constants
+    uint256 constant nftDepositLimit = 5;
 
     constructor() {}
 
@@ -92,12 +96,13 @@ abstract contract Bounty is
         virtual
         returns (bool success);
 
-    function claimDeposit(address _payoutAddress, bytes32 depositId)
+    function claimBalance(address _payoutAddress, address _tokenAddress)
         external
         virtual
-        returns (bool success);
+        returns (bool success)
+    {}
 
-    function claimBalance(address _payoutAddress, address _tokenAddress)
+    function claimNft(address _payoutAddress, bytes32 depositId)
         external
         virtual
         returns (bool success)
@@ -175,6 +180,10 @@ abstract contract Bounty is
 
     function getDeposits() external view returns (bytes32[] memory) {
         return deposits;
+    }
+
+    function getNftDeposits() external view returns (bytes32[] memory) {
+        return nftDeposits;
     }
 
     function getTokenAddresses() public view returns (address[] memory) {

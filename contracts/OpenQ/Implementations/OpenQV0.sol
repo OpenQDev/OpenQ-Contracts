@@ -153,28 +153,12 @@ contract OpenQV0 is
 
         // Claim Balances
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-            address tokenAddress = bounty.tokenAddresses(i);
-            bounty.claimBalance(closer, tokenAddress);
+            bounty.claimBalance(closer, bounty.tokenAddresses(i));
         }
 
-        // Transfer NFT Deposits
-        for (uint256 i = 0; i < bounty.getDeposits().length; i++) {
-            bytes32 depositId = bounty.deposits(i);
-
-            if (!bounty.refunded(depositId)) {
-                bounty.claimDeposit(closer, depositId);
-
-                emit DepositClaimed(
-                    depositId,
-                    bounty.bountyId(),
-                    bountyAddress,
-                    bounty.organization(),
-                    closer,
-                    block.timestamp
-                );
-            } else {
-                continue;
-            }
+        // Claim NFTs
+        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
+            bounty.claimNft(closer, bounty.nftDeposits(i));
         }
 
         bounty.close(closer);

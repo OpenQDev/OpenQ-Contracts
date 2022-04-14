@@ -65,6 +65,10 @@ contract BountyV0 is Bounty {
         uint256 _tokenId,
         uint256 _expiration
     ) external override onlyOpenQ nonReentrant returns (bytes32) {
+        require(
+            nftDeposits.length < nftDepositLimit,
+            'NFT_DEPOSIT_LIMIT_REACHED'
+        );
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
         bytes32 depositId = _generateDepositId();
@@ -77,6 +81,8 @@ contract BountyV0 is Bounty {
         isNFT[depositId] = true;
 
         deposits.push(depositId);
+
+        nftDeposits.push(depositId);
 
         return (depositId);
     }
@@ -135,48 +141,29 @@ contract BountyV0 is Bounty {
     {
         uint256 volume = tokenBalance[_tokenAddress];
         tokenBalance[_tokenAddress] = 0;
+
         if (_tokenAddress == address(0)) {
             _transferProtocolToken(_payoutAddress, volume);
         } else {
-            _transferERC20(
-                _tokenAddress,
-                _payoutAddress,
-                tokenBalance[_tokenAddress]
-            );
+            _transferERC20(_tokenAddress, _payoutAddress, volume);
         }
 
         return true;
     }
 
-    function claimDeposit(address _payoutAddress, bytes32 depositId)
+    function claimNft(address _payoutAddress, bytes32 depositId)
         external
         override
         onlyOpenQ
         nonReentrant
         returns (bool success)
     {
-        require(this.status() == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
-        require(!refunded[depositId], 'CLAIMING_REFUNDED_DEPOSIT');
-        require(!claimed[depositId], 'CLAIMING_CLAIMED_DEPOSIT');
-
-        claimed[depositId] = true;
-        payoutAddress[depositId] = _payoutAddress;
-
-        if (tokenAddress[depositId] == address(0)) {
-            _transferProtocolToken(_payoutAddress, volume[depositId]);
-        } else if (isNFT[depositId]) {
-            _transferNft(
-                tokenAddress[depositId],
-                _payoutAddress,
-                tokenId[depositId]
-            );
-        } else {
-            _transferERC20(
-                tokenAddress[depositId],
-                _payoutAddress,
-                volume[depositId]
-            );
-        }
+        require(status == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
+        _transferNft(
+            tokenAddress[depositId],
+            _payoutAddress,
+            tokenId[depositId]
+        );
 
         return true;
     }

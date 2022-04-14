@@ -396,7 +396,7 @@ describe.only('BountyV0.sol', () => {
 			expect(tokenBalance).to.equal('0');
 		});
 
-		it('should ERC20 token from contract to payout address and set token balance to zero', async () => {
+		it('should transfer ERC20 token from contract to payout address and set token balance to zero', async () => {
 			// ARRANGE
 			const volume = 100;
 
@@ -421,11 +421,11 @@ describe.only('BountyV0.sol', () => {
 			expect(claimerMockTokenBalance).to.equal('0');
 			expect(claimerFakeTokenBalance).to.equal('0');
 
-			// // ACT
-			await bounty.claimDeposit(claimer.address, linkDepositId);
-			await bounty.claimDeposit(claimer.address, daiDepositId);
+			// ACT
+			await bounty.claimBalance(claimer.address, mockLink.address);
+			await bounty.claimBalance(claimer.address, mockDai.address);
 
-			// // // ASSERT
+			// ASSERT
 			const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
 			const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
 			expect(newBountyMockLinkBalance).to.equal('0');
@@ -438,7 +438,7 @@ describe.only('BountyV0.sol', () => {
 		});
 	});
 
-	describe('claimDeposit', () => {
+	describe('claimNft', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ contract', async () => {
 				// ARRANGE
@@ -447,7 +447,7 @@ describe.only('BountyV0.sol', () => {
 				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claimDeposit(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
+				await expect(issueWithNonOwnerAccount.claimNft(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
 			it('should revert if issue is already closed', async () => {
@@ -455,96 +455,11 @@ describe.only('BountyV0.sol', () => {
 				await bounty.close(owner.address);
 
 				// ASSERT
-				await expect(bounty.claimDeposit(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
-			});
-
-			describe('deposit updates', () => {
-				it('should set claimed to true for deposit', async () => {
-					// ARRANGE
-					const depositId = generateDepositId(mockId, 0);
-					await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
-
-					// ASSUME
-					expect(await bounty.claimed(depositId)).to.be.false;
-
-					// ACT
-					await bounty.claimDeposit(owner.address, depositId);
-
-					// ASSERT
-					expect(await bounty.claimed(depositId)).to.be.true;
-				});
-
-				it('should set payoutAddress for deposit', async () => {
-					// ARRANGE
-					const depositId = generateDepositId(mockId, 0);
-					await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
-
-					// ASSUME
-					expect(await bounty.payoutAddress(depositId)).to.equal(ethers.constants.AddressZero);
-
-					// ACT
-					await bounty.claimDeposit(owner.address, depositId);
-
-					// ASSERT
-					expect(await bounty.payoutAddress(depositId)).to.equal(owner.address);
-				});
+				await expect(bounty.claimNft(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
 			});
 		});
 
 		describe('transfer', () => {
-			it('should transfer deposit assets from bounty contract to claimer', async () => {
-				// ARRANGE
-				const volume = 100;
-
-				const [, claimer] = await ethers.getSigners();
-				const initialClaimerProtocolBalance = (await bounty.provider.getBalance(claimer.address));
-
-				await bounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-				await bounty.receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
-				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
-
-				const deposits = await bounty.getDeposits();
-				const linkDepositId = deposits[0];
-				const daiDepositId = deposits[1];
-				const protocolDepositId = deposits[2];
-
-				// ASSUME
-				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
-				const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
-				const bountyProtocolTokenBalance = (await bounty.provider.getBalance(bounty.address)).toString();
-				expect(bountyMockTokenBalance).to.equal('100');
-				expect(bountyFakeTokenBalance).to.equal('100');
-				expect(bountyProtocolTokenBalance).to.equal('100');
-
-				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
-				const claimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
-				const claimerProtocolBalance = (await ethers.provider.getBalance(claimer.address));
-				expect(claimerMockTokenBalance).to.equal('0');
-				expect(claimerFakeTokenBalance).to.equal('0');
-				// Not sure why claimer balance is not updating...
-				// expect(claimerProtocolBalance).to.equal(initialClaimerProtocolBalance.sub(100));
-
-				// // ACT
-				await bounty.claimDeposit(claimer.address, linkDepositId);
-				await bounty.claimDeposit(claimer.address, daiDepositId);
-				await bounty.claimDeposit(claimer.address, protocolDepositId);
-
-				// // // ASSERT
-				const newBountyMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
-				const newBountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
-				const newBountyProtocolTokenBalance = (await bounty.provider.getBalance(bounty.address)).toString();
-				expect(newBountyMockLinkBalance).to.equal('0');
-				expect(newBountyFakeTokenBalance).to.equal('0');
-				expect(newBountyProtocolTokenBalance).to.equal('0');
-
-				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
-				const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
-				const newClaimedProtocolTokenBalance = (await bounty.provider.getBalance(claimer.address));
-				expect(newClaimerMockTokenBalance).to.equal('100');
-				expect(newClaimerFakeTokenBalance).to.equal('100');
-				// expect(newClaimedProtocolTokenBalance).to.equal(initialClaimerProtocolBalance);
-			});
-
 			it('should transfer NFT deposit from bounty contract to claimer', async () => {
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -557,7 +472,7 @@ describe.only('BountyV0.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(bounty.address);
 
 				// ACT
-				await bounty.claimDeposit(owner.address, depositId);
+				await bounty.claimNft(owner.address, depositId);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
