@@ -6,6 +6,7 @@ pragma solidity 0.8.12;
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import 'hardhat/console.sol';
+import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
 // Custom
 import '../Bounty.sol';
@@ -13,6 +14,7 @@ import '../Bounty.sol';
 contract BountyV0 is Bounty {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     // Transactions
     function receiveFunds(
@@ -47,14 +49,7 @@ contract BountyV0 is Bounty {
         isNFT[depositId] = false;
 
         deposits.push(depositId);
-
-        if (tokenBalance[_tokenAddress] == 0) {
-            tokenAddresses.push(_tokenAddress);
-        }
-
-        tokenBalance[_tokenAddress] = tokenBalance[_tokenAddress].add(
-            volumeReceived
-        );
+        tokenAddresses.add(_tokenAddress);
 
         return (depositId, volumeReceived);
     }
@@ -109,8 +104,6 @@ contract BountyV0 is Bounty {
         // Effects
         refunded[_depositId] = true;
         address depositTokenAddress = tokenAddress[_depositId];
-        tokenBalance[depositTokenAddress] = tokenBalance[depositTokenAddress]
-            .sub(volume[_depositId]);
 
         // Interactions
         if (tokenAddress[_depositId] == address(0)) {
@@ -139,13 +132,14 @@ contract BountyV0 is Bounty {
         nonReentrant
         returns (bool success)
     {
-        uint256 volume = tokenBalance[_tokenAddress];
-        tokenBalance[_tokenAddress] = 0;
-
         if (_tokenAddress == address(0)) {
-            _transferProtocolToken(_payoutAddress, volume);
+            _transferProtocolToken(_payoutAddress, address(this).balance);
         } else {
-            _transferERC20(_tokenAddress, _payoutAddress, volume);
+            _transferERC20(
+                _tokenAddress,
+                _payoutAddress,
+                getERC20Balance(_tokenAddress)
+            );
         }
 
         return true;

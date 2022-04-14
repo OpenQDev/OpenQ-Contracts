@@ -391,7 +391,7 @@ describe('BountyV0.sol', () => {
 
 			// ASSERT
 			const newBountyProtocolTokenBalance = (await bounty.provider.getBalance(bounty.address)).toString();
-			const tokenBalance = await bounty.tokenBalance(ethers.constants.AddressZero);
+			const tokenBalance = (await bounty.provider.getBalance(bounty.address)).toString();
 			expect(newBountyProtocolTokenBalance).to.equal('0');
 			expect(tokenBalance).to.equal('0');
 		});

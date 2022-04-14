@@ -7,12 +7,13 @@ const { ethers, upgrades } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe.only('OpenQV0.sol', () => {
+describe('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
 	let mockDai;
 	let mockNft;
+	let openQTokenWhitelist;
 	let bountyId = 'mockIssueId';
 	let oracle;
 
@@ -23,6 +24,7 @@ describe.only('OpenQV0.sol', () => {
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
+		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 
 		[owner, , oracle] = await ethers.getSigners();
 
@@ -38,6 +40,12 @@ describe.only('OpenQV0.sol', () => {
 		mockNft = await MockNft.deploy();
 		await mockNft.deployed();
 
+		openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
+		await openQTokenWhitelist.deployed();
+
+		await openQTokenWhitelist.addToken(mockLink.address);
+		await openQTokenWhitelist.addToken(mockDai.address);
+
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
@@ -51,6 +59,7 @@ describe.only('OpenQV0.sol', () => {
 		await openQ.setOpenQStorage(openQStorage.address);
 		await openQ.setBountyFactory(bountyFactory.address);
 		await openQ.transferOracle(oracle.address);
+		await openQ.setTokenWhitelist(openQTokenWhitelist.address);
 	});
 
 	describe('mintBounty', () => {

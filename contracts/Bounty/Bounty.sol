@@ -9,6 +9,7 @@ import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
+import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
 // Custom
 import '../OpenQOnlyAccess/OpenQOnlyAccess.sol';
@@ -21,6 +22,7 @@ abstract contract Bounty is
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using Address for address payable;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     enum BountyStatus {
         OPEN,
@@ -53,8 +55,7 @@ abstract contract Bounty is
     bytes32[] public nftDeposits;
 
     // Token Addresses and Volumes
-    address[] public tokenAddresses;
-    mapping(address => uint256) public tokenBalance;
+    EnumerableSet.AddressSet internal tokenAddresses;
 
     // Constants
     uint256 constant nftDepositLimit = 5;
@@ -187,7 +188,7 @@ abstract contract Bounty is
     }
 
     function getTokenAddresses() public view returns (address[] memory) {
-        return tokenAddresses;
+        return tokenAddresses.values();
     }
 
     // Revert any attempts to send unknown calldata

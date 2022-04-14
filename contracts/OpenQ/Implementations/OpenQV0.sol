@@ -14,6 +14,7 @@ import '../../BountyFactory/BountyFactory.sol';
 import '../IOpenQ.sol';
 import '../OpenQStorable.sol';
 import '../../Oracle/Oraclize.sol';
+import '../../Tokens/OpenQTokenWhitelist.sol';
 
 contract OpenQV0 is
     OpenQStorable,
@@ -90,24 +91,14 @@ contract OpenQV0 is
         return true;
     }
 
-    // address public openqTokenWhitelist;
-    // mapping(string => address) public organizationTokenWhitelist;
+    OpenQTokenWhitelist public openQTokenWhitelist;
 
-    // function addOrganizationToken(
-    //     string calldata organization,
-    //     address _tokenAddress
-    // ) onlyOracle {
-    //     orgWhitelist = organizationTokenWhitelist[organization];
-    //     orgWhitelist.whitelist[_tokenAddress] = true;
-    // }
-
-    // function isWhitelisted(address tokenAddress, string calldata organization)
-    //     public
-    // {
-    //     return
-    //         openqTokenWhitelist.whitelist[tokenAddress] ||
-    //         organizationTokenWhitelist.whitelist[tokenAddress];
-    // }
+    function isWhitelisted(address tokenAddress, string calldata organization)
+        public
+        returns (bool)
+    {
+        return openQTokenWhitelist.whitelisted(tokenAddress);
+    }
 
     function fundBountyToken(
         string calldata _bountyId,
@@ -151,12 +142,10 @@ contract OpenQV0 is
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
-        // Claim Balances
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-            bounty.claimBalance(closer, bounty.tokenAddresses(i));
+            bounty.claimBalance(closer, bounty.getTokenAddresses()[i]);
         }
 
-        // Claim NFTs
         for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
             bounty.claimNft(closer, bounty.nftDeposits(i));
         }
@@ -263,11 +252,11 @@ contract OpenQV0 is
         bountyFactory = BountyFactory(_bountyFactory);
     }
 
-    // function setTokenWhitelist(address _openqTokenWhitelist)
-    //     external
-    //     onlyOwner
-    //     onlyProxy
-    // {
-    //     openqTokenWhitelist = _openqTokenWhitelist;
-    // }
+    function setTokenWhitelist(address _openQTokenWhitelist)
+        external
+        onlyOwner
+        onlyProxy
+    {
+        openQTokenWhitelist = OpenQTokenWhitelist(_openQTokenWhitelist);
+    }
 }
