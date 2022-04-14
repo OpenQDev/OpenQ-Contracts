@@ -7,7 +7,7 @@ const { ethers, upgrades } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
@@ -409,40 +409,6 @@ describe('OpenQV0.sol', () => {
 		});
 
 		describe('Event Emissions', () => {
-			it('should emit a DepositClaimed event with proper bounty id, bounty Address, tokenAddress, payout address, value, and bounty closed time', async () => {
-				// ARRANGE
-				await openQ.mintBounty(bountyId, 'mock-org');
-
-				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
-				const Bounty = await ethers.getContractFactory('BountyV0');
-				const bounty = await Bounty.attach(bountyAddress);
-
-				await mockLink.approve(bountyAddress, 10000000);
-				await mockDai.approve(bountyAddress, 10000000);
-
-				const volume = 100;
-
-				const daiDepositId = generateDepositId(bountyId, 0);
-				await openQ.fundBountyToken(bountyId, mockDai.address, volume, 1);
-
-				const protocolDepositId = generateDepositId(bountyId, 1);
-				await openQ.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
-
-				const linkDepositId = generateDepositId(bountyId, 2);
-				await openQ.fundBountyToken(bountyId, mockLink.address, volume, 1);
-				const expectedTimestamp = await setNextBlockTimestamp();
-
-				// ACT
-				// ASSERT
-				// Can only assert 
-				const oracleContract = openQ.connect(oracle);
-				await expect(oracleContract.claimBounty(bountyId, owner.address))
-					.to.emit(openQ, 'DepositClaimed')
-					.withArgs(linkDepositId, bountyId, bountyAddress, 'mock-org', owner.address, expectedTimestamp)
-					.withArgs(daiDepositId, bountyId, bountyAddress, 'mock-org', owner.address, expectedTimestamp)
-					.withArgs(protocolDepositId, bountyId, bountyAddress, 'mock-org', owner.address, expectedTimestamp);
-			});
-
 			it('should emit a BountyClosed event with proper bounty id, bounty Address, payout address, and bounty closed time', async () => {
 				// ARRANGE
 				await openQ.mintBounty(bountyId, 'mock-org');
