@@ -8,7 +8,7 @@ import './TokenWhitelist.sol';
  * @dev OpenQTokenWhitelist provides the list of verified token addresses
  */
 contract OpenQTokenWhitelist is TokenWhitelist {
-    constructor(uint256 _totalTokenAddresses) {
-        TOTAL_TOKEN_ADDRESSES = _totalTokenAddresses;
+    constructor(uint256 _tokenAddressLimit) TokenWhitelist() {
+        TOKEN_ADDRESS_LIMIT = _tokenAddressLimit;
     }
 }
