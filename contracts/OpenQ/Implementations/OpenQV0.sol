@@ -91,7 +91,7 @@ contract OpenQV0 is
         return true;
     }
 
-    function isWhitelisted(address tokenAddress) public returns (bool) {
+    function isWhitelisted(address tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(tokenAddress);
     }
 
