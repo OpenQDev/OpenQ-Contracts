@@ -94,7 +94,7 @@ contract OpenQV0 is
     OpenQTokenWhitelist public openQTokenWhitelist;
 
     function isWhitelisted(address tokenAddress) public returns (bool) {
-        return openQTokenWhitelist.whitelisted(tokenAddress);
+        return openQTokenWhitelist.isWhitelisted(tokenAddress);
     }
 
     function fundBountyToken(
