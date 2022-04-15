@@ -91,8 +91,6 @@ contract OpenQV0 is
         return true;
     }
 
-    OpenQTokenWhitelist public openQTokenWhitelist;
-
     function isWhitelisted(address tokenAddress) public returns (bool) {
         return openQTokenWhitelist.isWhitelisted(tokenAddress);
     }
@@ -106,8 +104,8 @@ contract OpenQV0 is
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
-        // require(isWhitelisted(_tokenAddress) == true, 'TOKEN_NOT_ACCEPTED');
-        require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
+        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
+        require(bountyIsOpen(_bountyId), 'FUNDING_CLOSED_BOUNTY');
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
             value: msg.value

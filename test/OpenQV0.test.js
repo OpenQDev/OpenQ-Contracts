@@ -7,11 +7,12 @@ const { ethers, upgrades } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQ;
 	let owner;
 	let mockLink;
 	let mockDai;
+	let blacklistedMockDai;
 	let mockNft;
 	let openQTokenWhitelist;
 	let bountyId = 'mockIssueId';
@@ -37,14 +38,18 @@ describe('OpenQV0.sol', () => {
 		mockDai = await MockDai.deploy();
 		await mockDai.deployed();
 
+		blacklistedMockDai = await MockDai.deploy();
+		await blacklistedMockDai.deployed();
+
 		mockNft = await MockNft.deploy();
 		await mockNft.deployed();
 
-		openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
+		openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5);
 		await openQTokenWhitelist.deployed();
 
 		await openQTokenWhitelist.addToken(mockLink.address);
 		await openQTokenWhitelist.addToken(mockDai.address);
+		await openQTokenWhitelist.addToken(ethers.constants.AddressZero);
 
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
@@ -157,6 +162,18 @@ describe('OpenQV0.sol', () => {
 
 			// ACT + ASSERT
 			await expect(openQ.fundBountyToken(bountyId, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
+		});
+
+		it('should revert if funded with a non-whitelisted token', async () => {
+			// ARRANGE
+			await openQ.mintBounty(bountyId, 'mock-org');
+
+			const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+			await blacklistedMockDai.approve(bountyAddress, 10000000);
+
+			// ACT + ASSERT
+			await expect(openQ.fundBountyToken(bountyId, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOKEN_NOT_ACCEPTED');
 		});
 
 		it('should set funder to msg.sender', async () => {
