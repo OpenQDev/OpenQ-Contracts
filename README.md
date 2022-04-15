@@ -11,7 +11,7 @@ OpenQ revolves around six core user actions.
 - TokenDepositReceived
 - NFTDepositReceived
 - DepositRefunded
-- DepositClaimed
+- TokenBalanceClaimed
 
 Each action corresponds to one Solidity Event. These events are declared in [IOpenQ](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/IOpenQ.sol). 
 

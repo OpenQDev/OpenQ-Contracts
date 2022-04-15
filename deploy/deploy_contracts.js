@@ -51,6 +51,13 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OpenQStorage Deployed to ${openQStorage.address}\n`);
 
+	console.log('Deploying OpenQTokenWhitelist...');
+	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
+	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
+	await openQTokenWhitelist.deployed();
+	await optionalSleep(10000);
+	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
+
 	console.log('Deploying BountyFactory...');
 	const BountyFactory = await ethers.getContractFactory('BountyFactory');
 	const bountyFactory = await BountyFactory.deploy(openQ.address);
@@ -87,6 +94,13 @@ async function deployContracts() {
 	await openQ.setBountyFactory(bountyFactory.address);
 	await optionalSleep(10000);
 	console.log(`BountyFactory successfully set on OpenQV0 to ${bountyFactory.address}`);
+
+	console.log('\nConfiguring OpenQTokenWhitelist with default tokens...');
+	await openQTokenWhitelist.addToken(mockLink.address);
+	await openQTokenWhitelist.addToken(mockDai.address);
+	await openQTokenWhitelist.addToken(ethers.constants.AddressZero);
+	await optionalSleep(10000);
+	console.log('OpenQTokenWhitelist successfully configured with default tokens');
 
 	console.log('\nContracts deployed and configured successfully!');
 

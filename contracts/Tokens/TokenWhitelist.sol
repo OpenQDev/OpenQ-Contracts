@@ -13,19 +13,24 @@ abstract contract TokenWhitelist is Ownable {
 
     mapping(address => bool) public whitelist;
 
+    function isWhitelisted(address tokenAddress) external view returns (bool) {
+        return whitelist[tokenAddress];
+    }
+
     function addToken(address tokenAddress) external onlyOwner {
         require(tokenCount <= TOKEN_ADDRESS_LIMIT, 'TOO_MANY_TOKEN_ADDRESSES');
+        require(!this.isWhitelisted(tokenAddress), 'TOKEN_ALREADY_WHITELISTED');
         whitelist[tokenAddress] = true;
         tokenCount++;
     }
 
     function removeToken(address tokenAddress) external onlyOwner {
+        require(
+            this.isWhitelisted(tokenAddress),
+            'TOKEN_NOT_ALREADY_WHITELISTED'
+        );
         whitelist[tokenAddress] = false;
         tokenCount--;
-    }
-
-    function isWhitelisted(address tokenAddress) external view returns (bool) {
-        return whitelist[tokenAddress];
     }
 
     function setTokenAddressLimit(uint256 newTokenAddressLimit)
