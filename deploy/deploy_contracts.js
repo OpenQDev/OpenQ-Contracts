@@ -53,7 +53,7 @@ async function deployContracts() {
 
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5);
+	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);
 	await openQTokenWhitelist.deployed();
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
@@ -101,13 +101,6 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist successfully set on OpenQV0 to ${openQTokenWhitelist.address}`);
 
-	console.log('\nConfiguring OpenQTokenWhitelist with default tokens...');
-	await openQTokenWhitelist.addToken(mockLink.address);
-	await openQTokenWhitelist.addToken(mockDai.address);
-	await openQTokenWhitelist.addToken(ethers.constants.AddressZero);
-	await optionalSleep(10000);
-	console.log('OpenQTokenWhitelist successfully configured with default tokens');
-
 	console.log('\nContracts deployed and configured successfully!');
 
 	/* Write newly deployed contract addresses to .env.contracts for use in:
@@ -118,6 +111,9 @@ async function deployContracts() {
 	if (network.name === 'docker') {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
+OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
+OPENQ_STORAGE_ADDRESS="${bountyFactory.address}"
+OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
 MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
@@ -125,6 +121,9 @@ MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 	} else {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
+OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
+OPENQ_STORAGE_ADDRESS="${openQStorage.address}"
+OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
 MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"

@@ -5,11 +5,27 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') })
 
 async function verifyContracts() {
 	console.log('\n------------------------------------------');
-	console.log(`VERIFYING OPENQ IMPLEMENTATION CONTRACT on ${hre.network.name.toUpperCase()}`);
+	console.log(`VERIFYING OPENQ CONTRACTS on ${hre.network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
 
+	console.log('Verifying OpenQV0');
 	await hre.run('verify:verify', {
 		address: process.env.OPENQ_IMPLEMENTATION_ADDRESS,
+	});
+
+	console.log('Verifying BountyFactory');
+	await hre.run('verify:verify', {
+		address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
+	});
+
+	console.log('Verifying OpenQStorage');
+	await hre.run('verify:verify', {
+		address: process.env.OPENQ_STORAGE_ADDRESS,
+	});
+
+	console.log('Verifying OpenQTokenWhitelist');
+	await hre.run('verify:verify', {
+		address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS,
 	});
 }
 

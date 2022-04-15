@@ -5,6 +5,7 @@ const verifyContracts = require('./verify_contracts');
 
 async function main() {
 	await deployContracts();
+	await configureTokenWhitelist();
 	await verifyContracts();
 	await deployBounties();
 	await fundBounties();
