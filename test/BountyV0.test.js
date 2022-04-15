@@ -127,6 +127,10 @@ describe('BountyV0.sol', () => {
 				const greaterThanAllowance = 100000000;
 				await expect(bounty.receiveFunds(owner.address, mockLink.address, greaterThanAllowance, thirtyDays)).to.be.revertedWith('ERC20: insufficient allowance');
 			});
+
+			it('should revert if expiration is negative', async () => {
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, 100, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
+			});
 		});
 
 		describe('token deposit initialization', () => {
@@ -260,7 +264,7 @@ describe('BountyV0.sol', () => {
 			});
 		});
 
-		describe('reverts if more than 5 NFT deposits', () => {
+		describe('require and reverts', () => {
 			it('should revert if too many NFT deposits', async () => {
 				// ASSUME
 				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
@@ -278,6 +282,10 @@ describe('BountyV0.sol', () => {
 
 				// ASSERT
 				await expect(bounty.receiveNft(owner.address, mockNft.address, 5, 1)).to.be.revertedWith('NFT_DEPOSIT_LIMIT_REACHED');
+			});
+
+			it('should revert if expiration is negative', async () => {
+				await expect(bounty.receiveNft(owner.address, mockNft.address, 0, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
 			});
 		});
 	});

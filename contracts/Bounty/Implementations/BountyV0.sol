@@ -30,6 +30,7 @@ contract BountyV0 is Bounty {
         returns (bytes32, uint256)
     {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
+        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
 
         bytes32 depositId = _generateDepositId();
 
@@ -63,6 +64,7 @@ contract BountyV0 is Bounty {
             nftDeposits.length < nftDepositLimit,
             'NFT_DEPOSIT_LIMIT_REACHED'
         );
+        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
         bytes32 depositId = _generateDepositId();
