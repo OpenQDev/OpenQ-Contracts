@@ -5,7 +5,6 @@ pragma solidity 0.8.12;
 // Third Party
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import 'hardhat/console.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
 // Custom

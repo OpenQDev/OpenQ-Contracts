@@ -435,7 +435,7 @@ describe.only('OpenQV0.sol', () => {
 		});
 
 		describe('Event Emissions', () => {
-			it('should emit a BountyClosed event with proper bounty id, bounty Address, payout address, and bounty closed time', async () => {
+			it('should emit a BountyClosed event with correct parameters', async () => {
 				// ARRANGE
 				await openQ.mintBounty(bountyId, 'mock-org');
 				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
@@ -447,6 +447,29 @@ describe.only('OpenQV0.sol', () => {
 				await expect(oracleContract.claimBounty(bountyId, owner.address))
 					.to.emit(openQ, 'BountyClosed')
 					.withArgs(bountyId, bountyAddress, 'mock-org', owner.address, expectedTimestamp);
+			});
+
+			it('should emit a TokenBalanceClaimed event with correct parameters', async () => {
+				// ARRANGE
+				await openQ.mintBounty(bountyId, 'mock-org');
+				const bountyAddress = await openQ.bountyIdToAddress(bountyId);
+
+				const volume = 100;
+
+				await mockLink.approve(bountyAddress, 10000000);
+				await mockDai.approve(bountyAddress, 10000000);
+				await openQ.fundBountyToken(bountyId, mockLink.address, volume, 1);
+				await openQ.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+				// ACT
+				// ASSERT
+				const oracleContract = openQ.connect(oracle);
+				await expect(oracleContract.claimBounty(bountyId, owner.address))
+					.to.emit(openQ, 'TokenBalanceClaimed')
+					.withArgs(bountyId, bountyAddress, 'mock-org', owner.address, expectedTimestamp, mockLink.address, volume)
+					.withArgs(bountyId, bountyAddress, 'mock-org', owner.address, expectedTimestamp, mockDai.address, volume)
+					.withArgs(bountyId, bountyAddress, 'mock-org', owner.address, expectedTimestamp, ethers.constants.AddressZero, volume);
 			});
 		});
 	});
