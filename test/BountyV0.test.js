@@ -261,7 +261,7 @@ describe('BountyV0.sol', () => {
 		});
 
 		describe('reverts if more than 5 NFT deposits', () => {
-			it.only('should revert if too many NFT deposits', async () => {
+			it('should revert if too many NFT deposits', async () => {
 				// ASSUME
 				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
