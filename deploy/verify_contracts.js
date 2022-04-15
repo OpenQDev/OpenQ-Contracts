@@ -8,36 +8,56 @@ async function verifyContracts() {
 	console.log(`VERIFYING OPENQ CONTRACTS on ${hre.network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
 
-	console.log('Verifying OpenQV0');
-	await hre.run('verify:verify', {
-		address: process.env.OPENQ_IMPLEMENTATION_ADDRESS,
-	});
+	try {
+		console.log('Verifying OpenQV0');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_IMPLEMENTATION_ADDRESS,
+		});
+	} catch (error) {
+		console.log(error);
+	}
 
-	console.log('Verifying BountyV0');
-	await hre.run('verify:verify', {
-		address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS,
-	});
+	try {
+		console.log('Verifying BountyV0');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS,
+		});
+	} catch (error) {
+		console.log(error);
+	}
 
-	console.log('Verifying BountyFactory');
-	await hre.run('verify:verify', {
-		address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
-		constructorArguments: [
-			process.env.OPENQ_ADDRESS
-		]
-	});
+	try {
+		console.log('Verifying BountyFactory');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
+			constructorArguments: [
+				process.env.OPENQ_ADDRESS
+			]
+		});
+	} catch (error) {
+		console.log(error);
+	}
 
-	console.log('Verifying OpenQStorage');
-	await hre.run('verify:verify', {
-		address: process.env.OPENQ_STORAGE_ADDRESS,
-	});
+	try {
+		console.log('Verifying OpenQStorage');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_STORAGE_ADDRESS,
+		});
+	} catch (error) {
+		console.log(error);
+	}
 
-	console.log('Verifying OpenQTokenWhitelist');
-	await hre.run('verify:verify', {
-		address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS,
-		constructorArguments: [
-			20
-		]
-	});
+	try {
+		console.log('Verifying OpenQTokenWhitelist');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS,
+			constructorArguments: [
+				20
+			]
+		});
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 async function main() {

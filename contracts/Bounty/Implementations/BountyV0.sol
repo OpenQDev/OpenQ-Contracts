@@ -77,7 +77,7 @@ contract BountyV0 is Bounty {
         deposits.push(depositId);
         nftDeposits.push(depositId);
 
-        return (depositId);
+        return depositId;
     }
 
     function refundDeposit(bytes32 _depositId, address _funder)

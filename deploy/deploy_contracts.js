@@ -34,15 +34,15 @@ async function deployContracts() {
 	const deployBlockNumber = parseInt(confirmation.provider._emitted.block);
 	await optionalSleep(10000); 25879700;
 	console.log(`OpenQV0 (Proxy) Deployed to ${openQ.address} in block number ${deployBlockNumber}`);
-	const openQImplementation = await openQ.getImplementation();
-	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation}\n`);
+	const openQImplementationAddress = await openQ.getImplementation();
+	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementationAddress}\n`);
 
-	console.log('Deploying new OpenQV0...');
-	const OpenQImpl = await ethers.getContractFactory('OpenQV0');
-	const openQImplemen = await OpenQImpl.deploy();
-	await openQImplemen.deployed();
+	console.log('Deploying new OpenQV0 for testing upgradeability...');
+	const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
+	const openQImplementation = await OpenQImplementation.deploy();
+	await openQImplementation.deployed();
 	await optionalSleep(10000);
-	console.log(`Deployed new OpenQV0 to ${openQImplemen.address}\n`);
+	console.log(`Deployed new OpenQV0 to ${openQImplementation.address}\n`);
 
 	console.log('Deploying OpenQStorage...');
 	const OpenQStorage = await ethers.getContractFactory('OpenQStorage');
