@@ -75,7 +75,6 @@ contract BountyV0 is Bounty {
         isNFT[depositId] = true;
 
         deposits.push(depositId);
-
         nftDeposits.push(depositId);
 
         return (depositId);

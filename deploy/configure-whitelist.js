@@ -35,6 +35,7 @@ async function configureWhitelist() {
 	const openQTokenWhitelist = await OpenQTokenWhitelist.attach(process.env.OPENQ_TOKEN_WHITELIST_ADDRESS);
 
 	console.log('\nConfiguring OpenQTokenWhitelist with default tokens...');
+
 	for (let token of tokenMetadata) {
 		console.log(`Adding ${token.name} at address ${token.address}`);
 		await openQTokenWhitelist.addToken(token.address);

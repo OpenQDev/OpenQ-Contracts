@@ -46,10 +46,16 @@ describe('BountyV0.sol', () => {
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
+		await mockNft.safeMint(owner.address);
+		await mockNft.safeMint(owner.address);
+		await mockNft.safeMint(owner.address);
 
 		await mockNft.approve(bounty.address, 0);
 		await mockNft.approve(bounty.address, 1);
 		await mockNft.approve(bounty.address, 2);
+		await mockNft.approve(bounty.address, 3);
+		await mockNft.approve(bounty.address, 4);
+		await mockNft.approve(bounty.address, 5);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(bounty.address, 10000000);
@@ -214,10 +220,6 @@ describe('BountyV0.sol', () => {
 	});
 
 	describe('receiveNFT', () => {
-		describe('reverts', () => {
-
-		});
-
 		describe('deposit initialization', () => {
 			it(`should initialize nft deposit data with correct:
 					funder
@@ -255,6 +257,27 @@ describe('BountyV0.sol', () => {
 
 				// ASSERT
 				expect(await mockNft.ownerOf(0)).to.equal(bounty.address);
+			});
+		});
+
+		describe('reverts if more than 5 NFT deposits', () => {
+			it.only('should revert if too many NFT deposits', async () => {
+				// ASSUME
+				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(2)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(3)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(4)).to.equal(owner.address);
+
+				// ACT
+				await bounty.receiveNft(owner.address, mockNft.address, 0, 1);
+				await bounty.receiveNft(owner.address, mockNft.address, 1, 1);
+				await bounty.receiveNft(owner.address, mockNft.address, 2, 1);
+				await bounty.receiveNft(owner.address, mockNft.address, 3, 1);
+				await bounty.receiveNft(owner.address, mockNft.address, 4, 1);
+
+				// ASSERT
+				await expect(bounty.receiveNft(owner.address, mockNft.address, 5, 1)).to.be.revertedWith('NFT_DEPOSIT_LIMIT_REACHED');
 			});
 		});
 	});

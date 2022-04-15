@@ -13,9 +13,17 @@ async function verifyContracts() {
 		address: process.env.OPENQ_IMPLEMENTATION_ADDRESS,
 	});
 
+	console.log('Verifying BountyV0');
+	await hre.run('verify:verify', {
+		address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS,
+	});
+
 	console.log('Verifying BountyFactory');
 	await hre.run('verify:verify', {
 		address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
+		constructorArguments: [
+			process.env.OPENQ_ADDRESS
+		]
 	});
 
 	console.log('Verifying OpenQStorage');
@@ -26,6 +34,9 @@ async function verifyContracts() {
 	console.log('Verifying OpenQTokenWhitelist');
 	await hre.run('verify:verify', {
 		address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS,
+		constructorArguments: [
+			20
+		]
 	});
 }
 

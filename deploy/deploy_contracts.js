@@ -72,16 +72,11 @@ async function deployContracts() {
 	console.log(`OpenQStorage deployed to: ${openQStorage.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
+
 	if (network.name === 'docker') {
 		console.log(`MockLink deployed to: ${mockLink.address}`);
 		console.log(`MockDai deployed to: ${mockDai.address}`);
 	}
-
-	console.log('\nConfiguring OpenQV0 with Oracle address...');
-	console.log(`Setting OpenQStorage on OpenQV0 to ${process.env.ORACLE_ADDRESS}...`);
-	await openQ.transferOracle(process.env.ORACLE_ADDRESS);
-	await optionalSleep(10000);
-	console.log(`Oracle successfully set on OpenQV0 to ${process.env.ORACLE_ADDRESS}`);
 
 	console.log('\nConfiguring OpenQV0 with OpenQStorage...');
 	console.log(`Setting OpenQStorage on OpenQV0 to ${openQStorage.address}...`);
@@ -112,6 +107,7 @@ async function deployContracts() {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
 OPENQ_STORAGE_ADDRESS="${bountyFactory.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
@@ -122,6 +118,7 @@ MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
 OPENQ_STORAGE_ADDRESS="${openQStorage.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
