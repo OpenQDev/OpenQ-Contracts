@@ -105,7 +105,7 @@ async function deployContracts() {
 	let addresses;
 	if (network.name === 'docker') {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationAddress}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
 OPENQ_STORAGE_ADDRESS="${bountyFactory.address}"
@@ -116,7 +116,7 @@ MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 `;
 	} else {
 		addresses = `OPENQ_ADDRESS="${openQ.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationAddress}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
 OPENQ_STORAGE_ADDRESS="${openQStorage.address}"

@@ -2,42 +2,22 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0xb74613c491b6125E8B5B7A50EFbc303e02056e51",
-      "txHash": "0xf6564951e80d5ac78e77983911b4add3f3948256671210ade24aee52e40470e0",
-      "kind": "uups"
-    },
-    {
-      "address": "0x08843E9025AC94E50487c439A4AEAc415F44EcC5",
-      "txHash": "0xd92098220a917aa8374e9b75141dd3dbe610e10e101ddd0f6f1c07dd9f0af018",
-      "kind": "uups"
-    },
-    {
-      "address": "0xf173e9ffb19139d30D0D2adb6E381F7488DF135B",
-      "txHash": "0xd05b71267c0bfcdb91bac09c7cd6b11b7d567c8f0f469e06da3f4bbbd67b0927",
-      "kind": "uups"
-    },
-    {
-      "address": "0xf7Be7f4B0f77d916F38BbB054D9Fe70f34410E18",
-      "txHash": "0xd3bff81bfa43fb089138bab15c826c88b2c87af7d8bdb01fdd1c28ef0ed9ee26",
-      "kind": "uups"
-    },
-    {
-      "address": "0xBBc7dA1Bc03A938488Da93A0ed6485e08816f520",
-      "txHash": "0xa98b20809efd2420f92cf0a1e599cf5ace5b17a2e2339f569cdf83ddf19d0425",
+      "address": "0x10335318E956f67438A7FC2EA62D4d51e08bDa7E",
+      "txHash": "0xaf5364fe38581a2bb98272fdd5b82385c53ebc47b482f0ad81a249425500b795",
       "kind": "uups"
     }
   ],
   "impls": {
     "a11777228b7630288c80aea8c6d3aac945f1b8a21fa9c5a5257b59693ed985e6": {
-      "address": "0x243f9972cE85f42FEce9334301955704ac392a42",
-      "txHash": "0x9ec423a9849a73417e3af43dc20f96442b80a8abc54954e99d5978900f3605a1",
+      "address": "0xCADDBf5a2Fe66Fe9E313B7Df84d8dDFDE4036315",
+      "txHash": "0xcab8bb6c52bbc112f3d117afba2c3e61492880d21c417d3c7e37b9cb9278853f",
       "layout": {
         "storage": [
           {
             "label": "openQStorage",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(OpenQStorage)8570",
+            "type": "t_contract(OpenQStorage)7070",
             "contract": "OpenQStorable",
             "src": "contracts/OpenQ/OpenQStorable.sol:9"
           },
@@ -45,7 +25,7 @@
             "label": "bountyFactory",
             "offset": 0,
             "slot": "1",
-            "type": "t_contract(BountyFactory)7266",
+            "type": "t_contract(BountyFactory)5766",
             "contract": "OpenQStorable",
             "src": "contracts/OpenQ/OpenQStorable.sol:10"
           },
@@ -53,7 +33,7 @@
             "label": "openQTokenWhitelist",
             "offset": 0,
             "slot": "2",
-            "type": "t_contract(OpenQTokenWhitelist)8850",
+            "type": "t_contract(OpenQTokenWhitelist)7239",
             "contract": "OpenQStorable",
             "src": "contracts/OpenQ/OpenQStorable.sol:11"
           },
@@ -155,15 +135,15 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(BountyFactory)7266": {
+          "t_contract(BountyFactory)5766": {
             "label": "contract BountyFactory",
             "numberOfBytes": "20"
           },
-          "t_contract(OpenQStorage)8570": {
+          "t_contract(OpenQStorage)7070": {
             "label": "contract OpenQStorage",
             "numberOfBytes": "20"
           },
-          "t_contract(OpenQTokenWhitelist)8850": {
+          "t_contract(OpenQTokenWhitelist)7239": {
             "label": "contract OpenQTokenWhitelist",
             "numberOfBytes": "20"
           },

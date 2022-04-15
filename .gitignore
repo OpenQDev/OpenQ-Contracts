@@ -18,4 +18,4 @@ mcore*/
 .env.polygon
 .env.docker
 .DS_Store
-.openzeppelin/unknown-31337.json
+.openzeppelin/**
