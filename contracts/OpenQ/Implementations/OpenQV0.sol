@@ -244,25 +244,33 @@ contract OpenQV0 is
 
     function setOpenQStorage(address _openQStorage)
         external
-        onlyOwner
         onlyProxy
+        onlyOwner
     {
         openQStorage = OpenQStorage(_openQStorage);
     }
 
     function setBountyFactory(address _bountyFactory)
         external
-        onlyOwner
         onlyProxy
+        onlyOwner
     {
         bountyFactory = BountyFactory(_bountyFactory);
     }
 
     function setTokenWhitelist(address _openQTokenWhitelist)
         external
-        onlyOwner
         onlyProxy
+        onlyOwner
     {
         openQTokenWhitelist = OpenQTokenWhitelist(_openQTokenWhitelist);
+    }
+
+    function transferOracle(address _newOracle) external onlyProxy onlyOwner {
+        require(
+            _newOracle != address(0),
+            'Oraclize: new oracle is the zero address'
+        );
+        _transferOracle(_newOracle);
     }
 }
