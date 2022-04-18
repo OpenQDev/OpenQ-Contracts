@@ -36,7 +36,7 @@ async function deployContracts() {
 	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 	let openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
 	const confirmation = await openQProxy.deployed();
-	const deployBlockNumber = parseInt(confirmation.provider._emitted.block);
+	const deployBlockNumber = parseInt(confirmation.provider._fastBlockNumber);
 	await optionalSleep(10000);
 	console.log(`OpenQV0 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}`);
 
@@ -44,7 +44,6 @@ async function deployContracts() {
 	openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 	await openQProxy.initialize(process.env.ORACLE_ADDRESS);
-	console.log(`OpenQProxy Deployment Transaction: ${openQProxy.deployTransaction.hash}`);
 
 	console.log('Deploying OpenQStorage...');
 	const OpenQStorage = await ethers.getContractFactory('OpenQStorage');
