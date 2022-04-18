@@ -10,39 +10,41 @@ async function deployContracts() {
 
 	let mockLink;
 	let mockDai;
-	if (network.name === 'docker' || network.name === 'localhost') {
-		console.log('Deploying MockLink...');
-		const MockLink = await ethers.getContractFactory('MockLink');
-		mockLink = await MockLink.deploy();
-		await mockLink.deployed();
-		await optionalSleep(10000);
-		console.log(`MockLink Deployed to ${mockLink.address}\n`);
+	// if (network.name === 'docker' || network.name === 'localhost') {
+	// 	console.log('Deploying MockLink...');
+	// 	const MockLink = await ethers.getContractFactory('MockLink');
+	// 	mockLink = await MockLink.deploy();
+	// 	await mockLink.deployed();
+	// 	await optionalSleep(10000);
+	// 	console.log(`MockLink Deployed to ${mockLink.address}\n`);
 
-		console.log('Deploying MockDai...');
-		const MockDai = await ethers.getContractFactory('MockDai');
-		mockDai = await MockDai.deploy();
-		await mockDai.deployed();
-		await optionalSleep(10000);
-		console.log(`MockDai Deployed to ${mockDai.address}\n`);
-	}
+	// 	console.log('Deploying MockDai...');
+	// 	const MockDai = await ethers.getContractFactory('MockDai');
+	// 	mockDai = await MockDai.deploy();
+	// 	await mockDai.deployed();
+	// 	await optionalSleep(10000);
+	// 	console.log(`MockDai Deployed to ${mockDai.address}\n`);
+	// }
 
-	console.log('Deploying OpenQV0...');
-	const OpenQ = await ethers.getContractFactory('OpenQV0');
-	const openQ = await upgrades.deployProxy(OpenQ, [process.env.ORACLE_ADDRESS], { kind: 'uups' });
-	console.log(`OpenQV0 Deploy Transaction: ${openQ.deployTransaction.hash}`);
-	const confirmation = await openQ.deployed();
-	const deployBlockNumber = parseInt(confirmation.provider._emitted.block);
-	await optionalSleep(10000); 25879700;
-	console.log(`OpenQV0 (Proxy) Deployed to ${openQ.address} in block number ${deployBlockNumber}`);
-	const openQImplementationAddress = await openQ.getImplementation();
-	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementationAddress}\n`);
-
-	console.log('Deploying new OpenQV0 for testing upgradeability...');
+	console.log('Deploying OpenQV0 Implementation...');
 	const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
 	const openQImplementation = await OpenQImplementation.deploy();
 	await openQImplementation.deployed();
+	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation.address}\n`);
+
+	console.log('Deploying OpenQProxy...');
+	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
+	let openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
+	const confirmation = await openQProxy.deployed();
+	const deployBlockNumber = parseInt(confirmation.provider._emitted.block);
 	await optionalSleep(10000);
-	console.log(`Deployed new OpenQV0 to ${openQImplementation.address}\n`);
+	console.log(`OpenQV0 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}`);
+
+	// Attach the OpenQV0 ABI to the OpenQProxy address to send method calls to the delegatecall
+	openQProxy = await OpenQImplementation.attach(openQProxy.address);
+
+	await openQProxy.initialize(process.env.ORACLE_ADDRESS);
+	console.log(`OpenQProxy Deployment Transaction: ${openQProxy.deployTransaction.hash}`);
 
 	console.log('Deploying OpenQStorage...');
 	const OpenQStorage = await ethers.getContractFactory('OpenQStorage');
@@ -60,14 +62,14 @@ async function deployContracts() {
 
 	console.log('Deploying BountyFactory...');
 	const BountyFactory = await ethers.getContractFactory('BountyFactory');
-	const bountyFactory = await BountyFactory.deploy(openQ.address);
+	const bountyFactory = await BountyFactory.deploy(openQProxy.address);
 	await bountyFactory.deployed();
 	await optionalSleep(10000);
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
 	const bountyImplementation = await bountyFactory.bountyImplementation();
 	console.log(`BountyV0 (Implementation) Deployed to ${bountyImplementation}\n`);
 
-	console.log(`OpenQV0 (Proxy) deployed to: ${openQ.address}`);
+	console.log(`OpenQV0 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation}`);
 	console.log(`OpenQStorage deployed to: ${openQStorage.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
@@ -80,19 +82,19 @@ async function deployContracts() {
 
 	console.log('\nConfiguring OpenQV0 with OpenQStorage...');
 	console.log(`Setting OpenQStorage on OpenQV0 to ${openQStorage.address}...`);
-	await openQ.setOpenQStorage(openQStorage.address);
+	await openQProxy.setOpenQStorage(openQStorage.address);
 	await optionalSleep(10000);
 	console.log(`OpenQStorage successfully set on OpenQV0 to ${openQStorage.address}`);
 
 	console.log('\nConfiguring OpenQV0 with BountyFactory...');
 	console.log(`Setting BountyFactory on OpenQV0 to ${bountyFactory.address}...`);
-	await openQ.setBountyFactory(bountyFactory.address);
+	await openQProxy.setBountyFactory(bountyFactory.address);
 	await optionalSleep(10000);
 	console.log(`BountyFactory successfully set on OpenQV0 to ${bountyFactory.address}`);
 
 	console.log('\nConfiguring OpenQV0 with OpenQTokenWhitelist...');
 	console.log(`Setting OpenQTokenWhitelist on OpenQV0 to ${openQTokenWhitelist.address}...`);
-	await openQ.setTokenWhitelist(openQTokenWhitelist.address);
+	await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist successfully set on OpenQV0 to ${openQTokenWhitelist.address}`);
 
@@ -104,8 +106,8 @@ async function deployContracts() {
 	*/
 	let addresses;
 	if (network.name === 'docker') {
-		addresses = `OPENQ_ADDRESS="${openQ.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationAddress}"
+		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
 OPENQ_STORAGE_ADDRESS="${bountyFactory.address}"
@@ -115,8 +117,8 @@ MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
 MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 `;
 	} else {
-		addresses = `OPENQ_ADDRESS="${openQ.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationAddress}"
+		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
 OPENQ_STORAGE_ADDRESS="${openQStorage.address}"

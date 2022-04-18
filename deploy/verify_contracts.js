@@ -31,7 +31,7 @@ async function verifyContracts() {
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
 			constructorArguments: [
-				process.env.OPENQ_ADDRESS
+				process.env.OPENQ_PROXY_ADDRESS
 			]
 		});
 	} catch (error) {

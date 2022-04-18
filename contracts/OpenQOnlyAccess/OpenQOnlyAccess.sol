@@ -11,7 +11,6 @@ abstract contract OpenQOnlyAccess is Context {
         openQ = _openQ;
     }
 
-    // Modifiers
     modifier onlyOpenQ() {
         require(_msgSender() == openQ, 'Method is only callable by OpenQ');
         _;
