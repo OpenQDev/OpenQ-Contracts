@@ -26,9 +26,7 @@ contract OpenQStorage is EternalStorage {
     mapping(bytes32 => bool) private booleanStorage;
     mapping(bytes32 => bytes32) private bytes32Storage;
 
-    /// @dev Construct RocketStorage
     constructor() {
-        // Set the guardian upon deployment
         guardian = msg.sender;
     }
 

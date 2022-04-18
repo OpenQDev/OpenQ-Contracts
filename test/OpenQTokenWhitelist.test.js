@@ -3,7 +3,7 @@ require('@nomiclabs/hardhat-waffle');
 const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
-const { ethers, upgrades } = require("hardhat");
+const { ethers } = require("hardhat");
 
 describe('OpenQTokenWhitelist.sol', () => {
 	let owner;

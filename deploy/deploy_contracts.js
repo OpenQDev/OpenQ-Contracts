@@ -1,4 +1,4 @@
-const { ethers, upgrades, network } = require('hardhat');
+const { ethers, network } = require('hardhat');
 const fs = require('fs');
 const { optionalSleep } = require('./utils');
 require('dotenv').config();
@@ -10,23 +10,23 @@ async function deployContracts() {
 
 	let mockLink;
 	let mockDai;
-	// if (network.name === 'docker' || network.name === 'localhost') {
-	// 	console.log('Deploying MockLink...');
-	// 	const MockLink = await ethers.getContractFactory('MockLink');
-	// 	mockLink = await MockLink.deploy();
-	// 	await mockLink.deployed();
-	// 	await optionalSleep(10000);
-	// 	console.log(`MockLink Deployed to ${mockLink.address}\n`);
+	if (network.name === 'docker' || network.name === 'localhost') {
+		console.log('Deploying MockLink...');
+		const MockLink = await ethers.getContractFactory('MockLink');
+		mockLink = await MockLink.deploy();
+		await mockLink.deployed();
+		await optionalSleep(10000);
+		console.log(`MockLink Deployed to ${mockLink.address}\n`);
 
-	// 	console.log('Deploying MockDai...');
-	// 	const MockDai = await ethers.getContractFactory('MockDai');
-	// 	mockDai = await MockDai.deploy();
-	// 	await mockDai.deployed();
-	// 	await optionalSleep(10000);
-	// 	console.log(`MockDai Deployed to ${mockDai.address}\n`);
-	// }
+		console.log('Deploying MockDai...');
+		const MockDai = await ethers.getContractFactory('MockDai');
+		mockDai = await MockDai.deploy();
+		await mockDai.deployed();
+		await optionalSleep(10000);
+		console.log(`MockDai Deployed to ${mockDai.address}\n`);
+	}
 
-	console.log('Deploying OpenQV0 Implementation...');
+	console.log('Deploying OpenQV0 (Implementation)...');
 	const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
 	const openQImplementation = await OpenQImplementation.deploy();
 	await openQImplementation.deployed();
@@ -38,7 +38,7 @@ async function deployContracts() {
 	const confirmation = await openQProxy.deployed();
 	const deployBlockNumber = parseInt(confirmation.provider._fastBlockNumber);
 	await optionalSleep(10000);
-	console.log(`OpenQV0 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}`);
+	console.log(`OpenQV0 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}\n`);
 
 	// Attach the OpenQV0 ABI to the OpenQProxy address to send method calls to the delegatecall
 	openQProxy = await OpenQImplementation.attach(openQProxy.address);

@@ -9,7 +9,21 @@ async function verifyContracts() {
 	console.log('------------------------------------------');
 
 	try {
-		console.log('Verifying OpenQV0');
+		console.log('Verifying OpenQProxy');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_PROXY_ADDRESS,
+			constructorArguments: [
+				process.env.OPENQ_IMPLEMENTATION_ADDRESS,
+				[]
+			],
+			contract: 'contracts/OpenQ/proxy/OpenQProxy.sol:OpenQProxy'
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying OpenQV0');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_IMPLEMENTATION_ADDRESS,
 		});
@@ -18,7 +32,7 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('Verifying BountyV0');
+		console.log('\nVerifying BountyV0');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS,
 		});
@@ -27,7 +41,7 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('Verifying BountyFactory');
+		console.log('\nVerifying BountyFactory');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
 			constructorArguments: [
@@ -39,7 +53,7 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('Verifying OpenQStorage');
+		console.log('\nVerifying OpenQStorage');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_STORAGE_ADDRESS,
 		});
@@ -48,7 +62,7 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('Verifying OpenQTokenWhitelist');
+		console.log('\nVerifying OpenQTokenWhitelist');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS,
 			constructorArguments: [

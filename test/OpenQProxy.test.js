@@ -3,7 +3,7 @@ const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
-const { ethers, upgrades } = require("hardhat");
+const { ethers } = require("hardhat");
 
 describe('OpenQProxy', () => {
 	let openQImplementation;
