@@ -43,16 +43,4 @@ abstract contract Oraclize is OwnableUpgradeable {
         _oracle = newOracle;
         emit OracleTransferred(oldOracle, newOracle);
     }
-
-    /**
-     * @dev Transfers oracle of the contract to a new account (`newOracle`).
-     * Can only be called by the current owner.
-     */
-    function transferOracle(address newOracle) external virtual onlyOwner {
-        require(
-            newOracle != address(0),
-            'Oraclize: new oracle is the zero address'
-        );
-        _transferOracle(newOracle);
-    }
 }

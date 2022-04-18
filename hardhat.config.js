@@ -1,5 +1,4 @@
 require('@nomiclabs/hardhat-waffle');
-require('@openzeppelin/hardhat-upgrades');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-contract-sizer');
 require('hardhat-tracer');
@@ -30,7 +29,7 @@ module.exports = (function () {
 				accounts: [process.env.CLIENT, process.env.CONTRIBUTOR],
 				chainId: chainIdInt,
 				gas: 9999999,
-				// gasPrice: 100000000000
+				gasPrice: 100000000000
 			},
 			polygon: {
 				url: process.env.PROVIDER_URL,

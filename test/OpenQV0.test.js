@@ -3,7 +3,7 @@ require('@nomiclabs/hardhat-waffle');
 const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
-const { ethers, upgrades } = require("hardhat");
+const { ethers } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
@@ -77,6 +77,20 @@ describe('OpenQV0.sol', () => {
 		await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
 	});
 
+<<<<<<< HEAD
+=======
+	describe('initialization', () => {
+		it('should initialize with correct fields', async () => {
+			expect(await openQProxy.owner()).equals('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
+			expect(await openQProxy.oracle()).equals('0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC');
+		});
+
+		it('should only be initialized once', async () => {
+			await expect(openQProxy.initialize(oracle.address)).to.be.revertedWith('Initializable: contract is already initialized');
+		});
+	});
+
+>>>>>>> development
 	describe('mintBounty', () => {
 		it('should deploy a new bounty contract with expected initial metadata', async () => {
 			// ARRANGE
