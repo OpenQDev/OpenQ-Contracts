@@ -67,6 +67,7 @@ contract OpenQV0 is
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
+        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
         require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
 
         bytes32 depositId = bounty.receiveNft(

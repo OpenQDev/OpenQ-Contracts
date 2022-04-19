@@ -60,6 +60,7 @@ describe('OpenQV0.sol', () => {
 		await openQTokenWhitelist.addToken(mockLink.address);
 		await openQTokenWhitelist.addToken(mockDai.address);
 		await openQTokenWhitelist.addToken(ethers.constants.AddressZero);
+		await openQTokenWhitelist.addToken(mockNft.address);
 
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
@@ -77,8 +78,6 @@ describe('OpenQV0.sol', () => {
 		await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
 	});
 
-<<<<<<< HEAD
-=======
 	describe('initialization', () => {
 		it('should initialize with correct fields', async () => {
 			expect(await openQProxy.owner()).equals('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
@@ -90,7 +89,6 @@ describe('OpenQV0.sol', () => {
 		});
 	});
 
->>>>>>> development
 	describe('mintBounty', () => {
 		it('should deploy a new bounty contract with expected initial metadata', async () => {
 			// ARRANGE

@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers, upgrades } = require("hardhat");
 
-describe.only('OpenQV0Proxy', () => {
+describe('OpenQV0Proxy', () => {
 	let openQImplementation;
 	let openQProxy;
 	let openQStorage;
@@ -133,7 +133,7 @@ describe.only('OpenQV0Proxy', () => {
 
 		it('should revert if not called by proxy', async () => {
 			// ACT / ASSERT
-			await expect(openQImplementation.setTokenWhitelist(openQStorage.address)).to.be.revertedWith('Ownable: caller is not the owner');
+			await expect(openQImplementation.setTokenWhitelist(openQStorage.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
 		it('should set OpenQTokenWhitelist', async () => {
