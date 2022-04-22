@@ -69,7 +69,7 @@ async function deployContracts() {
 	console.log(`BountyV0 (Implementation) Deployed to ${bountyImplementation}\n`);
 
 	console.log(`OpenQV0 (Proxy) deployed to: ${openQProxy.address}`);
-	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation}`);
+	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation.address}`);
 	console.log(`OpenQStorage deployed to: ${openQStorage.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
