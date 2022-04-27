@@ -16,7 +16,7 @@ async function verifyContracts() {
 				process.env.OPENQ_IMPLEMENTATION_ADDRESS,
 				[]
 			],
-			contract: 'contracts/OpenQ/proxy/OpenQProxy.sol:OpenQProxy'
+			contract: 'contracts/OpenQ/Proxy/OpenQProxy.sol:OpenQProxy'
 		});
 	} catch (error) {
 		console.log(error);

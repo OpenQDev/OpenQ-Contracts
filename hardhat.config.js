@@ -11,8 +11,25 @@ module.exports = (function () {
 	const config = {
 		solidity: {
 			compilers: [
-				{ version: '0.8.2' },
-				{ version: '0.8.12' }
+				// Needed for static code analysis tools to compile OpenZeppelin contracts pegged to 0.8.2
+				{
+					version: '0.8.2',
+					settings: {
+						optimizer: {
+							enabled: true,
+							runs: 1000,
+						},
+					},
+				},
+				{
+					version: '0.8.12',
+					settings: {
+						optimizer: {
+							enabled: true,
+							runs: 1000,
+						},
+					},
+				}
 			],
 		},
 		networks: {
