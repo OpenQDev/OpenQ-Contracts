@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.12;
 
-import '../BountyFactory/BountyFactory.sol';
-import '../Tokens/OpenQTokenWhitelist.sol';
+// Third Party
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+
+// Custom
+import '../Tokens/OpenQTokenWhitelist.sol';
+import '../BountyFactory/BountyFactory.sol';
 import '../Oracle/Oraclize.sol';
 
 abstract contract OpenQStorageV0 is
