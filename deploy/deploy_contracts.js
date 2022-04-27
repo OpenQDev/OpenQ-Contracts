@@ -32,6 +32,18 @@ async function deployContracts() {
 	await openQImplementation.deployed();
 	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation.address}\n`);
 
+	console.log('Deploying OpenQV1 (Implementation)...');
+	const OpenQImplementationV1 = await ethers.getContractFactory('OpenQV1');
+	const openQImplementationV1 = await OpenQImplementationV1.deploy();
+	await openQImplementationV1.deployed();
+	console.log(`OpenQV1 (Implementation) Deployed to ${openQImplementationV1.address}\n`);
+
+	console.log('Deploying OpenQV2 (Implementation)...');
+	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV2');
+	const openQImplementationV2 = await OpenQImplementationV2.deploy();
+	await openQImplementationV2.deployed();
+	console.log(`OpenQV2 (Implementation) Deployed to ${openQImplementationV2.address}\n`);
+
 	console.log('Deploying OpenQProxy...');
 	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 	let openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
@@ -63,7 +75,6 @@ async function deployContracts() {
 
 	console.log(`OpenQV0 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation.address}`);
-	console.log(`OpenQStorage deployed to: ${openQStorage.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
 
@@ -71,12 +82,6 @@ async function deployContracts() {
 		console.log(`MockLink deployed to: ${mockLink.address}`);
 		console.log(`MockDai deployed to: ${mockDai.address}`);
 	}
-
-	console.log('\nConfiguring OpenQV0 with OpenQStorage...');
-	console.log(`Setting OpenQStorage on OpenQV0 to ${openQStorage.address}...`);
-	await openQProxy.setOpenQStorage(openQStorage.address);
-	await optionalSleep(10000);
-	console.log(`OpenQStorage successfully set on OpenQV0 to ${openQStorage.address}`);
 
 	console.log('\nConfiguring OpenQV0 with BountyFactory...');
 	console.log(`Setting BountyFactory on OpenQV0 to ${bountyFactory.address}...`);
@@ -113,7 +118,6 @@ MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
-OPENQ_STORAGE_ADDRESS="${openQStorage.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
