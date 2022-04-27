@@ -12,12 +12,12 @@ import '@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import '../../Bounty/Bounty.sol';
 import '../../BountyFactory/BountyFactory.sol';
 import '../IOpenQ.sol';
-import '../../Storage/OpenQStorage.sol';
+import '../../Storage/OpenQStorageV0.sol';
 import '../../Oracle/Oraclize.sol';
 import '../../Tokens/OpenQTokenWhitelist.sol';
 
 contract OpenQV0 is
-    OpenQStorage,
+    OpenQStorageV0,
     IOpenQ,
     OwnableUpgradeable,
     UUPSUpgradeable,

@@ -45,13 +45,6 @@ async function deployContracts() {
 
 	await openQProxy.initialize(process.env.ORACLE_ADDRESS);
 
-	console.log('Deploying OpenQStorage...');
-	const OpenQStorage = await ethers.getContractFactory('OpenQStorage');
-	const openQStorage = await OpenQStorage.deploy();
-	await openQStorage.deployed();
-	await optionalSleep(10000);
-	console.log(`OpenQStorage Deployed to ${openQStorage.address}\n`);
-
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);

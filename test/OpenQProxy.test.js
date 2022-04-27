@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 
-describe.only('OpenQProxy', () => {
+describe('OpenQProxy', () => {
 	let openQImplementation;
 	let openQProxy;
 
