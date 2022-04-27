@@ -32,6 +32,15 @@ async function verifyContracts() {
 	}
 
 	try {
+		console.log('\nVerifying OpenQV1');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_IMPLEMENTATION_ADDRESS_V1,
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
 		console.log('\nVerifying BountyV0');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS,

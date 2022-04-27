@@ -38,12 +38,6 @@ async function deployContracts() {
 	await openQImplementationV1.deployed();
 	console.log(`OpenQV1 (Implementation) Deployed to ${openQImplementationV1.address}\n`);
 
-	console.log('Deploying OpenQV2 (Implementation)...');
-	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV2');
-	const openQImplementationV2 = await OpenQImplementationV2.deploy();
-	await openQImplementationV2.deployed();
-	console.log(`OpenQV2 (Implementation) Deployed to ${openQImplementationV2.address}\n`);
-
 	console.log('Deploying OpenQProxy...');
 	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 	let openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
@@ -75,6 +69,7 @@ async function deployContracts() {
 
 	console.log(`OpenQV0 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation.address}`);
+	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV1.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
 
@@ -116,6 +111,7 @@ MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 	} else {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
+OPENQ_IMPLEMENTATION_ADDRESS_V1="${openQImplementationV1.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
