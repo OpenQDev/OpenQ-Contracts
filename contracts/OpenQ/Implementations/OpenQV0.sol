@@ -1,29 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.12;
 
-// Third Party
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol';
-
 // Custom
 import '../../Bounty/Bounty.sol';
 import '../../BountyFactory/BountyFactory.sol';
 import '../IOpenQ.sol';
 import '../../Storage/OpenQStorageV0.sol';
-import '../../Oracle/Oraclize.sol';
 import '../../Tokens/OpenQTokenWhitelist.sol';
 
-contract OpenQV0 is
-    OpenQStorageV0,
-    IOpenQ,
-    OwnableUpgradeable,
-    UUPSUpgradeable,
-    ReentrancyGuardUpgradeable,
-    Oraclize
-{
+contract OpenQV0 is OpenQStorageV0, IOpenQ {
     using SafeMathUpgradeable for uint256;
 
     constructor() {}
