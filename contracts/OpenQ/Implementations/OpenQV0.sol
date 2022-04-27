@@ -5,7 +5,7 @@ pragma solidity 0.8.12;
 import '../../Bounty/Bounty.sol';
 import '../../BountyFactory/BountyFactory.sol';
 import '../IOpenQ.sol';
-import '../../Storage/OpenQStorageV0.sol';
+import '../../Storage/OpenQStorage.sol';
 import '../../Tokens/OpenQTokenWhitelist.sol';
 
 contract OpenQV0 is OpenQStorageV0, IOpenQ {
@@ -24,7 +24,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization
-    ) external override nonReentrant onlyProxy returns (address) {
+    ) external nonReentrant onlyProxy returns (address) {
         address bountyAddress = bountyFactory.mintBounty(
             _bountyId,
             msg.sender,
@@ -48,7 +48,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
-    ) external override nonReentrant onlyProxy returns (bool success) {
+    ) external nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
@@ -86,7 +86,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) external payable override nonReentrant onlyProxy returns (bool success) {
+    ) external payable nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
 
@@ -114,7 +114,6 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
 
     function claimBounty(string calldata _bountyId, address closer)
         external
-        override
         onlyOracle
         nonReentrant
     {
@@ -155,7 +154,6 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
 
     function refundDeposit(string calldata _bountyId, bytes32 _depositId)
         external
-        override
         nonReentrant
         onlyProxy
         returns (bool success)
@@ -195,7 +193,6 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     function bountyIsOpen(string calldata _bountyId)
         public
         view
-        override
         returns (bool)
     {
         address bountyAddress = bountyIdToAddress(_bountyId);

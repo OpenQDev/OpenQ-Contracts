@@ -4,7 +4,6 @@ pragma solidity 0.8.12;
 import '../Bounty/Bounty.sol';
 
 interface IOpenQ {
-    // Events
     event BountyCreated(
         string bountyId,
         string organization,
@@ -62,28 +61,4 @@ interface IOpenQ {
         address tokenAddress,
         uint256 volume
     );
-
-    function mintBounty(string calldata, string calldata)
-        external
-        returns (address);
-
-    function fundBountyNFT(
-        string calldata,
-        address,
-        uint256,
-        uint256
-    ) external returns (bool);
-
-    function fundBountyToken(
-        string calldata,
-        address,
-        uint256,
-        uint256
-    ) external payable returns (bool success);
-
-    function claimBounty(string calldata, address) external;
-
-    function refundDeposit(string calldata, bytes32) external returns (bool);
-
-    function bountyIsOpen(string memory) external view returns (bool);
 }

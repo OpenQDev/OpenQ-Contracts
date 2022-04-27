@@ -1,6 +1,7 @@
 require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-contract-sizer');
+require("hardhat-gas-reporter");
 require('hardhat-tracer');
 require('dotenv').config();
 
@@ -13,20 +14,14 @@ module.exports = (function () {
 			compilers: [
 				// Needed for static code analysis tools to compile OpenZeppelin contracts pegged to 0.8.2
 				{
-					version: '0.8.2',
-					settings: {
-						optimizer: {
-							enabled: true,
-							runs: 1000,
-						},
-					},
+					version: '0.8.2'
 				},
 				{
 					version: '0.8.12',
 					settings: {
 						optimizer: {
 							enabled: true,
-							runs: 1000,
+							runs: 200,
 						},
 					},
 				}
@@ -63,7 +58,14 @@ module.exports = (function () {
 			disambiguatePaths: false,
 			runOnCompile: true,
 			strict: true
-		}
+		},
+		gasReporter: {
+			enabled: false,
+			currency: 'USD',
+			gasPrice: 21,
+			token: 'ETH',
+			gasPriceApi: 'https://api.etherscan.io/api?module=proxy&action=eth_gasPrice'
+		},
 	};
 
 	return config;

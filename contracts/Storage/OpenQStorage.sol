@@ -21,3 +21,15 @@ abstract contract OpenQStorageV0 is
     BountyFactory public bountyFactory;
     OpenQTokenWhitelist public openQTokenWhitelist;
 }
+
+contract NewBaseContract {
+    uint256 public foo;
+
+    function setFoo(uint256 _foo) public {
+        foo = _foo;
+    }
+}
+
+abstract contract OpenQStorageV1 is OpenQStorageV0, NewBaseContract {
+    uint256 public newStorageVar = 456;
+}
