@@ -5,25 +5,23 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 
-describe('OpenQProxy', () => {
+describe.only('OpenQProxy', () => {
 	let openQImplementation;
 	let openQProxy;
-	let openQStorage;
 
 	let owner;
 	let notOwner;
+	let randomContractUpgradeAddress;
 
 	let OpenQImplementation;
 	let OpenQTokenWhitelist;
 	let OpenQProxy;
-	let OpenQStorage;
 	let BountyFactory;
 
 	beforeEach(async () => {
 		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV0');
 		OpenQTokenWhitelist = await hre.ethers.getContractFactory('OpenQTokenWhitelist');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
-		OpenQStorage = await hre.ethers.getContractFactory('OpenQStorage');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 
 		[owner, notOwner, oracle] = await ethers.getSigners();
@@ -31,6 +29,9 @@ describe('OpenQProxy', () => {
 		// Deploy OpenQV0 Implementation
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
+
+		randomContractUpgradeAddress = await OpenQImplementation.deploy();
+		await randomContractUpgradeAddress.deployed();
 
 		// Deploy OpenQProxy with the previously deployed OpenQV0 implementation's address
 		openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
@@ -41,9 +42,6 @@ describe('OpenQProxy', () => {
 
 		// Initialize the OpenQProxy
 		await openQProxy.initialize(oracle.address);
-
-		openQStorage = await OpenQStorage.deploy();
-		await openQStorage.deployed();
 	});
 
 	describe('constructor', () => {
@@ -69,7 +67,7 @@ describe('OpenQProxy', () => {
 
 		it('should revert if not called via delegatecall', async () => {
 			// ACT / ASSERT
-			await expect(openQImplementation.upgradeTo(openQStorage.address)).to.be.revertedWith('Function must be called through delegatecall');
+			await expect(openQImplementation.upgradeTo(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
 		it('should update implementation address', async () => {
@@ -98,33 +96,6 @@ describe('OpenQProxy', () => {
 		});
 	});
 
-	describe('setOpenQStorage', () => {
-		it('should revert if not called by owner', async () => {
-			// ARRANGE
-			[, notOwner] = await ethers.getSigners();
-			let notOwnerContract = openQProxy.connect(notOwner);
-
-			// ACT / ASSERT
-			await expect(notOwnerContract.setOpenQStorage(openQStorage.address)).to.be.revertedWith('Ownable: caller is not the owner');
-		});
-
-		it('should revert if not called via delegatecall', async () => {
-			// ACT / ASSERT
-			await expect(openQImplementation.setOpenQStorage(openQStorage.address)).to.be.revertedWith('Function must be called through delegatecall');
-		});
-
-		it('should update the storage implementation address', async () => {
-			// ASSUME
-			expect(await openQProxy.openQStorage()).equals(ethers.constants.AddressZero);
-
-			// ACT
-			await openQProxy.setOpenQStorage(openQStorage.address);
-
-			// ASSERT
-			expect(await openQProxy.openQStorage()).equals(openQStorage.address);
-		});
-	});
-
 	describe('transferOracle', () => {
 		it('should revert if not called by owner', async () => {
 			// ARRANGE
@@ -132,12 +103,12 @@ describe('OpenQProxy', () => {
 			let notOwnerContract = openQProxy.connect(notOwner);
 
 			// ACT / ASSERT
-			await expect(notOwnerContract.transferOracle(openQStorage.address)).to.be.revertedWith('Ownable: caller is not the owner');
+			await expect(notOwnerContract.transferOracle(randomContractUpgradeAddress.address)).to.be.revertedWith('Ownable: caller is not the owner');
 		});
 
 		it('should revert if not called via delegatecall', async () => {
 			// ACT / ASSERT
-			await expect(openQImplementation.transferOracle(openQStorage.address)).to.be.revertedWith('Function must be called through delegatecall');
+			await expect(openQImplementation.transferOracle(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
 		it('should transfer oracle address', async () => {
@@ -159,12 +130,12 @@ describe('OpenQProxy', () => {
 			let notOwnerContract = openQProxy.connect(notOwner);
 
 			// ACT / ASSERT
-			await expect(notOwnerContract.setBountyFactory(openQStorage.address)).to.be.revertedWith('Ownable: caller is not the owner');
+			await expect(notOwnerContract.setBountyFactory(randomContractUpgradeAddress.address)).to.be.revertedWith('Ownable: caller is not the owner');
 		});
 
 		it('should revert if not called via delegatecall', async () => {
 			// ACT / ASSERT
-			await expect(openQImplementation.setBountyFactory(openQStorage.address)).to.be.revertedWith('Function must be called through delegatecall');
+			await expect(openQImplementation.setBountyFactory(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
 		it('should set new bounty factory address', async () => {
@@ -186,12 +157,12 @@ describe('OpenQProxy', () => {
 			let notOwnerContract = openQProxy.connect(notOwner);
 
 			// ACT / ASSERT
-			await expect(notOwnerContract.setTokenWhitelist(openQStorage.address)).to.be.revertedWith('Ownable: caller is not the owner');
+			await expect(notOwnerContract.setTokenWhitelist(randomContractUpgradeAddress.address)).to.be.revertedWith('Ownable: caller is not the owner');
 		});
 
 		it('should revert if not called via delegatecall', async () => {
 			// ACT / ASSERT
-			await expect(openQImplementation.setTokenWhitelist(openQStorage.address)).to.be.revertedWith('Function must be called through delegatecall');
+			await expect(openQImplementation.setTokenWhitelist(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
 		it('should set OpenQTokenWhitelist', async () => {

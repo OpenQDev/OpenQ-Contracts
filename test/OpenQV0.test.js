@@ -21,7 +21,6 @@ describe('OpenQV0.sol', () => {
 	let oracle;
 
 	beforeEach(async () => {
-		const OpenQStorage = await ethers.getContractFactory('OpenQStorage');
 		const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
@@ -67,13 +66,9 @@ describe('OpenQV0.sol', () => {
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 
-		openQStorage = await OpenQStorage.deploy();
-		await openQStorage.deployed();
-
 		bountyFactory = await BountyFactory.deploy(openQProxy.address);
 		await bountyFactory.deployed();
 
-		await openQProxy.setOpenQStorage(openQStorage.address);
 		await openQProxy.setBountyFactory(bountyFactory.address);
 		await openQProxy.transferOracle(oracle.address);
 		await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
