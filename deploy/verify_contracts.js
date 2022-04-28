@@ -50,21 +50,35 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('\nVerifying BountyFactory');
+		console.log('\nVerifying BountyV1');
 		await hre.run('verify:verify', {
-			address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
-			constructorArguments: [
-				process.env.OPENQ_PROXY_ADDRESS
-			]
+			address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_V1_ADDRESS,
 		});
 	} catch (error) {
 		console.log(error);
 	}
 
 	try {
-		console.log('\nVerifying OpenQStorage');
+		console.log('\nVerifying BountyBeacon');
 		await hre.run('verify:verify', {
-			address: process.env.OPENQ_STORAGE_ADDRESS,
+			address: process.env.BOUNTY_BEACON_ADDRESS,
+			constructorArguments: [
+				process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS
+			],
+			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying BountyFactory');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
+			constructorArguments: [
+				process.env.OPENQ_PROXY_ADDRESS,
+				process.env.BOUNTY_BEACON_ADDRESS
+			]
 		});
 	} catch (error) {
 		console.log(error);
@@ -81,6 +95,7 @@ async function verifyContracts() {
 	} catch (error) {
 		console.log(error);
 	}
+
 }
 
 async function main() {
