@@ -2,18 +2,32 @@
 // NO HACKERS ALLOWED PLEASE THANKS!
 pragma solidity 0.8.12;
 
-// Third Party
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import '../../Storage/BountyStorage.sol';
 
-// Custom
-import '../Bounty.sol';
-
-contract BountyV0 is Bounty {
+contract BountyV0 is BountyStorageV0 {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using Address for address payable;
     using EnumerableSet for EnumerableSet.AddressSet;
+
+    constructor() {}
+
+    function initialize(
+        string memory _bountyId,
+        address _issuer,
+        string memory _organization,
+        address _openQ
+    ) external initializer {
+        require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
+        require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
+        bountyId = _bountyId;
+        issuer = _issuer;
+        organization = _organization;
+        bountyCreatedTime = block.timestamp;
+        nftDepositLimit = 5;
+        __ReentrancyGuard_init();
+        __OpenQOnlyAccess_init(_openQ);
+    }
 
     // Transactions
     function receiveFunds(
@@ -21,14 +35,7 @@ contract BountyV0 is Bounty {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    )
-        external
-        payable
-        override
-        onlyOpenQ
-        nonReentrant
-        returns (bytes32, uint256)
-    {
+    ) external payable onlyOpenQ nonReentrant returns (bytes32, uint256) {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
         require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
 
@@ -59,7 +66,7 @@ contract BountyV0 is Bounty {
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration
-    ) external override onlyOpenQ nonReentrant returns (bytes32) {
+    ) external onlyOpenQ nonReentrant returns (bytes32) {
         require(
             nftDeposits.length < nftDepositLimit,
             'NFT_DEPOSIT_LIMIT_REACHED'
@@ -84,7 +91,6 @@ contract BountyV0 is Bounty {
 
     function refundDeposit(bytes32 _depositId, address _funder)
         external
-        override
         onlyOpenQ
         nonReentrant
         returns (bool success)
@@ -126,7 +132,6 @@ contract BountyV0 is Bounty {
 
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
-        override
         onlyOpenQ
         nonReentrant
         returns (uint256)
@@ -146,7 +151,6 @@ contract BountyV0 is Bounty {
 
     function claimNft(address _payoutAddress, bytes32 depositId)
         external
-        override
         onlyOpenQ
         nonReentrant
         returns (bool success)
@@ -163,7 +167,6 @@ contract BountyV0 is Bounty {
 
     function close(address _payoutAddress)
         external
-        override
         onlyOpenQ
         returns (bool success)
     {
@@ -172,5 +175,103 @@ contract BountyV0 is Bounty {
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
         return true;
+    }
+
+    // Transfer Helpers
+    function _receiveERC20(
+        address _tokenAddress,
+        address _funder,
+        uint256 _volume
+    ) internal returns (uint256) {
+        uint256 balanceBefore = getERC20Balance(_tokenAddress);
+        IERC20 token = IERC20(_tokenAddress);
+        token.safeTransferFrom(_funder, address(this), _volume);
+        uint256 balanceAfter = getERC20Balance(_tokenAddress);
+        require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
+
+        /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
+           is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
+					 Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
+        return balanceAfter.sub(balanceBefore);
+    }
+
+    function _transferERC20(
+        address _tokenAddress,
+        address _payoutAddress,
+        uint256 _volume
+    ) internal {
+        IERC20 token = IERC20(_tokenAddress);
+        token.safeTransfer(_payoutAddress, _volume);
+    }
+
+    function _transferProtocolToken(address _payoutAddress, uint256 _volume)
+        internal
+    {
+        payable(_payoutAddress).sendValue(_volume);
+    }
+
+    function _receiveNft(
+        address _tokenAddress,
+        address _sender,
+        uint256 _tokenId
+    ) internal {
+        IERC721 nft = IERC721(_tokenAddress);
+        nft.safeTransferFrom(_sender, address(this), _tokenId);
+    }
+
+    function _transferNft(
+        address _tokenAddress,
+        address _payoutAddress,
+        uint256 _tokenId
+    ) internal {
+        IERC721 nft = IERC721(_tokenAddress);
+        nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
+    }
+
+    // View Methods
+    function _generateDepositId() internal view returns (bytes32) {
+        return keccak256(abi.encode(bountyId, deposits.length));
+    }
+
+    function getERC20Balance(address _tokenAddress)
+        public
+        view
+        returns (uint256 balance)
+    {
+        IERC20 token = IERC20(_tokenAddress);
+        return token.balanceOf(address(this));
+    }
+
+    function getDeposits() external view returns (bytes32[] memory) {
+        return deposits;
+    }
+
+    function getNftDeposits() external view returns (bytes32[] memory) {
+        return nftDeposits;
+    }
+
+    function getTokenAddresses() public view returns (address[] memory) {
+        return tokenAddresses.values();
+    }
+
+    // Revert any attempts to send unknown calldata
+    fallback() external {
+        revert();
+    }
+
+    receive() external payable {
+        // React to receiving protocol token
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        return
+            bytes4(
+                keccak256('onERC721Received(address,address,uint256,bytes)')
+            );
     }
 }

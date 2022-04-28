@@ -2,7 +2,7 @@
 pragma solidity 0.8.12;
 
 // Custom
-import '../../Bounty/Bounty.sol';
+import '../../Bounty/Implementations/BountyV0.sol';
 import '../../BountyFactory/BountyFactory.sol';
 import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
@@ -50,7 +50,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         uint256 _expiration
     ) external nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
-        Bounty bounty = Bounty(payable(bountyAddress));
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
 
         require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
         require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
@@ -88,7 +88,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         uint256 _expiration
     ) external payable nonReentrant onlyProxy returns (bool success) {
         address bountyAddress = bountyIdToAddress(_bountyId);
-        Bounty bounty = Bounty(payable(bountyAddress));
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
 
         require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
         require(bountyIsOpen(_bountyId), 'FUNDING_CLOSED_BOUNTY');
@@ -120,7 +120,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress(_bountyId);
-        Bounty bounty = Bounty(payable(bountyAddress));
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
 
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             address tokenAddress = bounty.getTokenAddresses()[i];
@@ -159,7 +159,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         returns (bool success)
     {
         address bountyAddress = bountyIdToAddress(_bountyId);
-        Bounty bounty = Bounty(payable(bountyAddress));
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
 
         require(bountyIsOpen(_bountyId) == true, 'REFUNDING_CLOSED_BOUNTY');
 
@@ -196,7 +196,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         returns (bool)
     {
         address bountyAddress = bountyIdToAddress(_bountyId);
-        Bounty bounty = Bounty(payable(bountyAddress));
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
         bool isOpen = bounty.status() == 0;
         return isOpen;
     }
@@ -214,7 +214,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         view
         returns (string memory)
     {
-        Bounty bounty = Bounty(payable(bountyAddress));
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
         return bounty.bountyId();
     }
 

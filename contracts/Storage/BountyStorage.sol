@@ -1,10 +1,25 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.12;
 
+// Third Party
+import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
-abstract contract BountyStorageV0 {
+// Custom
+import '../OpenQOnlyAccess/OpenQOnlyAccess.sol';
+
+abstract contract BountyStorageV0 is
+    ReentrancyGuardUpgradeable,
+    IERC721ReceiverUpgradeable,
+    OpenQOnlyAccess
+{
     // Bounty Metadata
     string public bountyId;
     uint256 public bountyCreatedTime;
@@ -13,6 +28,7 @@ abstract contract BountyStorageV0 {
     string public organization;
     address public closer;
     uint256 public status;
+    uint256 public nftDepositLimit;
 
     // Deposit Data - A Deconstructed Deposit Struct
     mapping(bytes32 => address) public funder;
@@ -31,7 +47,4 @@ abstract contract BountyStorageV0 {
 
     // Token Addresses and Volumes
     EnumerableSet.AddressSet internal tokenAddresses;
-
-    // Constants
-    uint256 constant nftDepositLimit = 5;
 }
