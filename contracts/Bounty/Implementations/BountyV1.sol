@@ -1,280 +1,381 @@
-// // SPDX-License-Identifier: BUSL-1.1
-// pragma solidity 0.8.12;
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity 0.8.12;
 
-// import '../../Storage/BountyStorage.sol';
+// Custom
+import '../../Storage/BountyStorage.sol';
 
-// contract BountyV1 is BountyStorageV1 {
-//     using SafeERC20 for IERC20;
-//     using SafeMath for uint256;
-//     using Address for address payable;
-//     using EnumerableSet for EnumerableSet.AddressSet;
+/// @title BountyV1
+/// @author OpenQ
+/// @dev Bounty Implementation Version 1
+contract BountyV1 is BountyStorageV1 {
+    using SafeERC20 for IERC20;
+    using SafeMath for uint256;
+    using Address for address payable;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
-//     constructor() {}
+    /*///////////////////////////////////////////////////////////////
+                          INIITIALIZATION
+    //////////////////////////////////////////////////////////////*/
 
-//     function setNewFoo(uint256 _newFoo) public {
-//         newFoo = _newFoo;
-//     }
+    constructor() {}
 
-//     function initialize(
-//         string memory _bountyId,
-//         address _issuer,
-//         string memory _organization,
-//         address _openQ
-//     ) external initializer {
-//         require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
-//         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
-//         bountyId = _bountyId;
-//         issuer = _issuer;
-//         organization = _organization;
-//         bountyCreatedTime = block.timestamp;
-//         nftDepositLimit = 5;
-//         __ReentrancyGuard_init();
-//         __OpenQOnlyAccess_init(_openQ);
-//     }
+    /**
+		Initializes a bounty proxy with initial state
+		@param _bountyId The unique bountyId
+		@param _issuer The sender of the mint bounty transaction
+		@param _organization The organization that owns the bounty
+		@param _openQ The OpenQProxy address
+		 */
+    function initialize(
+        string memory _bountyId,
+        address _issuer,
+        string memory _organization,
+        address _openQ
+    ) external initializer {
+        require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
+        require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
 
-//     // Transactions
-//     function receiveFunds(
-//         address _funder,
-//         address _tokenAddress,
-//         uint256 _volume,
-//         uint256 _expiration
-//     ) external payable onlyOpenQ nonReentrant returns (bytes32, uint256) {
-//         require(_volume != 0, 'ZERO_VOLUME_SENT');
-//         require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
+        __ReentrancyGuard_init();
+        __OnlyOpenQ_init(_openQ);
 
-//         bytes32 depositId = _generateDepositId();
+        bountyId = _bountyId;
+        issuer = _issuer;
+        organization = _organization;
+        bountyCreatedTime = block.timestamp;
+        nftDepositLimit = 5;
+    }
 
-//         uint256 volumeReceived;
-//         if (_tokenAddress == address(0)) {
-//             volumeReceived = msg.value;
-//         } else {
-//             volumeReceived = _receiveERC20(_tokenAddress, _funder, _volume);
-//         }
+    /*///////////////////////////////////////////////////////////////
+                          TRANSACTIONS
+    //////////////////////////////////////////////////////////////*/
 
-//         funder[depositId] = _funder;
-//         tokenAddress[depositId] = _tokenAddress;
-//         volume[depositId] = volumeReceived;
-//         depositTime[depositId] = block.timestamp;
-//         expiration[depositId] = _expiration;
-//         isNFT[depositId] = false;
+    /**
+		Creates a deposit and transfers tokens from msg.sender to self
+		@param _funder The funder address
+		@param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
+		@param _volume The volume of token to transfer
+		@param _expiration The duration until the deposit becomes refundable
+		@return (depositId, volumeReceived) Returns the deposit id and the amount transferred to bounty
+		 */
+    function receiveFunds(
+        address _funder,
+        address _tokenAddress,
+        uint256 _volume,
+        uint256 _expiration
+    ) external payable onlyOpenQ nonReentrant returns (bytes32, uint256) {
+        require(_volume != 0, 'ZERO_VOLUME_SENT');
+        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
 
-//         deposits.push(depositId);
-//         tokenAddresses.add(_tokenAddress);
+        bytes32 depositId = _generateDepositId();
 
-//         return (depositId, volumeReceived);
-//     }
+        uint256 volumeReceived;
+        if (_tokenAddress == address(0)) {
+            volumeReceived = msg.value;
+        } else {
+            volumeReceived = _receiveERC20(_tokenAddress, _funder, _volume);
+        }
 
-//     function receiveNft(
-//         address _sender,
-//         address _tokenAddress,
-//         uint256 _tokenId,
-//         uint256 _expiration
-//     ) external onlyOpenQ nonReentrant returns (bytes32) {
-//         require(
-//             nftDeposits.length < nftDepositLimit,
-//             'NFT_DEPOSIT_LIMIT_REACHED'
-//         );
-//         require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
-//         _receiveNft(_tokenAddress, _sender, _tokenId);
+        funder[depositId] = _funder;
+        tokenAddress[depositId] = _tokenAddress;
+        volume[depositId] = volumeReceived;
+        depositTime[depositId] = block.timestamp;
+        expiration[depositId] = _expiration;
+        isNFT[depositId] = false;
 
-//         bytes32 depositId = _generateDepositId();
+        deposits.push(depositId);
+        tokenAddresses.add(_tokenAddress);
 
-//         funder[depositId] = _sender;
-//         tokenAddress[depositId] = _tokenAddress;
-//         depositTime[depositId] = block.timestamp;
-//         tokenId[depositId] = _tokenId;
-//         expiration[depositId] = _expiration;
-//         isNFT[depositId] = true;
+        return (depositId, volumeReceived);
+    }
 
-//         deposits.push(depositId);
-//         nftDeposits.push(depositId);
+    /**
+		Creates a deposit and transfers NFT from msg.sender to self
+		@param _sender The funder address
+		@param _tokenAddress The ERC721 token address of the NFT
+		@param _tokenId The tokenId of the NFT to transfer
+		@param _expiration The duration until the deposit becomes refundable
+		@return depositId
+		 */
+    function receiveNft(
+        address _sender,
+        address _tokenAddress,
+        uint256 _tokenId,
+        uint256 _expiration
+    ) external onlyOpenQ nonReentrant returns (bytes32) {
+        require(
+            nftDeposits.length < nftDepositLimit,
+            'NFT_DEPOSIT_LIMIT_REACHED'
+        );
+        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
+        _receiveNft(_tokenAddress, _sender, _tokenId);
 
-//         return depositId;
-//     }
+        bytes32 depositId = _generateDepositId();
 
-//     function refundDeposit(bytes32 _depositId, address _funder)
-//         external
-//         onlyOpenQ
-//         nonReentrant
-//         returns (bool success)
-//     {
-//         // Check
-//         require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
-//         require(
-//             funder[_depositId] == _funder,
-//             'ONLY_FUNDER_CAN_REQUEST_REFUND'
-//         );
-//         require(
-//             block.timestamp >=
-//                 depositTime[_depositId].add(expiration[_depositId]),
-//             'PREMATURE_REFUND_REQUEST'
-//         );
+        funder[depositId] = _sender;
+        tokenAddress[depositId] = _tokenAddress;
+        depositTime[depositId] = block.timestamp;
+        tokenId[depositId] = _tokenId;
+        expiration[depositId] = _expiration;
+        isNFT[depositId] = true;
 
-//         // Effects
-//         refunded[_depositId] = true;
+        deposits.push(depositId);
+        nftDeposits.push(depositId);
 
-//         // Interactions
-//         if (tokenAddress[_depositId] == address(0)) {
-//             _transferProtocolToken(funder[_depositId], volume[_depositId]);
-//         } else if (isNFT[_depositId]) {
-//             _transferNft(
-//                 tokenAddress[_depositId],
-//                 funder[_depositId],
-//                 tokenId[_depositId]
-//             );
-//         } else {
-//             _transferERC20(
-//                 tokenAddress[_depositId],
-//                 funder[_depositId],
-//                 volume[_depositId]
-//             );
-//         }
+        return depositId;
+    }
 
-//         return true;
-//     }
+    /**
+		Transfers volume of deposit or NFT of deposit from bounty to funder
+		@param _depositId The deposit to refund
+		@param _funder The initial funder of the deposit
+		 */
+    function refundDeposit(bytes32 _depositId, address _funder)
+        external
+        onlyOpenQ
+        nonReentrant
+    {
+        // Check
+        require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
+        require(
+            funder[_depositId] == _funder,
+            'ONLY_FUNDER_CAN_REQUEST_REFUND'
+        );
+        require(
+            block.timestamp >=
+                depositTime[_depositId].add(expiration[_depositId]),
+            'PREMATURE_REFUND_REQUEST'
+        );
 
-//     function claimBalance(address _payoutAddress, address _tokenAddress)
-//         external
-//         onlyOpenQ
-//         nonReentrant
-//         returns (uint256)
-//     {
-//         uint256 claimedBalance;
+        // Effects
+        refunded[_depositId] = true;
 
-//         if (_tokenAddress == address(0)) {
-//             claimedBalance = address(this).balance;
-//             _transferProtocolToken(_payoutAddress, claimedBalance);
-//         } else {
-//             claimedBalance = getERC20Balance(_tokenAddress);
-//             _transferERC20(_tokenAddress, _payoutAddress, claimedBalance);
-//         }
+        // Interactions
+        if (tokenAddress[_depositId] == address(0)) {
+            _transferProtocolToken(funder[_depositId], volume[_depositId]);
+        } else if (isNFT[_depositId]) {
+            _transferNft(
+                tokenAddress[_depositId],
+                funder[_depositId],
+                tokenId[_depositId]
+            );
+        } else {
+            _transferERC20(
+                tokenAddress[_depositId],
+                funder[_depositId],
+                volume[_depositId]
+            );
+        }
+    }
 
-//         return claimedBalance;
-//     }
+    /**
+		Transfers full balance of _tokenAddress from bounty to _payoutAddress
+		@param _tokenAddress A unique string to identify a bounty
+		@param _payoutAddress The destination address for the fund
+		 */
+    function claimBalance(address _payoutAddress, address _tokenAddress)
+        external
+        onlyOpenQ
+        nonReentrant
+        returns (uint256)
+    {
+        uint256 claimedBalance;
 
-//     function claimNft(address _payoutAddress, bytes32 depositId)
-//         external
-//         onlyOpenQ
-//         nonReentrant
-//         returns (bool success)
-//     {
-//         require(status == 0, 'CLAIMING_CLOSED_BOUNTY');
-//         _transferNft(
-//             tokenAddress[depositId],
-//             _payoutAddress,
-//             tokenId[depositId]
-//         );
+        if (_tokenAddress == address(0)) {
+            claimedBalance = address(this).balance;
+            _transferProtocolToken(_payoutAddress, claimedBalance);
+        } else {
+            claimedBalance = getERC20Balance(_tokenAddress);
+            _transferERC20(_tokenAddress, _payoutAddress, claimedBalance);
+        }
 
-//         return true;
-//     }
+        return claimedBalance;
+    }
 
-//     function close(address _payoutAddress)
-//         external
-//         onlyOpenQ
-//         returns (bool success)
-//     {
-//         require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
-//         status = 1;
-//         closer = _payoutAddress;
-//         bountyClosedTime = block.timestamp;
-//         return true;
-//     }
+    /**
+		Transfers NFT from bounty address to _payoutAddress
+		@param _payoutAddress The destination address for the NFT
+		@param _depositId The payout address of the bounty
+		 */
+    function claimNft(address _payoutAddress, bytes32 _depositId)
+        external
+        onlyOpenQ
+        nonReentrant
+    {
+        require(status == 0, 'CLAIMING_CLOSED_BOUNTY');
+        _transferNft(
+            tokenAddress[_depositId],
+            _payoutAddress,
+            tokenId[_depositId]
+        );
+    }
 
-//     // Transfer Helpers
-//     function _receiveERC20(
-//         address _tokenAddress,
-//         address _funder,
-//         uint256 _volume
-//     ) internal returns (uint256) {
-//         uint256 balanceBefore = getERC20Balance(_tokenAddress);
-//         IERC20 token = IERC20(_tokenAddress);
-//         token.safeTransferFrom(_funder, address(this), _volume);
-//         uint256 balanceAfter = getERC20Balance(_tokenAddress);
-//         require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
+    /**
+		Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
+		@param _payoutAddress The closer of the bounty
+		 */
+    function close(address _payoutAddress) external onlyOpenQ {
+        require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
+        status = 1;
+        closer = _payoutAddress;
+        bountyClosedTime = block.timestamp;
+    }
 
-//         /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
-//            is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
-// 					 Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
-//         return balanceAfter.sub(balanceBefore);
-//     }
+    /*///////////////////////////////////////////////////////////////
+												TRANSFER HELPERS
+    //////////////////////////////////////////////////////////////*/
 
-//     function _transferERC20(
-//         address _tokenAddress,
-//         address _payoutAddress,
-//         uint256 _volume
-//     ) internal {
-//         IERC20 token = IERC20(_tokenAddress);
-//         token.safeTransfer(_payoutAddress, _volume);
-//     }
+    /**
+		Receives _volume of ERC20 at _tokenAddress from _funder to bounty address
+		@param _tokenAddress The ERC20 token address
+		@param _funder The funder of the bounty
+		@param _volume The volume of token to transfer
+		 */
+    function _receiveERC20(
+        address _tokenAddress,
+        address _funder,
+        uint256 _volume
+    ) internal returns (uint256) {
+        uint256 balanceBefore = getERC20Balance(_tokenAddress);
+        IERC20 token = IERC20(_tokenAddress);
+        token.safeTransferFrom(_funder, address(this), _volume);
+        uint256 balanceAfter = getERC20Balance(_tokenAddress);
+        require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
 
-//     function _transferProtocolToken(address _payoutAddress, uint256 _volume)
-//         internal
-//     {
-//         payable(_payoutAddress).sendValue(_volume);
-//     }
+        /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
+           is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
+					 Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
+        return balanceAfter.sub(balanceBefore);
+    }
 
-//     function _receiveNft(
-//         address _tokenAddress,
-//         address _sender,
-//         uint256 _tokenId
-//     ) internal {
-//         IERC721 nft = IERC721(_tokenAddress);
-//         nft.safeTransferFrom(_sender, address(this), _tokenId);
-//     }
+    /**
+		Transfers _volume of ERC20 at _tokenAddress from bounty address to _funder
+		@param _tokenAddress The ERC20 token address
+		@param _payoutAddress The destination address of the funds
+		@param _volume The volume of token to transfer
+		 */
+    function _transferERC20(
+        address _tokenAddress,
+        address _payoutAddress,
+        uint256 _volume
+    ) internal {
+        IERC20 token = IERC20(_tokenAddress);
+        token.safeTransfer(_payoutAddress, _volume);
+    }
 
-//     function _transferNft(
-//         address _tokenAddress,
-//         address _payoutAddress,
-//         uint256 _tokenId
-//     ) internal {
-//         IERC721 nft = IERC721(_tokenAddress);
-//         nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
-//     }
+    /**
+		Transfers _volume of protocol token from bounty address to _payoutAddress
+		@param _payoutAddress The destination address of the funds
+		@param _volume The volume of token to transfer
+		 */
+    function _transferProtocolToken(address _payoutAddress, uint256 _volume)
+        internal
+    {
+        payable(_payoutAddress).sendValue(_volume);
+    }
 
-//     // View Methods
-//     function _generateDepositId() internal view returns (bytes32) {
-//         return keccak256(abi.encode(bountyId, deposits.length));
-//     }
+    /**
+		Receives NFT of _tokenId on _tokenAddress from _funder to bounty address
+		@param _tokenAddress The ERC721 token address
+		@param _sender The sender of the NFT
+		@param _tokenId The tokenId
+		 */
+    function _receiveNft(
+        address _tokenAddress,
+        address _sender,
+        uint256 _tokenId
+    ) internal {
+        IERC721 nft = IERC721(_tokenAddress);
+        nft.safeTransferFrom(_sender, address(this), _tokenId);
+    }
 
-//     function getERC20Balance(address _tokenAddress)
-//         public
-//         view
-//         returns (uint256 balance)
-//     {
-//         IERC20 token = IERC20(_tokenAddress);
-//         return token.balanceOf(address(this));
-//     }
+    /**
+		Transfers NFT of _tokenId on _tokenAddress from bounty address to _payoutAddress
+		@param _tokenAddress The ERC721 token address
+		@param _payoutAddress The sender of the NFT
+		@param _tokenId The tokenId
+		 */
+    function _transferNft(
+        address _tokenAddress,
+        address _payoutAddress,
+        uint256 _tokenId
+    ) internal {
+        IERC721 nft = IERC721(_tokenAddress);
+        nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
+    }
 
-//     function getDeposits() external view returns (bytes32[] memory) {
-//         return deposits;
-//     }
+    /*///////////////////////////////////////////////////////////////
+                          UTILITY
+    //////////////////////////////////////////////////////////////*/
 
-//     function getNftDeposits() external view returns (bytes32[] memory) {
-//         return nftDeposits;
-//     }
+    /**
+		Generates a unique deposit ID from bountyId and the current length of deposits
+		 */
+    function _generateDepositId() internal view returns (bytes32) {
+        return keccak256(abi.encode(bountyId, deposits.length));
+    }
 
-//     function getTokenAddresses() public view returns (address[] memory) {
-//         return tokenAddresses.values();
-//     }
+    /**
+		Returns the ERC20 balance for this bounty address
+		@param _tokenAddress The ERC20 token address
+		@return balance The ERC20 balance for this bounty address
+		 */
+    function getERC20Balance(address _tokenAddress)
+        public
+        view
+        returns (uint256 balance)
+    {
+        IERC20 token = IERC20(_tokenAddress);
+        return token.balanceOf(address(this));
+    }
 
-//     // Revert any attempts to send unknown calldata
-//     fallback() external {
-//         revert();
-//     }
+    /**
+		Returns an array of all deposits (ERC20, protocol token, and NFT) for this bounty
+		@return deposits The array of deposits including ERC20, protocol token, and NFT
+		 */
+    function getDeposits() external view returns (bytes32[] memory) {
+        return deposits;
+    }
 
-//     receive() external payable {
-//         // React to receiving protocol token
-//     }
+    /**
+		Returns an array of ONLY NFT deposits for this bounty
+		@return nftDeposits The array of NFT deposits
+		 */
+    function getNftDeposits() external view returns (bytes32[] memory) {
+        return nftDeposits;
+    }
 
-//     function onERC721Received(
-//         address,
-//         address,
-//         uint256,
-//         bytes calldata
-//     ) external pure override returns (bytes4) {
-//         return
-//             bytes4(
-//                 keccak256('onERC721Received(address,address,uint256,bytes)')
-//             );
-//     }
-// }
+    /**
+		Returns an array of all ERC20 token addresses which have funded this bounty
+		@return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
+		 */
+    function getTokenAddresses() public view returns (address[] memory) {
+        return tokenAddresses.values();
+    }
+
+    /**
+		receive() method to accept protocol tokens
+		 */
+    receive() external payable {}
+
+    /**
+		Override of IERC721ReceiverUpgradeable.onERC721Received(address,address,uint256,bytes) to enable receiving NFTs
+		 */
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        return
+            bytes4(
+                keccak256('onERC721Received(address,address,uint256,bytes)')
+            );
+    }
+
+    /**
+		Reverts any attempt to send unknown calldata
+		 */
+    fallback() external {
+        revert();
+    }
+}

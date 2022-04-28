@@ -17,10 +17,10 @@ abstract contract OnlyOpenQ is Context {
 
     /**
 		Initializes contract with OpenQProxy address
-		@param openQ The OpenQProxy address
+		@param initalOpenQ The OpenQProxy address
 		 */
-    function __OnlyOpenQ_init(address openQ) internal {
-        _openQ = openQ;
+    function __OnlyOpenQ_init(address initalOpenQ) internal {
+        _openQ = initalOpenQ;
     }
 
     /**

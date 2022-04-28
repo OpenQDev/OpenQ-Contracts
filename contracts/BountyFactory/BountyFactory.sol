@@ -59,4 +59,16 @@ contract BountyFactory is OnlyOpenQ {
 
         return address(bounty);
     }
+
+    /*///////////////////////////////////////////////////////////////
+												UTILITY
+    //////////////////////////////////////////////////////////////*/
+
+    /**
+		Returns the BountyBeacon address
+		@return address BountyBeacon address
+		 */
+    function getBeacon() external view returns (address) {
+        return beacon;
+    }
 }
