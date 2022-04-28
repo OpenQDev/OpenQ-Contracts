@@ -113,7 +113,7 @@ async function deployContracts() {
 		 - other hardhat scripts
 	*/
 	let addresses;
-	if (network.name === 'docker') {
+	if (network.name === 'docker' || network.name === 'localhost') {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
