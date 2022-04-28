@@ -7,7 +7,7 @@
 		"chainId": 80001,
 		"path": "/crypto-logos/MATIC.svg"
 	},
-	"0x326C977E6efc84E512bB9C30f76E30c160eD06FB": {
+	"0x5FbDB2315678afecb367f032d93F642f64180aa3": {
 		"name": "Chainlink Token",
 		"address": "0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39",
 		"symbol": "LINK",
@@ -15,7 +15,7 @@
 		"chainId": 80001,
 		"path": "/crypto-logos/LINK.svg"
 	},
-	"0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1": {
+	"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512": {
 		"name": "Dummy ERC20",
 		"address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
 		"symbol": "DERC20",
