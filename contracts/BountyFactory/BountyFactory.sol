@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.12;
 
-import '@openzeppelin/contracts/proxy/Clones.sol';
+import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
+import '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
+
 import '../Bounty/Implementations/BountyV0.sol';
 
 contract BountyFactory is OpenQOnlyAccess {
-    address public immutable bountyImplementation;
+    address immutable beacon;
 
-    constructor(address _openQ) {
-        bountyImplementation = address(new BountyV0());
+    constructor(address _openQ, address _beacon) {
+        beacon = _beacon;
         __OpenQOnlyAccess_init(_openQ);
     }
 
@@ -18,31 +20,17 @@ contract BountyFactory is OpenQOnlyAccess {
         string memory _organization,
         address _openQ
     ) external onlyOpenQ returns (address) {
-        address clone = Clones.cloneDeterministic(
-            bountyImplementation,
-            keccak256(abi.encode(_id))
+        BeaconProxy bounty = new BeaconProxy(
+            beacon,
+            abi.encodeWithSignature(
+                'initialize(string,address,string,address)',
+                _id,
+                _issuer,
+                _organization,
+                _openQ
+            )
         );
 
-        BountyV0(payable(clone)).initialize(
-            _id,
-            _issuer,
-            _organization,
-            _openQ
-        );
-
-        return clone;
-    }
-
-    function predictDeterministicAddress(string memory _id)
-        external
-        view
-        returns (address predicted)
-    {
-        return
-            Clones.predictDeterministicAddress(
-                bountyImplementation,
-                keccak256(abi.encode(_id)),
-                address(this)
-            );
+        return address(bounty);
     }
 }

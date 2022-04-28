@@ -20,6 +20,7 @@ abstract contract OpenQStorageV0 is
 {
     BountyFactory public bountyFactory;
     OpenQTokenWhitelist public openQTokenWhitelist;
+    mapping(string => address) public bountyIdToAddress;
 }
 
 contract NewBaseContract {
@@ -31,5 +32,5 @@ contract NewBaseContract {
 }
 
 abstract contract OpenQStorageV1 is OpenQStorageV0, NewBaseContract {
-    uint256 public newStorageVar = 456;
+    uint256 public newStorageVar;
 }

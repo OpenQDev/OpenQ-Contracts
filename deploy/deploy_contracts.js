@@ -58,20 +58,36 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
 
+	console.log('Deploying BountyV0...');
+	const BountyV0 = await ethers.getContractFactory('BountyV0');
+	const bountyV0 = await BountyV0.deploy();
+	await bountyV0.deployed();
+	await optionalSleep(10000);
+	console.log(`BountyV0 Deployed to ${bountyV0.address}\n`);
+
+	console.log('Deploying BountyBeacon...');
+	const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
+	const bountyBeacon = await BountyBeacon.deploy(bountyV0.address);
+	await bountyBeacon.deployed();
+	await optionalSleep(10000);
+	console.log(`BountyBeacon Deployed to ${bountyBeacon.address}\n`);
+
 	console.log('Deploying BountyFactory...');
 	const BountyFactory = await ethers.getContractFactory('BountyFactory');
-	const bountyFactory = await BountyFactory.deploy(openQProxy.address);
+	const bountyFactory = await BountyFactory.deploy(openQProxy.address, bountyBeacon.address);
 	await bountyFactory.deployed();
 	await optionalSleep(10000);
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
-	const bountyImplementation = await bountyFactory.bountyImplementation();
-	console.log(`BountyV0 (Implementation) Deployed to ${bountyImplementation}\n`);
 
+	console.log('OPENQ ADDRESSES');
 	console.log(`OpenQV0 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation.address}`);
 	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV1.address}`);
+
+	console.log('\nBOUNTY ADDRESSES');
+	console.log(`BountyV0 (Implementation) deployed to ${bountyV0.address}\n`);
+	console.log(`BountyBeacon deployed to ${bountyBeacon.address}\n`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
-	console.log(`BountyV0 (Implementation) deployed to ${bountyImplementation}\n`);
 
 	if (network.name === 'docker') {
 		console.log(`MockLink deployed to: ${mockLink.address}`);
@@ -101,8 +117,8 @@ async function deployContracts() {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
-OPENQ_STORAGE_ADDRESS="${bountyFactory.address}"
+BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV0.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
@@ -113,7 +129,8 @@ MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
 OPENQ_IMPLEMENTATION_ADDRESS_V1="${openQImplementationV1.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyImplementation}"
+BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV0.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"

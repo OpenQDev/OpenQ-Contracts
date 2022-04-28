@@ -8,8 +8,12 @@ import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
 import '../../Tokens/OpenQTokenWhitelist.sol';
 
-contract OpenQV0 is OpenQStorageV0, IOpenQ {
+contract OpenQV1 is OpenQStorageV1, IOpenQ {
     using SafeMathUpgradeable for uint256;
+
+    function setNewStorageVar(uint256 _newStorageVar) public {
+        newStorageVar = _newStorageVar;
+    }
 
     constructor() {}
 

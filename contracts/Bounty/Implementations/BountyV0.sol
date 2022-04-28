@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: BUSL-1.1
-// NO HACKERS ALLOWED PLEASE THANKS!
 pragma solidity 0.8.12;
 
 import '../../Storage/BountyStorage.sol';

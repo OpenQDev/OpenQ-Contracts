@@ -7,7 +7,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV0.sol', () => {
+describe.only('OpenQV0.sol', () => {
 	let openQProxy;
 	let openQImplementation;
 	let owner;
@@ -23,11 +23,14 @@ describe('OpenQV0.sol', () => {
 	beforeEach(async () => {
 		const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
-		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
+
+		const BountyFactory = await ethers.getContractFactory('BountyFactory');
+		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
+		const BountyV0 = await ethers.getContractFactory('BountyV0');
 
 		[owner, , oracle] = await ethers.getSigners();
 
@@ -66,7 +69,13 @@ describe('OpenQV0.sol', () => {
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 
-		bountyFactory = await BountyFactory.deploy(openQProxy.address);
+		const bountyV0 = await BountyV0.deploy();
+		await bountyV0.deployed();
+
+		const beacon = await BountyBeacon.deploy(bountyV0.address);
+		await beacon.deployed();
+
+		bountyFactory = await BountyFactory.deploy(openQProxy.address, beacon.address);
 		await bountyFactory.deployed();
 
 		await openQProxy.setBountyFactory(bountyFactory.address);
@@ -124,7 +133,7 @@ describe('OpenQV0.sol', () => {
 			await openQProxy.mintBounty(bountyId, mockOrg);
 
 			// ASSERT
-			await expect(openQProxy.mintBounty(bountyId, mockOrg)).to.be.revertedWith('ERC1167: create2 failed');
+			await expect(openQProxy.mintBounty(bountyId, mockOrg)).to.be.revertedWith('BOUNTY_ALREADY_EXISTS');
 		});
 
 		it('should store bountyId to bountyAddress', async () => {
