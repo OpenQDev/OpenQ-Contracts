@@ -11,11 +11,17 @@ contract BountyFactory is OnlyOpenQ {
 												INIITIALIZATION
     //////////////////////////////////////////////////////////////*/
 
+    // The address of the UpgradeableBeacon holding the current bounty implementation
     address immutable beacon;
 
+    /**
+		Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
+		@param _openQ The OpenQProxy address
+		@param _beacon The UpgradeableBeacon "BountyBeacon" address
+		 */
     constructor(address _openQ, address _beacon) {
-        beacon = _beacon;
         __OnlyOpenQ_init(_openQ);
+        beacon = _beacon;
     }
 
     /*///////////////////////////////////////////////////////////////

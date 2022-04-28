@@ -20,7 +20,7 @@ abstract contract BountyStorageV0 is
     IERC721ReceiverUpgradeable,
     OnlyOpenQ
 {
-    // Bounty Metadata
+    // Bounty data
     string public bountyId;
     uint256 public bountyCreatedTime;
     uint256 public bountyClosedTime;
@@ -30,7 +30,7 @@ abstract contract BountyStorageV0 is
     uint256 public status;
     uint256 public nftDepositLimit;
 
-    // Deposit Data - A Deconstructed Deposit Struct
+    // Deconstructed deposit struct
     mapping(bytes32 => address) public funder;
     mapping(bytes32 => address) public tokenAddress;
     mapping(bytes32 => uint256) public volume;
@@ -41,11 +41,11 @@ abstract contract BountyStorageV0 is
     mapping(bytes32 => uint256) public expiration;
     mapping(bytes32 => bool) public isNFT;
 
-    // Deposit Count and IDs
+    // Array of depositIds
     bytes32[] public deposits;
     bytes32[] public nftDeposits;
 
-    // Token Addresses and Volumes
+    // Set of unique token address
     EnumerableSet.AddressSet internal tokenAddresses;
 }
 
