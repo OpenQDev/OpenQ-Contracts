@@ -9,7 +9,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     using SafeMathUpgradeable for uint256;
 
     /*///////////////////////////////////////////////////////////////
-                              INITIALIZATION
+                          INITIALIZATION
     //////////////////////////////////////////////////////////////*/
     constructor() {}
 
@@ -61,7 +61,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     }
 
     /*///////////////////////////////////////////////////////////////
-                              TRANSACTIONS
+                          TRANSACTIONS
     //////////////////////////////////////////////////////////////*/
 
     /**
@@ -99,45 +99,6 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     }
 
     /**
-		Transfers NFT from msg.sender to bounty address
-		@param _bountyId A unique string to identify a bounty
-		@param _tokenAddress The ERC721 token address of the NFT
-		@param _tokenId The tokenId
-		@param _expiration The duration until the deposit becomes refundable
-		 */
-    function fundBountyNFT(
-        string calldata _bountyId,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration
-    ) external nonReentrant onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
-
-        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
-        require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
-
-        bytes32 depositId = bounty.receiveNft(
-            msg.sender,
-            _tokenAddress,
-            _tokenId,
-            _expiration
-        );
-
-        emit NFTDepositReceived(
-            depositId,
-            bountyAddress,
-            _bountyId,
-            bounty.organization(),
-            _tokenAddress,
-            block.timestamp,
-            msg.sender,
-            _expiration,
-            _tokenId
-        );
-    }
-
-    /**
 		Transfers protocol token or ERC20 from msg.sender to bounty address
 		@param _bountyId A unique string to identify a bounty
 		@param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
@@ -170,6 +131,45 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
             msg.sender,
             _expiration,
             volumeReceived
+        );
+    }
+
+    /**
+		Transfers NFT from msg.sender to bounty address
+		@param _bountyId A unique string to identify a bounty
+		@param _tokenAddress The ERC721 token address of the NFT
+		@param _tokenId The tokenId of the NFT to transfer
+		@param _expiration The duration until the deposit becomes refundable
+		 */
+    function fundBountyNFT(
+        string calldata _bountyId,
+        address _tokenAddress,
+        uint256 _tokenId,
+        uint256 _expiration
+    ) external nonReentrant onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
+
+        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
+        require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
+
+        bytes32 depositId = bounty.receiveNft(
+            msg.sender,
+            _tokenAddress,
+            _tokenId,
+            _expiration
+        );
+
+        emit NFTDepositReceived(
+            depositId,
+            bountyAddress,
+            _bountyId,
+            bounty.organization(),
+            _tokenAddress,
+            block.timestamp,
+            msg.sender,
+            _expiration,
+            _tokenId
         );
     }
 
@@ -258,7 +258,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     }
 
     /*///////////////////////////////////////////////////////////////
-														Utility Methods
+													UTILITY
     //////////////////////////////////////////////////////////////*/
 
     /**
@@ -301,7 +301,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     }
 
     /*///////////////////////////////////////////////////////////////
-													Upgrades
+													UPGRADES
     //////////////////////////////////////////////////////////////*/
 
     /**
