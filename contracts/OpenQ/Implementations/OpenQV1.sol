@@ -201,7 +201,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     {
         address bountyAddress = bountyIdToAddress(_bountyId);
         Bounty bounty = Bounty(payable(bountyAddress));
-        bool isOpen = bounty.status() == Bounty.BountyStatus.OPEN;
+        bool isOpen = bounty.status() == 0;
         return isOpen;
     }
 

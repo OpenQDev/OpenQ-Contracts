@@ -13,8 +13,10 @@ import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
 // Custom
 import '../OpenQOnlyAccess/OpenQOnlyAccess.sol';
+import './BountyStorage.sol';
 
 abstract contract Bounty is
+    BountyStorageV0,
     ReentrancyGuardUpgradeable,
     IERC721ReceiverUpgradeable,
     OpenQOnlyAccess
@@ -23,41 +25,6 @@ abstract contract Bounty is
     using SafeMath for uint256;
     using Address for address payable;
     using EnumerableSet for EnumerableSet.AddressSet;
-
-    enum BountyStatus {
-        OPEN,
-        CLOSED
-    }
-
-    // Bounty Metadata
-    string public bountyId;
-    uint256 public bountyCreatedTime;
-    uint256 public bountyClosedTime;
-    address public issuer;
-    string public organization;
-    address public closer;
-    BountyStatus public status;
-
-    // Deposit Data - A Deconstructed Deposit Struct
-    mapping(bytes32 => address) public funder;
-    mapping(bytes32 => address) public tokenAddress;
-    mapping(bytes32 => uint256) public volume;
-    mapping(bytes32 => uint256) public depositTime;
-    mapping(bytes32 => bool) public refunded;
-    mapping(bytes32 => address) public payoutAddress;
-    mapping(bytes32 => uint256) public tokenId;
-    mapping(bytes32 => uint256) public expiration;
-    mapping(bytes32 => bool) public isNFT;
-
-    // Deposit Count and IDs
-    bytes32[] public deposits;
-    bytes32[] public nftDeposits;
-
-    // Token Addresses and Volumes
-    EnumerableSet.AddressSet internal tokenAddresses;
-
-    // Constants
-    uint256 constant nftDepositLimit = 5;
 
     constructor() {}
 

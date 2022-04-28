@@ -151,7 +151,7 @@ contract BountyV0 is Bounty {
         nonReentrant
         returns (bool success)
     {
-        require(status == BountyStatus.OPEN, 'CLAIMING_CLOSED_BOUNTY');
+        require(status == 0, 'CLAIMING_CLOSED_BOUNTY');
         _transferNft(
             tokenAddress[depositId],
             _payoutAddress,
@@ -167,8 +167,8 @@ contract BountyV0 is Bounty {
         onlyOpenQ
         returns (bool success)
     {
-        require(this.status() == BountyStatus.OPEN, 'CLOSING_CLOSED_BOUNTY');
-        status = BountyStatus.CLOSED;
+        require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
+        status = 1;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
         return true;
