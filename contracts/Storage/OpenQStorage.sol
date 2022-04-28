@@ -11,6 +11,9 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '../Tokens/OpenQTokenWhitelist.sol';
 import '../BountyFactory/BountyFactory.sol';
 import '../Oracle/Oraclize.sol';
+import '../Bounty/Implementations/BountyV0.sol';
+import '../BountyFactory/BountyFactory.sol';
+import '../Tokens/OpenQTokenWhitelist.sol';
 
 abstract contract OpenQStorageV0 is
     OwnableUpgradeable,

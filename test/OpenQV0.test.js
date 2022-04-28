@@ -7,7 +7,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe.only('OpenQV0.sol', () => {
+describe('OpenQV0.sol', () => {
 	let openQProxy;
 	let openQImplementation;
 	let owner;
