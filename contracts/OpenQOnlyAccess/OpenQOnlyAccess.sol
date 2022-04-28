@@ -4,7 +4,7 @@ pragma solidity 0.8.12;
 import '@openzeppelin/contracts/utils/Context.sol';
 
 abstract contract OpenQOnlyAccess is Context {
-    // OpenQ Proxy Contract
+    // OpenQProxy Contract
     address public openQ;
 
     function __OpenQOnlyAccess_init(address _openQ) internal {
