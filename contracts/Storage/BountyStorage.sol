@@ -13,12 +13,12 @@ import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
 // Custom
-import '../OpenQOnlyAccess/OpenQOnlyAccess.sol';
+import '../OnlyOpenQ/OnlyOpenQ.sol';
 
 abstract contract BountyStorageV0 is
     ReentrancyGuardUpgradeable,
     IERC721ReceiverUpgradeable,
-    OpenQOnlyAccess
+    OnlyOpenQ
 {
     // Bounty Metadata
     string public bountyId;

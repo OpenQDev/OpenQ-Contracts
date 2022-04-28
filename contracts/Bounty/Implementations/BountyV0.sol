@@ -30,7 +30,7 @@ contract BountyV0 is BountyStorageV0 {
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
         __ReentrancyGuard_init();
-        __OpenQOnlyAccess_init(_openQ);
+        __OnlyOpenQ_init(_openQ);
     }
 
     /*///////////////////////////////////////////////////////////////

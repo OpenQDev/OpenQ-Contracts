@@ -36,8 +36,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyFactory.mintBounty(
             _bountyId,
             msg.sender,
-            _organization,
-            address(this)
+            _organization
         );
 
         bountyIdToAddress[_bountyId] = bountyAddress;
