@@ -65,6 +65,13 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`BountyV0 Deployed to ${bountyV0.address}\n`);
 
+	console.log('Deploying BountyV1...');
+	const BountyV1 = await ethers.getContractFactory('BountyV1');
+	const bountyV1 = await BountyV1.deploy();
+	await bountyV1.deployed();
+	await optionalSleep(10000);
+	console.log(`BountyV1 Deployed to ${bountyV1.address}\n`);
+
 	console.log('Deploying BountyBeacon...');
 	const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
 	const bountyBeacon = await BountyBeacon.deploy(bountyV0.address);
@@ -85,8 +92,9 @@ async function deployContracts() {
 	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV1.address}`);
 
 	console.log('\nBOUNTY ADDRESSES');
-	console.log(`BountyV0 (Implementation) deployed to ${bountyV0.address}\n`);
-	console.log(`BountyBeacon deployed to ${bountyBeacon.address}\n`);
+	console.log(`BountyV0 (Implementation) deployed to ${bountyV0.address}`);
+	console.log(`BountyV1 (Implementation) deployed to ${bountyV1.address}\n`);
+	console.log(`BountyBeacon deployed to ${bountyBeacon.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 
 	if (network.name === 'docker') {

@@ -48,3 +48,7 @@ abstract contract BountyStorageV0 is
     // Token Addresses and Volumes
     EnumerableSet.AddressSet internal tokenAddresses;
 }
+
+abstract contract BountyStorageV1 is BountyStorageV0 {
+    uint256 public newFoo;
+}
