@@ -15,6 +15,9 @@ import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 // Custom
 import '../OnlyOpenQ/OnlyOpenQ.sol';
 
+/// @title BountyStorageV0
+/// @author OpenQ
+/// @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
 abstract contract BountyStorageV0 is
     ReentrancyGuardUpgradeable,
     IERC721ReceiverUpgradeable,
@@ -48,6 +51,10 @@ abstract contract BountyStorageV0 is
     // Set of unique token address
     EnumerableSet.AddressSet internal tokenAddresses;
 }
+
+/*///////////////////////////////////////////////////////////////
+											UPGRADE DUMMIES
+//////////////////////////////////////////////////////////////*/
 
 abstract contract BountyStorageV1 is BountyStorageV0 {
     uint256 public newFoo;

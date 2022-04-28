@@ -5,6 +5,9 @@ pragma solidity 0.8.12;
 import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
 
+/// @title OpenQV0
+/// @author OpenQ
+/// @dev Main administrative contract for all bounty operations
 contract OpenQV0 is OpenQStorageV0, IOpenQ {
     using SafeMathUpgradeable for uint256;
 

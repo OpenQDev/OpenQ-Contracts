@@ -15,6 +15,9 @@ import '../Bounty/Implementations/BountyV0.sol';
 import '../BountyFactory/BountyFactory.sol';
 import '../Tokens/OpenQTokenWhitelist.sol';
 
+/// @title OpenQStorageV0
+/// @author OpenQ
+/// @dev Backwards compatible, append-only chain of storage contracts inherited by OpenQ implementations
 abstract contract OpenQStorageV0 is
     OwnableUpgradeable,
     UUPSUpgradeable,
@@ -25,6 +28,10 @@ abstract contract OpenQStorageV0 is
     OpenQTokenWhitelist public openQTokenWhitelist;
     mapping(string => address) public bountyIdToAddress;
 }
+
+/*///////////////////////////////////////////////////////////////
+											UPGRADE DUMMIES
+//////////////////////////////////////////////////////////////*/
 
 contract NewBaseContract {
     uint256 public foo;

@@ -8,6 +8,9 @@ import '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
 // Custom
 import '../OnlyOpenQ/OnlyOpenQ.sol';
 
+/// @title BountyFactory
+/// @author OpenQ
+/// @dev Factory for deploying new BeaconProxy contracts for bounties. Holds BeaconBounty address passed to each bounty for retrieving their implementation
 contract BountyFactory is OnlyOpenQ {
     /*///////////////////////////////////////////////////////////////
 												INIITIALIZATION
@@ -50,7 +53,7 @@ contract BountyFactory is OnlyOpenQ {
                 _id,
                 _issuer,
                 _organization,
-                openQ
+                openQ()
             )
         );
 

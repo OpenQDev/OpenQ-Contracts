@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.12;
 
+// Third Party
 import '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
 
+/// @title BountyBeacon
+/// @author OpenQ
+/// @dev UpgradeableBeacon holding the current bounty implementation referred to by all BeaconProxy bounties
 contract BountyBeacon is UpgradeableBeacon {
     /*///////////////////////////////////////////////////////////////
 												INIITIALIZATION

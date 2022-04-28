@@ -4,6 +4,9 @@ pragma solidity 0.8.12;
 // Custom
 import '../../Storage/BountyStorage.sol';
 
+/// @title BountyV0
+/// @author OpenQ
+/// @dev Bounty Implementation Version 0
 contract BountyV0 is BountyStorageV0 {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
