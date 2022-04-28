@@ -10,7 +10,7 @@ contract BountyBeacon is UpgradeableBeacon {
 
     /**
 		Initializes an UpgradeableBeacon which will transmit the current implementation of Bounty to all BeaconProxy bounties
-		@param implementation_ The initial implementation of Bounty
+		@param _implementation The initial implementation of Bounty
 		 */
-    constructor(address implementation_) UpgradeableBeacon(implementation_) {}
+    constructor(address _implementation) UpgradeableBeacon(_implementation) {}
 }

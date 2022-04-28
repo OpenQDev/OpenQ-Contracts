@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.12;
 
+// Third Party
 import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
 import '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
 
-import '../Bounty/Implementations/BountyV0.sol';
+// Custom
+import '../OnlyOpenQ/OnlyOpenQ.sol';
 
 contract BountyFactory is OnlyOpenQ {
     /*///////////////////////////////////////////////////////////////
@@ -21,6 +23,7 @@ contract BountyFactory is OnlyOpenQ {
 		 */
     constructor(address _openQ, address _beacon) {
         __OnlyOpenQ_init(_openQ);
+
         beacon = _beacon;
     }
 

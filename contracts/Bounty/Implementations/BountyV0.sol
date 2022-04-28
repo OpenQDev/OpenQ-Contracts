@@ -16,6 +16,13 @@ contract BountyV0 is BountyStorageV0 {
 
     constructor() {}
 
+    /**
+		Initializes a bounty proxy with initial state
+		@param _bountyId The unique bountyId
+		@param _issuer The sender of the mint bounty transaction
+		@param _organization The organization that owns the bounty
+		@param _openQ The OpenQProxy address
+		 */
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -24,13 +31,15 @@ contract BountyV0 is BountyStorageV0 {
     ) external initializer {
         require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
+
+        __ReentrancyGuard_init();
+        __OnlyOpenQ_init(_openQ);
+
         bountyId = _bountyId;
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
-        __ReentrancyGuard_init();
-        __OnlyOpenQ_init(_openQ);
     }
 
     /*///////////////////////////////////////////////////////////////
