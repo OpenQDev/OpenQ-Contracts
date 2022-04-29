@@ -23,7 +23,7 @@ module.exports = (function () {
 					},
 				},
 				{
-					version: '0.8.12',
+					version: '0.8.13',
 					settings: {
 						optimizer: {
 							enabled: true,
@@ -62,7 +62,7 @@ module.exports = (function () {
 		contractSizer: {
 			alphaSort: true,
 			disambiguatePaths: false,
-			runOnCompile: false,
+			runOnCompile: true,
 			strict: true
 		},
 		gasReporter: {
