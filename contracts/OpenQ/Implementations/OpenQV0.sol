@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.13;
 
-// Custom
+/**
+ * @dev Custom imports
+ */
 import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
 
-/// @title OpenQV0
-/// @author OpenQ
-/// @dev Main administrative contract for all bounty operations
+/**
+ * @title OpenQV0
+ * @dev Main administrative contract for all bounty operations
+ */
 contract OpenQV0 is OpenQStorageV0, IOpenQ {
     using SafeMathUpgradeable for uint256;
 

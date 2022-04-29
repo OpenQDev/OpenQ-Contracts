@@ -13,19 +13,19 @@ contract BountyV1 is BountyStorageV1 {
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
-    /*///////////////////////////////////////////////////////////////
-                          INIITIALIZATION
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * INITIALIZATION
+     */
 
     constructor() {}
 
     /**
-		Initializes a bounty proxy with initial state
-		@param _bountyId The unique bountyId
-		@param _issuer The sender of the mint bounty transaction
-		@param _organization The organization that owns the bounty
-		@param _openQ The OpenQProxy address
-		 */
+     * @dev Initializes a bounty proxy with initial state
+     * @param _bountyId The unique bountyId
+     * @param _issuer The sender of the mint bounty transaction
+     * @param _organization The organization that owns the bounty
+     * @param _openQ The OpenQProxy address
+     */
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -45,18 +45,18 @@ contract BountyV1 is BountyStorageV1 {
         nftDepositLimit = 5;
     }
 
-    /*///////////////////////////////////////////////////////////////
-                          TRANSACTIONS
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * TRANSACTIONS
+     */
 
     /**
-		Creates a deposit and transfers tokens from msg.sender to self
-		@param _funder The funder address
-		@param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
-		@param _volume The volume of token to transfer
-		@param _expiration The duration until the deposit becomes refundable
-		@return (depositId, volumeReceived) Returns the deposit id and the amount transferred to bounty
-		 */
+     * @dev Creates a deposit and transfers tokens from msg.sender to self
+     * @param _funder The funder address
+     * @param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
+     * @param _volume The volume of token to transfer
+     * @param _expiration The duration until the deposit becomes refundable
+     * @return (depositId, volumeReceived) Returns the deposit id and the amount transferred to bounty
+     */
     function receiveFunds(
         address _funder,
         address _tokenAddress,
@@ -89,13 +89,13 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Creates a deposit and transfers NFT from msg.sender to self
-		@param _sender The funder address
-		@param _tokenAddress The ERC721 token address of the NFT
-		@param _tokenId The tokenId of the NFT to transfer
-		@param _expiration The duration until the deposit becomes refundable
-		@return depositId
-		 */
+     * @dev Creates a deposit and transfers NFT from msg.sender to self
+     * @param _sender The funder address
+     * @param _tokenAddress The ERC721 token address of the NFT
+     * @param _tokenId The tokenId of the NFT to transfer
+     * @param _expiration The duration until the deposit becomes refundable
+     * @return depositId
+     */
     function receiveNft(
         address _sender,
         address _tokenAddress,
@@ -125,10 +125,10 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Transfers volume of deposit or NFT of deposit from bounty to funder
-		@param _depositId The deposit to refund
-		@param _funder The initial funder of the deposit
-		 */
+     * @dev Transfers volume of deposit or NFT of deposit from bounty to funder
+     * @param _depositId The deposit to refund
+     * @param _funder The initial funder of the deposit
+     */
     function refundDeposit(bytes32 _depositId, address _funder)
         external
         onlyOpenQ
@@ -168,10 +168,10 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Transfers full balance of _tokenAddress from bounty to _payoutAddress
-		@param _tokenAddress A unique string to identify a bounty
-		@param _payoutAddress The destination address for the fund
-		 */
+     * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
+     * @param _tokenAddress A unique string to identify a bounty
+     * @param _payoutAddress The destination address for the fund
+     */
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
         onlyOpenQ
@@ -192,10 +192,10 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Transfers NFT from bounty address to _payoutAddress
-		@param _payoutAddress The destination address for the NFT
-		@param _depositId The payout address of the bounty
-		 */
+     * @dev Transfers NFT from bounty address to _payoutAddress
+     * @param _payoutAddress The destination address for the NFT
+     * @param _depositId The payout address of the bounty
+     */
     function claimNft(address _payoutAddress, bytes32 _depositId)
         external
         onlyOpenQ
@@ -210,9 +210,9 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
-		@param _payoutAddress The closer of the bounty
-		 */
+     * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
+     * @param _payoutAddress The closer of the bounty
+     */
     function close(address _payoutAddress) external onlyOpenQ {
         require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
         status = 1;
@@ -220,16 +220,16 @@ contract BountyV1 is BountyStorageV1 {
         bountyClosedTime = block.timestamp;
     }
 
-    /*///////////////////////////////////////////////////////////////
-												TRANSFER HELPERS
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * TRANSFER HELPERS
+     */
 
     /**
-		Receives _volume of ERC20 at _tokenAddress from _funder to bounty address
-		@param _tokenAddress The ERC20 token address
-		@param _funder The funder of the bounty
-		@param _volume The volume of token to transfer
-		 */
+     * @dev Receives _volume of ERC20 at _tokenAddress from _funder to bounty address
+     * @param _tokenAddress The ERC20 token address
+     * @param _funder The funder of the bounty
+     * @param _volume The volume of token to transfer
+     */
     function _receiveERC20(
         address _tokenAddress,
         address _funder,
@@ -242,17 +242,17 @@ contract BountyV1 is BountyStorageV1 {
         require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
 
         /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
-           is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
-					 Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
+         * is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
+         * Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
         return balanceAfter.sub(balanceBefore);
     }
 
     /**
-		Transfers _volume of ERC20 at _tokenAddress from bounty address to _funder
-		@param _tokenAddress The ERC20 token address
-		@param _payoutAddress The destination address of the funds
-		@param _volume The volume of token to transfer
-		 */
+     * @dev Transfers _volume of ERC20 at _tokenAddress from bounty address to _funder
+     * @param _tokenAddress The ERC20 token address
+     * @param _payoutAddress The destination address of the funds
+     * @param _volume The volume of token to transfer
+     */
     function _transferERC20(
         address _tokenAddress,
         address _payoutAddress,
@@ -263,10 +263,10 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Transfers _volume of protocol token from bounty address to _payoutAddress
-		@param _payoutAddress The destination address of the funds
-		@param _volume The volume of token to transfer
-		 */
+     * @dev Transfers _volume of protocol token from bounty address to _payoutAddress
+     * @param _payoutAddress The destination address of the funds
+     * @param _volume The volume of token to transfer
+     */
     function _transferProtocolToken(address _payoutAddress, uint256 _volume)
         internal
     {
@@ -274,11 +274,11 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Receives NFT of _tokenId on _tokenAddress from _funder to bounty address
-		@param _tokenAddress The ERC721 token address
-		@param _sender The sender of the NFT
-		@param _tokenId The tokenId
-		 */
+     * @dev Receives NFT of _tokenId on _tokenAddress from _funder to bounty address
+     * @param _tokenAddress The ERC721 token address
+     * @param _sender The sender of the NFT
+     * @param _tokenId The tokenId
+     */
     function _receiveNft(
         address _tokenAddress,
         address _sender,
@@ -289,11 +289,11 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Transfers NFT of _tokenId on _tokenAddress from bounty address to _payoutAddress
-		@param _tokenAddress The ERC721 token address
-		@param _payoutAddress The sender of the NFT
-		@param _tokenId The tokenId
-		 */
+     * @dev Transfers NFT of _tokenId on _tokenAddress from bounty address to _payoutAddress
+     * @param _tokenAddress The ERC721 token address
+     * @param _payoutAddress The sender of the NFT
+     * @param _tokenId The tokenId
+     */
     function _transferNft(
         address _tokenAddress,
         address _payoutAddress,
@@ -303,22 +303,22 @@ contract BountyV1 is BountyStorageV1 {
         nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
     }
 
-    /*///////////////////////////////////////////////////////////////
-                          UTILITY
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * UTILITY
+     */
 
     /**
-		Generates a unique deposit ID from bountyId and the current length of deposits
-		 */
+     * @dev Generates a unique deposit ID from bountyId and the current length of deposits
+     */
     function _generateDepositId() internal view returns (bytes32) {
         return keccak256(abi.encode(bountyId, deposits.length));
     }
 
     /**
-		Returns the ERC20 balance for this bounty address
-		@param _tokenAddress The ERC20 token address
-		@return balance The ERC20 balance for this bounty address
-		 */
+     * @dev Returns the ERC20 balance for this bounty address
+     * @param _tokenAddress The ERC20 token address
+     * @return balance The ERC20 balance for this bounty address
+     */
     function getERC20Balance(address _tokenAddress)
         public
         view
@@ -329,37 +329,37 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Returns an array of all deposits (ERC20, protocol token, and NFT) for this bounty
-		@return deposits The array of deposits including ERC20, protocol token, and NFT
-		 */
+     * @dev Returns an array of all deposits (ERC20, protocol token, and NFT) for this bounty
+     * @return deposits The array of deposits including ERC20, protocol token, and NFT
+     */
     function getDeposits() external view returns (bytes32[] memory) {
         return deposits;
     }
 
     /**
-		Returns an array of ONLY NFT deposits for this bounty
-		@return nftDeposits The array of NFT deposits
-		 */
+     * @dev Returns an array of ONLY NFT deposits for this bounty
+     * @return nftDeposits The array of NFT deposits
+     */
     function getNftDeposits() external view returns (bytes32[] memory) {
         return nftDeposits;
     }
 
     /**
-		Returns an array of all ERC20 token addresses which have funded this bounty
-		@return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
-		 */
+     * @dev Returns an array of all ERC20 token addresses which have funded this bounty
+     * @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
+     */
     function getTokenAddresses() public view returns (address[] memory) {
         return tokenAddresses.values();
     }
 
     /**
-		receive() method to accept protocol tokens
-		 */
+     * @dev receive() method to accept protocol tokens
+     */
     receive() external payable {}
 
     /**
-		Override of IERC721ReceiverUpgradeable.onERC721Received(address,address,uint256,bytes) to enable receiving NFTs
-		 */
+     * @dev Override of IERC721ReceiverUpgradeable.onERC721Received(address,address,uint256,bytes) to enable receiving NFTs
+     */
     function onERC721Received(
         address,
         address,
@@ -373,8 +373,8 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-		Reverts any attempt to send unknown calldata
-		 */
+     * @dev Reverts any attempt to send unknown calldata
+     */
     fallback() external {
         revert();
     }
