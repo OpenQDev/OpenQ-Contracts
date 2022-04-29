@@ -284,7 +284,7 @@ contract BountyV0 is BountyStorageV0 {
         address _sender,
         uint256 _tokenId
     ) internal {
-        IERC721 nft = IERC721(_tokenAddress);
+        IERC721Upgradeable nft = IERC721Upgradeable(_tokenAddress);
         nft.safeTransferFrom(_sender, address(this), _tokenId);
     }
 
@@ -299,7 +299,7 @@ contract BountyV0 is BountyStorageV0 {
         address _payoutAddress,
         uint256 _tokenId
     ) internal {
-        IERC721 nft = IERC721(_tokenAddress);
+        IERC721Upgradeable nft = IERC721Upgradeable(_tokenAddress);
         nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
     }
 
