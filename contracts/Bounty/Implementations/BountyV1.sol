@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.13;
 
-// Custom
+/**
+ * @dev Custom imports
+ */
 import '../../Storage/BountyStorage.sol';
 
-/// @title BountyV1
-/// @author OpenQ
-/// @dev Bounty Implementation Version 1
+/**
+ * @title BountyV1
+ * @dev Bounty Implementation Version 1
+ */
 contract BountyV1 is BountyStorageV1 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
