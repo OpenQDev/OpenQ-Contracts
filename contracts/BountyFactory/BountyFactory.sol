@@ -11,35 +11,37 @@ import '../OnlyOpenQ/OnlyOpenQ.sol';
 /// @author OpenQ
 /// @dev Factory for deploying new BeaconProxy contracts for bounties. Holds BeaconBounty address passed to each bounty for retrieving their implementation
 contract BountyFactory is OnlyOpenQ {
-    /*///////////////////////////////////////////////////////////////
-												INIITIALIZATION
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * INITIALIZATION
+     */
 
-    // The address of the UpgradeableBeacon holding the current bounty implementation
+    /**
+     * @dev The address of the UpgradeableBeacon holding the current bounty implementation
+     */
     address immutable beacon;
 
     /**
-		Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
-		@param _openQ The OpenQProxy address
-		@param _beacon The UpgradeableBeacon "BountyBeacon" address
-		 */
+     * @dev Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
+     * @param _openQ The OpenQProxy address
+     * @param _beacon The UpgradeableBeacon "BountyBeacon" address
+     */
     constructor(address _openQ, address _beacon) {
         __OnlyOpenQ_init(_openQ);
 
         beacon = _beacon;
     }
 
-    /*///////////////////////////////////////////////////////////////
-												TRANSACTIONS
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * TRANSACTIONS
+     */
 
     /**
-		Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
-		@param _id A unique string representing the bounty
-		@param _issuer The creator of the mint transaction
-		@param _organization The organization associated with the bounty
-		@return address The address of the minted bounty
-		 */
+     * @dev Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
+     * @param _id A unique string representing the bounty
+     * @param _issuer The creator of the mint transaction
+     * @param _organization The organization associated with the bounty
+     * @return address The address of the minted bounty
+     */
     function mintBounty(
         string memory _id,
         address _issuer,
@@ -59,14 +61,14 @@ contract BountyFactory is OnlyOpenQ {
         return address(bounty);
     }
 
-    /*///////////////////////////////////////////////////////////////
-												UTILITY
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * UTILITY
+     */
 
     /**
-		Returns the BountyBeacon address
-		@return address BountyBeacon address
-		 */
+     * @dev Returns the BountyBeacon address
+     * @return address BountyBeacon address
+     */
     function getBeacon() external view returns (address) {
         return beacon;
     }
