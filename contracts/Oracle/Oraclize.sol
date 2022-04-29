@@ -2,12 +2,12 @@
 pragma solidity 0.8.12;
 
 // Third Party
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
 
 /// @title Oraclize
 /// @author OpenQ
 /// @dev Restricts access for method calls to Oracle address
-abstract contract Oraclize is OwnableUpgradeable {
+abstract contract Oraclize is ContextUpgradeable {
     /*///////////////////////////////////////////////////////////////
                           INIITIALIZATION
     //////////////////////////////////////////////////////////////*/
