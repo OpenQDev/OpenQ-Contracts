@@ -3,7 +3,6 @@ pragma solidity 0.8.12;
 
 // Third Party
 import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
-import '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
 
 // Custom
 import '../OnlyOpenQ/OnlyOpenQ.sol';
