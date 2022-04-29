@@ -26,13 +26,6 @@ async function deployContracts() {
 		console.log(`MockDai Deployed to ${mockDai.address}\n`);
 	}
 
-	console.log('Deploying BountyV0...');
-	const BountyV0 = await ethers.getContractFactory('BountyV0');
-	const bountyV0 = await BountyV0.deploy();
-	await bountyV0.deployed();
-	await optionalSleep(10000);
-	console.log(`BountyV0 Deployed to ${bountyV0.address}\n`);
-
 	console.log('Deploying OpenQV0 (Implementation)...');
 	const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
 	const openQImplementation = await OpenQImplementation.deploy();
@@ -64,6 +57,13 @@ async function deployContracts() {
 	await openQTokenWhitelist.deployed();
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
+
+	console.log('Deploying BountyV0...');
+	const BountyV0 = await ethers.getContractFactory('BountyV0');
+	const bountyV0 = await BountyV0.deploy();
+	await bountyV0.deployed();
+	await optionalSleep(10000);
+	console.log(`BountyV0 Deployed to ${bountyV0.address}\n`);
 
 	console.log('Deploying BountyV1...');
 	const BountyV1 = await ethers.getContractFactory('BountyV1');
