@@ -21,10 +21,6 @@ abstract contract Oraclize is ContextUpgradeable {
         address indexed newOracle
     );
 
-    /**
-		Initializes contract with oracle address
-		@param _initialOracle The initial oracle address
-		 */
     function __Oraclize_init(address _initialOracle) internal onlyInitializing {
         _oracle = _initialOracle;
     }

@@ -20,7 +20,7 @@ contract BountyV0 is BountyStorageV0 {
     constructor() {}
 
     /**
-		Initializes a bounty proxy with initial state
+		@dev Initializes a bounty proxy with initial state
 		@param _bountyId The unique bountyId
 		@param _issuer The sender of the mint bounty transaction
 		@param _organization The organization that owns the bounty
