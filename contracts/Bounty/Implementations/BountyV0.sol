@@ -8,7 +8,7 @@ import '../../Storage/BountyStorage.sol';
 /// @author OpenQ
 /// @dev Bounty Implementation Version 0
 contract BountyV0 is BountyStorageV0 {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
@@ -236,7 +236,7 @@ contract BountyV0 is BountyStorageV0 {
         uint256 _volume
     ) internal returns (uint256) {
         uint256 balanceBefore = getERC20Balance(_tokenAddress);
-        IERC20 token = IERC20(_tokenAddress);
+        IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         token.safeTransferFrom(_funder, address(this), _volume);
         uint256 balanceAfter = getERC20Balance(_tokenAddress);
         require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
@@ -258,7 +258,7 @@ contract BountyV0 is BountyStorageV0 {
         address _payoutAddress,
         uint256 _volume
     ) internal {
-        IERC20 token = IERC20(_tokenAddress);
+        IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         token.safeTransfer(_payoutAddress, _volume);
     }
 
@@ -324,7 +324,7 @@ contract BountyV0 is BountyStorageV0 {
         view
         returns (uint256 balance)
     {
-        IERC20 token = IERC20(_tokenAddress);
+        IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         return token.balanceOf(address(this));
     }
 
