@@ -2,18 +2,20 @@
 pragma solidity 0.8.12;
 
 // Third Party
+
+// V0
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 
 // Custom
-import '../Tokens/OpenQTokenWhitelist.sol';
+
+// V0
 import '../BountyFactory/BountyFactory.sol';
-import '../Oracle/Oraclize.sol';
+import '../Tokens/OpenQTokenWhitelist.sol';
 import '../Bounty/Implementations/BountyV0.sol';
-import '../BountyFactory/BountyFactory.sol';
-import '../Tokens/OpenQTokenWhitelist.sol';
+import '../Oracle/Oraclize.sol';
 
 /// @title OpenQStorageV0
 /// @author OpenQ
