@@ -6,8 +6,8 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import '@openzeppelin/contracts/utils/Address.sol';
-import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 
@@ -48,7 +48,7 @@ abstract contract BountyStorageV0 is
     bytes32[] public nftDeposits;
 
     // Set of unique token address
-    EnumerableSet.AddressSet internal tokenAddresses;
+    EnumerableSetUpgradeable.AddressSet internal tokenAddresses;
 }
 
 /*///////////////////////////////////////////////////////////////

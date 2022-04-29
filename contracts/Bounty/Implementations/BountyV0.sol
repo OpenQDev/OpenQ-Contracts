@@ -10,8 +10,8 @@ import '../../Storage/BountyStorage.sol';
 contract BountyV0 is BountyStorageV0 {
     using SafeERC20 for IERC20;
     using SafeMathUpgradeable for uint256;
-    using Address for address payable;
-    using EnumerableSet for EnumerableSet.AddressSet;
+    using AddressUpgradeable for address payable;
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     /*///////////////////////////////////////////////////////////////
                           INIITIALIZATION
