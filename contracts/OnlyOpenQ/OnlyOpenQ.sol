@@ -2,12 +2,12 @@
 pragma solidity 0.8.12;
 
 // Third Party
-import '@openzeppelin/contracts/utils/Context.sol';
+import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
 
 /// @title OnlyOpenQ
 /// @author OpenQ
 /// @dev Restricts access for method calls to OpenQProxy address
-abstract contract OnlyOpenQ is Context {
+abstract contract OnlyOpenQ is ContextUpgradeable {
     /*///////////////////////////////////////////////////////////////
                           INIITIALIZATION
     //////////////////////////////////////////////////////////////*/
