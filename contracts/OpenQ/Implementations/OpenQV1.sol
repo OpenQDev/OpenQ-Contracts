@@ -11,15 +11,16 @@ import '../../Storage/OpenQStorage.sol';
 contract OpenQV1 is OpenQStorageV1, IOpenQ {
     using SafeMathUpgradeable for uint256;
 
-    /*///////////////////////////////////////////////////////////////
-                          INITIALIZATION
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * INITIALIZATION
+     */
+
     constructor() {}
 
     /**
-		Initializes the OpenQProxy storage with necessary storage variables like oracle and owner
-		@param oracle The oracle address to be used for onlyOracle methods (e.g. claimBounty)
-		 */
+     * @dev Initializes the OpenQProxy storage with necessary storage variables like oracle and owner
+     * @param oracle The oracle address to be used for onlyOracle methods (e.g. claimBounty)
+     */
     function initialize(address oracle) external initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();
@@ -28,9 +29,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Sets bountyFactory address
-		@param _bountyFactory The BountyFactory address
-		 */
+     * @dev Sets bountyFactory address
+     * @param _bountyFactory The BountyFactory address
+     */
     function setBountyFactory(address _bountyFactory)
         external
         onlyProxy
@@ -40,9 +41,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Sets openQTokenWhitelist address
-		@param _openQTokenWhitelist The OpenQTokenWhitelist address
-		 */
+     * @dev Sets openQTokenWhitelist address
+     * @param _openQTokenWhitelist The OpenQTokenWhitelist address
+     */
     function setTokenWhitelist(address _openQTokenWhitelist)
         external
         onlyProxy
@@ -52,9 +53,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
-		@param _newOracle The new oracle address
-		 */
+     * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
+     * @param _newOracle The new oracle address
+     */
     function transferOracle(address _newOracle) external onlyProxy onlyOwner {
         require(
             _newOracle != address(0),
@@ -63,16 +64,16 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         _transferOracle(_newOracle);
     }
 
-    /*///////////////////////////////////////////////////////////////
-                          TRANSACTIONS
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * TRANSACTIONS
+     */
 
     /**
-		Mints a new bounty BeaconProxy using BountyFactory
-		@param _bountyId A unique string to identify a bounty
-		@param _organization The ID of the organization which owns the bounty
-		@return bountyAddress The address of the bounty minted
-		 */
+     * @dev Mints a new bounty BeaconProxy using BountyFactory
+     * @param _bountyId A unique string to identify a bounty
+     * @param _organization The ID of the organization which owns the bounty
+     * @return bountyAddress The address of the bounty minted
+     */
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization
@@ -101,12 +102,12 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Transfers protocol token or ERC20 from msg.sender to bounty address
-		@param _bountyId A unique string to identify a bounty
-		@param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
-		@param _volume The volume of token transferred
-		@param _expiration The duration until the deposit becomes refundable
-		 */
+     * @dev Transfers protocol token or ERC20 from msg.sender to bounty address
+     * @param _bountyId A unique string to identify a bounty
+     * @param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
+     * @param _volume The volume of token transferred
+     * @param _expiration The duration until the deposit becomes refundable
+     */
     function fundBountyToken(
         string calldata _bountyId,
         address _tokenAddress,
@@ -137,12 +138,12 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Transfers NFT from msg.sender to bounty address
-		@param _bountyId A unique string to identify a bounty
-		@param _tokenAddress The ERC721 token address of the NFT
-		@param _tokenId The tokenId of the NFT to transfer
-		@param _expiration The duration until the deposit becomes refundable
-		 */
+     * @dev Transfers NFT from msg.sender to bounty address
+     * @param _bountyId A unique string to identify a bounty
+     * @param _tokenAddress The ERC721 token address of the NFT
+     * @param _tokenId The tokenId of the NFT to transfer
+     * @param _expiration The duration until the deposit becomes refundable
+     */
     function fundBountyNFT(
         string calldata _bountyId,
         address _tokenAddress,
@@ -176,10 +177,10 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Transfers full balance of bounty and any NFT deposits from bounty address to closer
-		@param _bountyId A unique string to identify a bounty
-		@param _closer The payout address of the bounty
-		 */
+     * @dev Transfers full balance of bounty and any NFT deposits from bounty address to closer
+     * @param _bountyId A unique string to identify a bounty
+     * @param _closer The payout address of the bounty
+     */
     function claimBounty(string calldata _bountyId, address _closer)
         external
         onlyOracle
@@ -221,10 +222,10 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Refunds an individual deposit from bountyAddress to sender if expiration time has passed
-		@param _bountyId A unique string to identify a bounty
-		@param _depositId The depositId assocaited with the deposit being refunded
-		 */
+     * @dev Refunds an individual deposit from bountyAddress to sender if expiration time has passed
+     * @param _depositId The depositId assocaited with the deposit being refunded
+     * @param _bountyId A unique string to identify a bounty
+     */
     function refundDeposit(string calldata _bountyId, bytes32 _depositId)
         external
         nonReentrant
@@ -259,24 +260,24 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
     }
 
-    /*///////////////////////////////////////////////////////////////
-													UTILITY
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * UTILITY
+     */
 
     /**
-		Checks if _tokenAddress is whitelisted
-		@param _tokenAddress The token address in question
-		@return bool True if _tokenAddress is whitelisted
-		 */
+     * @dev Checks if _tokenAddress is whitelisted
+     * @param _tokenAddress The token address in question
+     * @return bool True if _tokenAddress is whitelisted
+     */
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
     }
 
     /**
-		Checks if bounty associated with _bountyId is open
-		@param _bountyId The token address in question
-		@return bool True if _bountyId is associated with an open bounty
-		 */
+     * @dev Checks if bounty associated with _bountyId is open
+     * @param _bountyId The token address in question
+     * @return bool True if _bountyId is associated with an open bounty
+     */
     function bountyIsOpen(string calldata _bountyId)
         public
         view
@@ -289,10 +290,10 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-		Retrieves bountyId from a bounty's address
-		@param _bountyAddress The bounty address
-		@return string The bounty id associated with _bountyAddress
-		 */
+     * @dev Retrieves bountyId from a bounty's address
+     * @param _bountyAddress The bounty address
+     * @return string The bounty id associated with _bountyAddress
+     */
     function bountyAddressToBountyId(address _bountyAddress)
         external
         view
@@ -302,19 +303,19 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         return bounty.bountyId();
     }
 
-    /*///////////////////////////////////////////////////////////////
-													UPGRADES
-    //////////////////////////////////////////////////////////////*/
+    /**
+     * UPGRADES
+     */
 
     /**
-		Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
-		 */
+     * @dev Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
+     */
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /**
-		Override for ERC1967Upgrade._getImplementation() to expose implementation
-		@return address Implementation address associated with OpenQProxy
-		 */
+     * @dev Override for ERC1967Upgrade._getImplementation() to expose implementation
+     * @return address Implementation address associated with OpenQProxy
+     */
     function getImplementation() external view returns (address) {
         return _getImplementation();
     }
