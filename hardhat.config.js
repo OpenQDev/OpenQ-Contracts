@@ -1,7 +1,8 @@
 require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-contract-sizer');
-require("hardhat-gas-reporter");
+require('hardhat-gas-reporter');
+require('solidity-docgen');
 require('hardhat-tracer');
 require('dotenv').config();
 
@@ -72,6 +73,10 @@ module.exports = (function () {
 			token: 'ETH',
 			gasPriceApi: 'https://api.etherscan.io/api?module=proxy&action=eth_gasPrice'
 		},
+		docgen: {
+			outputDir: '../OpenQ-Documentation',
+			pages: 'files'
+		}
 	};
 
 	return config;
