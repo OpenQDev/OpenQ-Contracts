@@ -28,23 +28,24 @@ async function fundBounties() {
 	const one = ethers.BigNumber.from('1000000000000000000');
 	const two = ethers.BigNumber.from('2000000000000000000');
 	const four = ethers.BigNumber.from('4000000000000000000');
+	const eight = ethers.BigNumber.from('8000000000000000000');
 
-	await mockLink.approve(bounty1Address, four);
+	await mockLink.approve(bounty1Address, eight);
 	await optionalSleep(5000);
 
-	await mockDai.approve(bounty1Address, four);
+	await mockDai.approve(bounty1Address, eight);
 	await optionalSleep(5000);
 
-	await mockLink.approve(bounty2Address, four);
+	await mockLink.approve(bounty2Address, eight);
 	await optionalSleep(5000);
 
-	await mockDai.approve(bounty2Address, four);
+	await mockDai.approve(bounty2Address, eight);
 	await optionalSleep(5000);
 
-	await mockLink.approve(bounty3Address, four);
+	await mockLink.approve(bounty3Address, eight);
 	await optionalSleep(5000);
 
-	await mockDai.approve(bounty3Address, four);
+	await mockDai.approve(bounty3Address, eight);
 	await optionalSleep(5000);
 
 	const thirtySeconds = 30;
@@ -52,6 +53,9 @@ async function fundBounties() {
 	const thirtyDays = 2592000;
 
 	console.log('Funding approved for Client 1');
+	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
+	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
+	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
 	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
 	await optionalSleep(5000);
 	console.log('Funded  for Client 1');
