@@ -11,7 +11,6 @@ async function deployContracts() {
 	let mockLink;
 	let mockDai;
 	if (network.name === 'docker' || network.name === 'localhost') {
-		await network.provider.send('evm_setIntervalMining', [5000]);
 		console.log('Deploying MockLink...');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		mockLink = await MockLink.deploy();

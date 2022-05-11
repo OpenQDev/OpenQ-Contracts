@@ -4,56 +4,118 @@ Welcome! By luck or misfortune you've found yourself in the OpenQ on-chain unive
 
 ## Core User Actions
 
-OpenQ revolves around six core user actions.
+OpenQ revolves around 4 core user actions, each with a corresponding Event which can be found in [IOpenQ.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/IOpenQ.sol).
 
-- BountyCreated
-- BountyClosed
-- TokenDepositReceived
-- NFTDepositReceived
-- DepositRefunded
-- TokenBalanceClaimed
+Those actions are:
 
-Each action corresponds to one Solidity Event. These events are declared in [IOpenQ](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/IOpenQ.sol). 
+- Bounty Creation
+- Bounty Funding (Tokens and NFTs)
+- Bounty Claim
+- Bounty Refund
 
-Each event emitted is indexed by [The Graph](https://thegraph.com/en/) to aggregate information on bounty minting, funding, refunding and claims.
+All of these actions are triggered on the main current version of OpenQ, [OpenQV0](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol), via the [OpenQProxy](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/proxy/OpenQProxy.sol).
 
-We will cover how we handle each of these five core actions on-chain in brief below.
+<hr/>
 
-Then in the [Contracts](https://github.com/OpenQDev/OpenQ-Contracts#contracts) section, we will then cover the specifics in code of how our smart contracts enable these actions.
+### Bounty Creation
 
-### Mint Bounty
+Bounty creation occurs when a user, through the frontend or directly to the contract, submits a GitHub issueUrl to the [mintBounty method](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L80).
 
-Minting a bounty corresponds to deploying a new [ERC-1167 Minimal Proxy](https://eips.ethereum.org/EIPS/eip-1167) with [BountyV0.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Bounty/Implementations/BountyV0.sol) as its hardcoded implementation.
+This emits a `BountyCreated` event from the OpenQ Proxy address.
 
-This initializes such state variable like `bountyId`, `escrowPeriod`, `issuer`, `organization`.
+`mintBounty` should only be callable through the OpenQProxy.
 
-### Fund Bounty
+<hr/>
 
-Funding a bounty means approving the bounty address to call `transferFrom` on an ERC-20 contract, followed by an internal accounting system on the BountyV0 contract itself.
+### Bounty Funding - Tokens and NFTs
 
-### Refund Bounty
+Bounties can be funded with:
+- MATIC
+- ERC20 tokens approved on the [OpenQTokenWhitelist](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Tokens/OpenQTokenWhitelist.sol) contract.
+- NFTs
 
-Refunding a bounty is allowed after an escrow period has been reached, as reflected by `block.timestamp`.
+The atomic unit of funding is a `deposit` which is timelocked until the `expiration` date is reached, at which point it can be refunded.
 
-### Claim Bounty
+Rather than use a struct, deposits are [decomposed mappings]](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Storage/BountyStorage.sol#L43) to keep things nice and primitive.
 
-Claiming a bounty triggers an ERC-20 `transfer` of the funds deposited on that bounty contract address to to the `payoutAddress` passed to claim.
+Bounty funding emits a `TokenDepositReceived` event if funded with the [fundBountyToken](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L114) method from the OpenQ Proxy address.
 
-The `claimBounty` method is only callable by the OpenQ Oracle.
+Bounty funding emits a `NFTDepositReceived` event if funded with the [fundBountyNft](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L150) method from the OpenQ Proxy address.
 
-### Closed Bounty
+#### Access Restrictions
 
-Closing a bounty simply sets bounty status to `CLOSED` and the `bountyClosedTime` to `block.timestamp`.
+Funding is permissionless - anyone can fund a bounty from any address.
 
-## Contracts
+Since during claim we loop over all funded addresses, we do however whitelist tokens to prevent Out-of-Gas DOS Attacks
 
-The six core OpenQ actions defined above are composed across five contracts.
+This limits loop iterations to:
+
+`20 Whitelisted ERC20 Token Addresses + 5 NFT Addresses = 25 array iterations`
+
+`fundBountyToken` and `fundBountyNft` should only be callable through the OpenQProxy.
+
+<hr/>
+
+### Bounty Claim
+
+Claiming is still a relatively centralized process.
+
+A potential claimant uses GitHub OAuth to sign-in on OpenQ. This bestows them with a signed OAuth token.
+
+This token, along with the desired `payoutAddress` is sent to our oracle which runs as an [Open Zeppelin Defender Autotask](https://github.com/OpenQDev/OpenQ-OZ-Claim-Autotask).
+
+The oracle verifies that the authenticated claimant is indeed the author of the merged pull request on GitHub according to OpenQ's [withdrawal criteria](https://github.com/OpenQDev/OpenQ-OZ-Claim-Autotask/blob/local/lib/checkWithdrawalEligibility.js#L26).
+
+If they verified, then the oracle calls [claimBounty(address)](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L187) with the `bountyId` (same as GitHub Issue Id) and the `closer` address.
+
+`claimBounty` first checks that the bounty is still open.
+
+It then loops over the subset of the 20 whitelisted token addresses, calling `transfer` on each to send funds to the `payoutAddress`.
+
+Each loop emits and event called `TokenBalanceClaimed`.
+
+After transferring all tokens, it then does the same for all NFTs. Here, rather than looping over NFT addresses, we loop over the NFT deposits so we know which tokenId to transfer.
+
+Each loop emits and event called `TokenBalanceClaimed`.
+
+After all of this, `claimBounty` finally calls `bounty.close()` to toggles the status of an issue from 0 to 1, from open to closed.
+
+This emits a `BountyClosed` event.
+
+#### Access Restrictions
+
+The `claimBounty` method is only callable by the OpenQ Oracle. This is achieved with the [Oraclize](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Oracle/Oraclize.sol) contract modeled off of the Open Zeppelin Ownable contract.
+
+We needed to make a clone of the Ownable contract for this because OpenQ already inherits Ownable, which is used for upgrade admin purposes.
+
+<hr/>
+
+### Deposit Refunded
+
+Successful refunds occur when the initial funder calls the [refundDeposit](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L232) method with the desired `bountyId` and `depositId` after that deposits `expiration` escrow period has passed.
+
+#### Access Restrictions
+
+Refund should revert if the targeted deposits `expiration` has not yet been reached as reflected by `block.timestamp`.
+
+Refunds should only be returned to the initial funder.
+
+`refundDeposit` should only be callable through the OpenQProxy.
+
+<hr />
+
+## Contract Architecture
+
+The four core OpenQ actions defined above are composed across five contracts.
 
 - OpenQV0 (Proxy) Deployed automatically by the [hardhat-upgrades](https://www.npmjs.com/package/@openzeppelin/hardhat-upgrades) plugin. It is an ERC-1967 [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable) contract.
 - [OpenQV0 (Implementation)](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV0.sol)
-- [BountyV0.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Bounty/Implementations/BountyV0.sol)
+- [OpenQStorageV0.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Storage/OpenQStorage.sol)
+
+- [BountyV0.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Bounty/Implementations/BountyV0.sol)
+- [BountyStorageV0.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Storage/BountyStorage.sol)
 - [BountyFactory.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/BountyFactory/BountyFactory.sol)
-- [OpenQStorage.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Storage/OpenQStorage.sol)
+- [BountyBeacon.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Bounty/Proxy/BountyBeacon.sol)
 
 We will cover each of those five contracts below.
 
@@ -73,7 +135,11 @@ Since only the [runtime bytecode](https://medium.com/authereum/bytecode-and-init
 
 The initialize method is protected from being called mutiple times by [OpenZeppelin's Initializable](https://github.com/OpenZeppelin/openzeppelin-upgrades/blob/master/packages/core/contracts/Initializable.sol) interface.
 
-### Modifiers
+### Upgradeability
+
+
+
+### Additional Information on Access Control Modifiers
 
 #### onlyOpenQ
 
@@ -112,15 +178,3 @@ We do not want to allow users to maliciously or accidentally call the OpenQV0.so
 `onlyProxy` is from the Open Zeppelin contract-upgradeable library on the [UUPSUpgradable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol#L38) contract.
 
 `onlyProxy` requries that `address(this)` (the caller) is NOT an immutable `_self` set when the implementation contract is deployed.
-
-### Storage
-
-#### [OpenQStorage](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Storage/OpenQStorage.sol)
-
-OpenQStorage employs the [EternalStorage pattern](https://fravoll.github.io/solidity-patterns/eternal_storage.html).
-
-It is used by [OpenQStorable](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/OpenQStorable.sol) to hold several state variables.
-
-As of now, it hold very few state variables - only the address of the BountyFactory.
-
-In the future, the EternalStorage pattern is intended to allow us to upgrade seamlessly.
