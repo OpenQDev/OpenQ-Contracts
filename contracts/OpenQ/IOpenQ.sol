@@ -63,4 +63,6 @@ interface IOpenQ {
         address tokenAddress,
         uint256 volume
     );
+
+    event DepositExtended(bytes32 depositId, uint256 newExpiration);
 }

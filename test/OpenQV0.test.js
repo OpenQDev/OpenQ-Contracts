@@ -683,6 +683,29 @@ describe('OpenQV0.sol', () => {
 			});
 		});
 	});
+
+	describe('extendDeposit', () => {
+		it('should extend deposit', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV0');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT
+			await mockLink.approve(bountyAddress, 10000000);
+			openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1);
+
+			const depositId = generateDepositId(bountyId, 0);
+
+			openQProxy.extendDeposit(bountyId, mockLink.address, 100, 1);
+
+			// ASSERT
+			expect(await bounty.funder(depositId)).to.equal(owner.address);
+
+
+		});
+	});
 });
 
 async function setNextBlockTimestamp(timestamp = 10) {

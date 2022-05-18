@@ -141,6 +141,36 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
     }
 
     /**
+     * @dev Extends the expiration for a deposit
+     * @param _bountyId The bountyId
+     * @param _depositId The deposit to extend
+     * @param _seconds The duration to add until the deposit becomes refundable
+     */
+    function extendDeposit(
+        string calldata _bountyId,
+        bytes32 _depositId,
+        uint256 _seconds
+    ) external nonReentrant onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
+
+        require(bountyIsOpen(_bountyId) == true, 'EXTENDING_CLOSED_BOUNTY');
+
+        require(
+            bounty.funder(_depositId) == msg.sender,
+            'ONLY_FUNDER_CAN_REQUEST_EXTENSION'
+        );
+
+        uint256 newExpiration = bounty.extendDeposit(
+            _depositId,
+            _seconds,
+            msg.sender
+        );
+
+        emit DepositExtended(_depositId, newExpiration);
+    }
+
+    /**
      * @dev Transfers NFT from msg.sender to bounty address
      * @param _bountyId A unique string to identify a bounty
      * @param _tokenAddress The ERC721 token address of the NFT

@@ -290,6 +290,24 @@ describe('BountyV0.sol', () => {
 		});
 	});
 
+	describe('extendDeposit', () => {
+		it('should extend deposit expiration by _seconds', async () => {
+			// ARRANGE
+			const volume = 100;
+
+			// ASSUME
+			const linkDepositId = generateDepositId(mockId, 0);
+			await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
+
+			// ACT
+			await bounty.extendDeposit(linkDepositId, 1000, owner.address);
+
+			// ASSERT
+			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
+			await expect(bounty.refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+		});
+	});
+
 	describe('refundDeposit', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ contract', async () => {
@@ -301,6 +319,18 @@ describe('BountyV0.sol', () => {
 
 				// ASSERT
 				await expect(issueWithNonOwnerAccount.refundDeposit(mockDepositId, owner.address)).to.be.revertedWith('Method is only callable by OpenQ');
+			});
+
+			it('should revert if called before expiration', async () => {
+				// ARRANGE
+				const volume = 100;
+
+				// ASSUME
+				const linkDepositId = generateDepositId(mockId, 0);
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, 10000);
+
+				// ACT
+				await expect(bounty.refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 			});
 		});
 
