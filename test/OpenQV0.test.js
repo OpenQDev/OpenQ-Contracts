@@ -685,7 +685,7 @@ describe('OpenQV0.sol', () => {
 	});
 
 	describe('extendDeposit', () => {
-		it.only('should extend deposit', async () => {
+		it('should extend deposit', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -703,6 +703,24 @@ describe('OpenQV0.sol', () => {
 			// ASSERT
 			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
 			await expect(openQProxy.refundDeposit(bountyId, depositId)).to.be.revertedWith("PREMATURE_REFUND_REQUEST");
+		});
+
+		it.only('should emit DepositExtended event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV0');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1);
+
+			const depositId = generateDepositId(bountyId, 0);
+
+			// ACT
+			await expect(openQProxy.extendDeposit(bountyId, depositId, 1000))
+				.to.emit(openQProxy, 'DepositExtended')
+				.withArgs(depositId, 1001);
 		});
 	});
 });
