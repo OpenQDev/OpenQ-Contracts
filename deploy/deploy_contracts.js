@@ -10,6 +10,7 @@ async function deployContracts() {
 
 	let mockLink;
 	let mockDai;
+	let mockDaiBlacklisted;
 	if (network.name === 'docker' || network.name === 'localhost') {
 		console.log('Deploying MockLink...');
 		const MockLink = await ethers.getContractFactory('MockLink');
@@ -24,6 +25,13 @@ async function deployContracts() {
 		await mockDai.deployed();
 		await optionalSleep(10000);
 		console.log(`MockDai Deployed to ${mockDai.address}\n`);
+
+		console.log('Deploying MockDai (Blacklisted)...');
+		const MockDaiBlacklisted = await ethers.getContractFactory('MockDai');
+		mockDaiBlacklisted = await MockDaiBlacklisted.deploy();
+		await mockDaiBlacklisted.deployed();
+		await optionalSleep(10000);
+		console.log(`MockDai (Blacklisted) Deployed to ${mockDaiBlacklisted.address}\n`);
 	}
 
 	console.log('Deploying OpenQV0 (Implementation)...');
@@ -53,7 +61,7 @@ async function deployContracts() {
 
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);
+	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(1);
 	await openQTokenWhitelist.deployed();
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
@@ -97,9 +105,10 @@ async function deployContracts() {
 	console.log(`BountyBeacon deployed to ${bountyBeacon.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 
-	if (network.name === 'docker') {
+	if (network.name === 'docker' || network.name === 'localhost') {
 		console.log(`MockLink deployed to: ${mockLink.address}`);
 		console.log(`MockDai deployed to: ${mockDai.address}`);
+		console.log(`MockDai (BlackListed) deployed to: ${mockDaiBlacklisted.address}`);
 	}
 
 	console.log('\nConfiguring OpenQV0 with BountyFactory...');
@@ -132,6 +141,7 @@ OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
 MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
+MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS="${mockDaiBlacklisted.address}"
 `;
 	} else {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
@@ -144,6 +154,7 @@ OPENQ_BOUNTY_IMPLEMENTATION_V1_ADDRESS="${bountyV1.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
 MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"
 MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"
 `;
 	}

@@ -123,8 +123,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
 
         if (!isWhitelisted(_tokenAddress)) {
             require(
-                bounty.getTokenAddressesCount() <
-                    openQTokenWhitelist.TOKEN_ADDRESS_LIMIT(),
+                !tokenAddressLimitReached(_bountyId),
                 'TOO_MANY_TOKEN_ADDRESSES'
             );
         }
@@ -312,6 +311,24 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
      */
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
+    }
+
+    /**
+     * @dev Returns true if the total number of unique tokens deposited on then bounty is greater than the OpenQWhitelist TOKEN_ADDRESS_LIMIT
+     * @param _bountyId A unique string to identify a bounty
+     * @return bool
+     */
+    function tokenAddressLimitReached(string calldata _bountyId)
+        public
+        view
+        returns (bool)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
+
+        return
+            bounty.getTokenAddressesCount() >=
+            openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
     }
 
     /**
