@@ -192,16 +192,40 @@ describe('OpenQV0.sol', () => {
 			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
-		it('should revert if funded with a non-whitelisted token', async () => {
+		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg);
 
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 			await blacklistedMockDai.approve(bountyAddress, 10000000);
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// set lower capacity for token
+			await openQTokenWhitelist.setTokenAddressLimit(1);
+
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
 
 			// ACT + ASSERT
-			await expect(openQProxy.fundBountyToken(bountyId, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOKEN_NOT_ACCEPTED');
+			await expect(openQProxy.fundBountyToken(bountyId, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
+		});
+
+		it.only('should ALLOW funding with whitelisted token EVEN IF bounty is at funded token address capacity', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg);
+
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await mockDai.approve(bountyAddress, 10000000);
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// set lower capacity for token
+			await openQTokenWhitelist.setTokenAddressLimit(1);
+
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+
+			// ACT + ASSERT
+			await expect(openQProxy.fundBountyToken(bountyId, mockDai.address, 10000000, 1)).to.not.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
 		});
 
 		it('should set funder to msg.sender', async () => {
@@ -705,7 +729,7 @@ describe('OpenQV0.sol', () => {
 			await expect(openQProxy.refundDeposit(bountyId, depositId)).to.be.revertedWith("PREMATURE_REFUND_REQUEST");
 		});
 
-		it.only('should emit DepositExtended event', async () => {
+		it('should emit DepositExtended event', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);

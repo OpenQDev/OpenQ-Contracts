@@ -379,6 +379,14 @@ contract BountyV0 is BountyStorageV0 {
     }
 
     /**
+     * @dev Returns an array of all ERC20 token addresses which have funded this bounty
+     * @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
+     */
+    function getTokenAddressesCount() public view returns (uint256) {
+        return tokenAddresses.values().length;
+    }
+
+    /**
      * @dev receive() method to accept protocol tokens
      */
     receive() external payable {}

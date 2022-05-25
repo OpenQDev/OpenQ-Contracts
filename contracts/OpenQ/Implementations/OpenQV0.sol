@@ -6,6 +6,7 @@ pragma solidity 0.8.13;
  */
 import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title OpenQV0
@@ -120,7 +121,14 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV0 bounty = BountyV0(payable(bountyAddress));
 
-        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
+        if (!isWhitelisted(_tokenAddress)) {
+            require(
+                bounty.getTokenAddressesCount() <
+                    openQTokenWhitelist.TOKEN_ADDRESS_LIMIT(),
+                'TOO_MANY_TOKEN_ADDRESSES'
+            );
+        }
+
         require(bountyIsOpen(_bountyId), 'FUNDING_CLOSED_BOUNTY');
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{

@@ -37,7 +37,6 @@ abstract contract TokenWhitelist is Ownable {
      * @param tokenAddress The token address to add
      */
     function addToken(address tokenAddress) external onlyOwner {
-        require(tokenCount <= TOKEN_ADDRESS_LIMIT, 'TOO_MANY_TOKEN_ADDRESSES');
         require(!this.isWhitelisted(tokenAddress), 'TOKEN_ALREADY_WHITELISTED');
         whitelist[tokenAddress] = true;
         tokenCount++;
