@@ -19,7 +19,8 @@ interface IOpenQ {
         address indexed bountyAddress,
         string organization,
         address closer,
-        uint256 bountyClosedTime
+        uint256 bountyClosedTime,
+        string closerData
     );
 
     event TokenDepositReceived(

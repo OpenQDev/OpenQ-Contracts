@@ -257,7 +257,8 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
             bountyAddress,
             bounty.organization(),
             _closer,
-            block.timestamp
+            block.timestamp,
+            _closerData
         );
     }
 
