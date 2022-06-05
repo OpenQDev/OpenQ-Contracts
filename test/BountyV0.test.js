@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe('BountyV0.sol', () => {
+describe.only('BountyV0.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -513,7 +513,7 @@ describe('BountyV0.sol', () => {
 
 			it('should revert if issue is already closed', async () => {
 				// ARRANGE
-				await bounty.close(owner.address);
+				await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 
 				// ASSERT
 				await expect(bounty.claimNft(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
@@ -548,21 +548,21 @@ describe('BountyV0.sol', () => {
 			let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 			// ASSERT
-			await expect(issueWithNonOwnerAccount.close(owner.address)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(issueWithNonOwnerAccount.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398')).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should revert if already closed', async () => {
 			// ARRANGE
-			bounty.close(owner.address);
+			bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			//ACT / ASSERT
-			await expect(bounty.close(owner.address)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
+			await expect(bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398')).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
 		});
 
 		it('should change status to CLOSED (1)', async () => {
 			// ASSUME
 			await expect(await bounty.status()).equals(0);
 			//ACT
-			await bounty.close(owner.address);
+			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			// ASSERT
 			await expect(await bounty.status()).equals(1);
 		});
@@ -571,7 +571,7 @@ describe('BountyV0.sol', () => {
 			// ASSUME
 			await expect(await bounty.closer()).equals(ethers.constants.AddressZero);
 			//ACT
-			await bounty.close(owner.address);
+			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			// ASSERT
 			await expect(await bounty.closer()).equals(owner.address);
 		});
@@ -582,7 +582,7 @@ describe('BountyV0.sol', () => {
 			// ASSUME
 			await expect(await bounty.bountyClosedTime()).equals(0);
 			//ACT
-			await bounty.close(owner.address);
+			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			// ASSERT
 			await expect(await bounty.bountyClosedTime()).equals(expectedTimestamp);
 		});

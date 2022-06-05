@@ -239,11 +239,15 @@ contract BountyV0 is BountyStorageV0 {
      * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
      * @param _payoutAddress The closer of the bounty
      */
-    function close(address _payoutAddress) external onlyOpenQ {
+    function close(address _payoutAddress, string calldata _closerData)
+        external
+        onlyOpenQ
+    {
         require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
         status = 1;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
+        closerData = _closerData;
     }
 
     /**

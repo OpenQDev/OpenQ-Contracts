@@ -192,7 +192,7 @@ describe('OpenQV0.sol', () => {
 			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
-		it.only('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
+		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg);
 
@@ -210,7 +210,7 @@ describe('OpenQV0.sol', () => {
 			await expect(openQProxy.fundBountyToken(bountyId, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
 		});
 
-		it.only('should ALLOW funding with whitelisted token EVEN IF bounty is at funded token address capacity', async () => {
+		it('should ALLOW funding with whitelisted token EVEN IF bounty is at funded token address capacity', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg);
 

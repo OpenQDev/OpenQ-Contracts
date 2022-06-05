@@ -99,9 +99,6 @@ describe('BountyFactory', () => {
 
 
 			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address)).to.be.revertedWith('Initializable: contract is already initialized');
-
-			let notOpenQProxyContract = newBounty.connect(notOpenQ);
-			await expect(notOpenQProxyContract.close(owner.address)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 	});
 });

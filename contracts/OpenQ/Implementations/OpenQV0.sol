@@ -221,11 +221,11 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
      * @param _bountyId A unique string to identify a bounty
      * @param _closer The payout address of the bounty
      */
-    function claimBounty(string calldata _bountyId, address _closer)
-        external
-        onlyOracle
-        nonReentrant
-    {
+    function claimBounty(
+        string calldata _bountyId,
+        address _closer,
+        string calldata _closerData
+    ) external onlyOracle nonReentrant {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress[_bountyId];
@@ -250,7 +250,7 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
             bounty.claimNft(_closer, bounty.nftDeposits(i));
         }
 
-        bounty.close(_closer);
+        bounty.close(_closer, _closerData);
 
         emit BountyClosed(
             _bountyId,
