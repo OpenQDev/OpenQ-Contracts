@@ -18,6 +18,7 @@ describe('OpenQV0.sol', () => {
 	let openQTokenWhitelist;
 	let bountyId = 'mockIssueId';
 	let mockOrg = 'mock-org';
+	let closerData = 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398';
 	let oracle;
 
 	beforeEach(async () => {
@@ -181,7 +182,7 @@ describe('OpenQV0.sol', () => {
 			await openQProxy.mintBounty(bountyId, mockOrg);
 
 			const oracleContract = openQProxy.connect(oracle);
-			await oracleContract.claimBounty(bountyId, owner.address);
+			await oracleContract.claimBounty(bountyId, owner.address, closerData);
 
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
@@ -192,16 +193,40 @@ describe('OpenQV0.sol', () => {
 			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
-		it('should revert if funded with a non-whitelisted token', async () => {
+		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg);
 
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 			await blacklistedMockDai.approve(bountyAddress, 10000000);
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// set lower capacity for token
+			await openQTokenWhitelist.setTokenAddressLimit(1);
+
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
 
 			// ACT + ASSERT
-			await expect(openQProxy.fundBountyToken(bountyId, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOKEN_NOT_ACCEPTED');
+			await expect(openQProxy.fundBountyToken(bountyId, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
+		});
+
+		it('should ALLOW funding with whitelisted token EVEN IF bounty is at funded token address capacity', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg);
+
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await mockDai.approve(bountyAddress, 10000000);
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// set lower capacity for token
+			await openQTokenWhitelist.setTokenAddressLimit(1);
+
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+
+			// ACT + ASSERT
+			await expect(openQProxy.fundBountyToken(bountyId, mockDai.address, 10000000, 1)).to.not.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
 		});
 
 		it('should set funder to msg.sender', async () => {
@@ -305,18 +330,18 @@ describe('OpenQV0.sol', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ Oracle', async () => {
 				// ASSERT
-				await expect(openQProxy.claimBounty(bountyId, owner.address)).to.be.revertedWith('Oraclize: caller is not the current OpenQ Oracle');
+				await expect(openQProxy.claimBounty(bountyId, owner.address, closerData)).to.be.revertedWith('Oraclize: caller is not the current OpenQ Oracle');
 			});
 
 			it('should revert if bounty is already closed', async () => {
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg);
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address);
+				await oracleContract.claimBounty(bountyId, owner.address, closerData);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 				// ASSERT
-				await expect(oracleContract.claimBounty(bountyId, owner.address)).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
+				await expect(oracleContract.claimBounty(bountyId, owner.address, closerData)).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
 			});
 		});
 
@@ -333,7 +358,7 @@ describe('OpenQV0.sol', () => {
 
 				// ACT
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address);
+				await oracleContract.claimBounty(bountyId, owner.address, closerData);
 
 				// ASSERT
 				const closedBounty = await openQProxy.bountyIsOpen(bountyId);
@@ -358,7 +383,7 @@ describe('OpenQV0.sol', () => {
 
 				// ACT
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address);
+				await oracleContract.claimBounty(bountyId, owner.address, closerData);
 
 				// ASSERT
 				const newCloser = await newBounty.closer();
@@ -389,7 +414,7 @@ describe('OpenQV0.sol', () => {
 
 				// ACT
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address);
+				await oracleContract.claimBounty(bountyId, owner.address, closerData);
 
 				// ASSERT
 				const newCloser = await newBounty.closer();
@@ -429,7 +454,7 @@ describe('OpenQV0.sol', () => {
 
 				// // // ACT
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, claimer.address);
+				await oracleContract.claimBounty(bountyId, claimer.address, closerData);
 
 				// // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -455,7 +480,7 @@ describe('OpenQV0.sol', () => {
 
 				// ACT
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address);
+				await oracleContract.claimBounty(bountyId, owner.address, closerData);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -472,9 +497,9 @@ describe('OpenQV0.sol', () => {
 				// ACT
 				// ASSERT
 				const oracleContract = openQProxy.connect(oracle);
-				await expect(oracleContract.claimBounty(bountyId, owner.address))
+				await expect(oracleContract.claimBounty(bountyId, owner.address, closerData))
 					.to.emit(openQProxy, 'BountyClosed')
-					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp);
+					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, closerData);
 			});
 
 			it('should emit a TokenBalanceClaimed event with correct parameters', async () => {
@@ -493,7 +518,7 @@ describe('OpenQV0.sol', () => {
 				// ACT
 				// ASSERT
 				const oracleContract = openQProxy.connect(oracle);
-				await expect(oracleContract.claimBounty(bountyId, owner.address))
+				await expect(oracleContract.claimBounty(bountyId, owner.address, closerData))
 					.to.emit(openQProxy, 'TokenBalanceClaimed')
 					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume)
 					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume)
@@ -585,7 +610,7 @@ describe('OpenQV0.sol', () => {
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg);
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address);
+				await oracleContract.claimBounty(bountyId, owner.address, closerData);
 
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
@@ -681,6 +706,46 @@ describe('OpenQV0.sol', () => {
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 			});
+		});
+	});
+
+	describe('extendDeposit', () => {
+		it('should extend deposit', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV0');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1);
+
+			const depositId = generateDepositId(bountyId, 0);
+
+			// ACT
+			await openQProxy.extendDeposit(bountyId, depositId, 1000);
+
+			// ASSERT
+			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
+			await expect(openQProxy.refundDeposit(bountyId, depositId)).to.be.revertedWith("PREMATURE_REFUND_REQUEST");
+		});
+
+		it('should emit DepositExtended event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV0');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1);
+
+			const depositId = generateDepositId(bountyId, 0);
+
+			// ACT
+			await expect(openQProxy.extendDeposit(bountyId, depositId, 1000))
+				.to.emit(openQProxy, 'DepositExtended')
+				.withArgs(depositId, 1001);
 		});
 	});
 });

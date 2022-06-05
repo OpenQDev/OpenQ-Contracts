@@ -171,6 +171,29 @@ contract BountyV0 is BountyStorageV0 {
     }
 
     /**
+     * @dev Extends deposit duration
+     * @param _depositId The deposit to extend
+     * @param _seconds Number of seconds to extend deposit
+     * @param _funder The initial funder of the deposit
+     */
+    function extendDeposit(
+        bytes32 _depositId,
+        uint256 _seconds,
+        address _funder
+    ) external onlyOpenQ nonReentrant returns (uint256) {
+        require(status == 0, 'CLOSED_BOUNTY');
+        require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
+        require(
+            funder[_depositId] == _funder,
+            'ONLY_FUNDER_CAN_REQUEST_EXTENSION'
+        );
+
+        expiration[_depositId] = expiration[_depositId] + _seconds;
+
+        return expiration[_depositId];
+    }
+
+    /**
      * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
      * @param _tokenAddress A unique string to identify a bounty
      * @param _payoutAddress The destination address for the fund
@@ -216,11 +239,15 @@ contract BountyV0 is BountyStorageV0 {
      * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
      * @param _payoutAddress The closer of the bounty
      */
-    function close(address _payoutAddress) external onlyOpenQ {
+    function close(address _payoutAddress, string calldata _closerData)
+        external
+        onlyOpenQ
+    {
         require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
         status = 1;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
+        closerData = _closerData;
     }
 
     /**
@@ -353,6 +380,14 @@ contract BountyV0 is BountyStorageV0 {
      */
     function getTokenAddresses() public view returns (address[] memory) {
         return tokenAddresses.values();
+    }
+
+    /**
+     * @dev Returns the total number of unique tokens deposited on the bounty
+     * @return tokenAddressesCount The length of the array of all ERC20 token addresses which have funded this bounty
+     */
+    function getTokenAddressesCount() public view returns (uint256) {
+        return tokenAddresses.values().length;
     }
 
     /**

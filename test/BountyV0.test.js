@@ -290,6 +290,24 @@ describe('BountyV0.sol', () => {
 		});
 	});
 
+	describe('extendDeposit', () => {
+		it('should extend deposit expiration by _seconds', async () => {
+			// ARRANGE
+			const volume = 100;
+
+			// ASSUME
+			const linkDepositId = generateDepositId(mockId, 0);
+			await bounty.receiveFunds(owner.address, mockLink.address, volume, 1);
+
+			// ACT
+			await bounty.extendDeposit(linkDepositId, 1000, owner.address);
+
+			// ASSERT
+			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
+			await expect(bounty.refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+		});
+	});
+
 	describe('refundDeposit', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ contract', async () => {
@@ -301,6 +319,18 @@ describe('BountyV0.sol', () => {
 
 				// ASSERT
 				await expect(issueWithNonOwnerAccount.refundDeposit(mockDepositId, owner.address)).to.be.revertedWith('Method is only callable by OpenQ');
+			});
+
+			it('should revert if called before expiration', async () => {
+				// ARRANGE
+				const volume = 100;
+
+				// ASSUME
+				const linkDepositId = generateDepositId(mockId, 0);
+				await bounty.receiveFunds(owner.address, mockLink.address, volume, 10000);
+
+				// ACT
+				await expect(bounty.refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 			});
 		});
 
@@ -483,7 +513,7 @@ describe('BountyV0.sol', () => {
 
 			it('should revert if issue is already closed', async () => {
 				// ARRANGE
-				await bounty.close(owner.address);
+				await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 
 				// ASSERT
 				await expect(bounty.claimNft(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
@@ -518,21 +548,21 @@ describe('BountyV0.sol', () => {
 			let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 			// ASSERT
-			await expect(issueWithNonOwnerAccount.close(owner.address)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(issueWithNonOwnerAccount.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398')).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should revert if already closed', async () => {
 			// ARRANGE
-			bounty.close(owner.address);
+			bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			//ACT / ASSERT
-			await expect(bounty.close(owner.address)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
+			await expect(bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398')).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
 		});
 
 		it('should change status to CLOSED (1)', async () => {
 			// ASSUME
 			await expect(await bounty.status()).equals(0);
 			//ACT
-			await bounty.close(owner.address);
+			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			// ASSERT
 			await expect(await bounty.status()).equals(1);
 		});
@@ -541,7 +571,7 @@ describe('BountyV0.sol', () => {
 			// ASSUME
 			await expect(await bounty.closer()).equals(ethers.constants.AddressZero);
 			//ACT
-			await bounty.close(owner.address);
+			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			// ASSERT
 			await expect(await bounty.closer()).equals(owner.address);
 		});
@@ -552,7 +582,7 @@ describe('BountyV0.sol', () => {
 			// ASSUME
 			await expect(await bounty.bountyClosedTime()).equals(0);
 			//ACT
-			await bounty.close(owner.address);
+			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
 			// ASSERT
 			await expect(await bounty.bountyClosedTime()).equals(expectedTimestamp);
 		});
