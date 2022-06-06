@@ -88,15 +88,6 @@ describe('OpenQTokenWhitelist.sol', () => {
 			expect(tokenCount).to.equal(0);
 		});
 
-		it('reverts if above token limit', async () => {
-			// ACT
-			await openQTokenWhitelist.addToken(mockLink.address);
-			await openQTokenWhitelist.addToken(mockDai.address);
-
-			// ASSERT
-			expect(openQTokenWhitelist.addToken(mockDai.address)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
-		});
-
 		it('increases token address limit', async () => {
 			// ASSUME
 			let tokenAddressLimit = await openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();

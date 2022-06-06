@@ -6,6 +6,7 @@ pragma solidity 0.8.13;
  */
 import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title OpenQV0
@@ -120,7 +121,13 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV0 bounty = BountyV0(payable(bountyAddress));
 
-        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
+        if (!isWhitelisted(_tokenAddress)) {
+            require(
+                !tokenAddressLimitReached(_bountyId),
+                'TOO_MANY_TOKEN_ADDRESSES'
+            );
+        }
+
         require(bountyIsOpen(_bountyId), 'FUNDING_CLOSED_BOUNTY');
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
@@ -138,6 +145,36 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
             _expiration,
             volumeReceived
         );
+    }
+
+    /**
+     * @dev Extends the expiration for a deposit
+     * @param _bountyId The bountyId
+     * @param _depositId The deposit to extend
+     * @param _seconds The duration to add until the deposit becomes refundable
+     */
+    function extendDeposit(
+        string calldata _bountyId,
+        bytes32 _depositId,
+        uint256 _seconds
+    ) external nonReentrant onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
+
+        require(bountyIsOpen(_bountyId) == true, 'EXTENDING_CLOSED_BOUNTY');
+
+        require(
+            bounty.funder(_depositId) == msg.sender,
+            'ONLY_FUNDER_CAN_REQUEST_EXTENSION'
+        );
+
+        uint256 newExpiration = bounty.extendDeposit(
+            _depositId,
+            _seconds,
+            msg.sender
+        );
+
+        emit DepositExtended(_depositId, newExpiration);
     }
 
     /**
@@ -184,11 +221,11 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
      * @param _bountyId A unique string to identify a bounty
      * @param _closer The payout address of the bounty
      */
-    function claimBounty(string calldata _bountyId, address _closer)
-        external
-        onlyOracle
-        nonReentrant
-    {
+    function claimBounty(
+        string calldata _bountyId,
+        address _closer,
+        string calldata _closerData
+    ) external onlyOracle nonReentrant {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress[_bountyId];
@@ -213,14 +250,15 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
             bounty.claimNft(_closer, bounty.nftDeposits(i));
         }
 
-        bounty.close(_closer);
+        bounty.close(_closer, _closerData);
 
         emit BountyClosed(
             _bountyId,
             bountyAddress,
             bounty.organization(),
             _closer,
-            block.timestamp
+            block.timestamp,
+            _closerData
         );
     }
 
@@ -274,6 +312,24 @@ contract OpenQV0 is OpenQStorageV0, IOpenQ {
      */
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
+    }
+
+    /**
+     * @dev Returns true if the total number of unique tokens deposited on then bounty is greater than the OpenQWhitelist TOKEN_ADDRESS_LIMIT
+     * @param _bountyId A unique string to identify a bounty
+     * @return bool
+     */
+    function tokenAddressLimitReached(string calldata _bountyId)
+        public
+        view
+        returns (bool)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV0 bounty = BountyV0(payable(bountyAddress));
+
+        return
+            bounty.getTokenAddressesCount() >=
+            openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
     }
 
     /**
