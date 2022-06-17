@@ -52,7 +52,9 @@ interface IOpenQ {
         string bountyId,
         address indexed bountyAddress,
         string organization,
-        uint256 refundTime
+        uint256 refundTime,
+        address tokenAddress,
+        uint256 volume
     );
 
     event TokenBalanceClaimed(
