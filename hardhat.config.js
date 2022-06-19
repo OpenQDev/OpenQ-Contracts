@@ -5,6 +5,7 @@ require('hardhat-gas-reporter');
 require('solidity-docgen');
 require('hardhat-tracer');
 require('dotenv').config();
+require('@typechain/hardhat')
 
 module.exports = (function () {
 	let chainId = process.env.CHAIN_ID;
@@ -74,9 +75,13 @@ module.exports = (function () {
 			gasPriceApi: 'https://api.etherscan.io/api?module=proxy&action=eth_gasPrice'
 		},
 		docgen: {
-			outputDir: '../OpenQ-Documentation',
-			pages: 'files'
-		}
+      outputDir: '../OpenQ-Documentation',
+      pages: 'files'
+    },
+
+    typechain: {
+      outDir: './generated/typechain',
+    },
 	};
 
 	return config;
