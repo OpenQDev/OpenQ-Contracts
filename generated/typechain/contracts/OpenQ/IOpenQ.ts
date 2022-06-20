@@ -19,7 +19,7 @@ export interface IOpenQInterface extends utils.Interface {
     "BountyClosed(string,address,string,address,uint256,string)": EventFragment;
     "BountyCreated(string,string,address,address,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256)": EventFragment;
-    "DepositRefunded(bytes32,string,address,string,uint256)": EventFragment;
+    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)": EventFragment;
@@ -80,9 +80,11 @@ export interface DepositRefundedEventObject {
   bountyAddress: string;
   organization: string;
   refundTime: BigNumber;
+  tokenAddress: string;
+  volume: BigNumber;
 }
 export type DepositRefundedEvent = TypedEvent<
-  [string, string, string, string, BigNumber],
+  [string, string, string, string, BigNumber, string, BigNumber],
   DepositRefundedEventObject
 >;
 
@@ -235,19 +237,23 @@ export interface IOpenQ extends BaseContract {
       newExpiration?: null
     ): DepositExtendedEventFilter;
 
-    "DepositRefunded(bytes32,string,address,string,uint256)"(
+    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)"(
       depositId?: null,
       bountyId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       organization?: null,
-      refundTime?: null
+      refundTime?: null,
+      tokenAddress?: null,
+      volume?: null
     ): DepositRefundedEventFilter;
     DepositRefunded(
       depositId?: null,
       bountyId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       organization?: null,
-      refundTime?: null
+      refundTime?: null,
+      tokenAddress?: null,
+      volume?: null
     ): DepositRefundedEventFilter;
 
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)"(

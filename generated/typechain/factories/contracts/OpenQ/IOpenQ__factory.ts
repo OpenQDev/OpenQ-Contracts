@@ -139,6 +139,18 @@ const _abi = [
         name: "refundTime",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "volume",
+        type: "uint256",
+      },
     ],
     name: "DepositRefunded",
     type: "event",
