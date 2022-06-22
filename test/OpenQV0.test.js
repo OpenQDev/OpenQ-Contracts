@@ -529,7 +529,7 @@ describe('OpenQV0.sol', () => {
 
 	describe('refundDeposits', () => {
 		describe('Event Emissions', () => {
-			it.only('should emit DepositRefunded event for refunded deposit', async () => {
+			it('should emit DepositRefunded event for refunded deposit', async () => {
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg);
 
