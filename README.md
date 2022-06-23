@@ -178,3 +178,17 @@ We do not want to allow users to maliciously or accidentally call the OpenQV0.so
 `onlyProxy` is from the Open Zeppelin contract-upgradeable library on the [UUPSUpgradable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol#L38) contract.
 
 `onlyProxy` requries that `address(this)` (the caller) is NOT an immutable `_self` set when the implementation contract is deployed.
+
+## Hardhat Console Commands
+
+Load the provider
+`provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545')`
+
+Load the artifact
+`artifact = require('artifacts/contracts/OpenQ/Implementations/OpenQV0.sol/OpenQV0.json')`
+
+Load the contract
+`openQ = new ethers.Contract('0xAddress', artifact.abi, provider)`
+
+Mint a new bounty
+`openQ.mintBounty('123', 'abc')`

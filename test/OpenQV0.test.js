@@ -553,13 +553,13 @@ describe('OpenQV0.sol', () => {
 				// ASSERT
 				await expect(openQProxy.refundDeposit(bountyId, protocolDepositId))
 					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp);
+					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
 				await expect(openQProxy.refundDeposit(bountyId, tokenDepositId))
 					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp);
+					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume);
 			});
 		});
 

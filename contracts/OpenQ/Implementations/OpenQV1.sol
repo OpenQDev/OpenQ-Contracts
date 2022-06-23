@@ -260,7 +260,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _bountyId,
             bountyAddress,
             bounty.organization(),
-            block.timestamp
+            block.timestamp,
+            bounty.tokenAddress(_depositId),
+            bounty.volume(_depositId)
         );
     }
 
