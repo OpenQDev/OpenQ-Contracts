@@ -1,5 +1,5 @@
 const { ethers, web3 } = require('hardhat');
-
+const fs = require('fs');
 const deployFramework = require('@superfluid-finance/ethereum-contracts/scripts/deploy-framework');
 const deployTestToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-test-token');
 const deploySuperToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-super-token');
@@ -34,6 +34,12 @@ async function deploySuperfluid() {
 
 	console.log('fDAIAddress', fDAIAddress);
 	console.log('fDAIxAddress', fDAIxAddress);
+
+	const addresses = `
+FDAI_ADDRESS="${fDAIAddress}"
+FDAIX_ADDRESS="${fDAIxAddress}"`;
+
+	fs.appendFileSync('.env.contracts', addresses);
 }
 
 async function main() {
@@ -47,4 +53,4 @@ main()
 		process.exit(1);
 	});
 
-module.exports = deploySuperfluid;
+module.exports = deploySuperfluid;;

@@ -15,6 +15,7 @@
 		"deploy:docker": "yarn deploy-contracts:docker && yarn configure-whitelist:docker",
 		"deploy:mumbai": "yarn deploy-contracts:mumbai && yarn configure-whitelist:mumbai && yarn verify-contracts:mumbai",
 		"deploy:polygon": "yarn deploy-contracts:polygon && yarn configure-whitelist:polygon && yarn verify-contracts:polygon",
+		"deploy:superfluid:local": "hardhat run --network localhost deploy/deploy_superfluid.js",
 		"deploy-contracts:docker": "hardhat run --network docker deploy/deploy_contracts.js",
 		"configure-whitelist:docker": "hardhat run --network docker deploy/configure-whitelist.js",
 		"deploy-bounties:docker": "hardhat run --network docker deploy/deploy_bounties.js",
