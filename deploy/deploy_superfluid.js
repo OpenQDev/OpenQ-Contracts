@@ -4,6 +4,8 @@ const deployFramework = require('@superfluid-finance/ethereum-contracts/scripts/
 const deployTestToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-test-token');
 const deploySuperToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-super-token');
 
+const { Framework } = require('@superfluid-finance/sdk-core');
+
 const fs = require('fs');
 const path = require('path');
 
@@ -40,12 +42,38 @@ async function deploySuperfluid() {
 
 	const FDai = await ethers.getContractFactory('TestToken');
 	const fDai = await FDai.attach(fDAIAddress);
-	const two = ethers.BigNumber.from('2000000000000000000');
-	await fDai.mint(accounts[0].address, two);
+	const thousand = ethers.BigNumber.from('1000000000000000000000');
+	await fDai.mint(accounts[0].address, thousand);
+	await fDai.approve(fDAIxAddress, thousand);
+
+	//////////////// UPGRADE //////////////////////
+	let sf = await Framework.create({
+		chainId: 31337,
+		provider: web3,
+		resolverAddress: process.env.RESOLVER_ADDRESS, //this is how you get the resolver address
+		protocolReleaseVersion: 'test',
+	});
+
+	let superSigner = await sf.createSigner({
+		signer: accounts[0],
+		provider: web3
+	});
+
+	const superToken = await sf.loadSuperToken(fDAIxAddress);
+
+	let amount = 500;
+
+	let parsedAmount = ethers.utils.parseEther(amount.toString());
+
+	const ret = await superToken.upgrade({
+		amount: parsedAmount.toString(),
+	}).exec(superSigner);
+
+	console.log(ret);
 
 	const addresses = `
-	FDAI_ADDRESS="${fDAIAddress}"
-	FDAIX_ADDRESS="${fDAIxAddress}"`;
+FDAI_ADDRESS="${fDAIAddress}"
+FDAIX_ADDRESS="${fDAIxAddress}"`;
 
 	fs.appendFileSync('.env.contracts', addresses);
 }
