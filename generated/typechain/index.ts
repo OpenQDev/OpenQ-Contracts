@@ -96,6 +96,8 @@ export type { MockNft } from "./contracts/Tokens/MockNft";
 export { MockNft__factory } from "./factories/contracts/Tokens/MockNft__factory";
 export type { OpenQTokenWhitelist } from "./contracts/Tokens/OpenQTokenWhitelist";
 export { OpenQTokenWhitelist__factory } from "./factories/contracts/Tokens/OpenQTokenWhitelist__factory";
+export type { TestToken } from "./contracts/Tokens/TestToken";
+export { TestToken__factory } from "./factories/contracts/Tokens/TestToken__factory";
 export type { TokenWhitelist } from "./contracts/Tokens/TokenWhitelist";
 export { TokenWhitelist__factory } from "./factories/contracts/Tokens/TokenWhitelist__factory";
 export type { TokenFeeToken } from "./contracts/Tokens/TransferFeeToken.sol/TokenFeeToken";

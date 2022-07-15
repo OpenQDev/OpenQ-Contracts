@@ -7,4 +7,5 @@ export type { MockDai } from "./MockDai";
 export type { MockLink } from "./MockLink";
 export type { MockNft } from "./MockNft";
 export type { OpenQTokenWhitelist } from "./OpenQTokenWhitelist";
+export type { TestToken } from "./TestToken";
 export type { TokenWhitelist } from "./TokenWhitelist";

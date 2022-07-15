@@ -193,6 +193,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQTokenWhitelist__factory>;
     getContractFactory(
+      name: "TestToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TestToken__factory>;
+    getContractFactory(
       name: "TokenWhitelist",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenWhitelist__factory>;
@@ -426,6 +430,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OpenQTokenWhitelist>;
+    getContractAt(
+      name: "TestToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestToken>;
     getContractAt(
       name: "TokenWhitelist",
       address: string,
