@@ -289,6 +289,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "BountyCreated(string,string,address,address,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)": EventFragment;
     "OracleTransferred(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -303,6 +304,7 @@ export interface OpenQV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "BountyCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -387,6 +389,13 @@ export type DepositRefundedEvent = TypedEvent<
 >;
 
 export type DepositRefundedEventFilter = TypedEventFilter<DepositRefundedEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface NFTDepositReceivedEventObject {
   depositId: string;
@@ -946,6 +955,9 @@ export interface OpenQV1 extends BaseContract {
       tokenAddress?: null,
       volume?: null
     ): DepositRefundedEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)"(
       depositId?: null,
