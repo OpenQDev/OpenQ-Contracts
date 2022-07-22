@@ -6,6 +6,8 @@ pragma solidity 0.8.13;
  */
 import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
+import 'hardhat/console.sol';
+import '../../Library/OpenQDefinitions.sol';
 
 /**
  * @title OpenQV1
@@ -75,11 +77,13 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
      * @dev Mints a new bounty BeaconProxy using BountyFactory
      * @param _bountyId A unique string to identify a bounty
      * @param _organization The ID of the organization which owns the bounty
+     * @param _initData Array of ABI encoded method calls passed to the bounty initializer
      * @return bountyAddress The address of the bounty minted
      */
     function mintBounty(
         string calldata _bountyId,
-        string calldata _organization
+        string calldata _organization,
+        OpenQDefinitions.Operation[] calldata _initData
     ) external nonReentrant onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),
@@ -88,7 +92,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyFactory.mintBounty(
             _bountyId,
             msg.sender,
-            _organization
+            _organization,
+            _initData
         );
 
         bountyIdToAddress[_bountyId] = bountyAddress;
@@ -118,9 +123,15 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         uint256 _expiration
     ) external payable nonReentrant onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
+        if (!isWhitelisted(_tokenAddress)) {
+            require(
+                !tokenAddressLimitReached(_bountyId),
+                'TOO_MANY_TOKEN_ADDRESSES'
+            );
+        }
+
         require(bountyIsOpen(_bountyId), 'FUNDING_CLOSED_BOUNTY');
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
@@ -141,6 +152,36 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
+     * @dev Extends the expiration for a deposit
+     * @param _bountyId The bountyId
+     * @param _depositId The deposit to extend
+     * @param _seconds The duration to add until the deposit becomes refundable
+     */
+    function extendDeposit(
+        string calldata _bountyId,
+        bytes32 _depositId,
+        uint256 _seconds
+    ) external nonReentrant onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        require(bountyIsOpen(_bountyId) == true, 'EXTENDING_CLOSED_BOUNTY');
+
+        require(
+            bounty.funder(_depositId) == msg.sender,
+            'ONLY_FUNDER_CAN_REQUEST_EXTENSION'
+        );
+
+        uint256 newExpiration = bounty.extendDeposit(
+            _depositId,
+            _seconds,
+            msg.sender
+        );
+
+        emit DepositExtended(_depositId, newExpiration);
+    }
+
+    /**
      * @dev Transfers NFT from msg.sender to bounty address
      * @param _bountyId A unique string to identify a bounty
      * @param _tokenAddress The ERC721 token address of the NFT
@@ -154,7 +195,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         uint256 _expiration
     ) external nonReentrant onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
 
         require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
         require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
@@ -192,7 +233,25 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        if (bounty.ongoing()) {
+            (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
+                _closer
+            );
+
+            emit TokenBalanceClaimed(
+                bounty.bountyId(),
+                bountyAddress,
+                bounty.organization(),
+                _closer,
+                block.timestamp,
+                tokenAddress,
+                volume
+            );
+
+            return;
+        }
 
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             address tokenAddress = bounty.getTokenAddresses()[i];
@@ -236,7 +295,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         onlyProxy
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
 
         require(bountyIsOpen(_bountyId) == true, 'REFUNDING_CLOSED_BOUNTY');
 
@@ -280,6 +339,24 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
+     * @dev Returns true if the total number of unique tokens deposited on then bounty is greater than the OpenQWhitelist TOKEN_ADDRESS_LIMIT
+     * @param _bountyId A unique string to identify a bounty
+     * @return bool
+     */
+    function tokenAddressLimitReached(string calldata _bountyId)
+        public
+        view
+        returns (bool)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        return
+            bounty.getTokenAddressesCount() >=
+            openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
+    }
+
+    /**
      * @dev Checks if bounty associated with _bountyId is open
      * @param _bountyId The token address in question
      * @return bool True if _bountyId is associated with an open bounty
@@ -290,7 +367,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         returns (bool)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV0 bounty = BountyV0(payable(bountyAddress));
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
         bool isOpen = bounty.status() == 0;
         return isOpen;
     }
@@ -305,7 +382,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         view
         returns (string memory)
     {
-        BountyV0 bounty = BountyV0(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
         return bounty.bountyId();
     }
 

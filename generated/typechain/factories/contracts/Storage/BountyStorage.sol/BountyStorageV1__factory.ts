@@ -167,6 +167,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "_payoutTokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_volume",
+        type: "uint256",
+      },
+    ],
+    name: "initOngoingBounty",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "",
         type: "bytes32",
@@ -368,12 +386,38 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bool",
+        name: "_ongoing",
+        type: "bool",
+      },
+    ],
+    name: "setOngoing",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
-        name: "volume",
+        name: "_volume",
         type: "uint256",
       },
     ],
     name: "setPayoutAmount",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_payoutTokenAddress",
+        type: "address",
+      },
+    ],
+    name: "setPayoutTokenAddress",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -68,4 +68,16 @@ interface IOpenQ {
     );
 
     event DepositExtended(bytes32 depositId, uint256 newExpiration);
+
+    /**
+     * @dev Batch operation data
+     */
+    struct Operation {
+        // Operation type. Defined in BatchOperation (Definitions.sol)
+        uint32 operationType;
+        // Operation target
+        address target;
+        // Data specific to the operation
+        bytes data;
+    }
 }

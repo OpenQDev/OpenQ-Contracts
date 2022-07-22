@@ -33,10 +33,7 @@ contract BountyV1 is BountyStorageV1 {
         string memory _bountyId,
         address _issuer,
         string memory _organization,
-        address _openQ,
-        bool _ongoing,
-        uint256 _payoutVolume,
-        address _payoutTokenAddress
+        address _openQ
     ) external initializer {
         require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
@@ -49,9 +46,6 @@ contract BountyV1 is BountyStorageV1 {
         organization = _organization;
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
-        ongoing = _ongoing;
-        payoutVolume = _payoutVolume;
-        payoutTokenAddress = _payoutTokenAddress;
     }
 
     /**
@@ -207,7 +201,7 @@ contract BountyV1 is BountyStorageV1 {
         external
         onlyOpenQ
         nonReentrant
-        returns (uint256)
+        returns (address, uint256)
     {
         if (payoutTokenAddress == address(0)) {
             _transferProtocolToken(_payoutAddress, payoutVolume);
@@ -215,7 +209,7 @@ contract BountyV1 is BountyStorageV1 {
             _transferERC20(payoutTokenAddress, _payoutAddress, payoutVolume);
         }
 
-        return payoutVolume;
+        return (payoutTokenAddress, payoutVolume);
     }
 
     /**

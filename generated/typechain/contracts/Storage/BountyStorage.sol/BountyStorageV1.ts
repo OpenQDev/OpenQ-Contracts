@@ -38,6 +38,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "deposits(uint256)": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
     "funder(bytes32)": FunctionFragment;
+    "initOngoingBounty(address,uint256)": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
@@ -50,7 +51,9 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "payoutTokenAddress()": FunctionFragment;
     "payoutVolume()": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
+    "setOngoing(bool)": FunctionFragment;
     "setPayoutAmount(uint256)": FunctionFragment;
+    "setPayoutTokenAddress(address)": FunctionFragment;
     "status()": FunctionFragment;
     "tokenAddress(bytes32)": FunctionFragment;
     "tokenId(bytes32)": FunctionFragment;
@@ -68,6 +71,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "deposits"
       | "expiration"
       | "funder"
+      | "initOngoingBounty"
       | "isNFT"
       | "issuer"
       | "nftDepositLimit"
@@ -80,7 +84,9 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "payoutTokenAddress"
       | "payoutVolume"
       | "refunded"
+      | "setOngoing"
       | "setPayoutAmount"
+      | "setPayoutTokenAddress"
       | "status"
       | "tokenAddress"
       | "tokenId"
@@ -116,6 +122,10 @@ export interface BountyStorageV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "funder",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initOngoingBounty",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "isNFT",
@@ -162,8 +172,16 @@ export interface BountyStorageV1Interface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setOngoing",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setPayoutAmount",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPayoutTokenAddress",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
   encodeFunctionData(
@@ -197,6 +215,10 @@ export interface BountyStorageV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "deposits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "expiration", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "funder", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initOngoingBounty",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "isNFT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "issuer", data: BytesLike): Result;
   decodeFunctionResult(
@@ -230,8 +252,13 @@ export interface BountyStorageV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "refunded", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setOngoing", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setPayoutAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPayoutTokenAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "status", data: BytesLike): Result;
@@ -313,6 +340,12 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -355,8 +388,18 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -408,6 +451,12 @@ export interface BountyStorageV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  initOngoingBounty(
+    _payoutTokenAddress: PromiseOrValue<string>,
+    _volume: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   isNFT(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -450,8 +499,18 @@ export interface BountyStorageV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  setOngoing(
+    _ongoing: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setPayoutAmount(
-    volume: PromiseOrValue<BigNumberish>,
+    _volume: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPayoutTokenAddress(
+    _payoutTokenAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -503,6 +562,12 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -545,8 +610,18 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -604,6 +679,12 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -646,8 +727,18 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -700,6 +791,12 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -744,8 +841,18 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

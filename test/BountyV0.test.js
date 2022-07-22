@@ -532,7 +532,7 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('Ongoing Bounty', () => {
-			it.only('should transfer payoutVolume of payoutTokenAddress to claimant', async () => {
+			it('should transfer payoutVolume of payoutTokenAddress to claimant', async () => {
 				// ARRANGE
 				const volume = 300;
 

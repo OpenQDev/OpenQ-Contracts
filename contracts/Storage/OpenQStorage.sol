@@ -15,6 +15,7 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '../BountyFactory/BountyFactory.sol';
 import '../Tokens/OpenQTokenWhitelist.sol';
 import '../Bounty/Implementations/BountyV0.sol';
+import '../Bounty/Implementations/BountyV1.sol';
 import '../Oracle/Oraclize.sol';
 
 /**
@@ -32,18 +33,6 @@ abstract contract OpenQStorageV0 is
     mapping(string => address) public bountyIdToAddress;
 }
 
-/**
- * UPGRADE DUMMIES
- */
-
-contract NewBaseContract {
-    uint256 public foo;
-
-    function setFoo(uint256 _foo) public {
-        foo = _foo;
-    }
-}
-
-abstract contract OpenQStorageV1 is OpenQStorageV0, NewBaseContract {
+abstract contract OpenQStorageV1 is OpenQStorageV0 {
     uint256 public newStorageVar;
 }

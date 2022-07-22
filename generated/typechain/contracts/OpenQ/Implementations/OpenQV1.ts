@@ -28,6 +28,18 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
+export declare namespace OpenQDefinitions {
+  export type OperationStruct = {
+    operationType: PromiseOrValue<BigNumberish>;
+    data: PromiseOrValue<BytesLike>;
+  };
+
+  export type OperationStructOutput = [number, string] & {
+    operationType: number;
+    data: string;
+  };
+}
+
 export interface OpenQV1Interface extends utils.Interface {
   functions: {
     "bountyAddressToBountyId(address)": FunctionFragment;
@@ -35,13 +47,13 @@ export interface OpenQV1Interface extends utils.Interface {
     "bountyIdToAddress(string)": FunctionFragment;
     "bountyIsOpen(string)": FunctionFragment;
     "claimBounty(string,address,string)": FunctionFragment;
-    "foo()": FunctionFragment;
+    "extendDeposit(string,bytes32,uint256)": FunctionFragment;
     "fundBountyNFT(string,address,uint256,uint256)": FunctionFragment;
     "fundBountyToken(string,address,uint256,uint256)": FunctionFragment;
     "getImplementation()": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "isWhitelisted(address)": FunctionFragment;
-    "mintBounty(string,string)": FunctionFragment;
+    "mintBounty(string,string,(uint32,bytes)[])": FunctionFragment;
     "newStorageVar()": FunctionFragment;
     "openQTokenWhitelist()": FunctionFragment;
     "oracle()": FunctionFragment;
@@ -50,8 +62,8 @@ export interface OpenQV1Interface extends utils.Interface {
     "refundDeposit(string,bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setBountyFactory(address)": FunctionFragment;
-    "setFoo(uint256)": FunctionFragment;
     "setTokenWhitelist(address)": FunctionFragment;
+    "tokenAddressLimitReached(string)": FunctionFragment;
     "transferOracle(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
@@ -65,7 +77,7 @@ export interface OpenQV1Interface extends utils.Interface {
       | "bountyIdToAddress"
       | "bountyIsOpen"
       | "claimBounty"
-      | "foo"
+      | "extendDeposit"
       | "fundBountyNFT"
       | "fundBountyToken"
       | "getImplementation"
@@ -80,8 +92,8 @@ export interface OpenQV1Interface extends utils.Interface {
       | "refundDeposit"
       | "renounceOwnership"
       | "setBountyFactory"
-      | "setFoo"
       | "setTokenWhitelist"
+      | "tokenAddressLimitReached"
       | "transferOracle"
       | "transferOwnership"
       | "upgradeTo"
@@ -112,7 +124,14 @@ export interface OpenQV1Interface extends utils.Interface {
       PromiseOrValue<string>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "foo", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "extendDeposit",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "fundBountyNFT",
     values: [
@@ -145,7 +164,11 @@ export interface OpenQV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "mintBounty",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      OpenQDefinitions.OperationStruct[]
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "newStorageVar",
@@ -174,11 +197,11 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setFoo",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "setTokenWhitelist",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTokenWhitelist",
+    functionFragment: "tokenAddressLimitReached",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -218,7 +241,10 @@ export interface OpenQV1Interface extends utils.Interface {
     functionFragment: "claimBounty",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "foo", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "extendDeposit",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "fundBountyNFT",
     data: BytesLike
@@ -263,9 +289,12 @@ export interface OpenQV1Interface extends utils.Interface {
     functionFragment: "setBountyFactory",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setFoo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setTokenWhitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenAddressLimitReached",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -554,7 +583,12 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    foo(overrides?: CallOverrides): Promise<[BigNumber]>;
+    extendDeposit(
+      _bountyId: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     fundBountyNFT(
       _bountyId: PromiseOrValue<string>,
@@ -587,6 +621,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _initData: OpenQDefinitions.OperationStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -615,15 +650,15 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    tokenAddressLimitReached(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     transferOracle(
       _newOracle: PromiseOrValue<string>,
@@ -671,7 +706,12 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  foo(overrides?: CallOverrides): Promise<BigNumber>;
+  extendDeposit(
+    _bountyId: PromiseOrValue<string>,
+    _depositId: PromiseOrValue<BytesLike>,
+    _seconds: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   fundBountyNFT(
     _bountyId: PromiseOrValue<string>,
@@ -704,6 +744,7 @@ export interface OpenQV1 extends BaseContract {
   mintBounty(
     _bountyId: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
+    _initData: OpenQDefinitions.OperationStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -732,15 +773,15 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setFoo(
-    _foo: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setTokenWhitelist(
     _openQTokenWhitelist: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  tokenAddressLimitReached(
+    _bountyId: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   transferOracle(
     _newOracle: PromiseOrValue<string>,
@@ -788,7 +829,12 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    foo(overrides?: CallOverrides): Promise<BigNumber>;
+    extendDeposit(
+      _bountyId: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     fundBountyNFT(
       _bountyId: PromiseOrValue<string>,
@@ -821,6 +867,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _initData: OpenQDefinitions.OperationStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -847,15 +894,15 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    tokenAddressLimitReached(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     transferOracle(
       _newOracle: PromiseOrValue<string>,
@@ -1075,7 +1122,12 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    foo(overrides?: CallOverrides): Promise<BigNumber>;
+    extendDeposit(
+      _bountyId: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     fundBountyNFT(
       _bountyId: PromiseOrValue<string>,
@@ -1108,6 +1160,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _initData: OpenQDefinitions.OperationStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1136,14 +1189,14 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    tokenAddressLimitReached(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     transferOracle(
@@ -1193,7 +1246,12 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    foo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    extendDeposit(
+      _bountyId: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     fundBountyNFT(
       _bountyId: PromiseOrValue<string>,
@@ -1226,6 +1284,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _initData: OpenQDefinitions.OperationStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1256,14 +1315,14 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    tokenAddressLimitReached(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     transferOracle(

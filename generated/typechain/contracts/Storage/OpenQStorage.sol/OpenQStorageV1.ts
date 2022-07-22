@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -32,14 +31,12 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   functions: {
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
-    "foo()": FunctionFragment;
     "newStorageVar()": FunctionFragment;
     "openQTokenWhitelist()": FunctionFragment;
     "oracle()": FunctionFragment;
     "owner()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "setFoo(uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
@@ -49,14 +46,12 @@ export interface OpenQStorageV1Interface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "bountyFactory"
       | "bountyIdToAddress"
-      | "foo"
       | "newStorageVar"
       | "openQTokenWhitelist"
       | "oracle"
       | "owner"
       | "proxiableUUID"
       | "renounceOwnership"
-      | "setFoo"
       | "transferOwnership"
       | "upgradeTo"
       | "upgradeToAndCall"
@@ -70,7 +65,6 @@ export interface OpenQStorageV1Interface extends utils.Interface {
     functionFragment: "bountyIdToAddress",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(functionFragment: "foo", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "newStorageVar",
     values?: undefined
@@ -88,10 +82,6 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setFoo",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -114,7 +104,6 @@ export interface OpenQStorageV1Interface extends utils.Interface {
     functionFragment: "bountyIdToAddress",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "foo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "newStorageVar",
     data: BytesLike
@@ -133,7 +122,6 @@ export interface OpenQStorageV1Interface extends utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setFoo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -254,8 +242,6 @@ export interface OpenQStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    foo(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     newStorageVar(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     openQTokenWhitelist(overrides?: CallOverrides): Promise<[string]>;
@@ -267,11 +253,6 @@ export interface OpenQStorageV1 extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -299,8 +280,6 @@ export interface OpenQStorageV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  foo(overrides?: CallOverrides): Promise<BigNumber>;
-
   newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
   openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
@@ -312,11 +291,6 @@ export interface OpenQStorageV1 extends BaseContract {
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setFoo(
-    _foo: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -344,8 +318,6 @@ export interface OpenQStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    foo(overrides?: CallOverrides): Promise<BigNumber>;
-
     newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
     openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
@@ -357,11 +329,6 @@ export interface OpenQStorageV1 extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -434,8 +401,6 @@ export interface OpenQStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    foo(overrides?: CallOverrides): Promise<BigNumber>;
-
     newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
     openQTokenWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
@@ -447,11 +412,6 @@ export interface OpenQStorageV1 extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -480,8 +440,6 @@ export interface OpenQStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    foo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     newStorageVar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     openQTokenWhitelist(
@@ -495,11 +453,6 @@ export interface OpenQStorageV1 extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setFoo(
-      _foo: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

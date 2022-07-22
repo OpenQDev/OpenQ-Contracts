@@ -79,10 +79,26 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
       Only closed once minter explicitly closes
     */
     bool public ongoing;
-    uint256 public payoutVolume;
     address public payoutTokenAddress;
+    uint256 public payoutVolume;
 
-    function setPayoutAmount(uint256 volume) external {
-        payoutVolume = volume;
+    function setOngoing(bool _ongoing) external {
+        ongoing = _ongoing;
+    }
+
+    function setPayoutAmount(uint256 _volume) external {
+        payoutVolume = _volume;
+    }
+
+    function setPayoutTokenAddress(address _payoutTokenAddress) external {
+        payoutTokenAddress = _payoutTokenAddress;
+    }
+
+    function initOngoingBounty(address _payoutTokenAddress, uint256 _volume)
+        external
+    {
+        ongoing = true;
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _volume;
     }
 }

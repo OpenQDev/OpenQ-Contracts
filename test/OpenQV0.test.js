@@ -525,6 +525,40 @@ describe('OpenQV0.sol', () => {
 					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume);
 			});
 		});
+
+		describe('Ongoing Bounties', () => {
+			it('should transfer payoutVolume of payoutTokenAddress from bounty to claimant', async () => {
+				// ARRANGE
+				const volume = 100;
+				await openQProxy.mintBounty(bountyId, mockOrg);
+
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				await mockLink.approve(bountyAddress, 10000000);
+
+				await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
+
+				const [, claimer] = await ethers.getSigners();
+
+				// ASSUME
+				const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(bountyMockLinkTokenBalance).to.equal('100');
+
+				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				expect(claimerMockTokenBalance).to.equal('0');
+
+				// // // ACT
+				const oracleContract = openQProxy.connect(oracle);
+				await oracleContract.claimBounty(bountyId, claimer.address, closerData);
+
+				// // ASSERT
+				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(newBountyMockTokenBalance).to.equal('0');
+
+				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				expect(newClaimerMockTokenBalance).to.equal('100');
+			});
+		});
 	});
 
 	describe('refundDeposits', () => {

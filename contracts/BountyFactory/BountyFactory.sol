@@ -10,6 +10,8 @@ import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
  * @dev Custom imports
  */
 import '../OnlyOpenQ/OnlyOpenQ.sol';
+import '../Bounty/Implementations/BountyV1.sol';
+import '../Library/OpenQDefinitions.sol';
 
 /**
  * @title BountyFactory
@@ -50,7 +52,8 @@ contract BountyFactory is OnlyOpenQ {
     function mintBounty(
         string memory _id,
         address _issuer,
-        string memory _organization
+        string memory _organization,
+        OpenQDefinitions.Operation[] memory operations
     ) external onlyOpenQ returns (address) {
         BeaconProxy bounty = new BeaconProxy(
             beacon,
@@ -63,7 +66,32 @@ contract BountyFactory is OnlyOpenQ {
             )
         );
 
+        _batchCall(payable(address(bounty)), operations);
+
         return address(bounty);
+    }
+
+    function _batchCall(
+        address payable target,
+        OpenQDefinitions.Operation[] memory operations
+    ) internal {
+        for (uint256 i = 0; i < operations.length; i++) {
+            uint32 operationType = operations[i].operationType;
+            if (operationType == 0) {
+                return;
+            } else if (operationType == 1) {
+                (address payoutTokenAddress, uint256 payoutVolume) = abi.decode(
+                    operations[i].data,
+                    (address, uint256)
+                );
+                BountyV1(target).initOngoingBounty(
+                    payoutTokenAddress,
+                    payoutVolume
+                );
+            } else {
+                revert('OQ: unknown batch call operation type');
+            }
+        }
     }
 
     /**

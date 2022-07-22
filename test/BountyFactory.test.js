@@ -15,7 +15,7 @@ describe('BountyFactory', () => {
 	let OpenQImplementation;
 	let OpenQProxy;
 
-	let BountyV0;
+	let BountyV1;
 	let BountyBeacon;
 	let BountyFactory;
 
@@ -24,30 +24,30 @@ describe('BountyFactory', () => {
 	let notOpenQ;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV0');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');
-		BountyV0 = await hre.ethers.getContractFactory('BountyV0');
+		BountyV1 = await hre.ethers.getContractFactory('BountyV1');
 
 		[owner, oracle, notOpenQ] = await ethers.getSigners();
 
-		// Deploy OpenQV0 Implementation
+		// Deploy OpenQV1 Implementation
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
 
-		// Deploy BountyV0 Implementation
-		bountyV0 = await BountyV0.deploy();
-		await bountyV0.deployed();
+		// Deploy BountyV1 Implementation
+		bountyV1 = await BountyV1.deploy();
+		await bountyV1.deployed();
 
-		bountyBeacon = await BountyBeacon.deploy(bountyV0.address);
+		bountyBeacon = await BountyBeacon.deploy(bountyV1.address);
 		await bountyBeacon.deployed();
 
-		// Deploy OpenQProxy with the previously deployed OpenQV0 implementation's address
+		// Deploy OpenQProxy with the previously deployed OpenQV1 implementation's address
 		openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
 		await openQProxy.deployed();
 
-		// Attach the OpenQV0 ABI to the OpenQProxy address to send method calls to the delegatecall
+		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
@@ -72,31 +72,47 @@ describe('BountyFactory', () => {
 	});
 
 	describe('mintBounty', () => {
-		it('should mint a bounty with expected data', async () => {
+		it.only('should mint a bounty with expected data', async () => {
 			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
 			let newBountyFactory = await BountyFactory.deploy(owner.address, bountyBeacon.address);
 			await newBountyFactory.deployed();
 
+			const abiCoder = new ethers.utils.AbiCoder;
+			const abiEncodedParams = abiCoder.encode(["address", "uint256"], [newBountyFactory.address, '100']);
+
+			let initOperations = [
+				[
+					1,
+					abiEncodedParams
+				]
+			];
+
 			const txn = await newBountyFactory.mintBounty(
 				'mock-id',
 				owner.address,
-				'mock-organization'
+				'mock-organization',
+				initOperations
 			);
 
 			const receipt = await txn.wait();
 
-			const newBounty = await BountyV0.attach(receipt.events[0].address);
+			const newBounty = await BountyV1.attach(receipt.events[0].address);
 
 			const bountyId = await newBounty.bountyId();
 			const organization = await newBounty.organization();
 			const openQAddress = await newBounty.openQ();
+			const ongoing = await newBounty.ongoing();
+			const payoutVolume = await newBounty.payoutVolume();
+			const payoutTokenAddress = await newBounty.payoutTokenAddress();
 
 			expect(bountyId).to.equal('mock-id');
 			expect(organization).to.equal('mock-organization');
 			expect(openQAddress).to.equal(owner.address);
+			expect(ongoing).to.equal(true);
+			expect(payoutVolume).to.equal('100');
+			expect(payoutTokenAddress).to.equal(newBountyFactory.address);
 
 			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address)).to.be.revertedWith('Initializable: contract is already initialized');
-
 
 			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address)).to.be.revertedWith('Initializable: contract is already initialized');
 		});

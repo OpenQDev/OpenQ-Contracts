@@ -49,7 +49,8 @@ export interface BountyV1Interface extends utils.Interface {
     "getNftDeposits()": FunctionFragment;
     "getTokenAddresses()": FunctionFragment;
     "getTokenAddressesCount()": FunctionFragment;
-    "initialize(string,address,string,address,bool,uint256,address)": FunctionFragment;
+    "initOngoingBounty(address,uint256)": FunctionFragment;
+    "initialize(string,address,string,address)": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
@@ -65,7 +66,9 @@ export interface BountyV1Interface extends utils.Interface {
     "receiveNft(address,address,uint256,uint256)": FunctionFragment;
     "refundDeposit(bytes32,address)": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
+    "setOngoing(bool)": FunctionFragment;
     "setPayoutAmount(uint256)": FunctionFragment;
+    "setPayoutTokenAddress(address)": FunctionFragment;
     "status()": FunctionFragment;
     "tokenAddress(bytes32)": FunctionFragment;
     "tokenId(bytes32)": FunctionFragment;
@@ -93,6 +96,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "getNftDeposits"
       | "getTokenAddresses"
       | "getTokenAddressesCount"
+      | "initOngoingBounty"
       | "initialize"
       | "isNFT"
       | "issuer"
@@ -109,7 +113,9 @@ export interface BountyV1Interface extends utils.Interface {
       | "receiveNft"
       | "refundDeposit"
       | "refunded"
+      | "setOngoing"
       | "setPayoutAmount"
+      | "setPayoutTokenAddress"
       | "status"
       | "tokenAddress"
       | "tokenId"
@@ -191,14 +197,15 @@ export interface BountyV1Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "initOngoingBounty",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "initialize",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<boolean>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>
     ]
   ): string;
@@ -269,8 +276,16 @@ export interface BountyV1Interface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setOngoing",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setPayoutAmount",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPayoutTokenAddress",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
   encodeFunctionData(
@@ -338,6 +353,10 @@ export interface BountyV1Interface extends utils.Interface {
     functionFragment: "getTokenAddressesCount",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "initOngoingBounty",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isNFT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "issuer", data: BytesLike): Result;
@@ -381,8 +400,13 @@ export interface BountyV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "refunded", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setOngoing", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setPayoutAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPayoutTokenAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "status", data: BytesLike): Result;
@@ -507,14 +531,17 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddressesCount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
-      _ongoing: PromiseOrValue<boolean>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -582,8 +609,18 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -678,14 +715,17 @@ export interface BountyV1 extends BaseContract {
 
   getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
 
+  initOngoingBounty(
+    _payoutTokenAddress: PromiseOrValue<string>,
+    _volume: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   initialize(
     _bountyId: PromiseOrValue<string>,
     _issuer: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
     _openQ: PromiseOrValue<string>,
-    _ongoing: PromiseOrValue<boolean>,
-    _payoutVolume: PromiseOrValue<BigNumberish>,
-    _payoutTokenAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -753,8 +793,18 @@ export interface BountyV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  setOngoing(
+    _ongoing: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setPayoutAmount(
-    volume: PromiseOrValue<BigNumberish>,
+    _volume: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPayoutTokenAddress(
+    _payoutTokenAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -797,7 +847,7 @@ export interface BountyV1 extends BaseContract {
     claimOngoingPayout(
       _payoutAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<[string, BigNumber]>;
 
     close(
       _payoutAddress: PromiseOrValue<string>,
@@ -849,14 +899,17 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
-      _ongoing: PromiseOrValue<boolean>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -924,8 +977,18 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1026,14 +1089,17 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
-      _ongoing: PromiseOrValue<boolean>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1101,8 +1167,18 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1200,14 +1276,17 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    initOngoingBounty(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
-      _ongoing: PromiseOrValue<boolean>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1277,8 +1356,18 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    setOngoing(
+      _ongoing: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setPayoutAmount(
-      volume: PromiseOrValue<BigNumberish>,
+      _volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPayoutTokenAddress(
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

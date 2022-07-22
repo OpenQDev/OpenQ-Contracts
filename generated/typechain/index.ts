@@ -76,8 +76,6 @@ export type { BountyFactory } from "./contracts/BountyFactory/BountyFactory";
 export { BountyFactory__factory } from "./factories/contracts/BountyFactory/BountyFactory__factory";
 export type { OnlyOpenQ } from "./contracts/OnlyOpenQ/OnlyOpenQ";
 export { OnlyOpenQ__factory } from "./factories/contracts/OnlyOpenQ/OnlyOpenQ__factory";
-export type { OpenQV0 } from "./contracts/OpenQ/Implementations/OpenQV0";
-export { OpenQV0__factory } from "./factories/contracts/OpenQ/Implementations/OpenQV0__factory";
 export type { OpenQV1 } from "./contracts/OpenQ/Implementations/OpenQV1";
 export { OpenQV1__factory } from "./factories/contracts/OpenQ/Implementations/OpenQV1__factory";
 export type { IOpenQ } from "./contracts/OpenQ/IOpenQ";
@@ -90,8 +88,6 @@ export type { BountyStorageV0 } from "./contracts/Storage/BountyStorage.sol/Boun
 export { BountyStorageV0__factory } from "./factories/contracts/Storage/BountyStorage.sol/BountyStorageV0__factory";
 export type { BountyStorageV1 } from "./contracts/Storage/BountyStorage.sol/BountyStorageV1";
 export { BountyStorageV1__factory } from "./factories/contracts/Storage/BountyStorage.sol/BountyStorageV1__factory";
-export type { NewBaseContract } from "./contracts/Storage/OpenQStorage.sol/NewBaseContract";
-export { NewBaseContract__factory } from "./factories/contracts/Storage/OpenQStorage.sol/NewBaseContract__factory";
 export type { OpenQStorageV0 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV0";
 export { OpenQStorageV0__factory } from "./factories/contracts/Storage/OpenQStorage.sol/OpenQStorageV0__factory";
 export type { OpenQStorageV1 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV1";
