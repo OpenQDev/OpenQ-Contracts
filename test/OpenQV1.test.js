@@ -1,5 +1,6 @@
 /* eslint-disable */
 require('@nomiclabs/hardhat-waffle');
+const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
@@ -7,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV1.sol', () => {
+describe.only('OpenQV1.sol', () => {
 	let openQProxy;
 	let openQImplementation;
 	let owner;
@@ -104,7 +105,7 @@ describe('OpenQV1.sol', () => {
 		];
 	});
 
-	describe('initialization', () => {
+	describe.only('initialization', () => {
 		it('should initialize with correct fields', async () => {
 			expect(await openQProxy.owner()).equals('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
 			expect(await openQProxy.oracle()).equals('0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC');
@@ -115,8 +116,8 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
-	describe('mintBounty', () => {
-		it.only('should deploy a new bounty contract with expected initial metadata', async () => {
+	describe.only('mintBounty', () => {
+		it('should deploy a new bounty contract with expected initial metadata', async () => {
 			// ARRANGE
 			const expectedTimestamp = await setNextBlockTimestamp();
 
@@ -157,15 +158,15 @@ describe('OpenQV1.sol', () => {
 		it('should revert if bounty already exists', async () => {
 			// ARRANGE
 			// ACT
-			await openQProxy.mintBounty(bountyId, mockOrg);
+			await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperations);
 
 			// ASSERT
-			await expect(openQProxy.mintBounty(bountyId, mockOrg)).to.be.revertedWith('BOUNTY_ALREADY_EXISTS');
+			await expect(openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperations)).to.be.revertedWith('BOUNTY_ALREADY_EXISTS');
 		});
 
 		it('should store bountyId to bountyAddress', async () => {
 			// ACT
-			await openQProxy.mintBounty(bountyId, mockOrg);
+			await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperations);
 
 			const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -185,7 +186,7 @@ describe('OpenQV1.sol', () => {
 			expect(bountyAddressFromId).to.equal(bountyAddress);
 		});
 
-		it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
+		it.only('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, and bountyMintTime', async () => {
 			// ARRANGE
 			const mockOrg = "OpenQDev";
 			const expectedBountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -194,9 +195,16 @@ describe('OpenQV1.sol', () => {
 
 			// ACT
 			// ASSERT
-			await expect(openQProxy.mintBounty(bountyId, mockOrg))
+			let txn;
+			expect(txn = await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperations))
 				.to.emit(openQProxy, 'BountyCreated')
-				.withArgs(bountyId, mockOrg, owner.address, expectedBountyAddress, expectedTimestamp);
+				.withArgs(bountyId, mockOrg, owner.address, anyValue, expectedTimestamp);
+
+			txnReceipt = await txn.wait(); // 0ms, as tx is already confirmed
+			event = txnReceipt.events.find(event => event.event === 'BountyCreated');
+			[bountyAddress] = event.args;
+
+			expect(bountyAddress).to.not.equal(ethers.constants.AddressZero);
 		});
 	});
 
