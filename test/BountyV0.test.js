@@ -30,9 +30,16 @@ describe('BountyV1.sol', () => {
 		bounty = await BountyV1.deploy();
 		await bounty.deployed();
 
+		let bountyInitOperations = [
+			[
+				0,
+				[]
+			]
+		];
+
 		// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
 		initializationTimestamp = await setNextBlockTimestamp();
-		await bounty.initialize(mockId, owner.address, organization, owner.address, false, 0, ethers.constants.AddressZero);
+		await bounty.initialize(mockId, owner.address, organization, owner.address, bountyInitOperations);
 
 		// Deploy mock assets
 		mockLink = await MockLink.deploy();
@@ -66,9 +73,17 @@ describe('BountyV1.sol', () => {
 		ongoingBounty = await BountyV1.deploy();
 		await ongoingBounty.deployed();
 
-		// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
-		initializationTimestamp = await setNextBlockTimestamp();
-		await ongoingBounty.initialize(mockId, owner.address, organization, owner.address, true, 100, mockLink.address);
+		const abiCoder = new ethers.utils.AbiCoder;
+		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [ethers.constants.AddressZero, '100']);
+
+		let ongoingBountyInitOperations = [
+			[
+				1,
+				abiEncodedParams
+			]
+		];
+
+		await ongoingBounty.initialize(mockId, owner.address, organization, owner.address, ongoingBountyInitOperations);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(ongoingBounty.address, 10000000);
@@ -119,21 +134,13 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('initializer - ongoing', () => {
-			it('should init with ongoing and payoutVolume', async () => {
-				bounty = await BountyV1.deploy();
-				await bounty.deployed();
+			it.only('should init with ongoing and payoutVolume', async () => {
+				const actualBountyOngoing = await ongoingBounty.ongoing();
+				const actualBountyPayoutVolume = await ongoingBounty.payoutVolume();
+				const actualBountyPayoutTokenAddress = await ongoingBounty.payoutTokenAddress();
 
-				// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
-				initializationTimestamp = await setNextBlockTimestamp();
-				await bounty.initialize(mockId, owner.address, organization, owner.address, true, 100, ethers.constants.AddressZero);
-
-				const actualBountyOngoing = await bounty.ongoing();
 				await expect(actualBountyOngoing).equals(true);
-
-				const actualBountyPayoutVolume = await bounty.payoutVolume();
 				await expect(actualBountyPayoutVolume).equals(100);
-
-				const actualBountyPayoutTokenAddress = await bounty.payoutTokenAddress();
 				await expect(actualBountyPayoutTokenAddress).equals(ethers.constants.AddressZero);
 			});
 		});

@@ -167,24 +167,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_payoutTokenAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_volume",
-        type: "uint256",
-      },
-    ],
-    name: "initOngoingBounty",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "",
         type: "bytes32",

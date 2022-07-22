@@ -93,12 +93,4 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     function setPayoutTokenAddress(address _payoutTokenAddress) external {
         payoutTokenAddress = _payoutTokenAddress;
     }
-
-    function initOngoingBounty(address _payoutTokenAddress, uint256 _volume)
-        external
-    {
-        ongoing = true;
-        payoutTokenAddress = _payoutTokenAddress;
-        payoutVolume = _volume;
-    }
 }

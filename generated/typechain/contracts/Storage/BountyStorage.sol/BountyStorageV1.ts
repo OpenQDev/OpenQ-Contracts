@@ -38,7 +38,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "deposits(uint256)": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
     "funder(bytes32)": FunctionFragment;
-    "initOngoingBounty(address,uint256)": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
@@ -71,7 +70,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "deposits"
       | "expiration"
       | "funder"
-      | "initOngoingBounty"
       | "isNFT"
       | "issuer"
       | "nftDepositLimit"
@@ -122,10 +120,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "funder",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initOngoingBounty",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "isNFT",
@@ -215,10 +209,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "deposits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "expiration", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "funder", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "initOngoingBounty",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "isNFT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "issuer", data: BytesLike): Result;
   decodeFunctionResult(
@@ -340,12 +330,6 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -451,12 +435,6 @@ export interface BountyStorageV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  initOngoingBounty(
-    _payoutTokenAddress: PromiseOrValue<string>,
-    _volume: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   isNFT(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -561,12 +539,6 @@ export interface BountyStorageV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
@@ -679,12 +651,6 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -789,12 +755,6 @@ export interface BountyStorageV1 extends BaseContract {
     funder(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     isNFT(

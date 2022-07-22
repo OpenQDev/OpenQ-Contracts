@@ -72,7 +72,7 @@ describe('BountyFactory', () => {
 	});
 
 	describe('mintBounty', () => {
-		it.only('should mint a bounty with expected data', async () => {
+		it('should mint a bounty with expected data', async () => {
 			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
 			let newBountyFactory = await BountyFactory.deploy(owner.address, bountyBeacon.address);
 			await newBountyFactory.deployed();

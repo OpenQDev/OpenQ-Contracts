@@ -28,6 +28,18 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
+export declare namespace OpenQDefinitions {
+  export type OperationStruct = {
+    operationType: PromiseOrValue<BigNumberish>;
+    data: PromiseOrValue<BytesLike>;
+  };
+
+  export type OperationStructOutput = [number, string] & {
+    operationType: number;
+    data: string;
+  };
+}
+
 export interface BountyV1Interface extends utils.Interface {
   functions: {
     "bountyClosedTime()": FunctionFragment;
@@ -49,8 +61,7 @@ export interface BountyV1Interface extends utils.Interface {
     "getNftDeposits()": FunctionFragment;
     "getTokenAddresses()": FunctionFragment;
     "getTokenAddressesCount()": FunctionFragment;
-    "initOngoingBounty(address,uint256)": FunctionFragment;
-    "initialize(string,address,string,address)": FunctionFragment;
+    "initialize(string,address,string,address,(uint32,bytes)[])": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
@@ -96,7 +107,6 @@ export interface BountyV1Interface extends utils.Interface {
       | "getNftDeposits"
       | "getTokenAddresses"
       | "getTokenAddressesCount"
-      | "initOngoingBounty"
       | "initialize"
       | "isNFT"
       | "issuer"
@@ -197,16 +207,13 @@ export interface BountyV1Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "initOngoingBounty",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "initialize",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      OpenQDefinitions.OperationStruct[]
     ]
   ): string;
   encodeFunctionData(
@@ -351,10 +358,6 @@ export interface BountyV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTokenAddressesCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "initOngoingBounty",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -531,17 +534,12 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddressesCount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      operations: OpenQDefinitions.OperationStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -715,17 +713,12 @@ export interface BountyV1 extends BaseContract {
 
   getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
 
-  initOngoingBounty(
-    _payoutTokenAddress: PromiseOrValue<string>,
-    _volume: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   initialize(
     _bountyId: PromiseOrValue<string>,
     _issuer: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
     _openQ: PromiseOrValue<string>,
+    operations: OpenQDefinitions.OperationStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -899,17 +892,12 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      operations: OpenQDefinitions.OperationStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1089,17 +1077,12 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      operations: OpenQDefinitions.OperationStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1276,17 +1259,12 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    initOngoingBounty(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      operations: OpenQDefinitions.OperationStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

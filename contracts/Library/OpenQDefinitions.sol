@@ -11,4 +11,6 @@ library OpenQDefinitions {
         // Data specific to the operation
         bytes data;
     }
+
+    uint32 internal constant OPERATION_TYPE_INIT_ONGOING = 1;
 }

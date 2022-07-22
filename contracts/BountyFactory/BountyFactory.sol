@@ -66,32 +66,7 @@ contract BountyFactory is OnlyOpenQ {
             )
         );
 
-        _batchCall(payable(address(bounty)), operations);
-
         return address(bounty);
-    }
-
-    function _batchCall(
-        address payable target,
-        OpenQDefinitions.Operation[] memory operations
-    ) internal {
-        for (uint256 i = 0; i < operations.length; i++) {
-            uint32 operationType = operations[i].operationType;
-            if (operationType == 0) {
-                return;
-            } else if (operationType == 1) {
-                (address payoutTokenAddress, uint256 payoutVolume) = abi.decode(
-                    operations[i].data,
-                    (address, uint256)
-                );
-                BountyV1(target).initOngoingBounty(
-                    payoutTokenAddress,
-                    payoutVolume
-                );
-            } else {
-                revert('OQ: unknown batch call operation type');
-            }
-        }
     }
 
     /**

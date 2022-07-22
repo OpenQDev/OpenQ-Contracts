@@ -5,6 +5,8 @@ pragma solidity 0.8.13;
  * @dev Custom imports
  */
 import '../../Storage/BountyStorage.sol';
+import '../../Library/OpenQDefinitions.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title BountyV1
@@ -22,6 +24,34 @@ contract BountyV1 is BountyStorageV1 {
 
     constructor() {}
 
+    function _initOngoingBounty(
+        address _payoutTokenAddress,
+        uint256 _payoutVolume
+    ) internal {
+        ongoing = true;
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _payoutVolume;
+    }
+
+    function _batchCall(OpenQDefinitions.Operation[] memory operations)
+        internal
+    {
+        for (uint256 i = 0; i < operations.length; i++) {
+            uint32 operationType = operations[i].operationType;
+            if (operationType == 0) {
+                return;
+            } else if (
+                operationType == OpenQDefinitions.OPERATION_TYPE_INIT_ONGOING
+            ) {
+                (address _payoutTokenAddress, uint256 _payoutVolume) = abi
+                    .decode(operations[i].data, (address, uint256));
+                _initOngoingBounty(_payoutTokenAddress, _payoutVolume);
+            } else {
+                revert('OQ: unknown batch call operation type');
+            }
+        }
+    }
+
     /**
      * @dev Initializes a bounty proxy with initial state
      * @param _bountyId The unique bountyId
@@ -33,7 +63,8 @@ contract BountyV1 is BountyStorageV1 {
         string memory _bountyId,
         address _issuer,
         string memory _organization,
-        address _openQ
+        address _openQ,
+        OpenQDefinitions.Operation[] memory operations
     ) external initializer {
         require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
@@ -46,6 +77,10 @@ contract BountyV1 is BountyStorageV1 {
         organization = _organization;
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
+
+        // console.logBytes(operations[0].data);
+
+        _batchCall(operations);
     }
 
     /**
