@@ -74,5 +74,15 @@ abstract contract BountyStorageV0 is
  */
 
 abstract contract BountyStorageV1 is BountyStorageV0 {
-    uint256 public newFoo;
+    /** 
+      Ongoing Bounties pay out the same amount set by the minter for each submission.
+      Only closed once minter explicitly closes
+    */
+    bool public ongoing;
+    uint256 public payoutVolume;
+    address public payoutTokenAddress;
+
+    function setPayoutAmount(uint256 volume) external {
+        payoutVolume = volume;
+    }
 }

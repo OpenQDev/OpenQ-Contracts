@@ -6,32 +6,32 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe('BountyV0.sol', () => {
+describe('BountyV1.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
 	let owner;
 	let initializationTimestamp;
 	const thirtyDays = 2765000;
-	let BountyV0;
+	let BountyV1;
 
 	const mockId = "mockId";
 	const organization = "mockOrg";
 
 	beforeEach(async () => {
-		BountyV0 = await ethers.getContractFactory('BountyV0');
+		BountyV1 = await ethers.getContractFactory('BountyV1');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
 
 		[owner] = await ethers.getSigners();
 
-		bounty = await BountyV0.deploy();
+		bounty = await BountyV1.deploy();
 		await bounty.deployed();
 
 		// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
 		initializationTimestamp = await setNextBlockTimestamp();
-		await bounty.initialize(mockId, owner.address, organization, owner.address);
+		await bounty.initialize(mockId, owner.address, organization, owner.address, false, 0, ethers.constants.AddressZero);
 
 		// Deploy mock assets
 		mockLink = await MockLink.deploy();
@@ -89,8 +89,8 @@ describe('BountyV0.sol', () => {
 
 		it('should revert if bountyId is empty', async () => {
 			// ARRANGE
-			const BountyV0 = await ethers.getContractFactory('BountyV0');
-			bounty = await BountyV0.deploy();
+			const BountyV1 = await ethers.getContractFactory('BountyV1');
+			bounty = await BountyV1.deploy();
 
 			// ASSERT
 			await expect(bounty.initialize("", owner.address, organization, owner.address)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
@@ -98,11 +98,31 @@ describe('BountyV0.sol', () => {
 
 		it('should revert if organization is empty', async () => {
 			// ARRANGE
-			const BountyV0 = await ethers.getContractFactory('BountyV0');
-			bounty = await BountyV0.deploy();
+			const BountyV1 = await ethers.getContractFactory('BountyV1');
+			bounty = await BountyV1.deploy();
 
 			// ASSERT
 			await expect(bounty.initialize(mockId, owner.address, "", owner.address)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+		});
+
+		describe('initializer - ongoing', () => {
+			it.only('should init with ongoing and payoutVolume', async () => {
+				bounty = await BountyV1.deploy();
+				await bounty.deployed();
+
+				// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
+				initializationTimestamp = await setNextBlockTimestamp();
+				await bounty.initialize(mockId, owner.address, organization, owner.address, true, 100, ethers.constants.AddressZero);
+
+				const actualBountyOngoing = await bounty.ongoing();
+				await expect(actualBountyOngoing).equals(true);
+
+				const actualBountyPayoutVolume = await bounty.payoutVolume();
+				await expect(actualBountyPayoutVolume).equals(100);
+
+				const actualBountyPayoutTokenAddress = await bounty.payoutTokenAddress();
+				await expect(actualBountyPayoutTokenAddress).equals(ethers.constants.AddressZero);
+			});
 		});
 	});
 
@@ -209,7 +229,7 @@ describe('BountyV0.sol', () => {
 				const deposits = await bounty.getDeposits();
 				const depositId = deposits[0];
 
-				const newBounty = await BountyV0.deploy();
+				const newBounty = await BountyV1.deploy();
 				await newBounty.deployed();
 				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address);
 
@@ -538,6 +558,12 @@ describe('BountyV0.sol', () => {
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 			});
+		});
+	});
+
+	describe('Ongoing Bounty', () => {
+		it('should be minted with ongoing set to true', async () => {
+
 		});
 	});
 

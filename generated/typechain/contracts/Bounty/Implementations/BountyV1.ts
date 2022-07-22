@@ -35,31 +35,36 @@ export interface BountyV1Interface extends utils.Interface {
     "bountyId()": FunctionFragment;
     "claimBalance(address,address)": FunctionFragment;
     "claimNft(address,bytes32)": FunctionFragment;
-    "close(address)": FunctionFragment;
+    "close(address,string)": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
     "deposits(uint256)": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
+    "extendDeposit(bytes32,uint256,address)": FunctionFragment;
     "funder(bytes32)": FunctionFragment;
     "getDeposits()": FunctionFragment;
     "getERC20Balance(address)": FunctionFragment;
     "getNftDeposits()": FunctionFragment;
     "getTokenAddresses()": FunctionFragment;
-    "initialize(string,address,string,address)": FunctionFragment;
+    "getTokenAddressesCount()": FunctionFragment;
+    "initialize(string,address,string,address,bool,uint256,address)": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
-    "newFoo()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
     "nftDeposits(uint256)": FunctionFragment;
     "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
+    "ongoing()": FunctionFragment;
     "openQ()": FunctionFragment;
     "organization()": FunctionFragment;
     "payoutAddress(bytes32)": FunctionFragment;
+    "payoutTokenAddress()": FunctionFragment;
+    "payoutVolume()": FunctionFragment;
     "receiveFunds(address,address,uint256,uint256)": FunctionFragment;
     "receiveNft(address,address,uint256,uint256)": FunctionFragment;
     "refundDeposit(bytes32,address)": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
+    "setPayoutAmount(uint256)": FunctionFragment;
     "status()": FunctionFragment;
     "tokenAddress(bytes32)": FunctionFragment;
     "tokenId(bytes32)": FunctionFragment;
@@ -79,25 +84,30 @@ export interface BountyV1Interface extends utils.Interface {
       | "depositTime"
       | "deposits"
       | "expiration"
+      | "extendDeposit"
       | "funder"
       | "getDeposits"
       | "getERC20Balance"
       | "getNftDeposits"
       | "getTokenAddresses"
+      | "getTokenAddressesCount"
       | "initialize"
       | "isNFT"
       | "issuer"
-      | "newFoo"
       | "nftDepositLimit"
       | "nftDeposits"
       | "onERC721Received"
+      | "ongoing"
       | "openQ"
       | "organization"
       | "payoutAddress"
+      | "payoutTokenAddress"
+      | "payoutVolume"
       | "receiveFunds"
       | "receiveNft"
       | "refundDeposit"
       | "refunded"
+      | "setPayoutAmount"
       | "status"
       | "tokenAddress"
       | "tokenId"
@@ -123,7 +133,7 @@ export interface BountyV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "close",
-    values: [PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
@@ -141,6 +151,14 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "expiration",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "extendDeposit",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "funder",
@@ -163,11 +181,18 @@ export interface BountyV1Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getTokenAddressesCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "initialize",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>
     ]
   ): string;
@@ -176,7 +201,6 @@ export interface BountyV1Interface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "issuer", values?: undefined): string;
-  encodeFunctionData(functionFragment: "newFoo", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "nftDepositLimit",
     values?: undefined
@@ -194,6 +218,7 @@ export interface BountyV1Interface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "ongoing", values?: undefined): string;
   encodeFunctionData(functionFragment: "openQ", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "organization",
@@ -202,6 +227,14 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "payoutAddress",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "payoutTokenAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "payoutVolume",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "receiveFunds",
@@ -228,6 +261,10 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "refunded",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPayoutAmount",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
   encodeFunctionData(
@@ -266,6 +303,10 @@ export interface BountyV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "deposits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "expiration", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "extendDeposit",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "funder", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getDeposits",
@@ -283,10 +324,13 @@ export interface BountyV1Interface extends utils.Interface {
     functionFragment: "getTokenAddresses",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTokenAddressesCount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isNFT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "issuer", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "newFoo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nftDepositLimit",
     data: BytesLike
@@ -299,6 +343,7 @@ export interface BountyV1Interface extends utils.Interface {
     functionFragment: "onERC721Received",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "ongoing", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "openQ", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "organization",
@@ -306,6 +351,14 @@ export interface BountyV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "payoutAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "payoutTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "payoutVolume",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -318,6 +371,10 @@ export interface BountyV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "refunded", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setPayoutAmount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "status", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenAddress",
@@ -387,6 +444,7 @@ export interface BountyV1 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -409,6 +467,13 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    extendDeposit(
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      _funder: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     funder(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -425,11 +490,16 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddresses(overrides?: CallOverrides): Promise<[string[]]>;
 
+    getTokenAddressesCount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _ongoing: PromiseOrValue<boolean>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -439,8 +509,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<[boolean]>;
 
     issuer(overrides?: CallOverrides): Promise<[string]>;
-
-    newFoo(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     nftDepositLimit(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -457,6 +525,8 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    ongoing(overrides?: CallOverrides): Promise<[boolean]>;
+
     openQ(overrides?: CallOverrides): Promise<[string]>;
 
     organization(overrides?: CallOverrides): Promise<[string]>;
@@ -465,6 +535,10 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    payoutTokenAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    payoutVolume(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     receiveFunds(
       _funder: PromiseOrValue<string>,
@@ -492,6 +566,11 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    setPayoutAmount(
+      volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     status(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -531,6 +610,7 @@ export interface BountyV1 extends BaseContract {
 
   close(
     _payoutAddress: PromiseOrValue<string>,
+    _closerData: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -553,6 +633,13 @@ export interface BountyV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  extendDeposit(
+    _depositId: PromiseOrValue<BytesLike>,
+    _seconds: PromiseOrValue<BigNumberish>,
+    _funder: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   funder(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -569,11 +656,16 @@ export interface BountyV1 extends BaseContract {
 
   getTokenAddresses(overrides?: CallOverrides): Promise<string[]>;
 
+  getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
+
   initialize(
     _bountyId: PromiseOrValue<string>,
     _issuer: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
     _openQ: PromiseOrValue<string>,
+    _ongoing: PromiseOrValue<boolean>,
+    _payoutVolume: PromiseOrValue<BigNumberish>,
+    _payoutTokenAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -583,8 +675,6 @@ export interface BountyV1 extends BaseContract {
   ): Promise<boolean>;
 
   issuer(overrides?: CallOverrides): Promise<string>;
-
-  newFoo(overrides?: CallOverrides): Promise<BigNumber>;
 
   nftDepositLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -601,6 +691,8 @@ export interface BountyV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  ongoing(overrides?: CallOverrides): Promise<boolean>;
+
   openQ(overrides?: CallOverrides): Promise<string>;
 
   organization(overrides?: CallOverrides): Promise<string>;
@@ -609,6 +701,10 @@ export interface BountyV1 extends BaseContract {
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  payoutTokenAddress(overrides?: CallOverrides): Promise<string>;
+
+  payoutVolume(overrides?: CallOverrides): Promise<BigNumber>;
 
   receiveFunds(
     _funder: PromiseOrValue<string>,
@@ -636,6 +732,11 @@ export interface BountyV1 extends BaseContract {
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  setPayoutAmount(
+    volume: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   status(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -675,6 +776,7 @@ export interface BountyV1 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -697,6 +799,13 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    extendDeposit(
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      _funder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     funder(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -713,11 +822,16 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddresses(overrides?: CallOverrides): Promise<string[]>;
 
+    getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _ongoing: PromiseOrValue<boolean>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -727,8 +841,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<boolean>;
 
     issuer(overrides?: CallOverrides): Promise<string>;
-
-    newFoo(overrides?: CallOverrides): Promise<BigNumber>;
 
     nftDepositLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -745,6 +857,8 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    ongoing(overrides?: CallOverrides): Promise<boolean>;
+
     openQ(overrides?: CallOverrides): Promise<string>;
 
     organization(overrides?: CallOverrides): Promise<string>;
@@ -753,6 +867,10 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    payoutTokenAddress(overrides?: CallOverrides): Promise<string>;
+
+    payoutVolume(overrides?: CallOverrides): Promise<BigNumber>;
 
     receiveFunds(
       _funder: PromiseOrValue<string>,
@@ -780,6 +898,11 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    setPayoutAmount(
+      volume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -825,6 +948,7 @@ export interface BountyV1 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -847,6 +971,13 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    extendDeposit(
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      _funder: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     funder(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -863,11 +994,16 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddresses(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getTokenAddressesCount(overrides?: CallOverrides): Promise<BigNumber>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _ongoing: PromiseOrValue<boolean>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -877,8 +1013,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     issuer(overrides?: CallOverrides): Promise<BigNumber>;
-
-    newFoo(overrides?: CallOverrides): Promise<BigNumber>;
 
     nftDepositLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -895,6 +1029,8 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    ongoing(overrides?: CallOverrides): Promise<BigNumber>;
+
     openQ(overrides?: CallOverrides): Promise<BigNumber>;
 
     organization(overrides?: CallOverrides): Promise<BigNumber>;
@@ -903,6 +1039,10 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    payoutTokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    payoutVolume(overrides?: CallOverrides): Promise<BigNumber>;
 
     receiveFunds(
       _funder: PromiseOrValue<string>,
@@ -929,6 +1069,11 @@ export interface BountyV1 extends BaseContract {
     refunded(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setPayoutAmount(
+      volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
@@ -970,6 +1115,7 @@ export interface BountyV1 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -992,6 +1138,13 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    extendDeposit(
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
+      _funder: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     funder(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1008,11 +1161,18 @@ export interface BountyV1 extends BaseContract {
 
     getTokenAddresses(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getTokenAddressesCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _ongoing: PromiseOrValue<boolean>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1022,8 +1182,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     issuer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    newFoo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nftDepositLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1040,6 +1198,8 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    ongoing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     openQ(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     organization(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1048,6 +1208,12 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    payoutTokenAddress(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    payoutVolume(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     receiveFunds(
       _funder: PromiseOrValue<string>,
@@ -1074,6 +1240,11 @@ export interface BountyV1 extends BaseContract {
     refunded(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setPayoutAmount(
+      volume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     status(overrides?: CallOverrides): Promise<PopulatedTransaction>;

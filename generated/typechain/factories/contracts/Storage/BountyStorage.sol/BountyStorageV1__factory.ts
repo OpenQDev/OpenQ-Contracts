@@ -198,19 +198,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "newFoo",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "nftDepositLimit",
     outputs: [
       {
@@ -277,6 +264,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ongoing",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "openQ",
     outputs: [
       {
@@ -321,6 +321,32 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "payoutTokenAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "payoutVolume",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -337,6 +363,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "volume",
+        type: "uint256",
+      },
+    ],
+    name: "setPayoutAmount",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
