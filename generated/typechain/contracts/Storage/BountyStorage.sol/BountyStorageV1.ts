@@ -50,9 +50,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "payoutTokenAddress()": FunctionFragment;
     "payoutVolume()": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
-    "setOngoing(bool)": FunctionFragment;
-    "setPayoutAmount(uint256)": FunctionFragment;
-    "setPayoutTokenAddress(address)": FunctionFragment;
     "status()": FunctionFragment;
     "tokenAddress(bytes32)": FunctionFragment;
     "tokenId(bytes32)": FunctionFragment;
@@ -82,9 +79,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "payoutTokenAddress"
       | "payoutVolume"
       | "refunded"
-      | "setOngoing"
-      | "setPayoutAmount"
-      | "setPayoutTokenAddress"
       | "status"
       | "tokenAddress"
       | "tokenId"
@@ -165,18 +159,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
     functionFragment: "refunded",
     values: [PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setOngoing",
-    values: [PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPayoutAmount",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPayoutTokenAddress",
-    values: [PromiseOrValue<string>]
-  ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "tokenAddress",
@@ -242,15 +224,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "refunded", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setOngoing", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setPayoutAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPayoutTokenAddress",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "status", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenAddress",
@@ -372,21 +345,6 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    setOngoing(
-      _ongoing: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPayoutAmount(
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPayoutTokenAddress(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     status(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     tokenAddress(
@@ -477,21 +435,6 @@ export interface BountyStorageV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  setOngoing(
-    _ongoing: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPayoutAmount(
-    _volume: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPayoutTokenAddress(
-    _payoutTokenAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   status(overrides?: CallOverrides): Promise<BigNumber>;
 
   tokenAddress(
@@ -581,21 +524,6 @@ export interface BountyStorageV1 extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    setOngoing(
-      _ongoing: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setPayoutAmount(
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setPayoutTokenAddress(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -693,21 +621,6 @@ export interface BountyStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setOngoing(
-      _ongoing: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPayoutAmount(
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPayoutTokenAddress(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     status(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenAddress(
@@ -799,21 +712,6 @@ export interface BountyStorageV1 extends BaseContract {
     refunded(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    setOngoing(
-      _ongoing: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPayoutAmount(
-      _volume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPayoutTokenAddress(
-      _payoutTokenAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     status(overrides?: CallOverrides): Promise<PopulatedTransaction>;

@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe('BountyV1.sol', () => {
+describe.only('BountyV1.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -14,6 +14,7 @@ describe('BountyV1.sol', () => {
 	let initializationTimestamp;
 	const thirtyDays = 2765000;
 	let BountyV1;
+	let bountyInitOperations;
 
 	const mockId = "mockId";
 	const organization = "mockOrg";
@@ -30,7 +31,7 @@ describe('BountyV1.sol', () => {
 		bounty = await BountyV1.deploy();
 		await bounty.deployed();
 
-		let bountyInitOperations = [
+		bountyInitOperations = [
 			[
 				0,
 				[]
@@ -74,7 +75,7 @@ describe('BountyV1.sol', () => {
 		await ongoingBounty.deployed();
 
 		const abiCoder = new ethers.utils.AbiCoder;
-		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [ethers.constants.AddressZero, '100']);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [mockLink.address, '100']);
 
 		let ongoingBountyInitOperations = [
 			[
@@ -121,7 +122,7 @@ describe('BountyV1.sol', () => {
 			bounty = await BountyV1.deploy();
 
 			// ASSERT
-			await expect(bounty.initialize("", owner.address, organization, owner.address)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+			await expect(bounty.initialize("", owner.address, organization, owner.address, bountyInitOperations)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 		});
 
 		it('should revert if organization is empty', async () => {
@@ -130,18 +131,18 @@ describe('BountyV1.sol', () => {
 			bounty = await BountyV1.deploy();
 
 			// ASSERT
-			await expect(bounty.initialize(mockId, owner.address, "", owner.address)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+			await expect(bounty.initialize(mockId, owner.address, "", owner.address, bountyInitOperations)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 		});
 
 		describe('initializer - ongoing', () => {
-			it.only('should init with ongoing and payoutVolume', async () => {
+			it('should init with ongoing and payoutVolume', async () => {
 				const actualBountyOngoing = await ongoingBounty.ongoing();
 				const actualBountyPayoutVolume = await ongoingBounty.payoutVolume();
 				const actualBountyPayoutTokenAddress = await ongoingBounty.payoutTokenAddress();
 
 				await expect(actualBountyOngoing).equals(true);
 				await expect(actualBountyPayoutVolume).equals(100);
-				await expect(actualBountyPayoutTokenAddress).equals(ethers.constants.AddressZero);
+				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
 			});
 		});
 	});
@@ -251,7 +252,7 @@ describe('BountyV1.sol', () => {
 
 				const newBounty = await BountyV1.deploy();
 				await newBounty.deployed();
-				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address);
+				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, bountyInitOperations);
 
 				await mockLink.approve(newBounty.address, 20000);
 				await newBounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
@@ -619,12 +620,6 @@ describe('BountyV1.sol', () => {
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 			});
-		});
-	});
-
-	describe('Ongoing Bounty', () => {
-		it('should be minted with ongoing set to true', async () => {
-
 		});
 	});
 

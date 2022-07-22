@@ -366,45 +366,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bool",
-        name: "_ongoing",
-        type: "bool",
-      },
-    ],
-    name: "setOngoing",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_volume",
-        type: "uint256",
-      },
-    ],
-    name: "setPayoutAmount",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_payoutTokenAddress",
-        type: "address",
-      },
-    ],
-    name: "setPayoutTokenAddress",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "status",
     outputs: [
