@@ -201,6 +201,25 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
+     * @param _payoutAddress The destination address for the fund
+     */
+    function claimOngoingPayout(address _payoutAddress)
+        external
+        onlyOpenQ
+        nonReentrant
+        returns (uint256)
+    {
+        if (payoutTokenAddress == address(0)) {
+            _transferProtocolToken(_payoutAddress, payoutVolume);
+        } else {
+            _transferERC20(payoutTokenAddress, _payoutAddress, payoutVolume);
+        }
+
+        return payoutVolume;
+    }
+
+    /**
+     * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
      * @param _tokenAddress A unique string to identify a bounty
      * @param _payoutAddress The destination address for the fund
      */

@@ -35,6 +35,7 @@ export interface BountyV1Interface extends utils.Interface {
     "bountyId()": FunctionFragment;
     "claimBalance(address,address)": FunctionFragment;
     "claimNft(address,bytes32)": FunctionFragment;
+    "claimOngoingPayout(address)": FunctionFragment;
     "close(address,string)": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
@@ -78,6 +79,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "bountyId"
       | "claimBalance"
       | "claimNft"
+      | "claimOngoingPayout"
       | "close"
       | "closer"
       | "closerData"
@@ -130,6 +132,10 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "claimNft",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimOngoingPayout",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "close",
@@ -294,6 +300,10 @@ export interface BountyV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "claimNft", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "claimOngoingPayout",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
@@ -439,6 +449,11 @@ export interface BountyV1 extends BaseContract {
     claimNft(
       _payoutAddress: PromiseOrValue<string>,
       _depositId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    claimOngoingPayout(
+      _payoutAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -608,6 +623,11 @@ export interface BountyV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  claimOngoingPayout(
+    _payoutAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   close(
     _payoutAddress: PromiseOrValue<string>,
     _closerData: PromiseOrValue<string>,
@@ -773,6 +793,11 @@ export interface BountyV1 extends BaseContract {
       _depositId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    claimOngoingPayout(
+      _payoutAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     close(
       _payoutAddress: PromiseOrValue<string>,
@@ -946,6 +971,11 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    claimOngoingPayout(
+      _payoutAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     close(
       _payoutAddress: PromiseOrValue<string>,
       _closerData: PromiseOrValue<string>,
@@ -1110,6 +1140,11 @@ export interface BountyV1 extends BaseContract {
     claimNft(
       _payoutAddress: PromiseOrValue<string>,
       _depositId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimOngoingPayout(
+      _payoutAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -26,6 +26,7 @@ describe('BountyV1.sol', () => {
 
 		[owner] = await ethers.getSigners();
 
+		// Mint a single contributor bounty
 		bounty = await BountyV1.deploy();
 		await bounty.deployed();
 
@@ -60,6 +61,18 @@ describe('BountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(bounty.address, 10000000);
 		await mockDai.approve(bounty.address, 10000000);
+
+		// Mint an Ongoing Bounty
+		ongoingBounty = await BountyV1.deploy();
+		await ongoingBounty.deployed();
+
+		// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
+		initializationTimestamp = await setNextBlockTimestamp();
+		await ongoingBounty.initialize(mockId, owner.address, organization, owner.address, true, 100, mockLink.address);
+
+		// Pre-approve LINK and DAI for transfers during testing
+		await mockLink.approve(ongoingBounty.address, 10000000);
+		await mockDai.approve(ongoingBounty.address, 10000000);
 	});
 
 	describe('initializer', () => {
@@ -106,7 +119,7 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('initializer - ongoing', () => {
-			it.only('should init with ongoing and payoutVolume', async () => {
+			it('should init with ongoing and payoutVolume', async () => {
 				bounty = await BountyV1.deploy();
 				await bounty.deployed();
 
@@ -516,6 +529,47 @@ describe('BountyV1.sol', () => {
 			const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
 			expect(newClaimerMockTokenBalance).to.equal('100');
 			expect(newClaimerFakeTokenBalance).to.equal('100');
+		});
+
+		describe('Ongoing Bounty', () => {
+			it.only('should transfer payoutVolume of payoutTokenAddress to claimant', async () => {
+				// ARRANGE
+				const volume = 300;
+
+				const [, claimer] = await ethers.getSigners();
+
+				await ongoingBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+
+				const deposits = await bounty.getDeposits();
+				const linkDepositId = deposits[0];
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockLink.balanceOf(ongoingBounty.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('300');
+
+				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				expect(claimerMockTokenBalance).to.equal('0');
+
+				// ACT
+				await ongoingBounty.claimOngoingPayout(claimer.address);
+
+				// ASSERT
+				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				expect(newClaimerMockTokenBalance).to.equal('100');
+
+				const newBountyMockLinkBalance = (await mockLink.balanceOf(ongoingBounty.address)).toString();
+				expect(newBountyMockLinkBalance).to.equal('200');
+
+				// ACT
+				await ongoingBounty.claimOngoingPayout(claimer.address);
+
+				// ASSERT
+				const newClaimerMockTokenBalance2 = (await mockLink.balanceOf(claimer.address)).toString();
+				expect(newClaimerMockTokenBalance2).to.equal('200');
+
+				const newBountyMockLinkBalance2 = (await mockLink.balanceOf(ongoingBounty.address)).toString();
+				expect(newBountyMockLinkBalance2).to.equal('100');
+			});
 		});
 	});
 
