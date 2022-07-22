@@ -8,6 +8,7 @@ import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
 import 'hardhat/console.sol';
 import '../../Library/OpenQDefinitions.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title OpenQV1
@@ -83,12 +84,13 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization,
-        OpenQDefinitions.Operation[] calldata _initData
+        OpenQDefinitions.Operation[] memory _initData
     ) external nonReentrant onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),
             'BOUNTY_ALREADY_EXISTS'
         );
+
         address bountyAddress = bountyFactory.mintBounty(
             _bountyId,
             msg.sender,

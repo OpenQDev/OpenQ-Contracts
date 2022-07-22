@@ -45,7 +45,9 @@ contract BountyV1 is BountyStorageV1 {
             ) {
                 (address _payoutTokenAddress, uint256 _payoutVolume) = abi
                     .decode(operations[i].data, (address, uint256));
-                _initOngoingBounty(_payoutTokenAddress, _payoutVolume);
+                ongoing = true;
+                payoutTokenAddress = _payoutTokenAddress;
+                payoutVolume = _payoutVolume;
             } else {
                 revert('OQ: unknown batch call operation type');
             }
@@ -78,9 +80,22 @@ contract BountyV1 is BountyStorageV1 {
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
 
-        // console.logBytes(operations[0].data);
-
-        _batchCall(operations);
+        for (uint256 i = 0; i < operations.length; i++) {
+            uint32 operationType = operations[i].operationType;
+            if (operationType == 0) {
+                return;
+            } else if (
+                operationType == OpenQDefinitions.OPERATION_TYPE_INIT_ONGOING
+            ) {
+                (address _payoutTokenAddress, uint256 _payoutVolume) = abi
+                    .decode(operations[i].data, (address, uint256));
+                ongoing = true;
+                payoutTokenAddress = _payoutTokenAddress;
+                payoutVolume = _payoutVolume;
+            } else {
+                revert('OQ: unknown batch call operation type');
+            }
+        }
     }
 
     /**
