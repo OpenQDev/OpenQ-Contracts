@@ -13,4 +13,5 @@ library OpenQDefinitions {
     }
 
     uint32 internal constant OPERATION_TYPE_INIT_ONGOING = 1;
+    uint32 internal constant OPERATION_TYPE_INIT_TIERED = 2;
 }

@@ -255,6 +255,25 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             return;
         }
 
+        if (bounty.tiered()) {
+            for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
+                address tokenAddress = bounty.getTokenAddresses()[i];
+                (address returntokenAddress, uint256 volume) = bounty
+                    .claimTiered(_closer, 1, tokenAddress);
+
+                emit TokenBalanceClaimed(
+                    bounty.bountyId(),
+                    bountyAddress,
+                    bounty.organization(),
+                    _closer,
+                    block.timestamp,
+                    tokenAddress,
+                    volume
+                );
+            }
+            return;
+        }
+
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             address tokenAddress = bounty.getTokenAddresses()[i];
             uint256 volume = bounty.claimBalance(_closer, tokenAddress);

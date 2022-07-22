@@ -15,9 +15,12 @@ describe('BountyV1.sol', () => {
 	const thirtyDays = 2765000;
 	let BountyV1;
 	let bountyInitOperations;
+	let tieredBountyInitOperations;
 
 	const mockId = "mockId";
 	const organization = "mockOrg";
+
+	let tieredBounty;
 
 	beforeEach(async () => {
 		BountyV1 = await ethers.getContractFactory('BountyV1');
@@ -89,6 +92,25 @@ describe('BountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(ongoingBounty.address, 10000000);
 		await mockDai.approve(ongoingBounty.address, 10000000);
+
+		// Mint a Tiered Bounty
+		tieredBounty = await BountyV1.deploy();
+		await tieredBounty.deployed();
+
+		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[60, 40]]);
+
+		tieredBountyInitOperations = [
+			[
+				2,
+				abiEncodedParamsTieredBounty
+			]
+		];
+
+		await tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperations);
+
+		// Pre-approve LINK and DAI for transfers during testing
+		await mockLink.approve(tieredBounty.address, 10000000);
+		await mockDai.approve(tieredBounty.address, 10000000);
 	});
 
 	describe('initializer', () => {
@@ -143,6 +165,18 @@ describe('BountyV1.sol', () => {
 				await expect(actualBountyOngoing).equals(true);
 				await expect(actualBountyPayoutVolume).equals(100);
 				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
+			});
+		});
+
+		describe('initializer - tiered', () => {
+			it.only('should init with tiered and payout schedule', async () => {
+				const actualBountyTiered = await tieredBounty.tiered();
+				const actualBountyPayoutSchedule = await tieredBounty.getPayoutSchedule();
+				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
+
+				await expect(actualBountyTiered).equals(true);
+				await expect(payoutToString[0]).equals("60");
+				await expect(payoutToString[1]).equals("40");
 			});
 		});
 	});

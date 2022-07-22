@@ -33,6 +33,11 @@ contract BountyV1 is BountyStorageV1 {
         payoutVolume = _payoutVolume;
     }
 
+    function _initTiered(uint256[] memory _payoutSchedule) internal {
+        tiered = true;
+        payoutSchedule = _payoutSchedule;
+    }
+
     function _initOps(OpenQDefinitions.Operation[] memory operations) internal {
         for (uint256 i = 0; i < operations.length; i++) {
             uint32 operationType = operations[i].operationType;
@@ -44,6 +49,14 @@ contract BountyV1 is BountyStorageV1 {
                 (address _payoutTokenAddress, uint256 _payoutVolume) = abi
                     .decode(operations[i].data, (address, uint256));
                 _initOngoingBounty(_payoutTokenAddress, _payoutVolume);
+            } else if (
+                operationType == OpenQDefinitions.OPERATION_TYPE_INIT_TIERED
+            ) {
+                uint256[] memory _payoutSchedule = abi.decode(
+                    operations[i].data,
+                    (uint256[])
+                );
+                _initTiered(_payoutSchedule);
             } else {
                 revert('OQ: unknown batch call operation type');
             }
@@ -241,6 +254,32 @@ contract BountyV1 is BountyStorageV1 {
         }
 
         return (payoutTokenAddress, payoutVolume);
+    }
+
+    /**
+     * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
+     * @param _payoutAddress The destination address for the fund
+     * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
+     * @param _tokenAddress The token address being claimed
+     */
+    function claimTiered(
+        address _payoutAddress,
+        uint256 _tier,
+        address _tokenAddress
+    ) external onlyOpenQ nonReentrant returns (address, uint256) {
+        uint256 claimedBalance;
+
+        if (_tokenAddress == address(0)) {
+            claimedBalance = payoutSchedule[_tier] * address(this).balance;
+            _transferProtocolToken(_payoutAddress, claimedBalance);
+        } else {
+            claimedBalance =
+                payoutSchedule[_tier] *
+                getERC20Balance(_tokenAddress);
+            _transferERC20(_tokenAddress, _payoutAddress, claimedBalance);
+        }
+
+        return (_tokenAddress, claimedBalance);
     }
 
     /**

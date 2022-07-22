@@ -81,4 +81,17 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     bool public ongoing;
     address public payoutTokenAddress;
     uint256 public payoutVolume;
+
+    /**
+    Competition bounties
+     */
+    bool public tiered;
+
+    // [0] is 1st place, [1] is 2nd, etc.
+    // @dev must add up to 100
+    uint256[] public payoutSchedule;
+
+    function getPayoutSchedule() external view returns (uint256[] memory) {
+        return payoutSchedule;
+    }
 }
