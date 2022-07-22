@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 
-describe('BountyFactory', () => {
+describe.only('BountyFactory', () => {
 	let openQImplementation;
 	let openQProxy;
 	let bountyFactory;
@@ -22,6 +22,9 @@ describe('BountyFactory', () => {
 	let oracle;
 	let owner;
 	let notOpenQ;
+
+	let bountyInitOperations;
+	let initOperations;
 
 	beforeEach(async () => {
 		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
@@ -56,6 +59,23 @@ describe('BountyFactory', () => {
 		// Deploy BountyFactory
 		bountyFactory = await BountyFactory.deploy(openQProxy.address, bountyBeacon.address);
 		await bountyFactory.deployed();
+
+		bountyInitOperations = [
+			[
+				0,
+				[]
+			]
+		];
+
+		const abiCoder = new ethers.utils.AbiCoder;
+		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [notOpenQ.address, 100]);
+
+		initOperations = [
+			[
+				1,
+				abiEncodedParams
+			]
+		];
 	});
 
 	describe('constructor', () => {
@@ -67,7 +87,7 @@ describe('BountyFactory', () => {
 
 	describe('Access Controls', () => {
 		it('should revert if called directly, not through OpenQProxy', async () => {
-			await expect(bountyFactory.mintBounty('mock-id', owner.address, 'mock-organization')).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(bountyFactory.mintBounty('mock-id', owner.address, 'mock-organization', initOperations)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 	});
 
@@ -76,16 +96,6 @@ describe('BountyFactory', () => {
 			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
 			let newBountyFactory = await BountyFactory.deploy(owner.address, bountyBeacon.address);
 			await newBountyFactory.deployed();
-
-			const abiCoder = new ethers.utils.AbiCoder;
-			const abiEncodedParams = abiCoder.encode(["address", "uint256"], [newBountyFactory.address, '100']);
-
-			let initOperations = [
-				[
-					1,
-					abiEncodedParams
-				]
-			];
 
 			const txn = await newBountyFactory.mintBounty(
 				'mock-id',
@@ -110,11 +120,9 @@ describe('BountyFactory', () => {
 			expect(openQAddress).to.equal(owner.address);
 			expect(ongoing).to.equal(true);
 			expect(payoutVolume).to.equal('100');
-			expect(payoutTokenAddress).to.equal(newBountyFactory.address);
+			expect(payoutTokenAddress).to.equal(notOpenQ.address);
 
-			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address)).to.be.revertedWith('Initializable: contract is already initialized');
-
-			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address)).to.be.revertedWith('Initializable: contract is already initialized');
+			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address, bountyInitOperations)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
 	});
 });

@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe.only('BountyV1.sol', () => {
+describe('BountyV1.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
