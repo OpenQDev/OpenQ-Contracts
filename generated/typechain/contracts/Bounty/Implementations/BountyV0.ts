@@ -35,7 +35,7 @@ export interface BountyV0Interface extends utils.Interface {
     "bountyId()": FunctionFragment;
     "claimBalance(address,address)": FunctionFragment;
     "claimNft(address,bytes32)": FunctionFragment;
-    "close(address,string)": FunctionFragment;
+    "close(address,bytes)": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
@@ -125,7 +125,7 @@ export interface BountyV0Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "close",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
@@ -407,7 +407,7 @@ export interface BountyV0 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -559,7 +559,7 @@ export interface BountyV0 extends BaseContract {
 
   close(
     _payoutAddress: PromiseOrValue<string>,
-    _closerData: PromiseOrValue<string>,
+    _closerData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -711,7 +711,7 @@ export interface BountyV0 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -869,7 +869,7 @@ export interface BountyV0 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1022,7 +1022,7 @@ export interface BountyV0 extends BaseContract {
 
     close(
       _payoutAddress: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

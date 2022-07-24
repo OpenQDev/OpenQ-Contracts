@@ -230,7 +230,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     function claimBounty(
         string calldata _bountyId,
         address _closer,
-        string calldata _closerData
+        bytes calldata _closerData
     ) external onlyOracle nonReentrant {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
@@ -251,15 +251,17 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 tokenAddress,
                 volume
             );
-
-            return;
-        }
-
-        if (bounty.tiered()) {
+        } else if (bounty.tiered()) {
             for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
                 address tokenAddress = bounty.getTokenAddresses()[i];
+
+                (uint256 _tier, string memory closerUrl) = abi.decode(
+                    _closerData,
+                    (uint256, string)
+                );
+
                 (address returntokenAddress, uint256 volume) = bounty
-                    .claimTiered(_closer, 1, tokenAddress);
+                    .claimTiered(_closer, _tier, tokenAddress);
 
                 emit TokenBalanceClaimed(
                     bounty.bountyId(),
@@ -271,38 +273,37 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                     volume
                 );
             }
-            return;
-        }
+        } else {
+            for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
+                address tokenAddress = bounty.getTokenAddresses()[i];
+                uint256 volume = bounty.claimBalance(_closer, tokenAddress);
 
-        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-            address tokenAddress = bounty.getTokenAddresses()[i];
-            uint256 volume = bounty.claimBalance(_closer, tokenAddress);
+                emit TokenBalanceClaimed(
+                    bounty.bountyId(),
+                    bountyAddress,
+                    bounty.organization(),
+                    _closer,
+                    block.timestamp,
+                    tokenAddress,
+                    volume
+                );
+            }
 
-            emit TokenBalanceClaimed(
-                bounty.bountyId(),
+            for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
+                bounty.claimNft(_closer, bounty.nftDeposits(i));
+            }
+
+            bounty.close(_closer, _closerData);
+
+            emit BountyClosed(
+                _bountyId,
                 bountyAddress,
                 bounty.organization(),
                 _closer,
                 block.timestamp,
-                tokenAddress,
-                volume
+                _closerData
             );
         }
-
-        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
-            bounty.claimNft(_closer, bounty.nftDeposits(i));
-        }
-
-        bounty.close(_closer, _closerData);
-
-        emit BountyClosed(
-            _bountyId,
-            bountyAddress,
-            bounty.organization(),
-            _closer,
-            block.timestamp,
-            _closerData
-        );
     }
 
     /**

@@ -66,7 +66,7 @@ abstract contract BountyStorageV0 is
     /**
      * @dev Data related to the closer of this bounty
      */
-    string public closerData;
+    bytes public closerData;
 }
 
 /**
@@ -90,6 +90,20 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     // [0] is 1st place, [1] is 2nd, etc.
     // @dev must add up to 100
     uint256[] public payoutSchedule;
+
+    /**
+    Competition bounties
+     */
+    uint256 public fundingGoal;
+    address public fundingToken;
+
+    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
+        public
+    {
+        require(msg.sender == issuer, 'Must be issuer to set funding goal');
+        fundingGoal = _fundingGoal;
+        fundingToken = _fundingToken;
+    }
 
     function getPayoutSchedule() external view returns (uint256[] memory) {
         return payoutSchedule;

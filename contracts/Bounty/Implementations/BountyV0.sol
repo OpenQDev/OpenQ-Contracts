@@ -239,7 +239,7 @@ contract BountyV0 is BountyStorageV0 {
      * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
      * @param _payoutAddress The closer of the bounty
      */
-    function close(address _payoutAddress, string calldata _closerData)
+    function close(address _payoutAddress, bytes calldata _closerData)
         external
         onlyOpenQ
     {

@@ -42,9 +42,9 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "string",
+        internalType: "bytes",
         name: "closerData",
-        type: "string",
+        type: "bytes",
       },
     ],
     name: "BountyClosed",

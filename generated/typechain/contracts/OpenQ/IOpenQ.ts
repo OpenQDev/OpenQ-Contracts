@@ -16,7 +16,7 @@ export interface IOpenQInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "BountyClosed(string,address,string,address,uint256,string)": EventFragment;
+    "BountyClosed(string,address,string,address,uint256,bytes)": EventFragment;
     "BountyCreated(string,string,address,address,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)": EventFragment;
@@ -196,7 +196,7 @@ export interface IOpenQ extends BaseContract {
   callStatic: {};
 
   filters: {
-    "BountyClosed(string,address,string,address,uint256,string)"(
+    "BountyClosed(string,address,string,address,uint256,bytes)"(
       bountyId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       organization?: null,

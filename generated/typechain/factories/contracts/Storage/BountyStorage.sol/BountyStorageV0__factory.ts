@@ -80,9 +80,9 @@ const _abi = [
     name: "closerData",
     outputs: [
       {
-        internalType: "string",
+        internalType: "bytes",
         name: "",
-        type: "string",
+        type: "bytes",
       },
     ],
     stateMutability: "view",

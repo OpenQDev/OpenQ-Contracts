@@ -57,6 +57,15 @@ contract BountyV1 is BountyStorageV1 {
                     (uint256[])
                 );
                 _initTiered(_payoutSchedule);
+            } else if (
+                operationType ==
+                OpenQDefinitions.OPERATION_TYPE_INIT_FUNDING_GOAL
+            ) {
+                (address _fundingToken, uint256 _fundingGoal) = abi.decode(
+                    operations[i].data,
+                    (address, uint256)
+                );
+                setFundingGoal(_fundingToken, _fundingGoal);
             } else {
                 revert('OQ: unknown batch call operation type');
             }
@@ -270,12 +279,14 @@ contract BountyV1 is BountyStorageV1 {
         uint256 claimedBalance;
 
         if (_tokenAddress == address(0)) {
-            claimedBalance = payoutSchedule[_tier] * address(this).balance;
+            claimedBalance =
+                (payoutSchedule[_tier] * address(this).balance) /
+                10000;
             _transferProtocolToken(_payoutAddress, claimedBalance);
         } else {
             claimedBalance =
-                payoutSchedule[_tier] *
-                getERC20Balance(_tokenAddress);
+                (payoutSchedule[_tier] * getERC20Balance(_tokenAddress)) /
+                10000;
             _transferERC20(_tokenAddress, _payoutAddress, claimedBalance);
         }
 
@@ -328,7 +339,7 @@ contract BountyV1 is BountyStorageV1 {
      * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
      * @param _payoutAddress The closer of the bounty
      */
-    function close(address _payoutAddress, string calldata _closerData)
+    function close(address _payoutAddress, bytes calldata _closerData)
         external
         onlyOpenQ
     {

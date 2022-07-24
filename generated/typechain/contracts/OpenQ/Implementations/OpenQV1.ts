@@ -46,7 +46,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
     "bountyIsOpen(string)": FunctionFragment;
-    "claimBounty(string,address,string)": FunctionFragment;
+    "claimBounty(string,address,bytes)": FunctionFragment;
     "extendDeposit(string,bytes32,uint256)": FunctionFragment;
     "fundBountyNFT(string,address,uint256,uint256)": FunctionFragment;
     "fundBountyToken(string,address,uint256,uint256)": FunctionFragment;
@@ -121,7 +121,7 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<BytesLike>
     ]
   ): string;
   encodeFunctionData(
@@ -314,7 +314,7 @@ export interface OpenQV1Interface extends utils.Interface {
   events: {
     "AdminChanged(address,address)": EventFragment;
     "BeaconUpgraded(address)": EventFragment;
-    "BountyClosed(string,address,string,address,uint256,string)": EventFragment;
+    "BountyClosed(string,address,string,address,uint256,bytes)": EventFragment;
     "BountyCreated(string,string,address,address,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)": EventFragment;
@@ -579,7 +579,7 @@ export interface OpenQV1 extends BaseContract {
     claimBounty(
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -702,7 +702,7 @@ export interface OpenQV1 extends BaseContract {
   claimBounty(
     _bountyId: PromiseOrValue<string>,
     _closer: PromiseOrValue<string>,
-    _closerData: PromiseOrValue<string>,
+    _closerData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -825,7 +825,7 @@ export interface OpenQV1 extends BaseContract {
     claimBounty(
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -943,7 +943,7 @@ export interface OpenQV1 extends BaseContract {
       beacon?: PromiseOrValue<string> | null
     ): BeaconUpgradedEventFilter;
 
-    "BountyClosed(string,address,string,address,uint256,string)"(
+    "BountyClosed(string,address,string,address,uint256,bytes)"(
       bountyId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       organization?: null,
@@ -1118,7 +1118,7 @@ export interface OpenQV1 extends BaseContract {
     claimBounty(
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1242,7 +1242,7 @@ export interface OpenQV1 extends BaseContract {
     claimBounty(
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

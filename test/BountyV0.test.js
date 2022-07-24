@@ -97,7 +97,7 @@ describe('BountyV1.sol', () => {
 		tieredBounty = await BountyV1.deploy();
 		await tieredBounty.deployed();
 
-		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[60, 40]]);
+		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[160, 140]]);
 
 		tieredBountyInitOperations = [
 			[
@@ -169,7 +169,7 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('initializer - tiered', () => {
-			it.only('should init with tiered and payout schedule', async () => {
+			it('should init with tiered and payout schedule', async () => {
 				const actualBountyTiered = await tieredBounty.tiered();
 				const actualBountyPayoutSchedule = await tieredBounty.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
@@ -611,6 +611,37 @@ describe('BountyV1.sol', () => {
 
 				const newBountyMockLinkBalance2 = (await mockLink.balanceOf(ongoingBounty.address)).toString();
 				expect(newBountyMockLinkBalance2).to.equal('100');
+			});
+		});
+
+		describe('Tiered Bounty', () => {
+			it.only('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
+				// ARRANGE
+				const volume = 300;
+
+				const [, claimer] = await ethers.getSigners();
+
+				await tieredBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+
+				const deposits = await bounty.getDeposits();
+				const linkDepositId = deposits[0];
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('300');
+
+				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				expect(claimerMockTokenBalance).to.equal('0');
+
+				// ACT
+				await tieredBounty.claimTiered(claimer.address, 0, mockLink.address);
+
+				// // ASSERT
+				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				expect(newClaimerMockTokenBalance).to.equal('100');
+
+				// const newBountyMockLinkBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
+				// expect(newBountyMockLinkBalance).to.equal('200');
 			});
 		});
 	});

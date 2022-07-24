@@ -80,9 +80,9 @@ const _abi = [
     name: "closerData",
     outputs: [
       {
-        internalType: "string",
+        internalType: "bytes",
         name: "",
-        type: "string",
+        type: "bytes",
       },
     ],
     stateMutability: "view",
@@ -154,6 +154,32 @@ const _abi = [
       },
     ],
     name: "funder",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fundingGoal",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fundingToken",
     outputs: [
       {
         internalType: "address",
@@ -395,6 +421,24 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_fundingToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_fundingGoal",
+        type: "uint256",
+      },
+    ],
+    name: "setFundingGoal",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

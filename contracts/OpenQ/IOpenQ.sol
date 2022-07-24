@@ -20,7 +20,7 @@ interface IOpenQ {
         string organization,
         address closer,
         uint256 bountyClosedTime,
-        string closerData
+        bytes closerData
     );
 
     event TokenDepositReceived(
