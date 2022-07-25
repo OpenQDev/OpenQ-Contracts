@@ -12,7 +12,9 @@ library OpenQDefinitions {
         bytes data;
     }
 
-    uint32 internal constant OPERATION_TYPE_INIT_ONGOING = 1;
-    uint32 internal constant OPERATION_TYPE_INIT_TIERED = 2;
-    uint32 internal constant OPERATION_TYPE_INIT_FUNDING_GOAL = 3;
+    uint32 internal constant SINGLE = 0;
+    uint32 internal constant ONGOING = 1;
+    uint32 internal constant TIERED = 2;
+    uint32 internal constant FUNDING_GOAL = 3;
+    uint32 internal constant DEPOSIT = 4;
 }

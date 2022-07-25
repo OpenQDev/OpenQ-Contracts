@@ -733,7 +733,7 @@ describe.only('BountyV1.sol', () => {
 			expect(mockTokenFundingTotal).to.equal(1000);
 		});
 
-		it.only('should revert if caller is not issuer', async () => {
+		it('should revert if caller is not issuer', async () => {
 			const [, notOwner] = await ethers.getSigners();
 			let tieredBountyNotIssuer = tieredBounty.connect(notOwner);
 			await expect(tieredBountyNotIssuer.endCompetition()).to.be.revertedWith('Must be issuer to close competition');

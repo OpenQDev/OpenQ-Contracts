@@ -100,6 +100,12 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
         bountyIdToAddress[_bountyId] = bountyAddress;
 
+        if (_initOperation.operationType == OpenQDefinitions.DEPOSIT) {
+            (address _tokenAddress, uint256 _volume, uint256 _expiration) = abi
+                .decode(_initOperation.data, (address, uint256, uint256));
+            fundBountyToken(_bountyId, _tokenAddress, _volume, _expiration);
+        }
+
         emit BountyCreated(
             _bountyId,
             _organization,
@@ -125,7 +131,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) external payable nonReentrant onlyProxy {
+    ) public payable nonReentrant onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 

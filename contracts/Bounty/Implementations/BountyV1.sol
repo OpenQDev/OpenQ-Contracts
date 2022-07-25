@@ -51,32 +51,28 @@ contract BountyV1 is BountyStorageV1 {
         internal
     {
         uint32 operationType = operation.operationType;
-        if (operationType == 0) {
+        if (operationType == OpenQDefinitions.SINGLE) {
             _initSingle();
-        } else if (
-            operationType == OpenQDefinitions.OPERATION_TYPE_INIT_ONGOING
-        ) {
+        } else if (operationType == OpenQDefinitions.ONGOING) {
             (address _payoutTokenAddress, uint256 _payoutVolume) = abi.decode(
                 operation.data,
                 (address, uint256)
             );
             _initOngoingBounty(_payoutTokenAddress, _payoutVolume);
-        } else if (
-            operationType == OpenQDefinitions.OPERATION_TYPE_INIT_TIERED
-        ) {
+        } else if (operationType == OpenQDefinitions.TIERED) {
             uint256[] memory _payoutSchedule = abi.decode(
                 operation.data,
                 (uint256[])
             );
             _initTiered(_payoutSchedule);
-        } else if (
-            operationType == OpenQDefinitions.OPERATION_TYPE_INIT_FUNDING_GOAL
-        ) {
+        } else if (operationType == OpenQDefinitions.FUNDING_GOAL) {
             (address _fundingToken, uint256 _fundingGoal) = abi.decode(
                 operation.data,
                 (address, uint256)
             );
             setFundingGoal(_fundingToken, _fundingGoal);
+        } else if (operationType == OpenQDefinitions.DEPOSIT) {
+            return;
         } else {
             revert('OQ: unknown init operation type');
         }
