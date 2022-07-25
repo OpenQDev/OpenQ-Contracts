@@ -16,13 +16,13 @@ export interface IOpenQInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "BountyClosed(string,address,string,address,uint256,bytes)": EventFragment;
-    "BountyCreated(string,string,address,address,uint256)": EventFragment;
-    "DepositExtended(bytes32,uint256)": EventFragment;
-    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)": EventFragment;
-    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)": EventFragment;
-    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256)": EventFragment;
-    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)": EventFragment;
+    "BountyClosed(string,address,string,address,uint256,uint256,bytes)": EventFragment;
+    "BountyCreated(string,string,address,address,uint256,uint256,bytes)": EventFragment;
+    "DepositExtended(bytes32,uint256,uint256,bytes)": EventFragment;
+    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes)": EventFragment;
+    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes)": EventFragment;
+    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes)": EventFragment;
+    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BountyClosed"): EventFragment;
@@ -40,10 +40,11 @@ export interface BountyClosedEventObject {
   organization: string;
   closer: string;
   bountyClosedTime: BigNumber;
+  class: BigNumber;
   data: string;
 }
 export type BountyClosedEvent = TypedEvent<
-  [string, string, string, string, BigNumber, string],
+  [string, string, string, string, BigNumber, BigNumber, string],
   BountyClosedEventObject
 >;
 
@@ -55,9 +56,11 @@ export interface BountyCreatedEventObject {
   issuerAddress: string;
   bountyAddress: string;
   bountyMintTime: BigNumber;
+  class: BigNumber;
+  data: string;
 }
 export type BountyCreatedEvent = TypedEvent<
-  [string, string, string, string, BigNumber],
+  [string, string, string, string, BigNumber, BigNumber, string],
   BountyCreatedEventObject
 >;
 
@@ -66,9 +69,11 @@ export type BountyCreatedEventFilter = TypedEventFilter<BountyCreatedEvent>;
 export interface DepositExtendedEventObject {
   depositId: string;
   newExpiration: BigNumber;
+  class: BigNumber;
+  data: string;
 }
 export type DepositExtendedEvent = TypedEvent<
-  [string, BigNumber],
+  [string, BigNumber, BigNumber, string],
   DepositExtendedEventObject
 >;
 
@@ -82,9 +87,21 @@ export interface DepositRefundedEventObject {
   refundTime: BigNumber;
   tokenAddress: string;
   volume: BigNumber;
+  class: BigNumber;
+  data: string;
 }
 export type DepositRefundedEvent = TypedEvent<
-  [string, string, string, string, BigNumber, string, BigNumber],
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ],
   DepositRefundedEventObject
 >;
 
@@ -100,6 +117,8 @@ export interface NFTDepositReceivedEventObject {
   sender: string;
   expiration: BigNumber;
   tokenId: BigNumber;
+  class: BigNumber;
+  data: string;
 }
 export type NFTDepositReceivedEvent = TypedEvent<
   [
@@ -111,7 +130,9 @@ export type NFTDepositReceivedEvent = TypedEvent<
     BigNumber,
     string,
     BigNumber,
-    BigNumber
+    BigNumber,
+    BigNumber,
+    string
   ],
   NFTDepositReceivedEventObject
 >;
@@ -127,9 +148,21 @@ export interface TokenBalanceClaimedEventObject {
   payoutTime: BigNumber;
   tokenAddress: string;
   volume: BigNumber;
+  class: BigNumber;
+  data: string;
 }
 export type TokenBalanceClaimedEvent = TypedEvent<
-  [string, string, string, string, BigNumber, string, BigNumber],
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ],
   TokenBalanceClaimedEventObject
 >;
 
@@ -146,6 +179,8 @@ export interface TokenDepositReceivedEventObject {
   sender: string;
   expiration: BigNumber;
   volume: BigNumber;
+  class: BigNumber;
+  data: string;
 }
 export type TokenDepositReceivedEvent = TypedEvent<
   [
@@ -157,7 +192,9 @@ export type TokenDepositReceivedEvent = TypedEvent<
     BigNumber,
     string,
     BigNumber,
-    BigNumber
+    BigNumber,
+    BigNumber,
+    string
   ],
   TokenDepositReceivedEventObject
 >;
@@ -196,12 +233,13 @@ export interface IOpenQ extends BaseContract {
   callStatic: {};
 
   filters: {
-    "BountyClosed(string,address,string,address,uint256,bytes)"(
+    "BountyClosed(string,address,string,address,uint256,uint256,bytes)"(
       bountyId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
+      _class?: null,
       data?: null
     ): BountyClosedEventFilter;
     BountyClosed(
@@ -210,41 +248,52 @@ export interface IOpenQ extends BaseContract {
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
+      _class?: null,
       data?: null
     ): BountyClosedEventFilter;
 
-    "BountyCreated(string,string,address,address,uint256)"(
+    "BountyCreated(string,string,address,address,uint256,uint256,bytes)"(
       bountyId?: null,
       organization?: null,
       issuerAddress?: null,
       bountyAddress?: PromiseOrValue<string> | null,
-      bountyMintTime?: null
+      bountyMintTime?: null,
+      _class?: null,
+      data?: null
     ): BountyCreatedEventFilter;
     BountyCreated(
       bountyId?: null,
       organization?: null,
       issuerAddress?: null,
       bountyAddress?: PromiseOrValue<string> | null,
-      bountyMintTime?: null
+      bountyMintTime?: null,
+      _class?: null,
+      data?: null
     ): BountyCreatedEventFilter;
 
-    "DepositExtended(bytes32,uint256)"(
+    "DepositExtended(bytes32,uint256,uint256,bytes)"(
       depositId?: null,
-      newExpiration?: null
+      newExpiration?: null,
+      _class?: null,
+      data?: null
     ): DepositExtendedEventFilter;
     DepositExtended(
       depositId?: null,
-      newExpiration?: null
+      newExpiration?: null,
+      _class?: null,
+      data?: null
     ): DepositExtendedEventFilter;
 
-    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)"(
+    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes)"(
       depositId?: null,
       bountyId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       organization?: null,
       refundTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      _class?: null,
+      data?: null
     ): DepositRefundedEventFilter;
     DepositRefunded(
       depositId?: null,
@@ -253,10 +302,12 @@ export interface IOpenQ extends BaseContract {
       organization?: null,
       refundTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      _class?: null,
+      data?: null
     ): DepositRefundedEventFilter;
 
-    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)"(
+    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes)"(
       depositId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       bountyId?: null,
@@ -265,7 +316,9 @@ export interface IOpenQ extends BaseContract {
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      tokenId?: null
+      tokenId?: null,
+      _class?: null,
+      data?: null
     ): NFTDepositReceivedEventFilter;
     NFTDepositReceived(
       depositId?: null,
@@ -276,17 +329,21 @@ export interface IOpenQ extends BaseContract {
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      tokenId?: null
+      tokenId?: null,
+      _class?: null,
+      data?: null
     ): NFTDepositReceivedEventFilter;
 
-    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256)"(
+    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes)"(
       bountyId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       organization?: null,
       closer?: null,
       payoutTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      _class?: null,
+      data?: null
     ): TokenBalanceClaimedEventFilter;
     TokenBalanceClaimed(
       bountyId?: null,
@@ -295,10 +352,12 @@ export interface IOpenQ extends BaseContract {
       closer?: null,
       payoutTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      _class?: null,
+      data?: null
     ): TokenBalanceClaimedEventFilter;
 
-    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)"(
+    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes)"(
       depositId?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       bountyId?: null,
@@ -307,7 +366,9 @@ export interface IOpenQ extends BaseContract {
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      volume?: null
+      volume?: null,
+      _class?: null,
+      data?: null
     ): TokenDepositReceivedEventFilter;
     TokenDepositReceived(
       depositId?: null,
@@ -318,7 +379,9 @@ export interface IOpenQ extends BaseContract {
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      volume?: null
+      volume?: null,
+      _class?: null,
+      data?: null
     ): TokenDepositReceivedEventFilter;
   };
 

@@ -11,7 +11,9 @@ interface IOpenQ {
         string organization,
         address issuerAddress,
         address indexed bountyAddress,
-        uint256 bountyMintTime
+        uint256 bountyMintTime,
+        uint256 class,
+        bytes data
     );
 
     event BountyClosed(
@@ -20,6 +22,7 @@ interface IOpenQ {
         string organization,
         address closer,
         uint256 bountyClosedTime,
+        uint256 class,
         bytes data
     );
 
@@ -32,7 +35,9 @@ interface IOpenQ {
         uint256 receiveTime,
         address sender,
         uint256 expiration,
-        uint256 volume
+        uint256 volume,
+        uint256 class,
+        bytes data
     );
 
     event NFTDepositReceived(
@@ -44,7 +49,9 @@ interface IOpenQ {
         uint256 receiveTime,
         address sender,
         uint256 expiration,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 class,
+        bytes data
     );
 
     event DepositRefunded(
@@ -54,7 +61,9 @@ interface IOpenQ {
         string organization,
         uint256 refundTime,
         address tokenAddress,
-        uint256 volume
+        uint256 volume,
+        uint256 class,
+        bytes data
     );
 
     event TokenBalanceClaimed(
@@ -64,10 +73,17 @@ interface IOpenQ {
         address closer,
         uint256 payoutTime,
         address tokenAddress,
-        uint256 volume
+        uint256 volume,
+        uint256 class,
+        bytes data
     );
 
-    event DepositExtended(bytes32 depositId, uint256 newExpiration);
+    event DepositExtended(
+        bytes32 depositId,
+        uint256 newExpiration,
+        uint256 class,
+        bytes data
+    );
 
     /**
      * @dev Batch operation data

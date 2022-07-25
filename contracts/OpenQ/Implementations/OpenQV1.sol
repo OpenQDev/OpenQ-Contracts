@@ -78,13 +78,13 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
      * @dev Mints a new bounty BeaconProxy using BountyFactory
      * @param _bountyId A unique string to identify a bounty
      * @param _organization The ID of the organization which owns the bounty
-     * @param _initData Array of ABI encoded method calls passed to the bounty initializer
+     * @param _initOperation Array of ABI encoded method calls passed to the bounty initializer
      * @return bountyAddress The address of the bounty minted
      */
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization,
-        OpenQDefinitions.Operation[] memory _initData
+        OpenQDefinitions.Operation memory _initOperation
     ) external nonReentrant onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),
@@ -95,7 +95,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _bountyId,
             msg.sender,
             _organization,
-            _initData
+            _initOperation
         );
 
         bountyIdToAddress[_bountyId] = bountyAddress;
@@ -105,7 +105,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _organization,
             msg.sender,
             bountyAddress,
-            block.timestamp
+            block.timestamp,
+            0,
+            new bytes(0)
         );
 
         return bountyAddress;
@@ -149,7 +151,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             block.timestamp,
             msg.sender,
             _expiration,
-            volumeReceived
+            volumeReceived,
+            0,
+            new bytes(0)
         );
     }
 
@@ -180,7 +184,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             msg.sender
         );
 
-        emit DepositExtended(_depositId, newExpiration);
+        emit DepositExtended(_depositId, newExpiration, 0, new bytes(0));
     }
 
     /**
@@ -218,7 +222,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             block.timestamp,
             msg.sender,
             _expiration,
-            _tokenId
+            _tokenId,
+            0,
+            new bytes(0)
         );
     }
 
@@ -237,7 +243,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        if (bounty.ongoing()) {
+        uint256 class = bounty.class();
+
+        if (class == 0) {
             (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
                 _closer
             );
@@ -249,9 +257,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 _closer,
                 block.timestamp,
                 tokenAddress,
-                volume
+                volume,
+                0,
+                new bytes(0)
             );
-        } else if (bounty.tiered()) {
+        } else if (class == 1) {
             for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
                 address tokenAddress = bounty.getTokenAddresses()[i];
 
@@ -270,7 +280,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                     _closer,
                     block.timestamp,
                     tokenAddress,
-                    volume
+                    volume,
+                    0,
+                    new bytes(0)
                 );
             }
         } else {
@@ -285,7 +297,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                     _closer,
                     block.timestamp,
                     tokenAddress,
-                    volume
+                    volume,
+                    0,
+                    new bytes(0)
                 );
             }
 
@@ -301,7 +315,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 bounty.organization(),
                 _closer,
                 block.timestamp,
-                _closerData
+                0,
+                new bytes(0)
             );
         }
     }
@@ -343,7 +358,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             bounty.organization(),
             block.timestamp,
             bounty.tokenAddress(_depositId),
-            bounty.volume(_depositId)
+            bounty.volume(_depositId),
+            0,
+            new bytes(0)
         );
     }
 
@@ -392,6 +409,22 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         BountyV1 bounty = BountyV1(payable(bountyAddress));
         bool isOpen = bounty.status() == 0;
         return isOpen;
+    }
+
+    /**
+     * @dev Returns the class of the bounty (Single, Ongoing, or Tiered)
+     * @param _bountyId The token address in question
+     * @return uint256 Class ()
+     */
+    function bountyClass(string calldata _bountyId)
+        public
+        view
+        returns (uint256)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        uint256 class = bounty.class();
+        return class;
     }
 
     /**

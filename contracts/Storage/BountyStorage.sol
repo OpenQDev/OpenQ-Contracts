@@ -17,6 +17,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
  * @dev Custom imports inherited by BountyV0
  */
 import '../OnlyOpenQ/OnlyOpenQ.sol';
+import '../Library/OpenQDefinitions.sol';
 
 /**
  * @title BountyStorageV0
@@ -74,25 +75,33 @@ abstract contract BountyStorageV0 is
  */
 
 abstract contract BountyStorageV1 is BountyStorageV0 {
+    /**
+    The class/type of bounty (Single, Ongoing, or Tiered)
+    type is a reserved word in Solidity
+		 */
+    uint256 public class;
+
     /** 
       Ongoing Bounties pay out the same amount set by the minter for each submission.
       Only closed once minter explicitly closes
     */
-    bool public ongoing;
     address public payoutTokenAddress;
     uint256 public payoutVolume;
 
     /**
     Competition bounties
      */
-    bool public tiered;
 
     // [0] is 1st place, [1] is 2nd, etc.
     // @dev must add up to 100
     uint256[] public payoutSchedule;
 
+    mapping(address => uint256) public fundingTotals;
+
+    bool public comeptitionClosed;
+
     /**
-    Competition bounties
+    Funding goal
      */
     uint256 public fundingGoal;
     address public fundingToken;

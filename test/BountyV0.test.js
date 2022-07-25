@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe('BountyV1.sol', () => {
+describe.only('BountyV1.sol', () => {
 	let bounty;
 	let mockLink;
 	let mockDai;
@@ -14,13 +14,16 @@ describe('BountyV1.sol', () => {
 	let initializationTimestamp;
 	const thirtyDays = 2765000;
 	let BountyV1;
-	let bountyInitOperations;
-	let tieredBountyInitOperations;
+	let bountyInitOperation;
+	let tieredBountyInitOperation;
 
 	const mockId = "mockId";
 	const organization = "mockOrg";
 
 	let tieredBounty;
+	let abiCoder;
+
+	let abiEncodedCloserUrl;
 
 	beforeEach(async () => {
 		BountyV1 = await ethers.getContractFactory('BountyV1');
@@ -34,16 +37,11 @@ describe('BountyV1.sol', () => {
 		bounty = await BountyV1.deploy();
 		await bounty.deployed();
 
-		bountyInitOperations = [
-			[
-				0,
-				[]
-			]
-		];
+		bountyInitOperation = [0, []];
 
 		// Passing in owner.address as _openQ for unit testing since most methods are onlyOpenQ protected
 		initializationTimestamp = await setNextBlockTimestamp();
-		await bounty.initialize(mockId, owner.address, organization, owner.address, bountyInitOperations);
+		await bounty.initialize(mockId, owner.address, organization, owner.address, bountyInitOperation);
 
 		// Deploy mock assets
 		mockLink = await MockLink.deploy();
@@ -77,17 +75,12 @@ describe('BountyV1.sol', () => {
 		ongoingBounty = await BountyV1.deploy();
 		await ongoingBounty.deployed();
 
-		const abiCoder = new ethers.utils.AbiCoder;
+		abiCoder = new ethers.utils.AbiCoder;
 		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [mockLink.address, '100']);
 
-		let ongoingBountyInitOperations = [
-			[
-				1,
-				abiEncodedParams
-			]
-		];
+		let ongoingBountyInitOperation = [1, abiEncodedParams];
 
-		await ongoingBounty.initialize(mockId, owner.address, organization, owner.address, ongoingBountyInitOperations);
+		await ongoingBounty.initialize(mockId, owner.address, organization, owner.address, ongoingBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(ongoingBounty.address, 10000000);
@@ -99,18 +92,15 @@ describe('BountyV1.sol', () => {
 
 		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[80, 20]]);
 
-		tieredBountyInitOperations = [
-			[
-				2,
-				abiEncodedParamsTieredBounty
-			]
-		];
+		tieredBountyInitOperation = [2, abiEncodedParamsTieredBounty];
 
-		await tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperations);
+		await tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredBounty.address, 10000000);
 		await mockDai.approve(tieredBounty.address, 10000000);
+
+		abiEncodedCloserUrl = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 	});
 
 	describe('initializer', () => {
@@ -144,7 +134,7 @@ describe('BountyV1.sol', () => {
 			bounty = await BountyV1.deploy();
 
 			// ASSERT
-			await expect(bounty.initialize("", owner.address, organization, owner.address, bountyInitOperations)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+			await expect(bounty.initialize("", owner.address, organization, owner.address, bountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 		});
 
 		it('should revert if organization is empty', async () => {
@@ -153,16 +143,16 @@ describe('BountyV1.sol', () => {
 			bounty = await BountyV1.deploy();
 
 			// ASSERT
-			await expect(bounty.initialize(mockId, owner.address, "", owner.address, bountyInitOperations)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+			await expect(bounty.initialize(mockId, owner.address, "", owner.address, bountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 		});
 
 		describe('initializer - ongoing', () => {
 			it('should init with ongoing and payoutVolume', async () => {
-				const actualBountyOngoing = await ongoingBounty.ongoing();
+				const actualBountyClass = await ongoingBounty.class();
 				const actualBountyPayoutVolume = await ongoingBounty.payoutVolume();
 				const actualBountyPayoutTokenAddress = await ongoingBounty.payoutTokenAddress();
 
-				await expect(actualBountyOngoing).equals(true);
+				await expect(actualBountyClass).equals(1);
 				await expect(actualBountyPayoutVolume).equals(100);
 				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
 			});
@@ -170,16 +160,16 @@ describe('BountyV1.sol', () => {
 
 		describe('initializer - tiered', () => {
 			it('should init with tiered and payout schedule', async () => {
-				const actualBountyTiered = await tieredBounty.tiered();
+				const actualBountyClass = await tieredBounty.class();
 				const actualBountyPayoutSchedule = await tieredBounty.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
 
-				await expect(actualBountyTiered).equals(true);
-				await expect(payoutToString[0]).equals("60");
-				await expect(payoutToString[1]).equals("40");
+				await expect(actualBountyClass).equals(2);
+				await expect(payoutToString[0]).equals("80");
+				await expect(payoutToString[1]).equals("20");
 			});
 
-			it.only('should revert if payoutSchedule values do not add up to 100', async () => {
+			it('should revert if payoutSchedule values do not add up to 100', async () => {
 				// Mint a Tiered Bounty
 				tieredBounty = await BountyV1.deploy();
 				await tieredBounty.deployed();
@@ -187,15 +177,9 @@ describe('BountyV1.sol', () => {
 				const abiCoder = new ethers.utils.AbiCoder;
 				const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[1, 2]]);
 
-				tieredBountyInitOperations = [
-					[
-						2,
-						abiEncodedParamsTieredBounty
-					]
-				];
+				tieredBountyInitOperation = [2, abiEncodedParamsTieredBounty];
 
-
-				await expect(tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperations)).to.be.revertedWith('Payout schedule must add up to 100');
+				await expect(tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperation)).to.be.revertedWith('Payout schedule must add up to 100');
 			});
 		});
 	});
@@ -305,7 +289,7 @@ describe('BountyV1.sol', () => {
 
 				const newBounty = await BountyV1.deploy();
 				await newBounty.deployed();
-				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, bountyInitOperations);
+				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, bountyInitOperation);
 
 				await mockLink.approve(newBounty.address, 20000);
 				await newBounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
@@ -636,31 +620,37 @@ describe('BountyV1.sol', () => {
 		describe('Tiered Bounty', () => {
 			it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
 				// ARRANGE
-				const volume = 300;
+				const volume = 1000;
 
-				const [, claimer] = await ethers.getSigners();
+				const [, firstPlace, secondPlace] = await ethers.getSigners();
 
 				await tieredBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
 
 				const deposits = await bounty.getDeposits();
 				const linkDepositId = deposits[0];
 
+				await tieredBounty.endCompetition();
+
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
-				expect(bountyMockTokenBalance).to.equal('300');
+				expect(bountyMockTokenBalance).to.equal('1000');
 
-				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
 				expect(claimerMockTokenBalance).to.equal('0');
 
 				// ACT
-				await tieredBounty.claimTiered(claimer.address, 0, mockLink.address);
+				await tieredBounty.claimTiered(firstPlace.address, 0, mockLink.address);
 
 				// // ASSERT
-				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
-				expect(newClaimerMockTokenBalance).to.equal('100');
+				const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+				expect(newClaimerMockTokenBalance).to.equal('800');
 
-				// const newBountyMockLinkBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
-				// expect(newBountyMockLinkBalance).to.equal('200');
+				// ACT
+				await tieredBounty.claimTiered(secondPlace.address, 1, mockLink.address);
+
+				// // ASSERT
+				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
+				expect(secondPlaceMockTokenBalance).to.equal('200');
 			});
 		});
 	});
@@ -677,9 +667,9 @@ describe('BountyV1.sol', () => {
 				await expect(issueWithNonOwnerAccount.claimNft(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
-			it('should revert if issue is already closed', async () => {
+			it.only('should revert if issue is already closed', async () => {
 				// ARRANGE
-				await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
+				await bounty.close(owner.address, abiEncodedCloserUrl);
 
 				// ASSERT
 				await expect(bounty.claimNft(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
@@ -707,6 +697,43 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
+	describe('endCompetition', () => {
+		it('should end competition and freeze balances', async () => {
+			// ARRANGE
+			const volume = 1000;
+
+			const [, firstPlace, secondPlace] = await ethers.getSigners();
+
+			await tieredBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+
+			const deposits = await bounty.getDeposits();
+			const linkDepositId = deposits[0];
+
+			// ASSUME
+			const bountyMockTokenBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
+			expect(bountyMockTokenBalance).to.equal('1000');
+
+			const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+			expect(claimerMockTokenBalance).to.equal('0');
+
+			// ASSUME
+			let isEnded = await tieredBounty.comeptitionClosed();
+			let mockTokenFundingTotal = await tieredBounty.fundingTotals(mockLink.address);
+
+			expect(isEnded).to.equal(false);
+			expect(mockTokenFundingTotal).to.equal(0);
+
+			// ACT
+			await tieredBounty.endCompetition();
+
+			isEnded = await tieredBounty.comeptitionClosed();
+			mockTokenFundingTotal = await tieredBounty.fundingTotals(mockLink.address);
+
+			expect(isEnded).to.equal(true);
+			expect(mockTokenFundingTotal).to.equal(1000);
+		});
+	});
+
 	describe('closeBounty', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
@@ -714,21 +741,21 @@ describe('BountyV1.sol', () => {
 			let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
 			// ASSERT
-			await expect(issueWithNonOwnerAccount.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398')).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(issueWithNonOwnerAccount.close(owner.address, abiEncodedCloserUrl)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should revert if already closed', async () => {
 			// ARRANGE
-			bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
+			bounty.close(owner.address, abiEncodedCloserUrl);
 			//ACT / ASSERT
-			await expect(bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398')).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
+			await expect(bounty.close(owner.address, abiEncodedCloserUrl)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
 		});
 
 		it('should change status to CLOSED (1)', async () => {
 			// ASSUME
 			await expect(await bounty.status()).equals(0);
 			//ACT
-			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
+			await bounty.close(owner.address, abiEncodedCloserUrl);
 			// ASSERT
 			await expect(await bounty.status()).equals(1);
 		});
@@ -737,7 +764,7 @@ describe('BountyV1.sol', () => {
 			// ASSUME
 			await expect(await bounty.closer()).equals(ethers.constants.AddressZero);
 			//ACT
-			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
+			await bounty.close(owner.address, abiEncodedCloserUrl);
 			// ASSERT
 			await expect(await bounty.closer()).equals(owner.address);
 		});
@@ -748,7 +775,7 @@ describe('BountyV1.sol', () => {
 			// ASSUME
 			await expect(await bounty.bountyClosedTime()).equals(0);
 			//ACT
-			await bounty.close(owner.address, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398');
+			await bounty.close(owner.address, abiEncodedCloserUrl);
 			// ASSERT
 			await expect(await bounty.bountyClosedTime()).equals(expectedTimestamp);
 		});

@@ -42,7 +42,7 @@ export declare namespace OpenQDefinitions {
 export interface BountyFactoryInterface extends utils.Interface {
   functions: {
     "getBeacon()": FunctionFragment;
-    "mintBounty(string,address,string,(uint32,bytes)[])": FunctionFragment;
+    "mintBounty(string,address,string,(uint32,bytes))": FunctionFragment;
     "openQ()": FunctionFragment;
   };
 
@@ -57,7 +57,7 @@ export interface BountyFactoryInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      OpenQDefinitions.OperationStruct[]
+      OpenQDefinitions.OperationStruct
     ]
   ): string;
   encodeFunctionData(functionFragment: "openQ", values?: undefined): string;
@@ -113,7 +113,7 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      operations: OpenQDefinitions.OperationStruct[],
+      operation: OpenQDefinitions.OperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -126,7 +126,7 @@ export interface BountyFactory extends BaseContract {
     _id: PromiseOrValue<string>,
     _issuer: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
-    operations: OpenQDefinitions.OperationStruct[],
+    operation: OpenQDefinitions.OperationStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -139,7 +139,7 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      operations: OpenQDefinitions.OperationStruct[],
+      operation: OpenQDefinitions.OperationStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -158,7 +158,7 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      operations: OpenQDefinitions.OperationStruct[],
+      operation: OpenQDefinitions.OperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -172,7 +172,7 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      operations: OpenQDefinitions.OperationStruct[],
+      operation: OpenQDefinitions.OperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
