@@ -974,7 +974,7 @@ export interface BountyV1 extends BaseContract {
       _tier: PromiseOrValue<BigNumberish>,
       _tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[string, BigNumber]>;
+    ): Promise<BigNumber>;
 
     class(overrides?: CallOverrides): Promise<BigNumber>;
 

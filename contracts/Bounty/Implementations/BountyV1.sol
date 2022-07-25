@@ -28,6 +28,14 @@ contract BountyV1 is BountyStorageV1 {
         class = 0;
     }
 
+    function _initSingleWithFundingGoal(
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) internal {
+        class = 3;
+        setFundingGoal(_fundingToken, _fundingGoal);
+    }
+
     function _initOngoingBounty(
         address _payoutTokenAddress,
         uint256 _payoutVolume
@@ -70,7 +78,7 @@ contract BountyV1 is BountyStorageV1 {
                 operation.data,
                 (address, uint256)
             );
-            setFundingGoal(_fundingToken, _fundingGoal);
+            _initSingleWithFundingGoal(_fundingToken, _fundingGoal);
         } else if (operationType == OpenQDefinitions.DEPOSIT) {
             _initSingle();
         } else {
@@ -276,13 +284,12 @@ contract BountyV1 is BountyStorageV1 {
         address _payoutAddress,
         uint256 _tier,
         address _tokenAddress
-    ) external onlyOpenQ nonReentrant returns (address, uint256) {
+    ) external onlyOpenQ nonReentrant returns (uint256) {
         uint256 claimedBalance = (payoutSchedule[_tier] *
             this.fundingTotals(_tokenAddress)) / 100;
 
         _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
-
-        return (_tokenAddress, claimedBalance);
+        return claimedBalance;
     }
 
     function endCompetition() public {

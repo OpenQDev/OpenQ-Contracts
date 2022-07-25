@@ -84,7 +84,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         string calldata _bountyId,
         string calldata _organization,
         OpenQDefinitions.Operation memory _initOperation
-    ) external onlyProxy returns (address) {
+    ) external nonReentrant onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),
             'BOUNTY_ALREADY_EXISTS'
@@ -122,8 +122,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             msg.sender,
             bountyAddress,
             block.timestamp,
-            0,
-            new bytes(0)
+            bountyClass(_bountyId),
+            _initOperation.data
         );
 
         return bountyAddress;
@@ -244,6 +244,76 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
     }
 
+    function claimTiered(
+        BountyV1 bounty,
+        bytes calldata _closerData,
+        address _closer
+    ) public {
+        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
+            uint256 _tier = abi.decode(_closerData, (uint256));
+
+            uint256 volume = bounty.claimTiered(
+                _closer,
+                _tier,
+                bounty.getTokenAddresses()[i]
+            );
+
+            emit TokenBalanceClaimed(
+                bounty.bountyId(),
+                bountyIdToAddress[bounty.bountyId()],
+                bounty.organization(),
+                _closer,
+                block.timestamp,
+                bounty.getTokenAddresses()[i],
+                volume,
+                0,
+                _closerData
+            );
+        }
+    }
+
+    function claimSingle(
+        BountyV1 bounty,
+        bytes calldata _closerData,
+        address _closer,
+        string calldata _bountyId
+    ) public {
+        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
+            uint256 volume = bounty.claimBalance(
+                _closer,
+                bounty.getTokenAddresses()[i]
+            );
+
+            emit TokenBalanceClaimed(
+                bounty.bountyId(),
+                bountyIdToAddress[_bountyId],
+                bounty.organization(),
+                _closer,
+                block.timestamp,
+                bounty.getTokenAddresses()[i],
+                volume,
+                bounty.class(),
+                _closerData
+            );
+        }
+
+        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
+            bounty.claimNft(_closer, bounty.nftDeposits(i));
+        }
+
+        bounty.close(_closer, _closerData);
+
+        emit BountyClosed(
+            _bountyId,
+            bountyIdToAddress[_bountyId],
+            bounty.organization(),
+            _closer,
+            block.timestamp,
+            bounty.class(),
+            _closerData
+        );
+    }
+
     /**
      * @dev Transfers full balance of bounty and any NFT deposits from bounty address to closer
      * @param _bountyId A unique string to identify a bounty
@@ -256,8 +326,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     ) external onlyOracle nonReentrant {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
 
         if (bounty.class() == OpenQDefinitions.ONGOING) {
             (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
@@ -266,72 +335,19 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
             emit TokenBalanceClaimed(
                 bounty.bountyId(),
-                bountyAddress,
+                bountyIdToAddress[_bountyId],
                 bounty.organization(),
                 _closer,
                 block.timestamp,
                 tokenAddress,
                 volume,
                 0,
-                new bytes(0)
-            );
-        } else if (bounty.class() == OpenQDefinitions.TIERED) {
-            for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-                address tokenAddress = bounty.getTokenAddresses()[i];
-
-                (uint256 _tier, string memory closerUrl) = abi.decode(
-                    _closerData,
-                    (uint256, string)
-                );
-
-                (address returntokenAddress, uint256 volume) = bounty
-                    .claimTiered(_closer, _tier, tokenAddress);
-
-                emit TokenBalanceClaimed(
-                    bounty.bountyId(),
-                    bountyAddress,
-                    bounty.organization(),
-                    _closer,
-                    block.timestamp,
-                    tokenAddress,
-                    volume,
-                    0,
-                    new bytes(0)
-                );
-            }
-        } else {
-            for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-                address tokenAddress = bounty.getTokenAddresses()[i];
-                uint256 volume = bounty.claimBalance(_closer, tokenAddress);
-
-                emit TokenBalanceClaimed(
-                    bounty.bountyId(),
-                    bountyAddress,
-                    bounty.organization(),
-                    _closer,
-                    block.timestamp,
-                    tokenAddress,
-                    volume,
-                    bounty.class(),
-                    _closerData
-                );
-            }
-
-            for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
-                bounty.claimNft(_closer, bounty.nftDeposits(i));
-            }
-
-            bounty.close(_closer, _closerData);
-
-            emit BountyClosed(
-                _bountyId,
-                bountyAddress,
-                bounty.organization(),
-                _closer,
-                block.timestamp,
-                bounty.class(),
                 _closerData
             );
+        } else if (bounty.class() == OpenQDefinitions.TIERED) {
+            claimTiered(bounty, _closerData, _closer);
+        } else {
+            claimSingle(bounty, _closerData, _closer, _bountyId);
         }
     }
 

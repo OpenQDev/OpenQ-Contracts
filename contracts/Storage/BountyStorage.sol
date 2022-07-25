@@ -109,7 +109,6 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
         public
     {
-        require(msg.sender == issuer, 'Must be issuer to set funding goal');
         fundingGoal = _fundingGoal;
         fundingToken = _fundingToken;
     }
