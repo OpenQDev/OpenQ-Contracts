@@ -365,7 +365,7 @@ describe.only('OpenQV1.sol', () => {
 		});
 	});
 
-	describe.only('claimBounty', () => {
+	describe('claimBounty', () => {
 		describe('require and revert', () => {
 			it('should revert if not called by OpenQ Oracle', async () => {
 				// ASSERT
@@ -526,7 +526,7 @@ describe.only('OpenQV1.sol', () => {
 			});
 		});
 
-		describe.only('Event Emissions', () => {
+		describe('Event Emissions', () => {
 			it('should emit a BountyClosed event with correct parameters', async () => {
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation);
@@ -626,13 +626,13 @@ describe.only('OpenQV1.sol', () => {
 				// ASSERT
 				await expect(openQProxy.refundDeposit(bountyId, protocolDepositId))
 					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume);
+					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, []);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
 				await expect(openQProxy.refundDeposit(bountyId, tokenDepositId))
 					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume);
+					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, []);
 			});
 		});
 
@@ -818,7 +818,7 @@ describe.only('OpenQV1.sol', () => {
 			// ACT
 			await expect(openQProxy.extendDeposit(bountyId, depositId, 1000))
 				.to.emit(openQProxy, 'DepositExtended')
-				.withArgs(depositId, 1001);
+				.withArgs(depositId, 1001, 0, []);
 		});
 	});
 });
