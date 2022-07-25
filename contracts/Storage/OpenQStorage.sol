@@ -14,7 +14,6 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
  */
 import '../BountyFactory/BountyFactory.sol';
 import '../Tokens/OpenQTokenWhitelist.sol';
-import '../Bounty/Implementations/BountyV0.sol';
 import '../Bounty/Implementations/BountyV1.sol';
 import '../Oracle/Oraclize.sol';
 

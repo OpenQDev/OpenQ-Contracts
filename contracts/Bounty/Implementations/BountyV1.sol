@@ -72,7 +72,7 @@ contract BountyV1 is BountyStorageV1 {
             );
             setFundingGoal(_fundingToken, _fundingGoal);
         } else if (operationType == OpenQDefinitions.DEPOSIT) {
-            return;
+            _initSingle();
         } else {
             revert('OQ: unknown init operation type');
         }

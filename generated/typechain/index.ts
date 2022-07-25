@@ -66,8 +66,6 @@ export type { ERC165 } from "./@openzeppelin/contracts/utils/introspection/ERC16
 export { ERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/ERC165__factory";
 export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC165";
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
-export type { BountyV0 } from "./contracts/Bounty/Implementations/BountyV0";
-export { BountyV0__factory } from "./factories/contracts/Bounty/Implementations/BountyV0__factory";
 export type { BountyV1 } from "./contracts/Bounty/Implementations/BountyV1";
 export { BountyV1__factory } from "./factories/contracts/Bounty/Implementations/BountyV1__factory";
 export type { BountyBeacon } from "./contracts/Bounty/Proxy/BountyBeacon";

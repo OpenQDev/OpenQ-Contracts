@@ -8,7 +8,6 @@ import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
 import 'hardhat/console.sol';
 import '../../Library/OpenQDefinitions.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title OpenQV1
@@ -85,7 +84,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         string calldata _bountyId,
         string calldata _organization,
         OpenQDefinitions.Operation memory _initOperation
-    ) external nonReentrant onlyProxy returns (address) {
+    ) external onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),
             'BOUNTY_ALREADY_EXISTS'
@@ -103,6 +102,17 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         if (_initOperation.operationType == OpenQDefinitions.DEPOSIT) {
             (address _tokenAddress, uint256 _volume, uint256 _expiration) = abi
                 .decode(_initOperation.data, (address, uint256, uint256));
+
+            (bool success, bytes memory returnedData) = _tokenAddress
+                .delegatecall(
+                    abi.encodeWithSignature(
+                        'approve(address,uint256)',
+                        bountyAddress,
+                        _volume
+                    )
+                );
+            require(success);
+
             fundBountyToken(_bountyId, _tokenAddress, _volume, _expiration);
         }
 
@@ -249,9 +259,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        uint256 class = bounty.class();
-
-        if (class == 0) {
+        if (bounty.class() == OpenQDefinitions.ONGOING) {
             (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
                 _closer
             );
@@ -267,7 +275,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 0,
                 new bytes(0)
             );
-        } else if (class == 1) {
+        } else if (bounty.class() == OpenQDefinitions.TIERED) {
             for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
                 address tokenAddress = bounty.getTokenAddresses()[i];
 
@@ -304,8 +312,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                     block.timestamp,
                     tokenAddress,
                     volume,
-                    0,
-                    new bytes(0)
+                    bounty.class(),
+                    _closerData
                 );
             }
 
@@ -321,8 +329,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 bounty.organization(),
                 _closer,
                 block.timestamp,
-                0,
-                new bytes(0)
+                bounty.class(),
+                _closerData
             );
         }
     }

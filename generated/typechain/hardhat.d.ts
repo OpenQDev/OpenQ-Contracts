@@ -133,10 +133,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC165__factory>;
     getContractFactory(
-      name: "BountyV0",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.BountyV0__factory>;
-    getContractFactory(
       name: "BountyV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BountyV1__factory>;
@@ -363,11 +359,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC165>;
-    getContractAt(
-      name: "BountyV0",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.BountyV0>;
     getContractAt(
       name: "BountyV1",
       address: string,
