@@ -290,6 +290,7 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     function endCompetition() public {
+        require(msg.sender == issuer, 'Must be issuer to close competition');
         comeptitionClosed = true;
 
         for (uint256 i = 0; i < getTokenAddresses().length; i++) {

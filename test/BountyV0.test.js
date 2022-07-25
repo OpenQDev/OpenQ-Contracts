@@ -667,7 +667,7 @@ describe.only('BountyV1.sol', () => {
 				await expect(issueWithNonOwnerAccount.claimNft(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
 			});
 
-			it.only('should revert if issue is already closed', async () => {
+			it('should revert if issue is already closed', async () => {
 				// ARRANGE
 				await bounty.close(owner.address, abiEncodedCloserUrl);
 
@@ -731,6 +731,12 @@ describe.only('BountyV1.sol', () => {
 
 			expect(isEnded).to.equal(true);
 			expect(mockTokenFundingTotal).to.equal(1000);
+		});
+
+		it.only('should revert if caller is not issuer', async () => {
+			const [, notOwner] = await ethers.getSigners();
+			let tieredBountyNotIssuer = tieredBounty.connect(notOwner);
+			await expect(tieredBountyNotIssuer.endCompetition()).to.be.revertedWith('Must be issuer to close competition');
 		});
 	});
 
