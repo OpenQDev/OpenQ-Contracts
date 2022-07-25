@@ -35,6 +35,11 @@ contract BountyV1 is BountyStorageV1 {
 
     function _initTiered(uint256[] memory _payoutSchedule) internal {
         tiered = true;
+        uint256 sum;
+        for (uint256 i = 0; i < _payoutSchedule.length; i++) {
+            sum += _payoutSchedule[i];
+        }
+        require(sum == 100, 'Payout schedule must add up to 100');
         payoutSchedule = _payoutSchedule;
     }
 

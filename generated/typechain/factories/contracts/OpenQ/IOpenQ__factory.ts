@@ -43,7 +43,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "bytes",
-        name: "closerData",
+        name: "data",
         type: "bytes",
       },
     ],

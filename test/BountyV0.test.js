@@ -97,7 +97,7 @@ describe('BountyV1.sol', () => {
 		tieredBounty = await BountyV1.deploy();
 		await tieredBounty.deployed();
 
-		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[160, 140]]);
+		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[80, 20]]);
 
 		tieredBountyInitOperations = [
 			[
@@ -177,6 +177,25 @@ describe('BountyV1.sol', () => {
 				await expect(actualBountyTiered).equals(true);
 				await expect(payoutToString[0]).equals("60");
 				await expect(payoutToString[1]).equals("40");
+			});
+
+			it.only('should revert if payoutSchedule values do not add up to 100', async () => {
+				// Mint a Tiered Bounty
+				tieredBounty = await BountyV1.deploy();
+				await tieredBounty.deployed();
+
+				const abiCoder = new ethers.utils.AbiCoder;
+				const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[1, 2]]);
+
+				tieredBountyInitOperations = [
+					[
+						2,
+						abiEncodedParamsTieredBounty
+					]
+				];
+
+
+				await expect(tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperations)).to.be.revertedWith('Payout schedule must add up to 100');
 			});
 		});
 	});
@@ -615,7 +634,7 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('Tiered Bounty', () => {
-			it.only('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
+			it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
 				// ARRANGE
 				const volume = 300;
 

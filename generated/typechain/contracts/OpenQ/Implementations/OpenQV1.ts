@@ -369,7 +369,7 @@ export interface BountyClosedEventObject {
   organization: string;
   closer: string;
   bountyClosedTime: BigNumber;
-  closerData: string;
+  data: string;
 }
 export type BountyClosedEvent = TypedEvent<
   [string, string, string, string, BigNumber, string],
@@ -949,7 +949,7 @@ export interface OpenQV1 extends BaseContract {
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
-      closerData?: null
+      data?: null
     ): BountyClosedEventFilter;
     BountyClosed(
       bountyId?: null,
@@ -957,7 +957,7 @@ export interface OpenQV1 extends BaseContract {
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
-      closerData?: null
+      data?: null
     ): BountyClosedEventFilter;
 
     "BountyCreated(string,string,address,address,uint256)"(
