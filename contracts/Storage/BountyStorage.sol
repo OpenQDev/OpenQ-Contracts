@@ -88,6 +88,9 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     address public payoutTokenAddress;
     uint256 public payoutVolume;
 
+    // keccak256 hash of the claimant ID (GitHub ID) with the claimant asset ID (GitHub PR ID)
+    mapping(bytes32 => bool) public claimantIds;
+
     /**
     Competition bounties
      */
@@ -97,6 +100,7 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     uint256[] public payoutSchedule;
 
     mapping(address => uint256) public fundingTotals;
+    mapping(uint256 => bool) public tierClaimed;
 
     /**
     Funding goal

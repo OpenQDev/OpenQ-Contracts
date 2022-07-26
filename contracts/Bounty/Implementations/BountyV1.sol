@@ -289,8 +289,12 @@ contract BountyV1 is BountyStorageV1 {
             status == OpenQDefinitions.COMPETITION_CLOSED,
             'COMPETITION_NOT_CLOSED'
         );
+        require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
+
         uint256 claimedBalance = (payoutSchedule[_tier] *
             this.fundingTotals(_tokenAddress)) / 100;
+
+        tierClaimed[_tier] = true;
 
         _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
         return claimedBalance;

@@ -688,6 +688,29 @@ describe('BountyV1.sol', () => {
 				// ACT/ASSERT
 				await expect(tieredBounty.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
 			});
+
+			it('should set tierClaimed to true', async () => {
+				// ASSUME
+				let tierClaimed = await tieredBounty.tierClaimed(0);
+				expect(tierClaimed).to.equal(false);
+
+				// ACT
+				await tieredBounty.closeCompetition(owner.address);
+				await tieredBounty.claimTiered(owner.address, 0, mockLink.address);
+
+				// ASSERT
+				tierClaimed = await tieredBounty.tierClaimed(0);
+				expect(tierClaimed).to.equal(true);
+			});
+
+			it.only('should revert if claimed twice by same tier', async () => {
+				// ARRANGE
+				await tieredBounty.closeCompetition(owner.address);
+				await tieredBounty.claimTiered(owner.address, 0, mockLink.address);
+
+				// ACT/ASSERT
+				await expect(tieredBounty.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('TIER_ALREADY_CLAIMED');
+			});
 		});
 	});
 
