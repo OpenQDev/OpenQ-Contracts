@@ -468,6 +468,17 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         return isOpen;
     }
 
+    function tierClaimed(string calldata _bountyId, uint256 _tier)
+        public
+        view
+        returns (bool)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        bool _tierClaimed = bounty.tierClaimed(_tier);
+        return _tierClaimed;
+    }
+
     /**
      * @dev Checks if bounty associated with _bountyId is open
      * @param _bountyId The token address in question

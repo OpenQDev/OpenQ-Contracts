@@ -292,7 +292,7 @@ contract BountyV1 is BountyStorageV1 {
         require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
 
         uint256 claimedBalance = (payoutSchedule[_tier] *
-            this.fundingTotals(_tokenAddress)) / 100;
+            fundingTotals[_tokenAddress]) / 100;
 
         tierClaimed[_tier] = true;
 
@@ -376,7 +376,7 @@ contract BountyV1 is BountyStorageV1 {
         external
         onlyOpenQ
     {
-        require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
+        require(status == 0, 'CLOSING_CLOSED_BOUNTY');
         status = 1;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;

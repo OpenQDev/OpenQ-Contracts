@@ -703,7 +703,7 @@ describe('BountyV1.sol', () => {
 				expect(tierClaimed).to.equal(true);
 			});
 
-			it.only('should revert if claimed twice by same tier', async () => {
+			it('should revert if claimed twice by same tier', async () => {
 				// ARRANGE
 				await tieredBounty.closeCompetition(owner.address);
 				await tieredBounty.claimTiered(owner.address, 0, mockLink.address);

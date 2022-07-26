@@ -1181,6 +1181,34 @@ describe('OpenQV1.sol', () => {
 				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 1, []);
 		});
 	});
+
+	describe('tierClaimed', () => {
+		it('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// ACT + ASSERT
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+			await bounty.closeCompetition(owner.address);
+
+			// ASSUME
+			let tierClaimed = await bounty.tierClaimed(0);
+			expect(tierClaimed).to.equal(false);
+
+			// ACT
+			const oracleContract = openQProxy.connect(oracle);
+			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData);
+
+			// ASSERT
+			tierClaimed = await bounty.tierClaimed(0);
+			expect(tierClaimed).to.equal(true);
+		});
+	});
 });
 
 async function setNextBlockTimestamp(timestamp = 10) {
