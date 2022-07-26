@@ -119,46 +119,129 @@ describe('OpenQV1.sol', () => {
 	});
 
 	describe('mintBounty', () => {
-		it('should deploy a new bounty contract with expected initial metadata', async () => {
-			// ARRANGE
-			const expectedTimestamp = await setNextBlockTimestamp();
+		describe('ATOMIC', () => {
+			it('should deploy a new bounty contract with expected initial metadata', async () => {
+				// ARRANGE
+				const expectedTimestamp = await setNextBlockTimestamp();
 
-			// ACT
-			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+				// ACT
+				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
 
-			const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
-			const Bounty = await ethers.getContractFactory('BountyV1');
+				const Bounty = await ethers.getContractFactory('BountyV1');
 
-			const newBounty = await Bounty.attach(
-				bountyAddress
-			);
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
 
-			const newBountyId = await newBounty.bountyId();
-			const bountyCreatedTime = (await newBounty.bountyCreatedTime()).toNumber();
-			const bountyClosedTime = await newBounty.bountyClosedTime();
-			const issuer = await newBounty.issuer();
-			const closer = await newBounty.closer();
-			const status = await newBounty.status();
-			const bountyType = await newBounty.class();
-			const payoutVolume = await newBounty.payoutVolume();
-			const payoutTokenAddress = await newBounty.payoutTokenAddress();
+				const newBountyId = await newBounty.bountyId();
+				const bountyCreatedTime = (await newBounty.bountyCreatedTime()).toNumber();
+				const bountyClosedTime = await newBounty.bountyClosedTime();
+				const issuer = await newBounty.issuer();
+				const closer = await newBounty.closer();
+				const status = await newBounty.status();
+				const bountyType = await newBounty.class();
+				const payoutVolume = await newBounty.payoutVolume();
+				const payoutTokenAddress = await newBounty.payoutTokenAddress();
 
-			// ASSERT
-			expect(bountyId).to.equal(newBountyId);
-			expect(bountyCreatedTime).to.equal(expectedTimestamp);
-			expect(bountyClosedTime).to.equal(0);
-			expect(issuer).to.equal(owner.address);
-			expect(closer).to.equal(ethers.constants.AddressZero);
-			expect(status).to.equal(0);
-			expect(bountyType).to.equal(1);
-			expect(payoutVolume).to.equal(100);
-			expect(payoutTokenAddress).to.equal(mockLink.address);
+				// ASSERT
+				expect(bountyId).to.equal(newBountyId);
+				expect(bountyCreatedTime).to.equal(expectedTimestamp);
+				expect(bountyClosedTime).to.equal(0);
+				expect(issuer).to.equal(owner.address);
+				expect(closer).to.equal(ethers.constants.AddressZero);
+				expect(status).to.equal(0);
+				expect(bountyType).to.equal(1);
+				expect(payoutVolume).to.equal(100);
+				expect(payoutTokenAddress).to.equal(mockLink.address);
+			});
+
+			it('should revert if bounty already exists', async () => {
+				// ARRANGE
+				// ACT
+				await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation);
+
+				// ASSERT
+				await expect(openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation)).to.be.revertedWith('BOUNTY_ALREADY_EXISTS');
+			});
+
+			it('should store bountyId to bountyAddress', async () => {
+				// ACT
+				await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation);
+
+				const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				const Bounty = await ethers.getContractFactory('BountyV1');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+
+				const newBountyId = await newBounty.bountyId();
+
+				const bountyIdFromAddress = await openQProxy.bountyAddressToBountyId(bountyAddress);
+				expect(bountyIdFromAddress).to.equal(newBountyId);
+
+				const bountyAddressFromId = await openQProxy.bountyIdToAddress(newBountyId);
+				expect(bountyAddressFromId).to.equal(bountyAddress);
+			});
+
+			it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, bountyMintTime, class, and data', async () => {
+				// ARRANGE
+				const mockOrg = "OpenQDev";
+				const expectedBountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				let expectedTimestamp = await setNextBlockTimestamp();
+
+				// ACT
+				// ASSERT
+
+				// SINGLE
+				let txnSingle;
+				await expect(txnSingle = await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation))
+					.to.emit(openQProxy, 'BountyCreated')
+					.withArgs(bountyId, mockOrg, owner.address, anyValue, expectedTimestamp, 0, []);
+				txnReceipt = await txnSingle.wait(); // 0ms, as tx is already confirmed
+				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
+				[bountyAddress] = event.args;
+				expect(bountyAddress).to.not.equal(ethers.constants.AddressZero);
+
+				// // ONGOING
+				let txnOngoing;
+				expectedTimestamp = await setNextBlockTimestamp();
+				await expect(txnOngoing = await openQProxy.mintBounty('ongoingBountyId', mockOrg, ongoingBountyInitOperation))
+					.to.emit(openQProxy, 'BountyCreated')
+					.withArgs('ongoingBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 1, []);
+				txnReceipt = await txnOngoing.wait(); // 0ms, as tx is already confirmed
+				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
+				[bountyAddress] = event.args;
+				expect(bountyAddress).to.not.equal(ethers.constants.AddressZero);
+
+				// // TIERED
+				let txnTiered;
+				expectedTimestamp = await setNextBlockTimestamp();
+				await expect(txnTiered = await openQProxy.mintBounty('tieredBountyId', mockOrg, tieredBountyInitOperation))
+					.to.emit(openQProxy, 'BountyCreated')
+					.withArgs('tieredBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 2, []);
+				txnReceipt = await txnTiered.wait(); // 0ms, as tx is already confirmed
+				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
+				[bountyAddress] = event.args;
+				expect(bountyAddress).to.not.equal(ethers.constants.AddressZero);
+
+				// FUNDRAISING GOAL
+				let txnFundingGoal;
+				expectedTimestamp = await setNextBlockTimestamp();
+				await expect(openQProxy.mintBounty('fundingGoalId', mockOrg, fundingGoalBountyInitOperation))
+					.to.emit(openQProxy, 'BountyCreated')
+					.withArgs('fundingGoalId', mockOrg, owner.address, anyValue, expectedTimestamp, 3, fundingGoalBountyInitOperation[1]);
+			});
 		});
 
 		describe('ONGOING', () => {
-			it('should correctly init class', async () => {
+			it('should correctly init class, payoutToken and payoutVolume', async () => {
 				// ARRANGE
 				const expectedTimestamp = await setNextBlockTimestamp();
 
@@ -197,99 +280,45 @@ describe('OpenQV1.sol', () => {
 			});
 		});
 
-		it('should revert if bounty already exists', async () => {
-			// ARRANGE
-			// ACT
-			await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation);
+		describe('TIERED', () => {
+			it('should correctly init class and payout schedule', async () => {
+				// ARRANGE
+				const expectedTimestamp = await setNextBlockTimestamp();
 
-			// ASSERT
-			await expect(openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation)).to.be.revertedWith('BOUNTY_ALREADY_EXISTS');
-		});
+				// ACT
+				await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 
-		// it('should mint and fund if initial deposit is wanted', async () => {
-		// 	// ARRANGE
-		// 	// ACT
-		// 	const abiEncodedParamsWithDeposit = abiCoder.encode(["address", "uint256", "uint256"], [mockLink.address, 100, 1]);
-		// 	const bountyInitOperationWithDeposit = [4, abiEncodedParamsWithDeposit];
-		// 	await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperationWithDeposit);
+				const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
-		// 	const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const Bounty = await ethers.getContractFactory('BountyV1');
 
-		// 	// ASSERT
-		// 	const initialFunderMockLinkBalance = (await mockLink.balanceOf(bountyAddress.address)).toString();
-		// 	expect(initialFunderMockLinkBalance).to.equal('100');
-		// });
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
 
-		it('should store bountyId to bountyAddress', async () => {
-			// ACT
-			await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation);
+				const newBountyId = await newBounty.bountyId();
+				const bountyCreatedTime = (await newBounty.bountyCreatedTime()).toNumber();
+				const bountyClosedTime = await newBounty.bountyClosedTime();
+				const issuer = await newBounty.issuer();
+				const closer = await newBounty.closer();
+				const status = await newBounty.status();
+				const bountyType = await newBounty.class();
+				const payoutSchedule = await newBounty.getPayoutSchedule();
+				const payoutToString = payoutSchedule.map(thing => parseInt(thing.toString()));
 
-			const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-
-			const Bounty = await ethers.getContractFactory('BountyV1');
-
-			const newBounty = await Bounty.attach(
-				bountyAddress
-			);
-
-			const newBountyId = await newBounty.bountyId();
-
-			const bountyIdFromAddress = await openQProxy.bountyAddressToBountyId(bountyAddress);
-			expect(bountyIdFromAddress).to.equal(newBountyId);
-
-			const bountyAddressFromId = await openQProxy.bountyIdToAddress(newBountyId);
-			expect(bountyAddressFromId).to.equal(bountyAddress);
-		});
-
-		it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, bountyMintTime, class, and data', async () => {
-			// ARRANGE
-			const mockOrg = "OpenQDev";
-			const expectedBountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-
-			let expectedTimestamp = await setNextBlockTimestamp();
-
-			// ACT
-			// ASSERT
-
-			// SINGLE
-			let txnSingle;
-			await expect(txnSingle = await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation))
-				.to.emit(openQProxy, 'BountyCreated')
-				.withArgs(bountyId, mockOrg, owner.address, anyValue, expectedTimestamp, 0, []);
-			txnReceipt = await txnSingle.wait(); // 0ms, as tx is already confirmed
-			event = txnReceipt.events.find(event => event.event === 'BountyCreated');
-			[bountyAddress] = event.args;
-			expect(bountyAddress).to.not.equal(ethers.constants.AddressZero);
-
-			// // ONGOING
-			let txnOngoing;
-			expectedTimestamp = await setNextBlockTimestamp();
-			await expect(txnOngoing = await openQProxy.mintBounty('ongoingBountyId', mockOrg, ongoingBountyInitOperation))
-				.to.emit(openQProxy, 'BountyCreated')
-				.withArgs('ongoingBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 1, []);
-			txnReceipt = await txnOngoing.wait(); // 0ms, as tx is already confirmed
-			event = txnReceipt.events.find(event => event.event === 'BountyCreated');
-			[bountyAddress] = event.args;
-			expect(bountyAddress).to.not.equal(ethers.constants.AddressZero);
-
-			// // TIERED
-			let txnTiered;
-			expectedTimestamp = await setNextBlockTimestamp();
-			await expect(txnTiered = await openQProxy.mintBounty('tieredBountyId', mockOrg, tieredBountyInitOperation))
-				.to.emit(openQProxy, 'BountyCreated')
-				.withArgs('tieredBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 2, []);
-			txnReceipt = await txnTiered.wait(); // 0ms, as tx is already confirmed
-			event = txnReceipt.events.find(event => event.event === 'BountyCreated');
-			[bountyAddress] = event.args;
-			expect(bountyAddress).to.not.equal(ethers.constants.AddressZero);
-
-			// FUNDRAISING GOAL
-			let txnFundingGoal;
-			expectedTimestamp = await setNextBlockTimestamp();
-			await expect(openQProxy.mintBounty('fundingGoalId', mockOrg, fundingGoalBountyInitOperation))
-				.to.emit(openQProxy, 'BountyCreated')
-				.withArgs('fundingGoalId', mockOrg, owner.address, anyValue, expectedTimestamp, 3, fundingGoalBountyInitOperation[1]);
+				// ASSERT
+				expect(bountyId).to.equal(newBountyId);
+				expect(bountyCreatedTime).to.equal(expectedTimestamp);
+				expect(bountyClosedTime).to.equal(0);
+				expect(issuer).to.equal(owner.address);
+				expect(closer).to.equal(ethers.constants.AddressZero);
+				expect(status).to.equal(0);
+				expect(bountyType).to.equal(2);
+				expect(payoutToString[0]).to.equal(60);
+				expect(payoutToString[1]).to.equal(30);
+				expect(payoutToString[2]).to.equal(10);
+			});
 		});
 	});
 
