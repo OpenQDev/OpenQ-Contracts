@@ -21,11 +21,13 @@ describe('BountyV1.sol', () => {
 	let bountyInitOperation;
 	let tieredBountyInitOperation;
 	let ongoingBountyInitOperation;
+	let fundingGoalInitOperation;
 
 	// Test bounties
 	let bounty;
 	let ongoingBounty;
 	let tieredBounty;
+	let fundingGoalBounty;
 
 	let abiCoder = new ethers.utils.AbiCoder;
 	let abiEncodedCloserUrl = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -103,6 +105,16 @@ describe('BountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredBounty.address, 10000000);
 		await mockDai.approve(tieredBounty.address, 10000000);
+
+		// Mint a Funding Goal Bounty
+		fundingGoalBounty = await BountyV1.deploy();
+		await fundingGoalBounty.deployed();
+
+		const abiEncodedParamsFundingGoalBounty = abiCoder.encode(["address", "uint256"], [mockLink.address, 100]);
+
+		fundingGoalInitOperation = [3, abiEncodedParamsFundingGoalBounty];
+
+		await fundingGoalBounty.initialize(mockId, owner.address, organization, owner.address, fundingGoalInitOperation);
 	});
 
 	describe('initializer', () => {
@@ -189,6 +201,18 @@ describe('BountyV1.sol', () => {
 
 				// ACT/ASSERT
 				await expect(tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperation)).to.be.revertedWith('Payout schedule must add up to 100');
+			});
+		});
+
+		describe('FUNDING GOAL', () => {
+			it('should init with correct payoutTokenAddress, payoutVolume, and class', async () => {
+				const actualBountyClass = await fundingGoalBounty.class();
+				const actualBountyFundingGoal = await fundingGoalBounty.fundingGoal();
+				const actualBountyFundingTokenAddress = await fundingGoalBounty.fundingToken();
+
+				await expect(actualBountyClass).equals(3);
+				await expect(actualBountyFundingGoal).equals(100);
+				await expect(actualBountyFundingTokenAddress).equals(mockLink.address);
 			});
 		});
 	});

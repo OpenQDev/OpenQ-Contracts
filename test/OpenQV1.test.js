@@ -443,7 +443,7 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
-	describe.only('bountyIsClaimable', () => {
+	describe('bountyIsClaimable', () => {
 		describe('ATOMIC', () => {
 			it('should return TRUE if atomic bounty is open, FALSE if atomic bounty is closed', async () => {
 				// ARRANGE
