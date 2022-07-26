@@ -522,7 +522,7 @@ contract BountyV1 is BountyStorageV1 {
     function _generateClaimantId(
         string memory claimant,
         string memory claimantAsset
-    ) internal view returns (bytes32) {
+    ) internal pure returns (bytes32) {
         return keccak256(abi.encode(claimant, claimantAsset));
     }
 

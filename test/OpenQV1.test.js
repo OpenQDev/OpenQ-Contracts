@@ -211,7 +211,7 @@ describe('OpenQV1.sol', () => {
 				let txnSingle;
 				await expect(txnSingle = await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation))
 					.to.emit(openQProxy, 'BountyCreated')
-					.withArgs(bountyId, mockOrg, owner.address, anyValue, expectedTimestamp, 0, []);
+					.withArgs(bountyId, mockOrg, owner.address, anyValue, expectedTimestamp, 0, [], 1);
 				txnReceipt = await txnSingle.wait(); // 0ms, as tx is already confirmed
 				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
 				[bountyAddress] = event.args;
@@ -222,7 +222,7 @@ describe('OpenQV1.sol', () => {
 				expectedTimestamp = await setNextBlockTimestamp();
 				await expect(txnOngoing = await openQProxy.mintBounty('ongoingBountyId', mockOrg, ongoingBountyInitOperation))
 					.to.emit(openQProxy, 'BountyCreated')
-					.withArgs('ongoingBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 1, []);
+					.withArgs('ongoingBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 1, [], 1);
 				txnReceipt = await txnOngoing.wait(); // 0ms, as tx is already confirmed
 				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
 				[bountyAddress] = event.args;
@@ -233,7 +233,7 @@ describe('OpenQV1.sol', () => {
 				expectedTimestamp = await setNextBlockTimestamp();
 				await expect(txnTiered = await openQProxy.mintBounty('tieredBountyId', mockOrg, tieredBountyInitOperation))
 					.to.emit(openQProxy, 'BountyCreated')
-					.withArgs('tieredBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 2, []);
+					.withArgs('tieredBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 2, [], 1);
 				txnReceipt = await txnTiered.wait(); // 0ms, as tx is already confirmed
 				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
 				[bountyAddress] = event.args;
@@ -244,7 +244,7 @@ describe('OpenQV1.sol', () => {
 				expectedTimestamp = await setNextBlockTimestamp();
 				await expect(openQProxy.mintBounty('fundingGoalId', mockOrg, fundingGoalBountyInitOperation))
 					.to.emit(openQProxy, 'BountyCreated')
-					.withArgs('fundingGoalId', mockOrg, owner.address, anyValue, expectedTimestamp, 3, fundingGoalBountyInitOperation[1]);
+					.withArgs('fundingGoalId', mockOrg, owner.address, anyValue, expectedTimestamp, 3, fundingGoalBountyInitOperation[1], 1);
 			});
 		});
 
@@ -493,7 +493,7 @@ describe('OpenQV1.sol', () => {
 			// ASSERT
 			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1))
 				.to.emit(openQProxy, 'TokenDepositReceived')
-				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, []);
+				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, [], 1);
 		});
 	});
 
@@ -775,9 +775,9 @@ describe('OpenQV1.sol', () => {
 					const oracleContract = openQProxy.connect(oracle);
 					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
 						.to.emit(openQProxy, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData, 1)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, 1)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 1);
 				});
 			});
 
@@ -800,7 +800,7 @@ describe('OpenQV1.sol', () => {
 					const oracleContract = openQProxy.connect(oracle);
 					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedOngoingCloserData))
 						.to.emit(openQProxy, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData, 1);
 				});
 			});
 
@@ -829,8 +829,8 @@ describe('OpenQV1.sol', () => {
 					const oracleContract = openQProxy.connect(oracle);
 					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData))
 						.to.emit(openQProxy, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData, 1)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 1);
 				});
 			});
 
@@ -845,7 +845,7 @@ describe('OpenQV1.sol', () => {
 				const oracleContract = openQProxy.connect(oracle);
 				await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
 					.to.emit(openQProxy, 'Claim')
-					.withArgs(0, abiEncodedSingleCloserData);
+					.withArgs(0, abiEncodedSingleCloserData, 1);
 			});
 
 			it('should emit a BountyClosed event with correct parameters', async () => {
@@ -859,7 +859,7 @@ describe('OpenQV1.sol', () => {
 				const oracleContract = openQProxy.connect(oracle);
 				await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
 					.to.emit(openQProxy, 'BountyClosed')
-					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, 0, abiEncodedSingleCloserData);
+					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, 0, abiEncodedSingleCloserData, 1);
 			});
 		});
 
@@ -924,13 +924,13 @@ describe('OpenQV1.sol', () => {
 				// ASSERT
 				await expect(openQProxy.refundDeposit(bountyId, protocolDepositId))
 					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, []);
+					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], 1);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
 				await expect(openQProxy.refundDeposit(bountyId, tokenDepositId))
 					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, []);
+					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, [], 1);
 			});
 		});
 
@@ -1100,7 +1100,7 @@ describe('OpenQV1.sol', () => {
 			// ACT
 			await expect(openQProxy.extendDeposit(bountyId, depositId, 1000))
 				.to.emit(openQProxy, 'DepositExtended')
-				.withArgs(depositId, 1001, 0, []);
+				.withArgs(depositId, 1001, 0, [], 1);
 		});
 	});
 
@@ -1139,7 +1139,7 @@ describe('OpenQV1.sol', () => {
 			// ACT
 			await expect(openQProxy.closeCompetition(bountyId))
 				.to.emit(openQProxy, 'BountyClosed')
-				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 2, []);
+				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 2, [], 1);
 		});
 	});
 
@@ -1178,7 +1178,7 @@ describe('OpenQV1.sol', () => {
 			// ACT
 			await expect(openQProxy.closeOngoing(bountyId))
 				.to.emit(openQProxy, 'BountyClosed')
-				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 1, []);
+				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 1, [], 1);
 		});
 	});
 
