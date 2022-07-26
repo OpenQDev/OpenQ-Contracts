@@ -231,7 +231,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         bytes calldata _closerData
     ) internal {
         (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
-            _closer
+            _closer,
+            _closerData
         );
 
         emit TokenBalanceClaimed(
@@ -252,9 +253,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address _closer,
         bytes calldata _closerData
     ) internal {
-        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-            uint256 _tier = abi.decode(_closerData, (uint256));
+        uint256 _tier = abi.decode(_closerData, (uint256));
 
+        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimTiered(
                 _closer,
                 _tier,
@@ -273,6 +274,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 _closerData
             );
         }
+
+        bounty.setTierClaimed(_tier);
     }
 
     function _claimSingle(
@@ -477,6 +480,20 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         BountyV1 bounty = BountyV1(payable(bountyAddress));
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
+    }
+
+    function ongoingClaimed(
+        string calldata _bountyId,
+        string calldata claimant,
+        string calldata claimantAsset
+    ) public view returns (bool) {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        bytes32 claimantId = keccak256(
+            abi.encodePacked(claimant, claimantAsset)
+        );
+        bool _ongoingClaimed = bounty.claimantId(claimantId);
+        return _ongoingClaimed;
     }
 
     /**

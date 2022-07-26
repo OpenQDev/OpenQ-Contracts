@@ -4,7 +4,7 @@ const { expect } = require('chai');
 const { ethers } = require("hardhat");
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
-const { generateDepositId } = require('./utils');
+const { generateDepositId, generateClaimantId } = require('./utils');
 
 describe('BountyV1.sol', () => {
 	let BountyV1;
@@ -31,6 +31,7 @@ describe('BountyV1.sol', () => {
 
 	let abiCoder = new ethers.utils.AbiCoder;
 	let abiEncodedCloserUrl = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
+	let ongoingCloserData = abiCoder.encode(["string", "string"], ["FlacoJones", "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 
 	beforeEach(async () => {
 		BountyV1 = await ethers.getContractFactory('BountyV1');
@@ -627,7 +628,7 @@ describe('BountyV1.sol', () => {
 				expect(claimerMockTokenBalance).to.equal('0');
 
 				// ACT
-				await ongoingBounty.claimOngoingPayout(claimer.address);
+				await ongoingBounty.claimOngoingPayout(claimer.address, ongoingCloserData);
 
 				// ASSERT
 				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
@@ -637,7 +638,7 @@ describe('BountyV1.sol', () => {
 				expect(newBountyMockLinkBalance).to.equal('200');
 
 				// ACT
-				await ongoingBounty.claimOngoingPayout(claimer.address);
+				await ongoingBounty.claimOngoingPayout(claimer.address, ongoingCloserData);
 
 				// ASSERT
 				const newClaimerMockTokenBalance2 = (await mockLink.balanceOf(claimer.address)).toString();
@@ -645,6 +646,24 @@ describe('BountyV1.sol', () => {
 
 				const newBountyMockLinkBalance2 = (await mockLink.balanceOf(ongoingBounty.address)).toString();
 				expect(newBountyMockLinkBalance2).to.equal('100');
+			});
+
+			it('should set claimantId to true for the claimant and claimant asset', async () => {
+				// ARRANGE
+				let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
+				await ongoingBounty.receiveFunds(owner.address, mockLink.address, 10000000, thirtyDays);
+
+
+				// ASSUME
+				let claimantIdClaimed = await ongoingBounty.claimantId(claimantId);
+				expect(claimantIdClaimed).to.equal(false);
+
+				// ACT
+				await ongoingBounty.claimOngoingPayout(owner.address, ongoingCloserData);
+
+				// ASSERT
+				claimantIdClaimed = await ongoingBounty.claimantId(claimantId);
+				expect(claimantIdClaimed).to.equal(true);
 			});
 		});
 
@@ -684,32 +703,9 @@ describe('BountyV1.sol', () => {
 				expect(secondPlaceMockTokenBalance).to.equal('200');
 			});
 
-			it('should revert if competiiton is not closed', async () => {
+			it('should revert if competition is not closed', async () => {
 				// ACT/ASSERT
 				await expect(tieredBounty.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
-			});
-
-			it('should set tierClaimed to true', async () => {
-				// ASSUME
-				let tierClaimed = await tieredBounty.tierClaimed(0);
-				expect(tierClaimed).to.equal(false);
-
-				// ACT
-				await tieredBounty.closeCompetition(owner.address);
-				await tieredBounty.claimTiered(owner.address, 0, mockLink.address);
-
-				// ASSERT
-				tierClaimed = await tieredBounty.tierClaimed(0);
-				expect(tierClaimed).to.equal(true);
-			});
-
-			it('should revert if claimed twice by same tier', async () => {
-				// ARRANGE
-				await tieredBounty.closeCompetition(owner.address);
-				await tieredBounty.claimTiered(owner.address, 0, mockLink.address);
-
-				// ACT/ASSERT
-				await expect(tieredBounty.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('TIER_ALREADY_CLAIMED');
 			});
 		});
 	});

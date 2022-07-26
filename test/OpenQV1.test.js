@@ -5,7 +5,7 @@ const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
-const { generateDepositId } = require('./utils');
+const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
 describe('OpenQV1.sol', () => {
@@ -112,7 +112,7 @@ describe('OpenQV1.sol', () => {
 
 		abiEncodedSingleCloserData = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedTieredCloserData = abiCoder.encode(["uint256", "string"], [0, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398']);
-		abiEncodedOngoingCloserData = abiCoder.encode(["uint256", "string"], [0, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398']);
+		abiEncodedOngoingCloserData = abiCoder.encode(["string", "string"], ["FlacoJones", "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 	});
 
 	describe('initialization', () => {
@@ -743,7 +743,7 @@ describe('OpenQV1.sol', () => {
 
 					// ACT
 					const oracleContract = openQProxy.connect(oracle);
-					await oracleContract.claimBounty(bountyId, claimer.address, abiEncodedSingleCloserData);
+					await oracleContract.claimBounty(bountyId, claimer.address, abiEncodedOngoingCloserData);
 
 					// ASSERT
 					const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -798,9 +798,9 @@ describe('OpenQV1.sol', () => {
 					// ACT
 					// ASSERT
 					const oracleContract = openQProxy.connect(oracle);
-					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
+					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedOngoingCloserData))
 						.to.emit(openQProxy, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedSingleCloserData);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData);
 				});
 			});
 
@@ -1191,8 +1191,6 @@ describe('OpenQV1.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-
-			// ACT + ASSERT
 			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
 			await bounty.closeCompetition(owner.address);
 
@@ -1207,6 +1205,33 @@ describe('OpenQV1.sol', () => {
 			// ASSERT
 			tierClaimed = await bounty.tierClaimed(0);
 			expect(tierClaimed).to.equal(true);
+		});
+	});
+
+	describe('ongoingClaimed', () => {
+		it('should return FALSE if ongoing claimant is not claimed, TRUE if it is claimed', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+
+			let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
+
+			// ASSUME
+			let ongoingClaimed = await bounty.claimantId(claimantId);
+			expect(ongoingClaimed).to.equal(false);
+
+			// ACT
+			const oracleContract = openQProxy.connect(oracle);
+			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedOngoingCloserData);
+
+			// // ASSERT
+			ongoingClaimed = await bounty.claimantId(claimantId);
+			expect(ongoingClaimed).to.equal(true);
 		});
 	});
 });

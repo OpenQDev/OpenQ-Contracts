@@ -32,7 +32,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "bountyClosedTime()": FunctionFragment;
     "bountyCreatedTime()": FunctionFragment;
     "bountyId()": FunctionFragment;
-    "claimantIds(bytes32)": FunctionFragment;
+    "claimantId(bytes32)": FunctionFragment;
     "class()": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
@@ -69,7 +69,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "bountyClosedTime"
       | "bountyCreatedTime"
       | "bountyId"
-      | "claimantIds"
+      | "claimantId"
       | "class"
       | "closer"
       | "closerData"
@@ -111,7 +111,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "bountyId", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "claimantIds",
+    functionFragment: "claimantId",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "class", values?: undefined): string;
@@ -230,10 +230,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "bountyId", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "claimantIds",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "claimantId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "class", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
@@ -359,7 +356,7 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<[string]>;
 
-    claimantIds(
+    claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -481,7 +478,7 @@ export interface BountyStorageV1 extends BaseContract {
 
   bountyId(overrides?: CallOverrides): Promise<string>;
 
-  claimantIds(
+  claimantId(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -603,7 +600,7 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<string>;
 
-    claimantIds(
+    claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -731,7 +728,7 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    claimantIds(
+    claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -854,7 +851,7 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    claimantIds(
+    claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

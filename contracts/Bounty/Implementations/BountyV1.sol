@@ -264,14 +264,25 @@ contract BountyV1 is BountyStorageV1 {
      * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
      * @param _payoutAddress The destination address for the fund
      */
-    function claimOngoingPayout(address _payoutAddress)
-        external
-        onlyOpenQ
-        nonReentrant
-        returns (address, uint256)
-    {
+    function claimOngoingPayout(
+        address _payoutAddress,
+        bytes calldata _closerData
+    ) external onlyOpenQ nonReentrant returns (address, uint256) {
+        (string memory claimant, string memory claimantAsset) = abi.decode(
+            _closerData,
+            (string, string)
+        );
+
+        bytes32 _claimantId = _generateClaimantId(claimant, claimantAsset);
+
+        claimantId[_claimantId] = true;
+
         _transferToken(payoutTokenAddress, payoutVolume, _payoutAddress);
         return (payoutTokenAddress, payoutVolume);
+    }
+
+    function setTierClaimed(uint256 _tier) public onlyOpenQ {
+        tierClaimed[_tier] = true;
     }
 
     /**
@@ -293,8 +304,6 @@ contract BountyV1 is BountyStorageV1 {
 
         uint256 claimedBalance = (payoutSchedule[_tier] *
             fundingTotals[_tokenAddress]) / 100;
-
-        tierClaimed[_tier] = true;
 
         _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
         return claimedBalance;
@@ -505,6 +514,16 @@ contract BountyV1 is BountyStorageV1 {
      */
     function _generateDepositId() internal view returns (bytes32) {
         return keccak256(abi.encode(bountyId, deposits.length));
+    }
+
+    /**
+     * @dev Generates a unique claimant ID from user and asset
+     */
+    function _generateClaimantId(
+        string memory claimant,
+        string memory claimantAsset
+    ) internal view returns (bytes32) {
+        return keccak256(abi.encode(claimant, claimantAsset));
     }
 
     /**

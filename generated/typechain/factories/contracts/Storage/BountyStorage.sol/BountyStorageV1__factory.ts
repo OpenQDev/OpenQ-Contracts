@@ -70,7 +70,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "claimantIds",
+    name: "claimantId",
     outputs: [
       {
         internalType: "bool",

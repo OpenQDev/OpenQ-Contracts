@@ -19,25 +19,25 @@ describe('OpenQProxy', () => {
 	let BountyFactory;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV0');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
 		OpenQTokenWhitelist = await hre.ethers.getContractFactory('OpenQTokenWhitelist');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 
 		[owner, notOwner, oracle] = await ethers.getSigners();
 
-		// Deploy OpenQV0 Implementation
+		// Deploy OpenQV1 Implementation
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
 
 		randomContractUpgradeAddress = await OpenQImplementation.deploy();
 		await randomContractUpgradeAddress.deployed();
 
-		// Deploy OpenQProxy with the previously deployed OpenQV0 implementation's address
+		// Deploy OpenQProxy with the previously deployed OpenQV1 implementation's address
 		openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
 		await openQProxy.deployed();
 
-		// Attach the OpenQV0 ABI to the OpenQProxy address to send method calls to the delegatecall
+		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
@@ -74,7 +74,7 @@ describe('OpenQProxy', () => {
 			// ASSUME
 			expect(await openQProxy.getImplementation()).equals(openQImplementation.address);
 
-			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
+			const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
 			newOpenQ = await OpenQ.deploy();
 			await newOpenQ.deployed();
 

@@ -59,6 +59,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "isWhitelisted(address)": FunctionFragment;
     "mintBounty(string,string,(uint32,bytes))": FunctionFragment;
     "newStorageVar()": FunctionFragment;
+    "ongoingClaimed(string,string,string)": FunctionFragment;
     "openQTokenWhitelist()": FunctionFragment;
     "oracle()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -94,6 +95,7 @@ export interface OpenQV1Interface extends utils.Interface {
       | "isWhitelisted"
       | "mintBounty"
       | "newStorageVar"
+      | "ongoingClaimed"
       | "openQTokenWhitelist"
       | "oracle"
       | "owner"
@@ -199,6 +201,14 @@ export interface OpenQV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "newStorageVar",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ongoingClaimed",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "openQTokenWhitelist",
@@ -311,6 +321,10 @@ export interface OpenQV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "mintBounty", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "newStorageVar",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ongoingClaimed",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -744,6 +758,13 @@ export interface OpenQV1 extends BaseContract {
 
     newStorageVar(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     openQTokenWhitelist(overrides?: CallOverrides): Promise<[string]>;
 
     oracle(overrides?: CallOverrides): Promise<[string]>;
@@ -893,6 +914,13 @@ export interface OpenQV1 extends BaseContract {
 
   newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
+  ongoingClaimed(
+    _bountyId: PromiseOrValue<string>,
+    claimant: PromiseOrValue<string>,
+    claimantAsset: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
   oracle(overrides?: CallOverrides): Promise<string>;
@@ -1041,6 +1069,13 @@ export interface OpenQV1 extends BaseContract {
     ): Promise<string>;
 
     newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
@@ -1390,6 +1425,13 @@ export interface OpenQV1 extends BaseContract {
 
     newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     openQTokenWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
 
     oracle(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1539,6 +1581,13 @@ export interface OpenQV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     newStorageVar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     openQTokenWhitelist(
       overrides?: CallOverrides
