@@ -46,11 +46,9 @@ export interface OpenQV1Interface extends utils.Interface {
     "bountyClass(string)": FunctionFragment;
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
+    "bountyIsClaimable(string)": FunctionFragment;
     "bountyIsOpen(string)": FunctionFragment;
     "claimBounty(string,address,bytes)": FunctionFragment;
-    "claimOngoing(address,bytes,address)": FunctionFragment;
-    "claimSingle(address,bytes,address,string)": FunctionFragment;
-    "claimTiered(address,bytes,address)": FunctionFragment;
     "closeCompetition(string)": FunctionFragment;
     "closeOngoing(string)": FunctionFragment;
     "extendDeposit(string,bytes32,uint256)": FunctionFragment;
@@ -82,11 +80,9 @@ export interface OpenQV1Interface extends utils.Interface {
       | "bountyClass"
       | "bountyFactory"
       | "bountyIdToAddress"
+      | "bountyIsClaimable"
       | "bountyIsOpen"
       | "claimBounty"
-      | "claimOngoing"
-      | "claimSingle"
-      | "claimTiered"
       | "closeCompetition"
       | "closeOngoing"
       | "extendDeposit"
@@ -129,6 +125,10 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "bountyIsClaimable",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "bountyIsOpen",
     values: [PromiseOrValue<string>]
   ): string;
@@ -138,31 +138,6 @@ export interface OpenQV1Interface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimOngoing",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimSingle",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimTiered",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -287,23 +262,15 @@ export interface OpenQV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "bountyIsClaimable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "bountyIsOpen",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "claimBounty",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "claimOngoing",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "claimSingle",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "claimTiered",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -686,6 +653,11 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    bountyIsClaimable(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -695,28 +667,6 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
       _closerData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    claimOngoing(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    claimSingle(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      _bountyId: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    claimTiered(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -846,6 +796,11 @@ export interface OpenQV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  bountyIsClaimable(
+    _bountyId: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   bountyIsOpen(
     _bountyId: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -855,28 +810,6 @@ export interface OpenQV1 extends BaseContract {
     _bountyId: PromiseOrValue<string>,
     _closer: PromiseOrValue<string>,
     _closerData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  claimOngoing(
-    bounty: PromiseOrValue<string>,
-    _closerData: PromiseOrValue<BytesLike>,
-    _closer: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  claimSingle(
-    bounty: PromiseOrValue<string>,
-    _closerData: PromiseOrValue<BytesLike>,
-    _closer: PromiseOrValue<string>,
-    _bountyId: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  claimTiered(
-    bounty: PromiseOrValue<string>,
-    _closerData: PromiseOrValue<BytesLike>,
-    _closer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1006,6 +939,11 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    bountyIsClaimable(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1015,28 +953,6 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
       _closerData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    claimOngoing(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    claimSingle(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    claimTiered(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1362,6 +1278,11 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    bountyIsClaimable(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1371,28 +1292,6 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
       _closerData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    claimOngoing(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    claimSingle(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      _bountyId: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    claimTiered(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1523,6 +1422,11 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    bountyIsClaimable(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1532,28 +1436,6 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _closer: PromiseOrValue<string>,
       _closerData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    claimOngoing(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    claimSingle(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
-      _bountyId: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    claimTiered(
-      bounty: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

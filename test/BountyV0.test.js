@@ -583,7 +583,7 @@ describe('BountyV1.sol', () => {
 			expect(newClaimerFakeTokenBalance).to.equal('100');
 		});
 
-		describe('Ongoing Bounty', () => {
+		describe('ONGOING', () => {
 			it('should transfer payoutVolume of payoutTokenAddress to claimant', async () => {
 				// ARRANGE
 				const volume = 300;

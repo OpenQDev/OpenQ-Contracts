@@ -443,9 +443,63 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
-	describe('bountyIsOpen', () => {
-		it('', async () => {
+	describe.only('bountyIsClaimable', () => {
+		describe('ATOMIC', () => {
+			it('should return TRUE if atomic bounty is open, FALSE if atomic bounty is closed', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
+				// ASSUME
+				let bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				expect(bountyIsClaimable).to.equal(true);
+
+				// ACT
+				const oracleContract = openQProxy.connect(oracle);
+				await oracleContract.claimBounty(bountyId, owner.address, []);
+
+				// ASSERT
+				bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				expect(bountyIsClaimable).to.equal(false);
+			});
+		});
+
+		describe('ONGOING', () => {
+			it('should return TRUE if ongoing bounty is open, FALSE if ongoing bounty is closed', async () => {
+				// ARRANCE
+				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				// ASSUME
+				let bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				expect(bountyIsClaimable).to.equal(true);
+
+				// ACT
+				await openQProxy.closeOngoing(bountyId);
+
+				// ASSERT
+				bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				expect(bountyIsClaimable).to.equal(false);
+			});
+		});
+
+		describe('TIERED', () => {
+			it('should return TRUE if competition bounty is closed, FALSE if competition bounty is open', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				// ASSUME
+				let bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				expect(bountyIsClaimable).to.equal(true);
+
+				// ACT
+				await openQProxy.closeCompetition(bountyId);
+
+				// ASSERT
+				bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				expect(bountyIsClaimable).to.equal(false);
+			});
 		});
 	});
 

@@ -51,8 +51,8 @@ export interface BountyV1Interface extends utils.Interface {
     "claimTiered(address,uint256,address)": FunctionFragment;
     "class()": FunctionFragment;
     "close(address,bytes)": FunctionFragment;
-    "closeCompetition()": FunctionFragment;
-    "closeOngoing()": FunctionFragment;
+    "closeCompetition(address)": FunctionFragment;
+    "closeOngoing(address)": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
@@ -182,11 +182,11 @@ export interface BountyV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "closeCompetition",
-    values?: undefined
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "closeOngoing",
-    values?: undefined
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
@@ -577,10 +577,12 @@ export interface BountyV1 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     closeCompetition(
+      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     closeOngoing(
+      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -783,10 +785,12 @@ export interface BountyV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   closeCompetition(
+    _closer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   closeOngoing(
+    _closer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -988,9 +992,15 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    closeCompetition(overrides?: CallOverrides): Promise<void>;
+    closeCompetition(
+      _closer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    closeOngoing(overrides?: CallOverrides): Promise<void>;
+    closeOngoing(
+      _closer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     closer(overrides?: CallOverrides): Promise<string>;
 
@@ -1197,10 +1207,12 @@ export interface BountyV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     closeCompetition(
+      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     closeOngoing(
+      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1404,10 +1416,12 @@ export interface BountyV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     closeCompetition(
+      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     closeOngoing(
+      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

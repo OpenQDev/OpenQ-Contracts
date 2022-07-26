@@ -225,11 +225,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
     }
 
-    function claimOngoing(
+    function _claimOngoing(
         BountyV1 bounty,
         bytes calldata _closerData,
         address _closer
-    ) public {
+    ) internal {
         (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
             _closer
         );
@@ -247,11 +247,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
     }
 
-    function claimTiered(
+    function _claimTiered(
         BountyV1 bounty,
         bytes calldata _closerData,
         address _closer
-    ) public {
+    ) internal {
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 _tier = abi.decode(_closerData, (uint256));
 
@@ -275,12 +275,12 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         }
     }
 
-    function claimSingle(
+    function _claimSingle(
         BountyV1 bounty,
         bytes calldata _closerData,
         address _closer,
         string calldata _bountyId
-    ) public {
+    ) internal {
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimBalance(
                 _closer,
@@ -321,7 +321,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
-        bounty.closeOngoing();
+        bounty.closeCompetition(msg.sender);
 
         emit BountyClosed(
             _bountyId,
@@ -338,7 +338,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
-        bounty.closeOngoing();
+        bounty.closeOngoing(msg.sender);
 
         emit BountyClosed(
             _bountyId,
@@ -361,17 +361,20 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address _closer,
         bytes calldata _closerData
     ) external onlyOracle nonReentrant {
-        require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
+        require(
+            bountyIsClaimable(_bountyId) == true,
+            'BOUNTY_IS_NOT_CLAIMABLE'
+        );
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
         uint256 class = bounty.class();
 
         if (class == OpenQDefinitions.ONGOING) {
-            claimOngoing(bounty, _closerData, _closer);
+            _claimOngoing(bounty, _closerData, _closer);
         } else if (class == OpenQDefinitions.TIERED) {
-            claimTiered(bounty, _closerData, _closer);
+            _claimTiered(bounty, _closerData, _closer);
         } else {
-            claimSingle(bounty, _closerData, _closer, _bountyId);
+            _claimSingle(bounty, _closerData, _closer, _bountyId);
         }
     }
 
@@ -461,6 +464,31 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         BountyV1 bounty = BountyV1(payable(bountyAddress));
         bool isOpen = bounty.status() == 0;
         return isOpen;
+    }
+
+    /**
+     * @dev Checks if bounty associated with _bountyId is open
+     * @param _bountyId The token address in question
+     * @return bool True if _bountyId is associated with an open bounty
+     */
+    function bountyIsClaimable(string calldata _bountyId)
+        public
+        view
+        returns (bool)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        uint256 status = bounty.status();
+        uint256 class = bounty.class();
+
+        if (class == OpenQDefinitions.ONGOING) {
+            return status == 0;
+        } else if (class == OpenQDefinitions.TIERED) {
+            return status == 3;
+        } else {
+            return status == 0;
+        }
     }
 
     /**
