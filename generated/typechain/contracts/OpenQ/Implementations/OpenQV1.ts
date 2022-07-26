@@ -43,11 +43,11 @@ export declare namespace OpenQDefinitions {
 export interface OpenQV1Interface extends utils.Interface {
   functions: {
     "bountyAddressToBountyId(address)": FunctionFragment;
-    "bountyClass(string)": FunctionFragment;
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
     "bountyIsClaimable(string)": FunctionFragment;
     "bountyIsOpen(string)": FunctionFragment;
+    "bountyType(string)": FunctionFragment;
     "claimBounty(string,address,bytes)": FunctionFragment;
     "closeCompetition(string)": FunctionFragment;
     "closeOngoing(string)": FunctionFragment;
@@ -79,11 +79,11 @@ export interface OpenQV1Interface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "bountyAddressToBountyId"
-      | "bountyClass"
       | "bountyFactory"
       | "bountyIdToAddress"
       | "bountyIsClaimable"
       | "bountyIsOpen"
+      | "bountyType"
       | "claimBounty"
       | "closeCompetition"
       | "closeOngoing"
@@ -117,10 +117,6 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "bountyClass",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "bountyFactory",
     values?: undefined
   ): string;
@@ -134,6 +130,10 @@ export interface OpenQV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "bountyIsOpen",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "bountyType",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -266,10 +266,6 @@ export interface OpenQV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "bountyClass",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "bountyFactory",
     data: BytesLike
   ): Result;
@@ -285,6 +281,7 @@ export interface OpenQV1Interface extends utils.Interface {
     functionFragment: "bountyIsOpen",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "bountyType", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimBounty",
     data: BytesLike
@@ -435,7 +432,7 @@ export interface BountyClosedEventObject {
   organization: string;
   closer: string;
   bountyClosedTime: BigNumber;
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -452,7 +449,7 @@ export interface BountyCreatedEventObject {
   issuerAddress: string;
   bountyAddress: string;
   bountyMintTime: BigNumber;
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -464,7 +461,7 @@ export type BountyCreatedEvent = TypedEvent<
 export type BountyCreatedEventFilter = TypedEventFilter<BountyCreatedEvent>;
 
 export interface ClaimEventObject {
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -478,7 +475,7 @@ export type ClaimEventFilter = TypedEventFilter<ClaimEvent>;
 export interface DepositExtendedEventObject {
   depositId: string;
   newExpiration: BigNumber;
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -497,7 +494,7 @@ export interface DepositRefundedEventObject {
   refundTime: BigNumber;
   tokenAddress: string;
   volume: BigNumber;
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -536,7 +533,7 @@ export interface NFTDepositReceivedEventObject {
   sender: string;
   expiration: BigNumber;
   tokenId: BigNumber;
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -593,7 +590,7 @@ export interface TokenBalanceClaimedEventObject {
   payoutTime: BigNumber;
   tokenAddress: string;
   volume: BigNumber;
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -626,7 +623,7 @@ export interface TokenDepositReceivedEventObject {
   sender: string;
   expiration: BigNumber;
   volume: BigNumber;
-  class: BigNumber;
+  bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
@@ -690,11 +687,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    bountyClass(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     bountyFactory(overrides?: CallOverrides): Promise<[string]>;
 
     bountyIdToAddress(
@@ -711,6 +703,11 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    bountyType(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     claimBounty(
       _bountyId: PromiseOrValue<string>,
@@ -846,11 +843,6 @@ export interface OpenQV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  bountyClass(
-    _bountyId: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   bountyFactory(overrides?: CallOverrides): Promise<string>;
 
   bountyIdToAddress(
@@ -867,6 +859,11 @@ export interface OpenQV1 extends BaseContract {
     _bountyId: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  bountyType(
+    _bountyId: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   claimBounty(
     _bountyId: PromiseOrValue<string>,
@@ -1002,11 +999,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    bountyClass(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     bountyFactory(overrides?: CallOverrides): Promise<string>;
 
     bountyIdToAddress(
@@ -1023,6 +1015,11 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    bountyType(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     claimBounty(
       _bountyId: PromiseOrValue<string>,
@@ -1174,7 +1171,7 @@ export interface OpenQV1 extends BaseContract {
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): BountyClosedEventFilter;
@@ -1184,7 +1181,7 @@ export interface OpenQV1 extends BaseContract {
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): BountyClosedEventFilter;
@@ -1195,7 +1192,7 @@ export interface OpenQV1 extends BaseContract {
       issuerAddress?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       bountyMintTime?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): BountyCreatedEventFilter;
@@ -1205,29 +1202,29 @@ export interface OpenQV1 extends BaseContract {
       issuerAddress?: null,
       bountyAddress?: PromiseOrValue<string> | null,
       bountyMintTime?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): BountyCreatedEventFilter;
 
     "Claim(uint256,bytes,uint256)"(
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): ClaimEventFilter;
-    Claim(_class?: null, data?: null, version?: null): ClaimEventFilter;
+    Claim(bountyType?: null, data?: null, version?: null): ClaimEventFilter;
 
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)"(
       depositId?: null,
       newExpiration?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): DepositExtendedEventFilter;
     DepositExtended(
       depositId?: null,
       newExpiration?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): DepositExtendedEventFilter;
@@ -1240,7 +1237,7 @@ export interface OpenQV1 extends BaseContract {
       refundTime?: null,
       tokenAddress?: null,
       volume?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): DepositRefundedEventFilter;
@@ -1252,7 +1249,7 @@ export interface OpenQV1 extends BaseContract {
       refundTime?: null,
       tokenAddress?: null,
       volume?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): DepositRefundedEventFilter;
@@ -1270,7 +1267,7 @@ export interface OpenQV1 extends BaseContract {
       sender?: null,
       expiration?: null,
       tokenId?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): NFTDepositReceivedEventFilter;
@@ -1284,7 +1281,7 @@ export interface OpenQV1 extends BaseContract {
       sender?: null,
       expiration?: null,
       tokenId?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): NFTDepositReceivedEventFilter;
@@ -1315,7 +1312,7 @@ export interface OpenQV1 extends BaseContract {
       payoutTime?: null,
       tokenAddress?: null,
       volume?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): TokenBalanceClaimedEventFilter;
@@ -1327,7 +1324,7 @@ export interface OpenQV1 extends BaseContract {
       payoutTime?: null,
       tokenAddress?: null,
       volume?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): TokenBalanceClaimedEventFilter;
@@ -1342,7 +1339,7 @@ export interface OpenQV1 extends BaseContract {
       sender?: null,
       expiration?: null,
       volume?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): TokenDepositReceivedEventFilter;
@@ -1356,7 +1353,7 @@ export interface OpenQV1 extends BaseContract {
       sender?: null,
       expiration?: null,
       volume?: null,
-      _class?: null,
+      bountyType?: null,
       data?: null,
       version?: null
     ): TokenDepositReceivedEventFilter;
@@ -1375,11 +1372,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    bountyClass(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     bountyFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     bountyIdToAddress(
@@ -1393,6 +1385,11 @@ export interface OpenQV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     bountyIsOpen(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    bountyType(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1532,11 +1529,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    bountyClass(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     bountyFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     bountyIdToAddress(
@@ -1550,6 +1542,11 @@ export interface OpenQV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     bountyIsOpen(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    bountyType(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

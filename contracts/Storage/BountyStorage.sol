@@ -79,7 +79,7 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     The class/type of bounty (Single, Ongoing, or Tiered)
     type is a reserved word in Solidity
 		 */
-    uint256 public class;
+    uint256 public bountyType;
 
     /** 
       Ongoing Bounties pay out the same amount set by the minter for each submission.

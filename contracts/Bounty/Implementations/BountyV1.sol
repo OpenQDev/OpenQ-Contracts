@@ -25,20 +25,20 @@ contract BountyV1 is BountyStorageV1 {
     constructor() {}
 
     function _initSingle() internal {
-        class = 0;
+        bountyType = 0;
     }
 
     function _initOngoingBounty(
         address _payoutTokenAddress,
         uint256 _payoutVolume
     ) internal {
-        class = 1;
+        bountyType = 1;
         payoutTokenAddress = _payoutTokenAddress;
         payoutVolume = _payoutVolume;
     }
 
     function _initTiered(uint256[] memory _payoutSchedule) internal {
-        class = 2;
+        bountyType = 2;
         uint256 sum;
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
             sum += _payoutSchedule[i];
@@ -51,7 +51,7 @@ contract BountyV1 is BountyStorageV1 {
         address _fundingToken,
         uint256 _fundingGoal
     ) internal {
-        class = 3;
+        bountyType = 3;
         setFundingGoal(_fundingToken, _fundingGoal);
     }
 

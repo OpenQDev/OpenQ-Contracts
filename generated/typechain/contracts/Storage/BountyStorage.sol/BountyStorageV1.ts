@@ -32,8 +32,8 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "bountyClosedTime()": FunctionFragment;
     "bountyCreatedTime()": FunctionFragment;
     "bountyId()": FunctionFragment;
+    "bountyType()": FunctionFragment;
     "claimantId(bytes32)": FunctionFragment;
-    "class()": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
@@ -69,8 +69,8 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "bountyClosedTime"
       | "bountyCreatedTime"
       | "bountyId"
+      | "bountyType"
       | "claimantId"
-      | "class"
       | "closer"
       | "closerData"
       | "depositTime"
@@ -111,10 +111,13 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "bountyId", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "bountyType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "claimantId",
     values: [PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(functionFragment: "class", values?: undefined): string;
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "closerData",
@@ -230,8 +233,8 @@ export interface BountyStorageV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "bountyId", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "bountyType", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "claimantId", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "class", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
   decodeFunctionResult(
@@ -356,12 +359,12 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<[string]>;
 
+    bountyType(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    class(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     closer(overrides?: CallOverrides): Promise<[string]>;
 
@@ -478,12 +481,12 @@ export interface BountyStorageV1 extends BaseContract {
 
   bountyId(overrides?: CallOverrides): Promise<string>;
 
+  bountyType(overrides?: CallOverrides): Promise<BigNumber>;
+
   claimantId(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  class(overrides?: CallOverrides): Promise<BigNumber>;
 
   closer(overrides?: CallOverrides): Promise<string>;
 
@@ -600,12 +603,12 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<string>;
 
+    bountyType(overrides?: CallOverrides): Promise<BigNumber>;
+
     claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    class(overrides?: CallOverrides): Promise<BigNumber>;
 
     closer(overrides?: CallOverrides): Promise<string>;
 
@@ -728,12 +731,12 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<BigNumber>;
 
+    bountyType(overrides?: CallOverrides): Promise<BigNumber>;
+
     claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    class(overrides?: CallOverrides): Promise<BigNumber>;
 
     closer(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -851,12 +854,12 @@ export interface BountyStorageV1 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    bountyType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    class(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     closer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

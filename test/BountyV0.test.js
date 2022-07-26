@@ -120,7 +120,7 @@ describe('BountyV1.sol', () => {
 
 	describe('initializer', () => {
 		describe('ATOMIC', () => {
-			it(`should initialize bounty with correct: bountyId, issuer, organization, status, openQImplementation, bountyCreatedTime, and class`, async () => {
+			it(`should initialize bounty with correct: bountyId, issuer, organization, status, openQImplementation, bountyCreatedTime, and bountyType`, async () => {
 				// ARRANGE
 				const actualBountyId = await bounty.bountyId();
 				const actualIssuer = await bounty.issuer();
@@ -128,7 +128,7 @@ describe('BountyV1.sol', () => {
 				const actualStatus = await bounty.status();
 				const actualOpenQ = await bounty.openQ();
 				const actualBounyCreatedTime = await bounty.bountyCreatedTime();
-				const actualBounyClass = await bounty.class();
+				const actualBounyType = await bounty.bountyType();
 
 				// ASSERT
 				await expect(actualBountyId).equals(mockId);
@@ -137,7 +137,7 @@ describe('BountyV1.sol', () => {
 				await expect(actualStatus).equals(0);
 				await expect(actualOpenQ).equals(owner.address);
 				await expect(actualBounyCreatedTime).equals(initializationTimestamp);
-				await expect(actualBounyClass).equals(0);
+				await expect(actualBounyType).equals(0);
 			});
 
 			it('should revert if bountyId is empty', async () => {
@@ -169,12 +169,12 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('ONGOING', () => {
-			it('should init with correct payoutTokenAddress, payoutVolume, and class', async () => {
-				const actualBountyClass = await ongoingBounty.class();
+			it('should init with correct payoutTokenAddress, payoutVolume, and bountyType', async () => {
+				const actualBountyType = await ongoingBounty.bountyType();
 				const actualBountyPayoutVolume = await ongoingBounty.payoutVolume();
 				const actualBountyPayoutTokenAddress = await ongoingBounty.payoutTokenAddress();
 
-				await expect(actualBountyClass).equals(1);
+				await expect(actualBountyType).equals(1);
 				await expect(actualBountyPayoutVolume).equals(100);
 				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
 			});
@@ -182,11 +182,11 @@ describe('BountyV1.sol', () => {
 
 		describe('TIERED', () => {
 			it('should init with tiered and payout schedule', async () => {
-				const actualBountyClass = await tieredBounty.class();
+				const actualBountyType = await tieredBounty.bountyType();
 				const actualBountyPayoutSchedule = await tieredBounty.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
 
-				await expect(actualBountyClass).equals(2);
+				await expect(actualBountyType).equals(2);
 				await expect(payoutToString[0]).equals("80");
 				await expect(payoutToString[1]).equals("20");
 			});
@@ -206,12 +206,12 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('FUNDING GOAL', () => {
-			it('should init with correct payoutTokenAddress, payoutVolume, and class', async () => {
-				const actualBountyClass = await fundingGoalBounty.class();
+			it('should init with correct payoutTokenAddress, payoutVolume, and actualBountyType', async () => {
+				const actualBountyType = await fundingGoalBounty.bountyType();
 				const actualBountyFundingGoal = await fundingGoalBounty.fundingGoal();
 				const actualBountyFundingTokenAddress = await fundingGoalBounty.fundingToken();
 
-				await expect(actualBountyClass).equals(3);
+				await expect(actualBountyType).equals(3);
 				await expect(actualBountyFundingGoal).equals(100);
 				await expect(actualBountyFundingTokenAddress).equals(mockLink.address);
 			});

@@ -105,7 +105,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             msg.sender,
             bountyAddress,
             block.timestamp,
-            bountyClass(_bountyId),
+            bountyType(_bountyId),
             _initOperation.data,
             1
         );
@@ -246,7 +246,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             block.timestamp,
             tokenAddress,
             volume,
-            bounty.class(),
+            bounty.bountyType(),
             _closerData,
             1
         );
@@ -274,7 +274,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 block.timestamp,
                 bounty.getTokenAddresses()[i],
                 volume,
-                bounty.class(),
+                bounty.bountyType(),
                 _closerData,
                 1
             );
@@ -303,7 +303,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 block.timestamp,
                 bounty.getTokenAddresses()[i],
                 volume,
-                bounty.class(),
+                bounty.bountyType(),
                 _closerData,
                 1
             );
@@ -321,7 +321,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             bounty.organization(),
             _closer,
             block.timestamp,
-            bounty.class(),
+            bounty.bountyType(),
             _closerData,
             1
         );
@@ -339,7 +339,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             bounty.organization(),
             address(0),
             block.timestamp,
-            bounty.class(),
+            bounty.bountyType(),
             new bytes(0),
             1
         );
@@ -357,7 +357,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             bounty.organization(),
             address(0),
             block.timestamp,
-            bounty.class(),
+            bounty.bountyType(),
             new bytes(0),
             1
         );
@@ -379,17 +379,17 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
-        uint256 class = bounty.class();
+        uint256 bountyType = bounty.bountyType();
 
-        if (class == OpenQDefinitions.ONGOING) {
+        if (bountyType == OpenQDefinitions.ONGOING) {
             _claimOngoing(bounty, _closer, _closerData);
-        } else if (class == OpenQDefinitions.TIERED) {
+        } else if (bountyType == OpenQDefinitions.TIERED) {
             _claimTiered(bounty, _closer, _closerData);
         } else {
             _claimSingle(bounty, _closer, _bountyId, _closerData);
         }
 
-        emit Claim(class, _closerData, 1);
+        emit Claim(bountyType, _closerData, 1);
     }
 
     /**
@@ -520,11 +520,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
         uint256 status = bounty.status();
-        uint256 class = bounty.class();
+        uint256 bountyType = bounty.bountyType();
 
-        if (class == OpenQDefinitions.ONGOING) {
+        if (bountyType == OpenQDefinitions.ONGOING) {
             return status == 0;
-        } else if (class == OpenQDefinitions.TIERED) {
+        } else if (bountyType == OpenQDefinitions.TIERED) {
             return status == 2;
         } else {
             return status == 0;
@@ -532,19 +532,19 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-     * @dev Returns the class of the bounty (Single, Ongoing, or Tiered)
+     * @dev Returns the bountyType of the bounty (Single, Ongoing, or Tiered)
      * @param _bountyId The token address in question
-     * @return uint256 Class ()
+     * @return uint256 bountyType ()
      */
-    function bountyClass(string calldata _bountyId)
+    function bountyType(string calldata _bountyId)
         public
         view
         returns (uint256)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
-        uint256 class = bounty.class();
-        return class;
+        uint256 _bountyType = bounty.bountyType();
+        return _bountyType;
     }
 
     /**

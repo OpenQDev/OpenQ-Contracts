@@ -43,7 +43,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {
@@ -98,7 +98,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {
@@ -123,7 +123,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {
@@ -160,7 +160,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {
@@ -227,7 +227,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {
@@ -306,7 +306,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {
@@ -373,7 +373,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {
@@ -452,7 +452,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "class",
+        name: "bountyType",
         type: "uint256",
       },
       {

@@ -12,7 +12,7 @@ interface IOpenQ {
         address issuerAddress,
         address indexed bountyAddress,
         uint256 bountyMintTime,
-        uint256 class,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
@@ -23,13 +23,13 @@ interface IOpenQ {
         string organization,
         address closer,
         uint256 bountyClosedTime,
-        uint256 class,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
 
     // bountyId, closer address, url string to closer asset
-    event Claim(uint256 class, bytes data, uint256 version);
+    event Claim(uint256 bountyType, bytes data, uint256 version);
 
     event TokenDepositReceived(
         bytes32 depositId,
@@ -41,7 +41,7 @@ interface IOpenQ {
         address sender,
         uint256 expiration,
         uint256 volume,
-        uint256 class,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
@@ -56,7 +56,7 @@ interface IOpenQ {
         address sender,
         uint256 expiration,
         uint256 tokenId,
-        uint256 class,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
@@ -69,7 +69,7 @@ interface IOpenQ {
         uint256 refundTime,
         address tokenAddress,
         uint256 volume,
-        uint256 class,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
@@ -82,7 +82,7 @@ interface IOpenQ {
         uint256 payoutTime,
         address tokenAddress,
         uint256 volume,
-        uint256 class,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
@@ -90,7 +90,7 @@ interface IOpenQ {
     event DepositExtended(
         bytes32 depositId,
         uint256 newExpiration,
-        uint256 class,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );

@@ -150,7 +150,7 @@ describe('OpenQV1.sol', () => {
 				const issuer = await newBounty.issuer();
 				const closer = await newBounty.closer();
 				const status = await newBounty.status();
-				const bountyType = await newBounty.class();
+				const bountyType = await newBounty.bountyType();
 				const payoutVolume = await newBounty.payoutVolume();
 				const payoutTokenAddress = await newBounty.payoutTokenAddress();
 
@@ -197,7 +197,7 @@ describe('OpenQV1.sol', () => {
 				expect(bountyAddressFromId).to.equal(bountyAddress);
 			});
 
-			it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, bountyMintTime, class, and data', async () => {
+			it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, bountyMintTime, bountyType, and data', async () => {
 				// ARRANGE
 				const mockOrg = "OpenQDev";
 				const expectedBountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -249,7 +249,7 @@ describe('OpenQV1.sol', () => {
 		});
 
 		describe('ONGOING', () => {
-			it('should correctly init class, payoutToken and payoutVolume', async () => {
+			it('should correctly init bountyType, payoutToken and payoutVolume', async () => {
 				// ARRANGE
 				const expectedTimestamp = await setNextBlockTimestamp();
 
@@ -271,7 +271,7 @@ describe('OpenQV1.sol', () => {
 				const issuer = await newBounty.issuer();
 				const closer = await newBounty.closer();
 				const status = await newBounty.status();
-				const bountyType = await newBounty.class();
+				const bountyType = await newBounty.bountyType();
 				const payoutVolume = await newBounty.payoutVolume();
 				const payoutTokenAddress = await newBounty.payoutTokenAddress();
 
@@ -289,7 +289,7 @@ describe('OpenQV1.sol', () => {
 		});
 
 		describe('TIERED', () => {
-			it('should correctly init class and payout schedule', async () => {
+			it('should correctly init bountyType and payout schedule', async () => {
 				// ARRANGE
 				const expectedTimestamp = await setNextBlockTimestamp();
 
@@ -311,7 +311,7 @@ describe('OpenQV1.sol', () => {
 				const issuer = await newBounty.issuer();
 				const closer = await newBounty.closer();
 				const status = await newBounty.status();
-				const bountyType = await newBounty.class();
+				const bountyType = await newBounty.bountyType();
 				const payoutSchedule = await newBounty.getPayoutSchedule();
 				const payoutToString = payoutSchedule.map(thing => parseInt(thing.toString()));
 
@@ -472,7 +472,7 @@ describe('OpenQV1.sol', () => {
 			expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
 		});
 
-		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, depositId, tokenStandard, tokenId, class and data', async () => {
+		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, depositId, tokenStandard, tokenId, bountyType and data', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, bountyInitOperation);
 
