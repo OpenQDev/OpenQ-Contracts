@@ -19,13 +19,16 @@ describe('OpenQV1.sol', () => {
 	let openQTokenWhitelist;
 	let bountyId = 'mockIssueId';
 	let mockOrg = 'mock-org';
-	let abiEncodedCloserUrl;
 	let oracle;
 
 	let bountyInitOperation;
 	let ongoingBountyInitOperation;
 	let tieredBountyInitOperation;
 	let fundingGoalBountyInitOperation;
+
+	// CLOSER DATA
+	let abiEncodedCloserUrl;
+	let abiEncodedTieredCloserData;
 
 	let abiCoder;
 
@@ -105,6 +108,7 @@ describe('OpenQV1.sol', () => {
 		fundingGoalBountyInitOperation = [3, fundingGoalBountyParams];
 
 		abiEncodedCloserUrl = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
+		abiEncodedTieredCloserData = abiCoder.encode(["uint256"], [0]);
 	});
 
 	describe('initialization', () => {
@@ -329,6 +333,23 @@ describe('OpenQV1.sol', () => {
 
 			const oracleContract = openQProxy.connect(oracle);
 			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedCloserUrl);
+
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await mockLink.approve(bountyAddress, 10000000);
+			await mockDai.approve(bountyAddress, 10000000);
+
+			// ACT + ASSERT
+			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
+		});
+
+		it('should revert if tiered bounty is already closed', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			await openQProxy.closeCompetition(bountyId);
+
+			const oracleContract = openQProxy.connect(oracle);
+			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData);
 
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 

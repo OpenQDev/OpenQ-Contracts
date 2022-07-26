@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
-describe('BountyV1.sol', () => {
+describe.only('BountyV1.sol', () => {
 	let BountyV1;
 	let mockLink;
 	let mockDai;
@@ -248,8 +248,8 @@ describe('BountyV1.sol', () => {
 				const volume = 1000;
 
 				await bounty.close(owner.address, []);
-				await tieredBounty.closeCompetition();
-				await ongoingBounty.closeOngoing();
+				await tieredBounty.closeCompetition(owner.address);
+				await ongoingBounty.closeOngoing(owner.address);
 
 				await expect(bounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
 				await expect(ongoingBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
@@ -660,7 +660,7 @@ describe('BountyV1.sol', () => {
 				const deposits = await bounty.getDeposits();
 				const linkDepositId = deposits[0];
 
-				await tieredBounty.closeCompetition();
+				await tieredBounty.closeCompetition(owner.address);
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
@@ -811,7 +811,7 @@ describe('BountyV1.sol', () => {
 
 				const expectedTimestamp = await setNextBlockTimestamp();
 				// ACT
-				await tieredBounty.closeCompetition();
+				await tieredBounty.closeCompetition(owner.address);
 
 				status = await tieredBounty.status();
 				mockTokenFundingTotal = await tieredBounty.fundingTotals(mockLink.address);
@@ -824,13 +824,12 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if caller is not issuer', async () => {
 				const [, notOwner] = await ethers.getSigners();
-				let tieredBountyNotIssuer = tieredBounty.connect(notOwner);
-				await expect(tieredBountyNotIssuer.closeCompetition()).to.be.revertedWith('COMPETITION_CLOSER_NOT_ISSUER');
+				await expect(tieredBounty.closeCompetition(notOwner.address)).to.be.revertedWith('COMPETITION_CLOSER_NOT_ISSUER');
 			});
 
 			it('should revert if already closed', async () => {
-				await tieredBounty.closeCompetition();
-				await expect(tieredBounty.closeCompetition()).to.be.revertedWith('COMPETITION_ALREADY_CLOSED');
+				await tieredBounty.closeCompetition(owner.address);
+				await expect(tieredBounty.closeCompetition(owner.address)).to.be.revertedWith('COMPETITION_ALREADY_CLOSED');
 			});
 		});
 
@@ -843,7 +842,7 @@ describe('BountyV1.sol', () => {
 				expect(status).to.equal(0);
 
 				const expectedTimestamp = await setNextBlockTimestamp();
-				await ongoingBounty.closeOngoing();
+				await ongoingBounty.closeOngoing(owner.address);
 
 				bountyClosedTime = await ongoingBounty.bountyClosedTime();
 				status = await ongoingBounty.status();
@@ -854,13 +853,12 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if caller is not issuer', async () => {
 				const [, notOwner] = await ethers.getSigners();
-				let ongoingBountyNotOwner = ongoingBounty.connect(notOwner);
-				await expect(ongoingBountyNotOwner.closeOngoing()).to.be.revertedWith('BOUNTY_CLOSER_NOT_ISSUER');
+				await expect(ongoingBounty.closeOngoing(notOwner.address)).to.be.revertedWith('BOUNTY_CLOSER_NOT_ISSUER');
 			});
 
 			it('should revert if already closed', async () => {
-				await ongoingBounty.closeOngoing();
-				await expect(ongoingBounty.closeOngoing()).to.be.revertedWith('ONGOING_BOUNTY_ALREADY_CLOSED');
+				await ongoingBounty.closeOngoing(owner.address);
+				await expect(ongoingBounty.closeOngoing(owner.address)).to.be.revertedWith('ONGOING_BOUNTY_ALREADY_CLOSED');
 			});
 		});
 	});

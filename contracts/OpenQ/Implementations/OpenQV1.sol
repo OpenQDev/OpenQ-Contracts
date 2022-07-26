@@ -227,8 +227,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
     function _claimOngoing(
         BountyV1 bounty,
-        bytes calldata _closerData,
-        address _closer
+        address _closer,
+        bytes calldata _closerData
     ) internal {
         (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
             _closer
@@ -249,8 +249,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
     function _claimTiered(
         BountyV1 bounty,
-        bytes calldata _closerData,
-        address _closer
+        address _closer,
+        bytes calldata _closerData
     ) internal {
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 _tier = abi.decode(_closerData, (uint256));
@@ -277,9 +277,9 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
     function _claimSingle(
         BountyV1 bounty,
-        bytes calldata _closerData,
         address _closer,
-        string calldata _bountyId
+        string calldata _bountyId,
+        bytes calldata _closerData
     ) internal {
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimBalance(
@@ -370,11 +370,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         uint256 class = bounty.class();
 
         if (class == OpenQDefinitions.ONGOING) {
-            _claimOngoing(bounty, _closerData, _closer);
+            _claimOngoing(bounty, _closer, _closerData);
         } else if (class == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, _closerData, _closer);
+            _claimTiered(bounty, _closer, _closerData);
         } else {
-            _claimSingle(bounty, _closerData, _closer, _bountyId);
+            _claimSingle(bounty, _closer, _bountyId, _closerData);
         }
     }
 
@@ -462,7 +462,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
-        bool isOpen = bounty.status() == 0;
+        bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }
 
@@ -485,7 +485,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         if (class == OpenQDefinitions.ONGOING) {
             return status == 0;
         } else if (class == OpenQDefinitions.TIERED) {
-            return status == 3;
+            return status == 2;
         } else {
             return status == 0;
         }
