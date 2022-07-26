@@ -35,7 +35,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "class()": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
-    "comeptitionClosed()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
     "deposits(uint256)": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
@@ -71,7 +70,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "class"
       | "closer"
       | "closerData"
-      | "comeptitionClosed"
       | "depositTime"
       | "deposits"
       | "expiration"
@@ -112,10 +110,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "closerData",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "comeptitionClosed",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -227,10 +221,6 @@ export interface BountyStorageV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "class", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "comeptitionClosed",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "depositTime",
     data: BytesLike
@@ -355,8 +345,6 @@ export interface BountyStorageV1 extends BaseContract {
 
     closerData(overrides?: CallOverrides): Promise<[string]>;
 
-    comeptitionClosed(overrides?: CallOverrides): Promise<[boolean]>;
-
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -469,8 +457,6 @@ export interface BountyStorageV1 extends BaseContract {
 
   closerData(overrides?: CallOverrides): Promise<string>;
 
-  comeptitionClosed(overrides?: CallOverrides): Promise<boolean>;
-
   depositTime(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -582,8 +568,6 @@ export interface BountyStorageV1 extends BaseContract {
     closer(overrides?: CallOverrides): Promise<string>;
 
     closerData(overrides?: CallOverrides): Promise<string>;
-
-    comeptitionClosed(overrides?: CallOverrides): Promise<boolean>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -703,8 +687,6 @@ export interface BountyStorageV1 extends BaseContract {
 
     closerData(overrides?: CallOverrides): Promise<BigNumber>;
 
-    comeptitionClosed(overrides?: CallOverrides): Promise<BigNumber>;
-
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -817,8 +799,6 @@ export interface BountyStorageV1 extends BaseContract {
     closer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     closerData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    comeptitionClosed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,

@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe.only('OpenQV1.sol', () => {
+describe('OpenQV1.sol', () => {
 	let openQProxy;
 	let openQImplementation;
 	let owner;
@@ -242,7 +242,7 @@ describe.only('OpenQV1.sol', () => {
 			expect(bountyAddressFromId).to.equal(bountyAddress);
 		});
 
-		it.only('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, bountyMintTime, class, and data', async () => {
+		it('should emit a BountyCreated event with expected bounty id, issuer address, bounty address, bountyMintTime, class, and data', async () => {
 			// ARRANGE
 			const mockOrg = "OpenQDev";
 			const expectedBountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -440,6 +440,12 @@ describe.only('OpenQV1.sol', () => {
 			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1))
 				.to.emit(openQProxy, 'TokenDepositReceived')
 				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, []);
+		});
+	});
+
+	describe('bountyIsOpen', () => {
+		it('', async () => {
+
 		});
 	});
 

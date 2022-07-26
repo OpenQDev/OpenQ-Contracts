@@ -7,23 +7,28 @@ const truffleAssert = require('truffle-assertions');
 const { generateDepositId } = require('./utils');
 
 describe('BountyV1.sol', () => {
-	let bounty;
+	let BountyV1;
 	let mockLink;
 	let mockDai;
 	let owner;
 	let initializationTimestamp;
 	const thirtyDays = 2765000;
-	let BountyV1;
-	let bountyInitOperation;
-	let tieredBountyInitOperation;
 
 	const mockId = "mockId";
 	const organization = "mockOrg";
 
-	let tieredBounty;
-	let abiCoder;
+	// Initialization Operations
+	let bountyInitOperation;
+	let tieredBountyInitOperation;
+	let ongoingBountyInitOperation;
 
-	let abiEncodedCloserUrl;
+	// Test bounties
+	let bounty;
+	let ongoingBounty;
+	let tieredBounty;
+
+	let abiCoder = new ethers.utils.AbiCoder;
+	let abiEncodedCloserUrl = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 
 	beforeEach(async () => {
 		BountyV1 = await ethers.getContractFactory('BountyV1');
@@ -75,10 +80,9 @@ describe('BountyV1.sol', () => {
 		ongoingBounty = await BountyV1.deploy();
 		await ongoingBounty.deployed();
 
-		abiCoder = new ethers.utils.AbiCoder;
 		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [mockLink.address, '100']);
 
-		let ongoingBountyInitOperation = [1, abiEncodedParams];
+		ongoingBountyInitOperation = [1, abiEncodedParams];
 
 		await ongoingBounty.initialize(mockId, owner.address, organization, owner.address, ongoingBountyInitOperation);
 
@@ -99,55 +103,60 @@ describe('BountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredBounty.address, 10000000);
 		await mockDai.approve(tieredBounty.address, 10000000);
-
-		abiEncodedCloserUrl = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 	});
 
 	describe('initializer', () => {
-		it(`should initialize bounty with correct: 
-				bountyId
-				issuer
-				organization
-				status
-				openQ implementation
-				bountyCreatedTime`, async () => {
-			// ARRANGE
-			const actualBountyId = await bounty.bountyId();
-			const actualIssuer = await bounty.issuer();
-			const actualOrganization = await bounty.organization();
-			const actualStatus = await bounty.status();
-			const actualOpenQ = await bounty.openQ();
-			const actualBounyCreatedTime = await bounty.bountyCreatedTime();
+		describe('ATOMIC', () => {
+			it(`should initialize bounty with correct: bountyId, issuer, organization, status, openQImplementation, bountyCreatedTime, and class`, async () => {
+				// ARRANGE
+				const actualBountyId = await bounty.bountyId();
+				const actualIssuer = await bounty.issuer();
+				const actualOrganization = await bounty.organization();
+				const actualStatus = await bounty.status();
+				const actualOpenQ = await bounty.openQ();
+				const actualBounyCreatedTime = await bounty.bountyCreatedTime();
+				const actualBounyClass = await bounty.class();
 
-			// ASSERT
-			await expect(actualBountyId).equals(mockId);
-			await expect(actualIssuer).equals(owner.address);
-			await expect(organization).equals(organization);
-			await expect(actualStatus).equals(0);
-			await expect(actualOpenQ).equals(owner.address);
-			await expect(actualBounyCreatedTime).equals(initializationTimestamp);
+				// ASSERT
+				await expect(actualBountyId).equals(mockId);
+				await expect(actualIssuer).equals(owner.address);
+				await expect(organization).equals(organization);
+				await expect(actualStatus).equals(0);
+				await expect(actualOpenQ).equals(owner.address);
+				await expect(actualBounyCreatedTime).equals(initializationTimestamp);
+				await expect(actualBounyClass).equals(0);
+			});
+
+			it('should revert if bountyId is empty', async () => {
+				// ARRANGE
+				const BountyV1 = await ethers.getContractFactory('BountyV1');
+				bounty = await BountyV1.deploy();
+
+				// ASSERT
+				await expect(bounty.initialize("", owner.address, organization, owner.address, bountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+			});
+
+			it('should revert if organization is empty', async () => {
+				// ARRANGE
+				const BountyV1 = await ethers.getContractFactory('BountyV1');
+				bounty = await BountyV1.deploy();
+
+				// ASSERT
+				await expect(bounty.initialize(mockId, owner.address, "", owner.address, bountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+			});
+
+			it('should revert if given an invalid operaion', async () => {
+				// ARRANGE
+				const BountyV1 = await ethers.getContractFactory('BountyV1');
+				bounty = await BountyV1.deploy();
+
+				// ASSERT
+				await expect(bounty.initialize(mockId, owner.address, organization, owner.address, [42, []])).to.be.revertedWith('OQ: unknown init operation type');
+			});
 		});
 
-		it('should revert if bountyId is empty', async () => {
-			// ARRANGE
-			const BountyV1 = await ethers.getContractFactory('BountyV1');
-			bounty = await BountyV1.deploy();
-
-			// ASSERT
-			await expect(bounty.initialize("", owner.address, organization, owner.address, bountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
-		});
-
-		it('should revert if organization is empty', async () => {
-			// ARRANGE
-			const BountyV1 = await ethers.getContractFactory('BountyV1');
-			bounty = await BountyV1.deploy();
-
-			// ASSERT
-			await expect(bounty.initialize(mockId, owner.address, "", owner.address, bountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
-		});
-
-		describe('initializer - ongoing', () => {
-			it('should init with ongoing and payoutVolume', async () => {
+		describe('ONGOING', () => {
+			it('should init with correct payoutTokenAddress, payoutVolume, and class', async () => {
 				const actualBountyClass = await ongoingBounty.class();
 				const actualBountyPayoutVolume = await ongoingBounty.payoutVolume();
 				const actualBountyPayoutTokenAddress = await ongoingBounty.payoutTokenAddress();
@@ -158,7 +167,7 @@ describe('BountyV1.sol', () => {
 			});
 		});
 
-		describe('initializer - tiered', () => {
+		describe('TIERED', () => {
 			it('should init with tiered and payout schedule', async () => {
 				const actualBountyClass = await tieredBounty.class();
 				const actualBountyPayoutSchedule = await tieredBounty.getPayoutSchedule();
@@ -170,22 +179,22 @@ describe('BountyV1.sol', () => {
 			});
 
 			it('should revert if payoutSchedule values do not add up to 100', async () => {
-				// Mint a Tiered Bounty
+				// ARRANGE
 				tieredBounty = await BountyV1.deploy();
 				await tieredBounty.deployed();
 
-				const abiCoder = new ethers.utils.AbiCoder;
-				const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[1, 2]]);
+				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]"], [[1, 2]]);
 
-				tieredBountyInitOperation = [2, abiEncodedParamsTieredBounty];
+				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
 
+				// ACT/ASSERT
 				await expect(tieredBounty.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperation)).to.be.revertedWith('Payout schedule must add up to 100');
 			});
 		});
 	});
 
 	describe('receiveFunds', () => {
-		describe('require and revert', () => {
+		describe('ALL', () => {
 			it('should revert if not called by OpenQ contract', async () => {
 				// ARRANGE
 				const [, notOwner] = await ethers.getSigners();
@@ -209,107 +218,105 @@ describe('BountyV1.sol', () => {
 			it('should revert if expiration is negative', async () => {
 				await expect(bounty.receiveFunds(owner.address, mockLink.address, 100, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
 			});
-		});
 
-		describe('token deposit initialization', () => {
-			it(`should initialize token deposit data with correct:
-					funder
-					tokenAddress
-					volume
-					depositTime
-					expiration
-					isNft
-			`, async () => {
+			it('should revert if bounty is closed', async () => {
 				// ARRANGE
+				const volume = 1000;
 
-				// ACT
-				const depositId = generateDepositId(mockId, 0);
-				const expectedTimestamp = await setNextBlockTimestamp();
-				await bounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+				await bounty.close(owner.address, []);
+				await tieredBounty.closeCompetition();
+				await ongoingBounty.closeOngoing();
 
-				// ASSERT
-				expect(await bounty.funder(depositId)).to.equal(owner.address);
-				expect(await bounty.tokenAddress(depositId)).to.equal(mockLink.address);
-				expect(await bounty.volume(depositId)).to.equal(100);
-				expect(await bounty.expiration(depositId)).to.equal(thirtyDays);
-				expect(await bounty.isNFT(depositId)).to.equal(false);
-
-				const depositTime = await bounty.depositTime(depositId);
-				expect(depositTime.toString()).to.equal(expectedTimestamp.toString());
+				await expect(bounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
+				await expect(ongoingBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
+				await expect(tieredBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
 			});
-		});
 
-		describe('transferFrom - ERC20', () => {
-			it('should transfer volume of ERC20 from sender to bounty (zero transfer fee ERC20)', async () => {
-				// ASSUME
-				const initialFunderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
-				const initialFunderMockDaiBalance = (await mockLink.balanceOf(owner.address)).toString();
-				expect(initialFunderMockLinkBalance).to.equal('10000000000000000000000');
-				expect(initialFunderMockDaiBalance).to.equal('10000000000000000000000');
+			describe('DEPOSIT INITIALIZATION', () => {
+				it(`should initialize token deposit data with correct: funder, tokenAddress, volume, depositTime, expiration, isNft`, async () => {
+					// ARRANGE
+					const depositId = generateDepositId(mockId, 0);
+					const expectedTimestamp = await setNextBlockTimestamp();
+					await bounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
 
-				const initialIssueMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
-				const initialIssueMockDaiBalance = (await mockDai.balanceOf(bounty.address)).toString();
-				expect(initialIssueMockLinkBalance).to.equal('0');
-				expect(initialIssueMockDaiBalance).to.equal('0');
+					// ASSERT
+					expect(await bounty.funder(depositId)).to.equal(owner.address);
+					expect(await bounty.tokenAddress(depositId)).to.equal(mockLink.address);
+					expect(await bounty.volume(depositId)).to.equal(100);
+					expect(await bounty.expiration(depositId)).to.equal(thirtyDays);
+					expect(await bounty.isNFT(depositId)).to.equal(false);
 
-				// ARRANGE
-				const value = 100;
-
-				// ACT
-				await bounty.receiveFunds(owner.address, mockLink.address, value, thirtyDays);
-				await bounty.receiveFunds(owner.address, mockDai.address, value, thirtyDays);
-
-				// ASSERT
-				const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
-				const funderFakeTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
-				expect(funderMockLinkBalance).to.equal('9999999999999999999900');
-				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
-
-				const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
-				const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
-				expect(bountyMockTokenBalance).to.equal('100');
-				expect(bountyFakeTokenBalance).to.equal('100');
+					const depositTime = await bounty.depositTime(depositId);
+					expect(depositTime.toString()).to.equal(expectedTimestamp.toString());
+				});
 			});
-		});
 
-		describe('trasfer - protocol token', () => {
-			it('should accept msg.value if token address is zero address', async () => {
-				const volume = ethers.utils.parseEther("1.0");
-				await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
-				const bountyProtocolTokenBalance = await bounty.provider.getBalance(bounty.address);
-				expect(bountyProtocolTokenBalance).to.equal(volume);
+			describe('transferFrom - ERC20', () => {
+				it('should transfer volume of ERC20 from sender to bounty (zero transfer fee ERC20)', async () => {
+					// ASSUME
+					const initialFunderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
+					const initialFunderMockDaiBalance = (await mockLink.balanceOf(owner.address)).toString();
+					expect(initialFunderMockLinkBalance).to.equal('10000000000000000000000');
+					expect(initialFunderMockDaiBalance).to.equal('10000000000000000000000');
+
+					const initialIssueMockLinkBalance = (await mockLink.balanceOf(bounty.address)).toString();
+					const initialIssueMockDaiBalance = (await mockDai.balanceOf(bounty.address)).toString();
+					expect(initialIssueMockLinkBalance).to.equal('0');
+					expect(initialIssueMockDaiBalance).to.equal('0');
+
+					// ARRANGE
+					const value = 100;
+
+					// ACT
+					await bounty.receiveFunds(owner.address, mockLink.address, value, thirtyDays);
+					await bounty.receiveFunds(owner.address, mockDai.address, value, thirtyDays);
+
+					// ASSERT
+					const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
+					const funderFakeTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
+					expect(funderMockLinkBalance).to.equal('9999999999999999999900');
+					expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
+
+					const bountyMockTokenBalance = (await mockLink.balanceOf(bounty.address)).toString();
+					const bountyFakeTokenBalance = (await mockDai.balanceOf(bounty.address)).toString();
+					expect(bountyMockTokenBalance).to.equal('100');
+					expect(bountyFakeTokenBalance).to.equal('100');
+				});
 			});
-		});
 
-		describe('globally unique deposit ids', () => {
-			it('should create a globally unique deposit id across all bounties', async () => {
-				await bounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
-				const deposits = await bounty.getDeposits();
-				const depositId = deposits[0];
+			describe('trasfer - protocol token', () => {
+				it('should accept msg.value if token address is zero address', async () => {
+					const volume = ethers.utils.parseEther("1.0");
+					await bounty.receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
+					const bountyProtocolTokenBalance = await bounty.provider.getBalance(bounty.address);
+					expect(bountyProtocolTokenBalance).to.equal(volume);
+				});
+			});
 
-				const newBounty = await BountyV1.deploy();
-				await newBounty.deployed();
-				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, bountyInitOperation);
+			describe('globally unique deposit ids', () => {
+				it('should create a globally unique deposit id across all bounties', async () => {
+					await bounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+					const deposits = await bounty.getDeposits();
+					const depositId = deposits[0];
 
-				await mockLink.approve(newBounty.address, 20000);
-				await newBounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
-				const newDeposits = await newBounty.getDeposits();
-				const newDepositId = newDeposits[0];
+					const newBounty = await BountyV1.deploy();
+					await newBounty.deployed();
+					await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, bountyInitOperation);
 
-				expect(newDepositId).to.not.equal(depositId);
+					await mockLink.approve(newBounty.address, 20000);
+					await newBounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+					const newDeposits = await newBounty.getDeposits();
+					const newDepositId = newDeposits[0];
+
+					expect(newDepositId).to.not.equal(depositId);
+				});
 			});
 		});
 	});
 
 	describe('receiveNFT', () => {
 		describe('deposit initialization', () => {
-			it(`should initialize nft deposit data with correct:
-					funder
-					tokenAddress
-					tokenId
-					depositTime
-					expiration
-					isNft
+			it(`should initialize nft deposit data with correct: funder, tokenAddress, tokenId, depositTime, expiration, isNft
 			`, async () => {
 
 				// ACT
@@ -617,7 +624,7 @@ describe('BountyV1.sol', () => {
 			});
 		});
 
-		describe('Tiered Bounty', () => {
+		describe('TIERED', () => {
 			it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
 				// ARRANGE
 				const volume = 1000;
@@ -629,7 +636,7 @@ describe('BountyV1.sol', () => {
 				const deposits = await bounty.getDeposits();
 				const linkDepositId = deposits[0];
 
-				await tieredBounty.endCompetition();
+				await tieredBounty.closeCompetition();
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
@@ -651,6 +658,11 @@ describe('BountyV1.sol', () => {
 				// // ASSERT
 				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
 				expect(secondPlaceMockTokenBalance).to.equal('200');
+			});
+
+			it('should revert if competiiton is not closed', async () => {
+				// ACT/ASSERT
+				await expect(tieredBounty.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
 			});
 		});
 	});
@@ -697,93 +709,135 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
-	describe('endCompetition', () => {
-		it('should end competition and freeze balances', async () => {
-			// ARRANGE
-			const volume = 1000;
-
-			const [, firstPlace, secondPlace] = await ethers.getSigners();
-
-			await tieredBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-
-			const deposits = await bounty.getDeposits();
-			const linkDepositId = deposits[0];
-
-			// ASSUME
-			const bountyMockTokenBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
-			expect(bountyMockTokenBalance).to.equal('1000');
-
-			const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-			expect(claimerMockTokenBalance).to.equal('0');
-
-			// ASSUME
-			let isEnded = await tieredBounty.comeptitionClosed();
-			let mockTokenFundingTotal = await tieredBounty.fundingTotals(mockLink.address);
-
-			expect(isEnded).to.equal(false);
-			expect(mockTokenFundingTotal).to.equal(0);
-
-			// ACT
-			await tieredBounty.endCompetition();
-
-			isEnded = await tieredBounty.comeptitionClosed();
-			mockTokenFundingTotal = await tieredBounty.fundingTotals(mockLink.address);
-
-			expect(isEnded).to.equal(true);
-			expect(mockTokenFundingTotal).to.equal(1000);
-		});
-
-		it('should revert if caller is not issuer', async () => {
-			const [, notOwner] = await ethers.getSigners();
-			let tieredBountyNotIssuer = tieredBounty.connect(notOwner);
-			await expect(tieredBountyNotIssuer.endCompetition()).to.be.revertedWith('Must be issuer to close competition');
-		});
-	});
-
 	describe('closeBounty', () => {
-		it('should revert if not called by OpenQ contract', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-			let issueWithNonOwnerAccount = bounty.connect(notOwner);
+		describe('SINGLE', () => {
+			it('should revert if not called by OpenQ contract', async () => {
+				// ARRANGE
+				const [, notOwner] = await ethers.getSigners();
+				let issueWithNonOwnerAccount = bounty.connect(notOwner);
 
-			// ASSERT
-			await expect(issueWithNonOwnerAccount.close(owner.address, abiEncodedCloserUrl)).to.be.revertedWith('Method is only callable by OpenQ');
+				// ASSERT
+				await expect(issueWithNonOwnerAccount.close(owner.address, abiEncodedCloserUrl)).to.be.revertedWith('Method is only callable by OpenQ');
+			});
+
+			it('should revert if already closed', async () => {
+				// ARRANGE
+				bounty.close(owner.address, abiEncodedCloserUrl);
+				//ACT / ASSERT
+				await expect(bounty.close(owner.address, abiEncodedCloserUrl)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
+			});
+
+			it('should change status to CLOSED (1)', async () => {
+				// ASSUME
+				await expect(await bounty.status()).equals(0);
+				//ACT
+				await bounty.close(owner.address, abiEncodedCloserUrl);
+				// ASSERT
+				await expect(await bounty.status()).equals(1);
+			});
+
+			it('should set closer to payout address', async () => {
+				// ASSUME
+				await expect(await bounty.closer()).equals(ethers.constants.AddressZero);
+				//ACT
+				await bounty.close(owner.address, abiEncodedCloserUrl);
+				// ASSERT
+				await expect(await bounty.closer()).equals(owner.address);
+			});
+
+			it('should set bountyClosedTime to the block timestamp', async () => {
+				// ARRANGE
+				const expectedTimestamp = await setNextBlockTimestamp();
+				// ASSUME
+				await expect(await bounty.bountyClosedTime()).equals(0);
+				//ACT
+				await bounty.close(owner.address, abiEncodedCloserUrl);
+				// ASSERT
+				await expect(await bounty.bountyClosedTime()).equals(expectedTimestamp);
+			});
 		});
 
-		it('should revert if already closed', async () => {
-			// ARRANGE
-			bounty.close(owner.address, abiEncodedCloserUrl);
-			//ACT / ASSERT
-			await expect(bounty.close(owner.address, abiEncodedCloserUrl)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
+		describe('TIERED - closeCompetition', () => {
+			it('should set bounty status to 1, freeze balances and set bountyClosedTime', async () => {
+				// ARRANGE
+				const volume = 1000;
+
+				const [, firstPlace, secondPlace] = await ethers.getSigners();
+
+				await tieredBounty.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+
+				const deposits = await bounty.getDeposits();
+				const linkDepositId = deposits[0];
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredBounty.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('1000');
+
+				const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+				expect(claimerMockTokenBalance).to.equal('0');
+
+				// ASSUME
+				let status = await tieredBounty.status();
+				let mockTokenFundingTotal = await tieredBounty.fundingTotals(mockLink.address);
+				let bountyClosedTime = await tieredBounty.bountyClosedTime();
+
+				expect(status).to.equal(0);
+				expect(mockTokenFundingTotal).to.equal(0);
+				expect(bountyClosedTime).to.equal(0);
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+				// ACT
+				await tieredBounty.closeCompetition();
+
+				status = await tieredBounty.status();
+				mockTokenFundingTotal = await tieredBounty.fundingTotals(mockLink.address);
+				bountyClosedTime = await tieredBounty.bountyClosedTime();
+
+				expect(status).to.equal(2);
+				expect(mockTokenFundingTotal).to.equal(1000);
+				expect(bountyClosedTime).to.equal(expectedTimestamp);
+			});
+
+			it('should revert if caller is not issuer', async () => {
+				const [, notOwner] = await ethers.getSigners();
+				let tieredBountyNotIssuer = tieredBounty.connect(notOwner);
+				await expect(tieredBountyNotIssuer.closeCompetition()).to.be.revertedWith('COMPETITION_CLOSER_NOT_ISSUER');
+			});
+
+			it('should revert if already closed', async () => {
+				await tieredBounty.closeCompetition();
+				await expect(tieredBounty.closeCompetition()).to.be.revertedWith('COMPETITION_ALREADY_CLOSED');
+			});
 		});
 
-		it('should change status to CLOSED (1)', async () => {
-			// ASSUME
-			await expect(await bounty.status()).equals(0);
-			//ACT
-			await bounty.close(owner.address, abiEncodedCloserUrl);
-			// ASSERT
-			await expect(await bounty.status()).equals(1);
-		});
+		describe('ONGOING - closeCompetition', () => {
+			it('should set status to 3 and bountyClosedTime', async () => {
+				let bountyClosedTime = await ongoingBounty.bountyClosedTime();
+				let status = await ongoingBounty.status();
 
-		it('should set closer to payout address', async () => {
-			// ASSUME
-			await expect(await bounty.closer()).equals(ethers.constants.AddressZero);
-			//ACT
-			await bounty.close(owner.address, abiEncodedCloserUrl);
-			// ASSERT
-			await expect(await bounty.closer()).equals(owner.address);
-		});
+				expect(bountyClosedTime).to.equal(0);
+				expect(status).to.equal(0);
 
-		it('should set bountyClosedTime to the block timestamp', async () => {
-			// ARRANGE
-			const expectedTimestamp = await setNextBlockTimestamp();
-			// ASSUME
-			await expect(await bounty.bountyClosedTime()).equals(0);
-			//ACT
-			await bounty.close(owner.address, abiEncodedCloserUrl);
-			// ASSERT
-			await expect(await bounty.bountyClosedTime()).equals(expectedTimestamp);
+				const expectedTimestamp = await setNextBlockTimestamp();
+				await ongoingBounty.closeOngoing();
+
+				bountyClosedTime = await ongoingBounty.bountyClosedTime();
+				status = await ongoingBounty.status();
+
+				expect(bountyClosedTime).to.equal(expectedTimestamp);
+				expect(status).to.equal(3);
+			});
+
+			it('should revert if caller is not issuer', async () => {
+				const [, notOwner] = await ethers.getSigners();
+				let ongoingBountyNotOwner = ongoingBounty.connect(notOwner);
+				await expect(ongoingBountyNotOwner.closeOngoing()).to.be.revertedWith('BOUNTY_CLOSER_NOT_ISSUER');
+			});
+
+			it('should revert if already closed', async () => {
+				await ongoingBounty.closeOngoing();
+				await expect(ongoingBounty.closeOngoing()).to.be.revertedWith('ONGOING_BOUNTY_ALREADY_CLOSED');
+			});
 		});
 	});
 

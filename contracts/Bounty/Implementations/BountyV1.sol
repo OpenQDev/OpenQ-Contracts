@@ -28,14 +28,6 @@ contract BountyV1 is BountyStorageV1 {
         class = 0;
     }
 
-    function _initSingleWithFundingGoal(
-        address _fundingToken,
-        uint256 _fundingGoal
-    ) internal {
-        class = 3;
-        setFundingGoal(_fundingToken, _fundingGoal);
-    }
-
     function _initOngoingBounty(
         address _payoutTokenAddress,
         uint256 _payoutVolume
@@ -53,6 +45,14 @@ contract BountyV1 is BountyStorageV1 {
         }
         require(sum == 100, 'Payout schedule must add up to 100');
         payoutSchedule = _payoutSchedule;
+    }
+
+    function _initSingleWithFundingGoal(
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) internal {
+        class = 3;
+        setFundingGoal(_fundingToken, _fundingGoal);
     }
 
     function _initBytType(OpenQDefinitions.Operation memory operation)
@@ -79,8 +79,6 @@ contract BountyV1 is BountyStorageV1 {
                 (address, uint256)
             );
             _initSingleWithFundingGoal(_fundingToken, _fundingGoal);
-        } else if (operationType == OpenQDefinitions.DEPOSIT) {
-            _initSingle();
         } else {
             revert('OQ: unknown init operation type');
         }
@@ -134,6 +132,8 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _expiration
     ) external payable onlyOpenQ nonReentrant returns (bytes32, uint256) {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
+        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
+        require(status == 0, 'BOUNTY_IS_CLOSED');
         require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
 
         bytes32 depositId = _generateDepositId();
@@ -285,21 +285,15 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _tier,
         address _tokenAddress
     ) external onlyOpenQ nonReentrant returns (uint256) {
+        require(
+            status == OpenQDefinitions.COMPETITION_CLOSED,
+            'COMPETITION_NOT_CLOSED'
+        );
         uint256 claimedBalance = (payoutSchedule[_tier] *
             this.fundingTotals(_tokenAddress)) / 100;
 
         _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
         return claimedBalance;
-    }
-
-    function endCompetition() public {
-        require(msg.sender == issuer, 'Must be issuer to close competition');
-        comeptitionClosed = true;
-
-        for (uint256 i = 0; i < getTokenAddresses().length; i++) {
-            address _tokenAddress = getTokenAddresses()[i];
-            fundingTotals[_tokenAddress] = getTokenBalance(_tokenAddress);
-        }
     }
 
     /**
@@ -371,7 +365,7 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
+     * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSED)
      * @param _payoutAddress The closer of the bounty
      */
     function close(address _payoutAddress, bytes calldata _closerData)
@@ -383,6 +377,36 @@ contract BountyV1 is BountyStorageV1 {
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
         closerData = _closerData;
+    }
+
+    /**
+     * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
+     */
+    function closeCompetition() public {
+        require(status == 0, 'COMPETITION_ALREADY_CLOSED');
+        require(msg.sender == issuer, 'COMPETITION_CLOSER_NOT_ISSUER');
+
+        status = OpenQDefinitions.COMPETITION_CLOSED;
+        bountyClosedTime = block.timestamp;
+
+        for (uint256 i = 0; i < getTokenAddresses().length; i++) {
+            address _tokenAddress = getTokenAddresses()[i];
+            fundingTotals[_tokenAddress] = getTokenBalance(_tokenAddress);
+        }
+    }
+
+    /**
+     * @dev Similar to close() for single priced bounties. closeOngoing()
+     */
+    function closeOngoing() public {
+        require(
+            status == OpenQDefinitions.OPEN,
+            'ONGOING_BOUNTY_ALREADY_CLOSED'
+        );
+        require(msg.sender == issuer, 'BOUNTY_CLOSER_NOT_ISSUER');
+
+        status = OpenQDefinitions.ONGOING_CLOSED;
+        bountyClosedTime = block.timestamp;
     }
 
     /**

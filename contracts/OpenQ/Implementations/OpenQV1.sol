@@ -99,23 +99,6 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
         bountyIdToAddress[_bountyId] = bountyAddress;
 
-        if (_initOperation.operationType == OpenQDefinitions.DEPOSIT) {
-            (address _tokenAddress, uint256 _volume, uint256 _expiration) = abi
-                .decode(_initOperation.data, (address, uint256, uint256));
-
-            (bool success, bytes memory returnedData) = _tokenAddress
-                .delegatecall(
-                    abi.encodeWithSignature(
-                        'approve(address,uint256)',
-                        bountyAddress,
-                        _volume
-                    )
-                );
-            require(success);
-
-            fundBountyToken(_bountyId, _tokenAddress, _volume, _expiration);
-        }
-
         emit BountyCreated(
             _bountyId,
             _organization,
@@ -187,8 +170,6 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        require(bountyIsOpen(_bountyId) == true, 'EXTENDING_CLOSED_BOUNTY');
-
         require(
             bounty.funder(_depositId) == msg.sender,
             'ONLY_FUNDER_CAN_REQUEST_EXTENSION'
@@ -241,6 +222,28 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _tokenId,
             0,
             new bytes(0)
+        );
+    }
+
+    function claimOngoing(
+        BountyV1 bounty,
+        bytes calldata _closerData,
+        address _closer
+    ) public {
+        (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
+            _closer
+        );
+
+        emit TokenBalanceClaimed(
+            bounty.bountyId(),
+            bountyIdToAddress[bounty.bountyId()],
+            bounty.organization(),
+            _closer,
+            block.timestamp,
+            tokenAddress,
+            volume,
+            0,
+            _closerData
         );
     }
 
@@ -314,6 +317,40 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
     }
 
+    function closeCompetition(string calldata _bountyId) external {
+        require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
+
+        BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
+        bounty.closeOngoing();
+
+        emit BountyClosed(
+            _bountyId,
+            bountyIdToAddress[_bountyId],
+            bounty.organization(),
+            address(0),
+            block.timestamp,
+            bounty.class(),
+            new bytes(0)
+        );
+    }
+
+    function closeOngoing(string calldata _bountyId) external {
+        require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
+
+        BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
+        bounty.closeOngoing();
+
+        emit BountyClosed(
+            _bountyId,
+            bountyIdToAddress[_bountyId],
+            bounty.organization(),
+            address(0),
+            block.timestamp,
+            bounty.class(),
+            new bytes(0)
+        );
+    }
+
     /**
      * @dev Transfers full balance of bounty and any NFT deposits from bounty address to closer
      * @param _bountyId A unique string to identify a bounty
@@ -327,24 +364,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
+        uint256 class = bounty.class();
 
-        if (bounty.class() == OpenQDefinitions.ONGOING) {
-            (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
-                _closer
-            );
-
-            emit TokenBalanceClaimed(
-                bounty.bountyId(),
-                bountyIdToAddress[_bountyId],
-                bounty.organization(),
-                _closer,
-                block.timestamp,
-                tokenAddress,
-                volume,
-                0,
-                _closerData
-            );
-        } else if (bounty.class() == OpenQDefinitions.TIERED) {
+        if (class == OpenQDefinitions.ONGOING) {
+            claimOngoing(bounty, _closerData, _closer);
+        } else if (class == OpenQDefinitions.TIERED) {
             claimTiered(bounty, _closerData, _closer);
         } else {
             claimSingle(bounty, _closerData, _closer, _bountyId);
@@ -363,8 +387,6 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
-
-        require(bountyIsOpen(_bountyId) == true, 'REFUNDING_CLOSED_BOUNTY');
 
         require(
             bounty.funder(_depositId) == msg.sender,

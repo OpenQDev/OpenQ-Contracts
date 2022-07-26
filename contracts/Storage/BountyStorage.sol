@@ -98,8 +98,6 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
 
     mapping(address => uint256) public fundingTotals;
 
-    bool public comeptitionClosed;
-
     /**
     Funding goal
      */

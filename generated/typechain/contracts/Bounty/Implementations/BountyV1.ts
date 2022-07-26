@@ -51,12 +51,12 @@ export interface BountyV1Interface extends utils.Interface {
     "claimTiered(address,uint256,address)": FunctionFragment;
     "class()": FunctionFragment;
     "close(address,bytes)": FunctionFragment;
+    "closeCompetition()": FunctionFragment;
+    "closeOngoing()": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
-    "comeptitionClosed()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
     "deposits(uint256)": FunctionFragment;
-    "endCompetition()": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
     "extendDeposit(bytes32,uint256,address)": FunctionFragment;
     "funder(bytes32)": FunctionFragment;
@@ -104,12 +104,12 @@ export interface BountyV1Interface extends utils.Interface {
       | "claimTiered"
       | "class"
       | "close"
+      | "closeCompetition"
+      | "closeOngoing"
       | "closer"
       | "closerData"
-      | "comeptitionClosed"
       | "depositTime"
       | "deposits"
-      | "endCompetition"
       | "expiration"
       | "extendDeposit"
       | "funder"
@@ -180,13 +180,17 @@ export interface BountyV1Interface extends utils.Interface {
     functionFragment: "close",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "closerData",
+    functionFragment: "closeCompetition",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "comeptitionClosed",
+    functionFragment: "closeOngoing",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "closer", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "closerData",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -196,10 +200,6 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "deposits",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "endCompetition",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "expiration",
@@ -378,21 +378,21 @@ export interface BountyV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "class", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "comeptitionClosed",
+    functionFragment: "closeCompetition",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "closeOngoing",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "depositTime",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposits", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "endCompetition",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "expiration", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "extendDeposit",
@@ -576,11 +576,17 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    closeCompetition(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    closeOngoing(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     closer(overrides?: CallOverrides): Promise<[string]>;
 
     closerData(overrides?: CallOverrides): Promise<[string]>;
-
-    comeptitionClosed(overrides?: CallOverrides): Promise<[boolean]>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -591,10 +597,6 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    endCompetition(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     expiration(
       arg0: PromiseOrValue<BytesLike>,
@@ -780,11 +782,17 @@ export interface BountyV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  closeCompetition(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  closeOngoing(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   closer(overrides?: CallOverrides): Promise<string>;
 
   closerData(overrides?: CallOverrides): Promise<string>;
-
-  comeptitionClosed(overrides?: CallOverrides): Promise<boolean>;
 
   depositTime(
     arg0: PromiseOrValue<BytesLike>,
@@ -795,10 +803,6 @@ export interface BountyV1 extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  endCompetition(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   expiration(
     arg0: PromiseOrValue<BytesLike>,
@@ -984,11 +988,13 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    closeCompetition(overrides?: CallOverrides): Promise<void>;
+
+    closeOngoing(overrides?: CallOverrides): Promise<void>;
+
     closer(overrides?: CallOverrides): Promise<string>;
 
     closerData(overrides?: CallOverrides): Promise<string>;
-
-    comeptitionClosed(overrides?: CallOverrides): Promise<boolean>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -999,8 +1005,6 @@ export interface BountyV1 extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    endCompetition(overrides?: CallOverrides): Promise<void>;
 
     expiration(
       arg0: PromiseOrValue<BytesLike>,
@@ -1192,11 +1196,17 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    closeCompetition(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    closeOngoing(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     closer(overrides?: CallOverrides): Promise<BigNumber>;
 
     closerData(overrides?: CallOverrides): Promise<BigNumber>;
-
-    comeptitionClosed(overrides?: CallOverrides): Promise<BigNumber>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -1206,10 +1216,6 @@ export interface BountyV1 extends BaseContract {
     deposits(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    endCompetition(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     expiration(
@@ -1397,11 +1403,17 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    closeCompetition(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    closeOngoing(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     closer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     closerData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    comeptitionClosed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -1411,10 +1423,6 @@ export interface BountyV1 extends BaseContract {
     deposits(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    endCompetition(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     expiration(
