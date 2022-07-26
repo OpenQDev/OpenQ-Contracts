@@ -356,6 +356,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "BeaconUpgraded(address)": EventFragment;
     "BountyClosed(string,address,string,address,uint256,uint256,bytes)": EventFragment;
     "BountyCreated(string,string,address,address,uint256,uint256,bytes)": EventFragment;
+    "Claim(uint256,bytes)": EventFragment;
     "DepositExtended(bytes32,uint256,uint256,bytes)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes)": EventFragment;
     "Initialized(uint8)": EventFragment;
@@ -371,6 +372,7 @@ export interface OpenQV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BountyClosed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BountyCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Claim"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
@@ -434,6 +436,14 @@ export type BountyCreatedEvent = TypedEvent<
 >;
 
 export type BountyCreatedEventFilter = TypedEventFilter<BountyCreatedEvent>;
+
+export interface ClaimEventObject {
+  class: BigNumber;
+  data: string;
+}
+export type ClaimEvent = TypedEvent<[BigNumber, string], ClaimEventObject>;
+
+export type ClaimEventFilter = TypedEventFilter<ClaimEvent>;
 
 export interface DepositExtendedEventObject {
   depositId: string;
@@ -1117,6 +1127,9 @@ export interface OpenQV1 extends BaseContract {
       _class?: null,
       data?: null
     ): BountyCreatedEventFilter;
+
+    "Claim(uint256,bytes)"(_class?: null, data?: null): ClaimEventFilter;
+    Claim(_class?: null, data?: null): ClaimEventFilter;
 
     "DepositExtended(bytes32,uint256,uint256,bytes)"(
       depositId?: null,

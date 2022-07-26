@@ -110,6 +110,25 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "uint256",
+        name: "class",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "Claim",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "bytes32",
         name: "depositId",
         type: "bytes32",

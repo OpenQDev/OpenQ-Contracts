@@ -26,6 +26,9 @@ interface IOpenQ {
         bytes data
     );
 
+    // bountyId, closer address, url string to closer asset
+    event Claim(uint256 class, bytes data);
+
     event TokenDepositReceived(
         bytes32 depositId,
         address indexed bountyAddress,
