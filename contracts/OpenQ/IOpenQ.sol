@@ -10,7 +10,7 @@ interface IOpenQ {
         string bountyId,
         string organization,
         address issuerAddress,
-        address indexed bountyAddress,
+        address bountyAddress,
         uint256 bountyMintTime,
         uint256 bountyType,
         bytes data,
@@ -19,7 +19,7 @@ interface IOpenQ {
 
     event BountyClosed(
         string bountyId,
-        address indexed bountyAddress,
+        address bountyAddress,
         string organization,
         address closer,
         uint256 bountyClosedTime,
@@ -28,12 +28,17 @@ interface IOpenQ {
         uint256 version
     );
 
-    // bountyId, closer address, url string to closer asset
-    event Claim(uint256 bountyType, bytes data, uint256 version);
+    /**
+     * @dev Data Spec:
+     * (address bountyAddress, string externalUserId, address closerAddress, string claimantAsset)
+     *
+     * abi.decode((address,string,address,string), data);
+     */
+    event ClaimSuccess(uint256 bountyType, bytes data, uint256 version);
 
     event TokenDepositReceived(
         bytes32 depositId,
-        address indexed bountyAddress,
+        address bountyAddress,
         string bountyId,
         string organization,
         address tokenAddress,
@@ -48,7 +53,7 @@ interface IOpenQ {
 
     event NFTDepositReceived(
         bytes32 depositId,
-        address indexed bountyAddress,
+        address bountyAddress,
         string bountyId,
         string organization,
         address tokenAddress,
@@ -64,7 +69,7 @@ interface IOpenQ {
     event DepositRefunded(
         bytes32 depositId,
         string bountyId,
-        address indexed bountyAddress,
+        address bountyAddress,
         string organization,
         uint256 refundTime,
         address tokenAddress,
@@ -76,7 +81,7 @@ interface IOpenQ {
 
     event TokenBalanceClaimed(
         string bountyId,
-        address indexed bountyAddress,
+        address bountyAddress,
         string organization,
         address closer,
         uint256 payoutTime,

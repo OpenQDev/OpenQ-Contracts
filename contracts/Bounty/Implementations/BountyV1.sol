@@ -263,14 +263,15 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
      * @param _payoutAddress The destination address for the fund
+     * @param _closerData ABI-encoded data of the spec (address bountyAddress, )
      */
     function claimOngoingPayout(
         address _payoutAddress,
         bytes calldata _closerData
     ) external onlyOpenQ nonReentrant returns (address, uint256) {
-        (string memory claimant, string memory claimantAsset) = abi.decode(
+        (, string memory claimant, , string memory claimantAsset) = abi.decode(
             _closerData,
-            (string, string)
+            (address, string, address, string)
         );
 
         bytes32 _claimantId = _generateClaimantId(claimant, claimantAsset);

@@ -34,12 +34,6 @@ async function deployContracts() {
 		console.log(`MockDai (Blacklisted) Deployed to ${mockDaiBlacklisted.address}\n`);
 	}
 
-	console.log('Deploying OpenQV0 (Implementation)...');
-	const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
-	const openQImplementation = await OpenQImplementation.deploy();
-	await openQImplementation.deployed();
-	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation.address}\n`);
-
 	console.log('Deploying OpenQV1 (Implementation)...');
 	const OpenQImplementationV1 = await ethers.getContractFactory('OpenQV1');
 	const openQImplementationV1 = await OpenQImplementationV1.deploy();
@@ -48,14 +42,14 @@ async function deployContracts() {
 
 	console.log('Deploying OpenQProxy...');
 	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
-	let openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
+	let openQProxy = await OpenQProxy.deploy(openQImplementationV1.address, []);
 	const confirmation = await openQProxy.deployed();
 	const deployBlockNumber = parseInt(confirmation.provider._fastBlockNumber);
 	await optionalSleep(10000);
-	console.log(`OpenQV0 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}\n`);
+	console.log(`OpenQV1 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}\n`);
 
-	// Attach the OpenQV0 ABI to the OpenQProxy address to send method calls to the delegatecall
-	openQProxy = await OpenQImplementation.attach(openQProxy.address);
+	// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
+	openQProxy = await OpenQImplementationV1.attach(openQProxy.address);
 
 	await openQProxy.initialize(process.env.ORACLE_ADDRESS);
 
@@ -66,13 +60,6 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
 
-	console.log('Deploying BountyV0...');
-	const BountyV0 = await ethers.getContractFactory('BountyV0');
-	const bountyV0 = await BountyV0.deploy();
-	await bountyV0.deployed();
-	await optionalSleep(10000);
-	console.log(`BountyV0 Deployed to ${bountyV0.address}\n`);
-
 	console.log('Deploying BountyV1...');
 	const BountyV1 = await ethers.getContractFactory('BountyV1');
 	const bountyV1 = await BountyV1.deploy();
@@ -82,7 +69,7 @@ async function deployContracts() {
 
 	console.log('Deploying BountyBeacon...');
 	const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
-	const bountyBeacon = await BountyBeacon.deploy(bountyV0.address);
+	const bountyBeacon = await BountyBeacon.deploy(bountyV1.address);
 	await bountyBeacon.deployed();
 	await optionalSleep(10000);
 	console.log(`BountyBeacon Deployed to ${bountyBeacon.address}\n`);
@@ -95,12 +82,10 @@ async function deployContracts() {
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
 
 	console.log('OPENQ ADDRESSES');
-	console.log(`OpenQV0 (Proxy) deployed to: ${openQProxy.address}`);
-	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation.address}`);
+	console.log(`OpenQV1 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV1.address}`);
 
 	console.log('\nBOUNTY ADDRESSES');
-	console.log(`BountyV0 (Implementation) deployed to ${bountyV0.address}`);
 	console.log(`BountyV1 (Implementation) deployed to ${bountyV1.address}\n`);
 	console.log(`BountyBeacon deployed to ${bountyBeacon.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
@@ -111,17 +96,17 @@ async function deployContracts() {
 		console.log(`MockDai (BlackListed) deployed to: ${mockDaiBlacklisted.address}`);
 	}
 
-	console.log('\nConfiguring OpenQV0 with BountyFactory...');
-	console.log(`Setting BountyFactory on OpenQV0 to ${bountyFactory.address}...`);
+	console.log('\nConfiguring OpenQV1 with BountyFactory...');
+	console.log(`Setting BountyFactory on OpenQV1 to ${bountyFactory.address}...`);
 	await openQProxy.setBountyFactory(bountyFactory.address);
 	await optionalSleep(10000);
-	console.log(`BountyFactory successfully set on OpenQV0 to ${bountyFactory.address}`);
+	console.log(`BountyFactory successfully set on OpenQV1 to ${bountyFactory.address}`);
 
-	console.log('\nConfiguring OpenQV0 with OpenQTokenWhitelist...');
-	console.log(`Setting OpenQTokenWhitelist on OpenQV0 to ${openQTokenWhitelist.address}...`);
+	console.log('\nConfiguring OpenQV1 with OpenQTokenWhitelist...');
+	console.log(`Setting OpenQTokenWhitelist on OpenQV1 to ${openQTokenWhitelist.address}...`);
 	await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
 	await optionalSleep(10000);
-	console.log(`OpenQTokenWhitelist successfully set on OpenQV0 to ${openQTokenWhitelist.address}`);
+	console.log(`OpenQTokenWhitelist successfully set on OpenQV1 to ${openQTokenWhitelist.address}`);
 
 	console.log('\nContracts deployed and configured successfully!');
 
@@ -132,10 +117,10 @@ async function deployContracts() {
 	let addresses;
 	if (network.name === 'docker' || network.name === 'localhost') {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationV1.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV0.address}"
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV1.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_V1_ADDRESS="${bountyV1.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
@@ -145,11 +130,10 @@ MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS="${mockDaiBlacklisted.address}"
 `;
 	} else {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
-OPENQ_IMPLEMENTATION_ADDRESS_V1="${openQImplementationV1.address}"
+OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationV1.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV0.address}"
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV1.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_V1_ADDRESS="${bountyV1.address}"
 OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
 OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"

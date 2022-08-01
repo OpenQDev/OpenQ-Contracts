@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV1.sol', () => {
+describe.only('OpenQV1.sol', () => {
 	let openQProxy;
 	let openQImplementation;
 	let owner;
@@ -110,9 +110,9 @@ describe('OpenQV1.sol', () => {
 		const fundingGoalBountyParams = abiCoder.encode(["address", "uint256"], [mockLink.address, 1000]);
 		fundingGoalBountyInitOperation = [3, fundingGoalBountyParams];
 
-		abiEncodedSingleCloserData = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-		abiEncodedTieredCloserData = abiCoder.encode(["uint256", "string"], [0, 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398']);
-		abiEncodedOngoingCloserData = abiCoder.encode(["string", "string"], ["FlacoJones", "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
+		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
+		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
+		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
 	});
 
 	describe('initialization', () => {
@@ -844,7 +844,7 @@ describe('OpenQV1.sol', () => {
 				// ASSERT
 				const oracleContract = openQProxy.connect(oracle);
 				await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
-					.to.emit(openQProxy, 'Claim')
+					.to.emit(openQProxy, 'ClaimSuccess')
 					.withArgs(0, abiEncodedSingleCloserData, 1);
 			});
 

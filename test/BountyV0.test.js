@@ -31,7 +31,7 @@ describe('BountyV1.sol', () => {
 
 	let abiCoder = new ethers.utils.AbiCoder;
 	let abiEncodedCloserUrl = abiCoder.encode(["string"], ["https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	let ongoingCloserData = abiCoder.encode(["string", "string"], ["FlacoJones", "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
+	ongoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 
 	beforeEach(async () => {
 		BountyV1 = await ethers.getContractFactory('BountyV1');

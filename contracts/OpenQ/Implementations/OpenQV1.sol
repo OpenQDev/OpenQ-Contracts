@@ -257,8 +257,10 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address _closer,
         bytes calldata _closerData
     ) internal {
-        uint256 _tier = abi.decode(_closerData, (uint256));
-
+        (, , , , uint256 _tier) = abi.decode(
+            _closerData,
+            (address, string, address, string, uint256)
+        );
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimTiered(
                 _closer,
@@ -379,17 +381,17 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
-        uint256 bountyType = bounty.bountyType();
+        uint256 _bountyType = bounty.bountyType();
 
-        if (bountyType == OpenQDefinitions.ONGOING) {
+        if (_bountyType == OpenQDefinitions.ONGOING) {
             _claimOngoing(bounty, _closer, _closerData);
-        } else if (bountyType == OpenQDefinitions.TIERED) {
+        } else if (_bountyType == OpenQDefinitions.TIERED) {
             _claimTiered(bounty, _closer, _closerData);
         } else {
             _claimSingle(bounty, _closer, _bountyId, _closerData);
         }
 
-        emit Claim(bountyType, _closerData, 1);
+        emit ClaimSuccess(_bountyType, _closerData, 1);
     }
 
     /**
@@ -499,9 +501,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     ) public view returns (bool) {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
-        bytes32 claimantId = keccak256(
-            abi.encodePacked(claimant, claimantAsset)
-        );
+        bytes32 claimantId = keccak256(abi.encode(claimant, claimantAsset));
         bool _ongoingClaimed = bounty.claimantId(claimantId);
         return _ongoingClaimed;
     }
@@ -520,11 +520,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
         uint256 status = bounty.status();
-        uint256 bountyType = bounty.bountyType();
+        uint256 _bountyType = bounty.bountyType();
 
-        if (bountyType == OpenQDefinitions.ONGOING) {
+        if (_bountyType == OpenQDefinitions.ONGOING) {
             return status == 0;
-        } else if (bountyType == OpenQDefinitions.TIERED) {
+        } else if (_bountyType == OpenQDefinitions.TIERED) {
             return status == 2;
         } else {
             return status == 0;

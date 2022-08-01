@@ -17,7 +17,7 @@ const _abi = [
         type: "string",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
         name: "bountyAddress",
         type: "address",
@@ -84,7 +84,7 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
         name: "bountyAddress",
         type: "address",
@@ -139,7 +139,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "Claim",
+    name: "ClaimSuccess",
     type: "event",
   },
   {
@@ -195,7 +195,7 @@ const _abi = [
         type: "string",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
         name: "bountyAddress",
         type: "address",
@@ -256,7 +256,7 @@ const _abi = [
         type: "bytes32",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
         name: "bountyAddress",
         type: "address",
@@ -335,7 +335,7 @@ const _abi = [
         type: "string",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
         name: "bountyAddress",
         type: "address",
@@ -402,7 +402,7 @@ const _abi = [
         type: "bytes32",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
         name: "bountyAddress",
         type: "address",
