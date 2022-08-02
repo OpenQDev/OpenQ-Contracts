@@ -13,15 +13,16 @@ async function fundBounties() {
 	const MockDai = await ethers.getContractFactory('MockDai');
 	const mockDai = await MockDai.attach(process.env.MOCK_DAI_TOKEN_ADDRESS);
 
-	const OpenQ = await ethers.getContractFactory('OpenQV0');
+	const OpenQ = await ethers.getContractFactory('OpenQV1');
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
-	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGWnnz85GjwA1', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq', 'I_kwDOGWnnz85CZwGJ', 'I_kwDOGWnnz85AkiDt'];
+	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGWnnz85GjwA1', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq', 'I_kwDOGWnnz85CZwGJ', 'I_kwDOGWnnz85AkiDt', 'I_kwDOGWnnz85Oi-oQ'];
 	const githubIssueIdsOtherOrgs = ['I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW'];
 
 	const bounty1Address = await openQ.bountyIdToAddress(githubIssueIdsOtherOrgs[0]);
 	const bounty2Address = await openQ.bountyIdToAddress(githubIssueIds[1]);
 	const bounty3Address = await openQ.bountyIdToAddress(githubIssueIds[5]);
+	const ongoingBountyAddress = await openQ.bountyIdToAddress(githubIssueIds[6]);
 
 
 	// Pre-load with some deposits
@@ -46,6 +47,12 @@ async function fundBounties() {
 	await optionalSleep(5000);
 
 	await mockDai.approve(bounty3Address, eight);
+	await optionalSleep(5000);
+
+	await mockLink.approve(ongoingBountyAddress, eight);
+	await optionalSleep(5000);
+
+	await mockDai.approve(ongoingBountyAddress, eight);
 	await optionalSleep(5000);
 
 	const thirtySeconds = 30;
@@ -85,6 +92,12 @@ async function fundBounties() {
 	await optionalSleep(5000);
 
 	await openQ.fundBountyToken(githubIssueIds[5], mockLink.address, two, thirtySeconds);
+	await optionalSleep(5000);
+
+	await openQ.fundBountyToken(githubIssueIds[6], mockDai.address, two, fifteenDays);
+	await optionalSleep(5000);
+
+	await openQ.fundBountyToken(githubIssueIds[6], mockLink.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 1');
