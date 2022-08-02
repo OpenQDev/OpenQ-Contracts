@@ -101,7 +101,7 @@ describe('BountyFactory', () => {
 			const bountyId = await newBounty.bountyId();
 			const organization = await newBounty.organization();
 			const openQAddress = await newBounty.openQ();
-			const bountyType = await newBounty.class();
+			const bountyType = await newBounty.bountyType();
 			const payoutVolume = await newBounty.payoutVolume();
 			const payoutTokenAddress = await newBounty.payoutTokenAddress();
 

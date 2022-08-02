@@ -2,7 +2,7 @@
 pragma solidity 0.8.13;
 
 /**
- * @dev Third party imports inherited by OpenQV0
+ * @dev Third party imports inherited by OpenQV1
  */
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
