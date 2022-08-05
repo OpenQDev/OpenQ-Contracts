@@ -29,9 +29,9 @@ import type {
 
 export interface OpenQStorageV1Interface extends utils.Interface {
   functions: {
+    "VERSION_1()": FunctionFragment;
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
-    "newStorageVar()": FunctionFragment;
     "openQTokenWhitelist()": FunctionFragment;
     "oracle()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -44,9 +44,9 @@ export interface OpenQStorageV1Interface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "VERSION_1"
       | "bountyFactory"
       | "bountyIdToAddress"
-      | "newStorageVar"
       | "openQTokenWhitelist"
       | "oracle"
       | "owner"
@@ -57,6 +57,7 @@ export interface OpenQStorageV1Interface extends utils.Interface {
       | "upgradeToAndCall"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "VERSION_1", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "bountyFactory",
     values?: undefined
@@ -64,10 +65,6 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "bountyIdToAddress",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "newStorageVar",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "openQTokenWhitelist",
@@ -96,16 +93,13 @@ export interface OpenQStorageV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "VERSION_1", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "bountyFactory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "bountyIdToAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "newStorageVar",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -235,14 +229,14 @@ export interface OpenQStorageV1 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    VERSION_1(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     bountyFactory(overrides?: CallOverrides): Promise<[string]>;
 
     bountyIdToAddress(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    newStorageVar(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     openQTokenWhitelist(overrides?: CallOverrides): Promise<[string]>;
 
@@ -273,14 +267,14 @@ export interface OpenQStorageV1 extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
+
   bountyFactory(overrides?: CallOverrides): Promise<string>;
 
   bountyIdToAddress(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
   openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
@@ -311,14 +305,14 @@ export interface OpenQStorageV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
+
     bountyFactory(overrides?: CallOverrides): Promise<string>;
 
     bountyIdToAddress(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
     openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
@@ -394,14 +388,14 @@ export interface OpenQStorageV1 extends BaseContract {
   };
 
   estimateGas: {
+    VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
+
     bountyFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     bountyIdToAddress(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
     openQTokenWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -433,14 +427,14 @@ export interface OpenQStorageV1 extends BaseContract {
   };
 
   populateTransaction: {
+    VERSION_1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     bountyFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     bountyIdToAddress(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    newStorageVar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     openQTokenWhitelist(
       overrides?: CallOverrides

@@ -42,6 +42,7 @@ export declare namespace OpenQDefinitions {
 
 export interface OpenQV1Interface extends utils.Interface {
   functions: {
+    "VERSION_1()": FunctionFragment;
     "bountyAddressToBountyId(address)": FunctionFragment;
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
@@ -58,7 +59,6 @@ export interface OpenQV1Interface extends utils.Interface {
     "initialize(address)": FunctionFragment;
     "isWhitelisted(address)": FunctionFragment;
     "mintBounty(string,string,(uint32,bytes))": FunctionFragment;
-    "newStorageVar()": FunctionFragment;
     "ongoingClaimed(string,string,string)": FunctionFragment;
     "openQTokenWhitelist()": FunctionFragment;
     "oracle()": FunctionFragment;
@@ -78,6 +78,7 @@ export interface OpenQV1Interface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "VERSION_1"
       | "bountyAddressToBountyId"
       | "bountyFactory"
       | "bountyIdToAddress"
@@ -94,7 +95,6 @@ export interface OpenQV1Interface extends utils.Interface {
       | "initialize"
       | "isWhitelisted"
       | "mintBounty"
-      | "newStorageVar"
       | "ongoingClaimed"
       | "openQTokenWhitelist"
       | "oracle"
@@ -112,6 +112,7 @@ export interface OpenQV1Interface extends utils.Interface {
       | "upgradeToAndCall"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "VERSION_1", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "bountyAddressToBountyId",
     values: [PromiseOrValue<string>]
@@ -199,10 +200,6 @@ export interface OpenQV1Interface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "newStorageVar",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "ongoingClaimed",
     values: [
       PromiseOrValue<string>,
@@ -261,6 +258,7 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "VERSION_1", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "bountyAddressToBountyId",
     data: BytesLike
@@ -316,10 +314,6 @@ export interface OpenQV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mintBounty", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "newStorageVar",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "ongoingClaimed",
     data: BytesLike
@@ -682,6 +676,8 @@ export interface OpenQV1 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    VERSION_1(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     bountyAddressToBountyId(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -768,8 +764,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    newStorageVar(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     ongoingClaimed(
       _bountyId: PromiseOrValue<string>,
       claimant: PromiseOrValue<string>,
@@ -837,6 +831,8 @@ export interface OpenQV1 extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
   bountyAddressToBountyId(
     _bountyAddress: PromiseOrValue<string>,
@@ -924,8 +920,6 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
-
   ongoingClaimed(
     _bountyId: PromiseOrValue<string>,
     claimant: PromiseOrValue<string>,
@@ -994,6 +988,8 @@ export interface OpenQV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
+
     bountyAddressToBountyId(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1079,8 +1075,6 @@ export interface OpenQV1 extends BaseContract {
       _initOperation: OpenQDefinitions.OperationStruct,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
 
     ongoingClaimed(
       _bountyId: PromiseOrValue<string>,
@@ -1371,6 +1365,8 @@ export interface OpenQV1 extends BaseContract {
   };
 
   estimateGas: {
+    VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
+
     bountyAddressToBountyId(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1457,8 +1453,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    newStorageVar(overrides?: CallOverrides): Promise<BigNumber>;
-
     ongoingClaimed(
       _bountyId: PromiseOrValue<string>,
       claimant: PromiseOrValue<string>,
@@ -1528,6 +1522,8 @@ export interface OpenQV1 extends BaseContract {
   };
 
   populateTransaction: {
+    VERSION_1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     bountyAddressToBountyId(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1613,8 +1609,6 @@ export interface OpenQV1 extends BaseContract {
       _initOperation: OpenQDefinitions.OperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    newStorageVar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ongoingClaimed(
       _bountyId: PromiseOrValue<string>,

@@ -107,7 +107,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             block.timestamp,
             bountyType(_bountyId),
             _initOperation.data,
-            1
+            VERSION_1
         );
 
         return bountyAddress;
@@ -154,7 +154,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             volumeReceived,
             0,
             new bytes(0),
-            1
+            VERSION_1
         );
     }
 
@@ -183,7 +183,13 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             msg.sender
         );
 
-        emit DepositExtended(_depositId, newExpiration, 0, new bytes(0), 1);
+        emit DepositExtended(
+            _depositId,
+            newExpiration,
+            0,
+            new bytes(0),
+            VERSION_1
+        );
     }
 
     /**
@@ -224,7 +230,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _tokenId,
             0,
             new bytes(0),
-            1
+            VERSION_1
         );
     }
 
@@ -248,7 +254,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             volume,
             bounty.bountyType(),
             _closerData,
-            1
+            VERSION_1
         );
     }
 
@@ -278,7 +284,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                1
+                VERSION_1
             );
         }
 
@@ -307,7 +313,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                1
+                VERSION_1
             );
         }
 
@@ -325,7 +331,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             block.timestamp,
             bounty.bountyType(),
             _closerData,
-            1
+            VERSION_1
         );
     }
 
@@ -343,7 +349,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             block.timestamp,
             bounty.bountyType(),
             new bytes(0),
-            1
+            VERSION_1
         );
     }
 
@@ -361,7 +367,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             block.timestamp,
             bounty.bountyType(),
             new bytes(0),
-            1
+            VERSION_1
         );
     }
 
@@ -391,7 +397,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _claimSingle(bounty, _closer, _bountyId, _closerData);
         }
 
-        emit ClaimSuccess(_bountyType, _closerData, 1);
+        emit ClaimSuccess(_bountyType, _closerData, VERSION_1);
     }
 
     /**
@@ -432,7 +438,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             bounty.volume(_depositId),
             0,
             new bytes(0),
-            1
+            VERSION_1
         );
     }
 

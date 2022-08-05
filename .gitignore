@@ -19,3 +19,5 @@ mcore*/
 .env.docker
 .DS_Store
 .openzeppelin/**
+
+contracts/.deps

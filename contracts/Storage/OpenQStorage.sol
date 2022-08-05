@@ -18,20 +18,17 @@ import '../Bounty/Implementations/BountyV1.sol';
 import '../Oracle/Oraclize.sol';
 
 /**
- * @title OpenQStorageV0
+ * @title OpenQStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by OpenQ implementations
  */
-abstract contract OpenQStorageV0 is
+abstract contract OpenQStorageV1 is
     OwnableUpgradeable,
     UUPSUpgradeable,
     ReentrancyGuardUpgradeable,
     Oraclize
 {
+    uint256 public constant VERSION_1 = 1;
     BountyFactory public bountyFactory;
     OpenQTokenWhitelist public openQTokenWhitelist;
     mapping(string => address) public bountyIdToAddress;
-}
-
-abstract contract OpenQStorageV1 is OpenQStorageV0 {
-    uint256 public newStorageVar;
 }
