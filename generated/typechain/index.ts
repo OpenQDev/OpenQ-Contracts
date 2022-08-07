@@ -86,8 +86,6 @@ export type { BountyStorageV0 } from "./contracts/Storage/BountyStorage.sol/Boun
 export { BountyStorageV0__factory } from "./factories/contracts/Storage/BountyStorage.sol/BountyStorageV0__factory";
 export type { BountyStorageV1 } from "./contracts/Storage/BountyStorage.sol/BountyStorageV1";
 export { BountyStorageV1__factory } from "./factories/contracts/Storage/BountyStorage.sol/BountyStorageV1__factory";
-export type { OpenQStorageV0 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV0";
-export { OpenQStorageV0__factory } from "./factories/contracts/Storage/OpenQStorage.sol/OpenQStorageV0__factory";
 export type { OpenQStorageV1 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV1";
 export { OpenQStorageV1__factory } from "./factories/contracts/Storage/OpenQStorage.sol/OpenQStorageV1__factory";
 export type { MockDai } from "./contracts/Tokens/MockDai";

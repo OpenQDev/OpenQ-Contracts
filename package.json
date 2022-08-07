@@ -12,7 +12,7 @@
 		"accounts": "hardhat accounts --network localhost",
 		"test": "hardhat test",
 		"deploy:localhost": "yarn deploy-contracts:localhost && yarn configure-whitelist:localhost && yarn deploy-bounties:localhost && yarn fund-bounties:localhost",
-		"deploy:docker": "yarn deploy-contracts:docker && yarn configure-whitelist:docker && yarn deploy-bounties:docker && yarn fund-bounties:docker",
+		"deploy:docker": "yarn deploy-contracts:docker && yarn configure-whitelist:docker",
 		"deploy:mumbai": "yarn deploy-contracts:mumbai && yarn configure-whitelist:mumbai && yarn verify-contracts:mumbai",
 		"deploy:polygon": "yarn deploy-contracts:polygon && yarn configure-whitelist:polygon && yarn verify-contracts:polygon",
 		"deploy-superfluid:docker": "hardhat run --network docker deploy/deploy_superfluid.js",

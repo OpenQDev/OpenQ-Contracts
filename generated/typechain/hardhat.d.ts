@@ -173,10 +173,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BountyStorageV1__factory>;
     getContractFactory(
-      name: "OpenQStorageV0",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OpenQStorageV0__factory>;
-    getContractFactory(
       name: "OpenQStorageV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQStorageV1__factory>;
@@ -409,11 +405,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.BountyStorageV1>;
-    getContractAt(
-      name: "OpenQStorageV0",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OpenQStorageV0>;
     getContractAt(
       name: "OpenQStorageV1",
       address: string,

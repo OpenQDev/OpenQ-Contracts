@@ -336,7 +336,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     function closeCompetition(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
+        require(bountyIsOpen(_bountyId) == true, 'COMPETITION_ALREADY_CLOSED');
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
         bounty.closeCompetition(msg.sender);
