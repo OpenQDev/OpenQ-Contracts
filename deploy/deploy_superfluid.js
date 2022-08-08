@@ -71,9 +71,9 @@ async function deploySuperfluid() {
 
 	console.log(ret);
 
-	const addresses = `FDAI_ADDRESS="${fDAIAddress}"
-FDAIX_ADDRESS="${fDAIxAddress}"
-SUPERFLUID_RESOLVER_ADDRESS="${process.env.RESOLVER_ADDRESS}"
+	const addresses = `FDAI_ADDRESS=${fDAIAddress}
+FDAIX_ADDRESS=${fDAIxAddress}
+SUPERFLUID_RESOLVER_ADDRESS=${process.env.RESOLVER_ADDRESS}
 `;
 
 	fs.writeFileSync('.env.superfluid.contracts', addresses);
