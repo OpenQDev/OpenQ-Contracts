@@ -34,7 +34,12 @@ interface IOpenQ {
      *
      * abi.decode((address,string,address,string), data);
      */
-    event ClaimSuccess(uint256 bountyType, bytes data, uint256 version);
+    event ClaimSuccess(
+        uint256 claimTime,
+        uint256 bountyType,
+        bytes data,
+        uint256 version
+    );
 
     event TokenDepositReceived(
         bytes32 depositId,

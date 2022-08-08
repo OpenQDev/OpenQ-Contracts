@@ -371,7 +371,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "BeaconUpgraded(address)": EventFragment;
     "BountyClosed(string,address,string,address,uint256,uint256,bytes,uint256)": EventFragment;
     "BountyCreated(string,string,address,address,uint256,uint256,bytes,uint256)": EventFragment;
-    "ClaimSuccess(uint256,bytes,uint256)": EventFragment;
+    "ClaimSuccess(uint256,uint256,bytes,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
@@ -455,12 +455,13 @@ export type BountyCreatedEvent = TypedEvent<
 export type BountyCreatedEventFilter = TypedEventFilter<BountyCreatedEvent>;
 
 export interface ClaimSuccessEventObject {
+  claimTime: BigNumber;
   bountyType: BigNumber;
   data: string;
   version: BigNumber;
 }
 export type ClaimSuccessEvent = TypedEvent<
-  [BigNumber, string, BigNumber],
+  [BigNumber, BigNumber, string, BigNumber],
   ClaimSuccessEventObject
 >;
 
@@ -1201,12 +1202,14 @@ export interface OpenQV1 extends BaseContract {
       version?: null
     ): BountyCreatedEventFilter;
 
-    "ClaimSuccess(uint256,bytes,uint256)"(
+    "ClaimSuccess(uint256,uint256,bytes,uint256)"(
+      claimTime?: null,
       bountyType?: null,
       data?: null,
       version?: null
     ): ClaimSuccessEventFilter;
     ClaimSuccess(
+      claimTime?: null,
       bountyType?: null,
       data?: null,
       version?: null

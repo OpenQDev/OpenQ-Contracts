@@ -354,7 +354,10 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     function closeOngoing(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId) == true, 'CLAIMING_CLOSED_BOUNTY');
+        require(
+            bountyIsOpen(_bountyId) == true,
+            'ONGOING_BOUNTY_ALREADY_CLOSED'
+        );
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
         bounty.closeOngoing(msg.sender);
@@ -397,7 +400,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _claimSingle(bounty, _closer, _bountyId, _closerData);
         }
 
-        emit ClaimSuccess(_bountyType, _closerData, VERSION_1);
+        emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_1);
     }
 
     /**

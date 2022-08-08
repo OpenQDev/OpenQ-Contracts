@@ -123,6 +123,12 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
+        name: "claimTime",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
         name: "bountyType",
         type: "uint256",
       },
