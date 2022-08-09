@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe.only('BountyV1.sol', () => {
+describe('BountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV1;
 
@@ -40,6 +40,7 @@ describe.only('BountyV1.sol', () => {
 
 	// TEST CONTRACTS
 	let atomicContract;
+	let atomicContract_noFundingGoal;
 	let ongoingContract;
 	let tieredContract;
 
@@ -116,6 +117,13 @@ describe.only('BountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredContract.address, 10000000);
 		await mockDai.approve(tieredContract.address, 10000000);
+
+		// Mint an atomic contract with no funding goal
+		atomicContract_noFundingGoal = await BountyV1.deploy();
+		await atomicContract_noFundingGoal.deployed();
+		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [false, ethers.constants.AddressZero, 0]);
+		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
+		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, atomicBountyNoFundingGoalInitOperation);
 	});
 
 	describe('initializer', () => {
@@ -885,11 +893,29 @@ describe.only('BountyV1.sol', () => {
 	describe('setFundingGoal', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
-			const [, notIssuer] = await ethers.getSigners();
-			let issueWithNonIssuerAccount = atomicContract.connect(notIssuer);
+			const [, notOwner] = await ethers.getSigners();
+			const volume = 10000;
+			let bountyWithNonOwnerAccount = atomicContract.connect(notOwner);
 
 			// ASSERT
-			await expect(issueWithNonIssuerAccount.setFundingGoal(mockLink.address, 100)).to.be.revertedWith('ONLY_ISSUER_CAN_SET_FUNDING_GOAL');
+			await expect(bountyWithNonOwnerAccount.setFundingGoal(mockLink.address, volume)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it('should set funding goal when none exists', async () => {
+			// ASSUME
+			let hasNoFundingGoal = await atomicContract_noFundingGoal.hasFundingGoal();
+			expect(hasNoFundingGoal).to.equal(false);
+
+			// ACT
+			await atomicContract_noFundingGoal.setFundingGoal(mockLink.address, 100);
+
+			// ASSERT
+			let hasNoFundingGoalexpected = await atomicContract_noFundingGoal.hasFundingGoal();
+			let fundingToken = await atomicContract_noFundingGoal.fundingToken();
+			let fundingGoal = await atomicContract_noFundingGoal.fundingGoal();
+			expect(hasNoFundingGoalexpected).to.equal(true);
+			expect(fundingToken).to.equal(mockLink.address);
+			expect(fundingToken).to.equal(mockLink.address);
 		});
 	});
 

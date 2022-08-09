@@ -106,6 +106,6 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     Funding goal
      */
     bool public hasFundingGoal;
-    uint256 public fundingGoal;
     address public fundingToken;
+    uint256 public fundingGoal;
 }

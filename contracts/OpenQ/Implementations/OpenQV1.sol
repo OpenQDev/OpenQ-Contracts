@@ -58,6 +58,32 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
+     * @dev Sets fundingGoal
+     * @param _bountyId The id to update
+     * @param _fundingGoalToken The id to update
+     * @param _fundingGoalVolume The id to update
+     */
+    function setFundingGoal(
+        string calldata _bountyId,
+        address _fundingGoalToken,
+        uint256 _fundingGoalVolume
+    ) external onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        bounty.setFundingGoal(_fundingGoalToken, _fundingGoalVolume);
+
+        emit FundingGoalSet(
+            bountyAddress,
+            _fundingGoalToken,
+            _fundingGoalVolume,
+            bounty.bountyType(),
+            new bytes(0),
+            VERSION_1
+        );
+    }
+
+    /**
      * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
      * @param _newOracle The new oracle address
      */

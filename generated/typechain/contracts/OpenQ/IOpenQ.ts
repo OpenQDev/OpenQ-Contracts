@@ -21,6 +21,7 @@ export interface IOpenQInterface extends utils.Interface {
     "ClaimSuccess(uint256,uint256,bytes,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
@@ -31,6 +32,7 @@ export interface IOpenQInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ClaimSuccess"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
@@ -126,6 +128,21 @@ export type DepositRefundedEvent = TypedEvent<
 >;
 
 export type DepositRefundedEventFilter = TypedEventFilter<DepositRefundedEvent>;
+
+export interface FundingGoalSetEventObject {
+  bountyAddress: string;
+  fundingGoalTokenAddress: string;
+  fundingGoalVolume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type FundingGoalSetEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, string, BigNumber],
+  FundingGoalSetEventObject
+>;
+
+export type FundingGoalSetEventFilter = TypedEventFilter<FundingGoalSetEvent>;
 
 export interface NFTDepositReceivedEventObject {
   depositId: string;
@@ -353,6 +370,23 @@ export interface IOpenQ extends BaseContract {
       data?: null,
       version?: null
     ): DepositRefundedEventFilter;
+
+    "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): FundingGoalSetEventFilter;
+    FundingGoalSet(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): FundingGoalSetEventFilter;
 
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)"(
       depositId?: null,

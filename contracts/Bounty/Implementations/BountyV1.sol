@@ -526,9 +526,9 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
-        external
+        public
+        onlyOpenQ
     {
-        require(msg.sender == issuer, 'ONLY_ISSUER_CAN_SET_FUNDING_GOAL');
         fundingGoal = _fundingGoal;
         fundingToken = _fundingToken;
         hasFundingGoal = true;
@@ -609,8 +609,12 @@ contract BountyV1 is BountyStorageV1 {
         return tokenAddresses.values().length;
     }
 
-    // /**
-    //  * @dev receive() method to accept protocol tokens
-    //  */
-    // receive() external payable {}
+    /**
+     * @dev receive() method to accept protocol tokens
+     */
+    receive() external payable {
+        revert(
+            'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'
+        );
+    }
 }

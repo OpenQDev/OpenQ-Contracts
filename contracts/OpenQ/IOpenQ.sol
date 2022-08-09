@@ -104,4 +104,13 @@ interface IOpenQ {
         bytes data,
         uint256 version
     );
+
+    event FundingGoalSet(
+        address bountyAddress,
+        address fundingGoalTokenAddress,
+        uint256 fundingGoalVolume,
+        uint256 bountyType,
+        bytes data,
+        uint256 version
+    );
 }

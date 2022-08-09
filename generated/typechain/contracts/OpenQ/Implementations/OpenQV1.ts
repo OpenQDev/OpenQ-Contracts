@@ -67,6 +67,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "refundDeposit(string,bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setBountyFactory(address)": FunctionFragment;
+    "setFundingGoal(string,address,uint256)": FunctionFragment;
     "setTokenWhitelist(address)": FunctionFragment;
     "tierClaimed(string,uint256)": FunctionFragment;
     "tokenAddressLimitReached(string)": FunctionFragment;
@@ -103,6 +104,7 @@ export interface OpenQV1Interface extends utils.Interface {
       | "refundDeposit"
       | "renounceOwnership"
       | "setBountyFactory"
+      | "setFundingGoal"
       | "setTokenWhitelist"
       | "tierClaimed"
       | "tokenAddressLimitReached"
@@ -230,6 +232,14 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setFundingGoal",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setTokenWhitelist",
     values: [PromiseOrValue<string>]
   ): string;
@@ -341,6 +351,10 @@ export interface OpenQV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setFundingGoal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setTokenWhitelist",
     data: BytesLike
   ): Result;
@@ -374,6 +388,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "ClaimSuccess(uint256,uint256,bytes,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "OracleTransferred(address,address)": EventFragment;
@@ -390,6 +405,7 @@ export interface OpenQV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ClaimSuccess"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
@@ -510,6 +526,21 @@ export type DepositRefundedEvent = TypedEvent<
 >;
 
 export type DepositRefundedEventFilter = TypedEventFilter<DepositRefundedEvent>;
+
+export interface FundingGoalSetEventObject {
+  bountyAddress: string;
+  fundingGoalTokenAddress: string;
+  fundingGoalVolume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type FundingGoalSetEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, string, BigNumber],
+  FundingGoalSetEventObject
+>;
+
+export type FundingGoalSetEventFilter = TypedEventFilter<FundingGoalSetEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -795,6 +826,13 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setFundingGoal(
+      _bountyId: PromiseOrValue<string>,
+      _fundingGoalToken: PromiseOrValue<string>,
+      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -948,6 +986,13 @@ export interface OpenQV1 extends BaseContract {
 
   setBountyFactory(
     _bountyFactory: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setFundingGoal(
+    _bountyId: PromiseOrValue<string>,
+    _fundingGoalToken: PromiseOrValue<string>,
+    _fundingGoalVolume: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1105,6 +1150,13 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setFundingGoal(
+      _bountyId: PromiseOrValue<string>,
+      _fundingGoalToken: PromiseOrValue<string>,
+      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1254,6 +1306,23 @@ export interface OpenQV1 extends BaseContract {
       data?: null,
       version?: null
     ): DepositRefundedEventFilter;
+
+    "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): FundingGoalSetEventFilter;
+    FundingGoalSet(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): FundingGoalSetEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
@@ -1486,6 +1555,13 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setFundingGoal(
+      _bountyId: PromiseOrValue<string>,
+      _fundingGoalToken: PromiseOrValue<string>,
+      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1642,6 +1718,13 @@ export interface OpenQV1 extends BaseContract {
 
     setBountyFactory(
       _bountyFactory: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFundingGoal(
+      _bountyId: PromiseOrValue<string>,
+      _fundingGoalToken: PromiseOrValue<string>,
+      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
