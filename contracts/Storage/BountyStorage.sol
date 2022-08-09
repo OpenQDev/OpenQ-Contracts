@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 /**
  * @dev Third party imports inherited by BountyV0
@@ -12,6 +12,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 import '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol';
 
 /**
  * @dev Custom imports inherited by BountyV0
@@ -25,7 +26,7 @@ import '../Library/OpenQDefinitions.sol';
  */
 abstract contract BountyStorageV0 is
     ReentrancyGuardUpgradeable,
-    IERC721ReceiverUpgradeable,
+    ERC721HolderUpgradeable,
     OnlyOpenQ
 {
     /**
@@ -107,17 +108,4 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     bool public hasFundingGoal;
     uint256 public fundingGoal;
     address public fundingToken;
-
-    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
-        external
-    {
-        require(msg.sender == issuer, 'ONLY_ISSUER_CAN_SET_FUNDING_GOAL');
-        fundingGoal = _fundingGoal;
-        fundingToken = _fundingToken;
-        hasFundingGoal = true;
-    }
-
-    function getPayoutSchedule() external view returns (uint256[] memory) {
-        return payoutSchedule;
-    }
 }

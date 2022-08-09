@@ -722,8 +722,8 @@ export interface BountyV1 extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     openQ(overrides?: CallOverrides): Promise<[string]>;
 
@@ -948,8 +948,8 @@ export interface BountyV1 extends BaseContract {
     arg1: PromiseOrValue<string>,
     arg2: PromiseOrValue<BigNumberish>,
     arg3: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   openQ(overrides?: CallOverrides): Promise<string>;
 
@@ -1406,7 +1406,7 @@ export interface BountyV1 extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     openQ(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1635,7 +1635,7 @@ export interface BountyV1 extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     openQ(overrides?: CallOverrides): Promise<PopulatedTransaction>;

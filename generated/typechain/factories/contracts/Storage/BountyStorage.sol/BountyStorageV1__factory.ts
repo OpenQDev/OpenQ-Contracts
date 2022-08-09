@@ -243,19 +243,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getPayoutSchedule",
-    outputs: [
-      {
-        internalType: "uint256[]",
-        name: "",
-        type: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "hasFundingGoal",
     outputs: [
       {
@@ -335,22 +322,22 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "operator",
+        name: "",
         type: "address",
       },
       {
         internalType: "address",
-        name: "from",
+        name: "",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "tokenId",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "bytes",
-        name: "data",
+        name: "",
         type: "bytes",
       },
     ],
@@ -472,24 +459,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_fundingToken",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_fundingGoal",
-        type: "uint256",
-      },
-    ],
-    name: "setFundingGoal",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

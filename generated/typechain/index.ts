@@ -28,6 +28,8 @@ export type { IERC721ReceiverUpgradeable } from "./@openzeppelin/contracts-upgra
 export { IERC721ReceiverUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable__factory";
 export type { IERC721Upgradeable } from "./@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable";
 export { IERC721Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable__factory";
+export type { ERC721HolderUpgradeable } from "./@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable";
+export { ERC721HolderUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable__factory";
 export type { ContextUpgradeable } from "./@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable";
 export { ContextUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable__factory";
 export type { IERC165Upgradeable } from "./@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable";
