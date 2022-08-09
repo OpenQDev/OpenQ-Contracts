@@ -255,6 +255,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "hasFundingGoal",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",

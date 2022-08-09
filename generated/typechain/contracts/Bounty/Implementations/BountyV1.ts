@@ -71,6 +71,7 @@ export interface BountyV1Interface extends utils.Interface {
     "getTokenAddresses()": FunctionFragment;
     "getTokenAddressesCount()": FunctionFragment;
     "getTokenBalance(address)": FunctionFragment;
+    "hasFundingGoal()": FunctionFragment;
     "initialize(string,address,string,address,(uint32,bytes))": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
@@ -127,6 +128,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "getTokenAddresses"
       | "getTokenAddressesCount"
       | "getTokenBalance"
+      | "hasFundingGoal"
       | "initialize"
       | "isNFT"
       | "issuer"
@@ -269,6 +271,10 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getTokenBalance",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasFundingGoal",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
@@ -459,6 +465,10 @@ export interface BountyV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTokenBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "hasFundingGoal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -681,6 +691,8 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    hasFundingGoal(overrides?: CallOverrides): Promise<[boolean]>;
 
     initialize(
       _bountyId: PromiseOrValue<string>,
@@ -906,6 +918,8 @@ export interface BountyV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  hasFundingGoal(overrides?: CallOverrides): Promise<boolean>;
+
   initialize(
     _bountyId: PromiseOrValue<string>,
     _issuer: PromiseOrValue<string>,
@@ -1129,6 +1143,8 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    hasFundingGoal(overrides?: CallOverrides): Promise<boolean>;
 
     initialize(
       _bountyId: PromiseOrValue<string>,
@@ -1360,6 +1376,8 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    hasFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
+
     initialize(
       _bountyId: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
@@ -1586,6 +1604,8 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    hasFundingGoal(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
       _bountyId: PromiseOrValue<string>,

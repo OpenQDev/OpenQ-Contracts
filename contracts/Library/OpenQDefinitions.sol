@@ -13,14 +13,11 @@ library OpenQDefinitions {
     }
 
     // BOUNTY CLASSES
-    uint32 internal constant SINGLE = 0;
+    uint32 internal constant ATOMIC = 0;
     uint32 internal constant ONGOING = 1;
     uint32 internal constant TIERED = 2;
-    uint32 internal constant FUNDING_GOAL = 3;
 
     // STATUS
     uint32 internal constant OPEN = 0;
-    uint32 internal constant BOUNTY_CLOSED = 1;
-    uint32 internal constant COMPETITION_CLOSED = 2;
-    uint32 internal constant ONGOING_CLOSED = 3;
+    uint32 internal constant CLOSED = 1;
 }

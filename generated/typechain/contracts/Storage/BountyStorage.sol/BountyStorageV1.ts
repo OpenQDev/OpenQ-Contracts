@@ -44,6 +44,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "fundingToken()": FunctionFragment;
     "fundingTotals(address)": FunctionFragment;
     "getPayoutSchedule()": FunctionFragment;
+    "hasFundingGoal()": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
@@ -81,6 +82,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "fundingToken"
       | "fundingTotals"
       | "getPayoutSchedule"
+      | "hasFundingGoal"
       | "isNFT"
       | "issuer"
       | "nftDepositLimit"
@@ -153,6 +155,10 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getPayoutSchedule",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasFundingGoal",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -258,6 +264,10 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getPayoutSchedule",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "hasFundingGoal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isNFT", data: BytesLike): Result;
@@ -401,6 +411,8 @@ export interface BountyStorageV1 extends BaseContract {
 
     getPayoutSchedule(overrides?: CallOverrides): Promise<[BigNumber[]]>;
 
+    hasFundingGoal(overrides?: CallOverrides): Promise<[boolean]>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -523,6 +535,8 @@ export interface BountyStorageV1 extends BaseContract {
 
   getPayoutSchedule(overrides?: CallOverrides): Promise<BigNumber[]>;
 
+  hasFundingGoal(overrides?: CallOverrides): Promise<boolean>;
+
   isNFT(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -644,6 +658,8 @@ export interface BountyStorageV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     getPayoutSchedule(overrides?: CallOverrides): Promise<BigNumber[]>;
+
+    hasFundingGoal(overrides?: CallOverrides): Promise<boolean>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
@@ -773,6 +789,8 @@ export interface BountyStorageV1 extends BaseContract {
 
     getPayoutSchedule(overrides?: CallOverrides): Promise<BigNumber>;
 
+    hasFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -895,6 +913,8 @@ export interface BountyStorageV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getPayoutSchedule(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    hasFundingGoal(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,

@@ -845,7 +845,7 @@ describe('OpenQV1.sol', () => {
 				const oracleContract = openQProxy.connect(oracle);
 				await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
 					.to.emit(openQProxy, 'ClaimSuccess')
-					.withArgs(0, abiEncodedSingleCloserData, 1);
+					.withArgs(expectedTimestamp, 0, abiEncodedSingleCloserData, 1);
 			});
 
 			it('should emit a BountyClosed event with correct parameters', async () => {

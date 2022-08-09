@@ -24,8 +24,15 @@ contract BountyV1 is BountyStorageV1 {
 
     constructor() {}
 
-    function _initSingle() internal {
+    function _initAtomic(
+        bool _hasFundingGoal,
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) internal {
         bountyType = 0;
+        hasFundingGoal = _hasFundingGoal;
+        fundingToken = _fundingToken;
+        fundingGoal = _fundingGoal;
     }
 
     function _initOngoingBounty(
@@ -47,20 +54,15 @@ contract BountyV1 is BountyStorageV1 {
         payoutSchedule = _payoutSchedule;
     }
 
-    function _initSingleWithFundingGoal(
-        address _fundingToken,
-        uint256 _fundingGoal
-    ) internal {
-        bountyType = 3;
-        setFundingGoal(_fundingToken, _fundingGoal);
-    }
-
-    function _initBytType(OpenQDefinitions.Operation memory operation)
-        internal
-    {
+    function _initByType(OpenQDefinitions.Operation memory operation) internal {
         uint32 operationType = operation.operationType;
-        if (operationType == OpenQDefinitions.SINGLE) {
-            _initSingle();
+        if (operationType == OpenQDefinitions.ATOMIC) {
+            (
+                bool _hasFundingGoal,
+                address _fundingToken,
+                uint256 _fundingGoal
+            ) = abi.decode(operation.data, (bool, address, uint256));
+            _initAtomic(_hasFundingGoal, _fundingToken, _fundingGoal);
         } else if (operationType == OpenQDefinitions.ONGOING) {
             (address _payoutTokenAddress, uint256 _payoutVolume) = abi.decode(
                 operation.data,
@@ -73,12 +75,6 @@ contract BountyV1 is BountyStorageV1 {
                 (uint256[])
             );
             _initTiered(_payoutSchedule);
-        } else if (operationType == OpenQDefinitions.FUNDING_GOAL) {
-            (address _fundingToken, uint256 _fundingGoal) = abi.decode(
-                operation.data,
-                (address, uint256)
-            );
-            _initSingleWithFundingGoal(_fundingToken, _fundingGoal);
         } else {
             revert('OQ: unknown init operation type');
         }
@@ -110,7 +106,7 @@ contract BountyV1 is BountyStorageV1 {
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
 
-        _initBytType(operation);
+        _initByType(operation);
     }
 
     /**
@@ -297,10 +293,7 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _tier,
         address _tokenAddress
     ) external onlyOpenQ nonReentrant returns (uint256) {
-        require(
-            status == OpenQDefinitions.COMPETITION_CLOSED,
-            'COMPETITION_NOT_CLOSED'
-        );
+        require(status == OpenQDefinitions.CLOSED, 'COMPETITION_NOT_CLOSED');
         require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
 
         uint256 claimedBalance = (payoutSchedule[_tier] *
@@ -400,7 +393,7 @@ contract BountyV1 is BountyStorageV1 {
         require(status == 0, 'COMPETITION_ALREADY_CLOSED');
         require(_closer == issuer, 'COMPETITION_CLOSER_NOT_ISSUER');
 
-        status = OpenQDefinitions.COMPETITION_CLOSED;
+        status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
 
         for (uint256 i = 0; i < getTokenAddresses().length; i++) {
@@ -419,7 +412,7 @@ contract BountyV1 is BountyStorageV1 {
         );
         require(_closer == issuer, 'BOUNTY_CLOSER_NOT_ISSUER');
 
-        status = OpenQDefinitions.ONGOING_CLOSED;
+        status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
     }
 
