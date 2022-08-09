@@ -557,12 +557,15 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         uint256 status = bounty.status();
         uint256 _bountyType = bounty.bountyType();
 
-        if (_bountyType == OpenQDefinitions.ONGOING) {
+        if (
+            _bountyType == OpenQDefinitions.ATOMIC ||
+            _bountyType == OpenQDefinitions.ONGOING
+        ) {
             return status == 0;
         } else if (_bountyType == OpenQDefinitions.TIERED) {
-            return status == 2;
+            return status == 1;
         } else {
-            return status == 0;
+            revert();
         }
     }
 
