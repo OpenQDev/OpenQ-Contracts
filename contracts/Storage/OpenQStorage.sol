@@ -10,7 +10,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 
 /**
- * @dev Custom imports inherited by OpenQV0
+ * @dev Custom imports inherited by OpenQV1
  */
 import '../BountyFactory/BountyFactory.sol';
 import '../Tokens/OpenQTokenWhitelist.sol';

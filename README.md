@@ -13,13 +13,13 @@ Those actions are:
 - Bounty Claim
 - Bounty Refund
 
-All of these actions are triggered on the main current version of OpenQ, [OpenQV0](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol), via the [OpenQProxy](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/proxy/OpenQProxy.sol).
+All of these actions are triggered on the main current version of OpenQ, [OpenQV1](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV1.sol), via the [OpenQProxy](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/proxy/OpenQProxy.sol).
 
 <hr/>
 
 ### Bounty Creation
 
-Bounty creation occurs when a user, through the frontend or directly to the contract, submits a GitHub issueUrl to the [mintBounty method](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L80).
+Bounty creation occurs when a user, through the frontend or directly to the contract, submits a GitHub issueUrl to the [mintBounty method](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV1.sol#L80).
 
 This emits a `BountyCreated` event from the OpenQ Proxy address.
 
@@ -38,9 +38,9 @@ The atomic unit of funding is a `deposit` which is timelocked until the `expirat
 
 Rather than use a struct, deposits are [decomposed mappings]](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Storage/BountyStorage.sol#L43) to keep things nice and primitive.
 
-Bounty funding emits a `TokenDepositReceived` event if funded with the [fundBountyToken](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L114) method from the OpenQ Proxy address.
+Bounty funding emits a `TokenDepositReceived` event if funded with the [fundBountyToken](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV1.sol#L114) method from the OpenQ Proxy address.
 
-Bounty funding emits a `NFTDepositReceived` event if funded with the [fundBountyNft](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L150) method from the OpenQ Proxy address.
+Bounty funding emits a `NFTDepositReceived` event if funded with the [fundBountyNft](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV1.sol#L150) method from the OpenQ Proxy address.
 
 #### Access Restrictions
 
@@ -66,7 +66,7 @@ This token, along with the desired `payoutAddress` is sent to our oracle which r
 
 The oracle verifies that the authenticated claimant is indeed the author of the merged pull request on GitHub according to OpenQ's [withdrawal criteria](https://github.com/OpenQDev/OpenQ-OZ-Claim-Autotask/blob/local/lib/checkWithdrawalEligibility.js#L26).
 
-If they verified, then the oracle calls [claimBounty(address)](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L187) with the `bountyId` (same as GitHub Issue Id) and the `closer` address.
+If they verified, then the oracle calls [claimBounty(address)](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV1.sol#L187) with the `bountyId` (same as GitHub Issue Id) and the `closer` address.
 
 `claimBounty` first checks that the bounty is still open.
 
@@ -92,7 +92,7 @@ We needed to make a clone of the Ownable contract for this because OpenQ already
 
 ### Deposit Refunded
 
-Successful refunds occur when the initial funder calls the [refundDeposit](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV0.sol#L232) method with the desired `bountyId` and `depositId` after that deposits `expiration` escrow period has passed.
+Successful refunds occur when the initial funder calls the [refundDeposit](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/OpenQ/Implementations/OpenQV1.sol#L232) method with the desired `bountyId` and `depositId` after that deposits `expiration` escrow period has passed.
 
 #### Access Restrictions
 
@@ -108,8 +108,8 @@ Refunds should only be returned to the initial funder.
 
 The four core OpenQ actions defined above are composed across five contracts.
 
-- OpenQV0 (Proxy) Deployed automatically by the [hardhat-upgrades](https://www.npmjs.com/package/@openzeppelin/hardhat-upgrades) plugin. It is an ERC-1967 [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable) contract.
-- [OpenQV0 (Implementation)](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV0.sol)
+- OpenQV1 (Proxy) Deployed automatically by the [hardhat-upgrades](https://www.npmjs.com/package/@openzeppelin/hardhat-upgrades) plugin. It is an ERC-1967 [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable) contract.
+- [OpenQV1 (Implementation)](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV1.sol)
 - [OpenQStorageV0.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Storage/OpenQStorage.sol)
 
 - [BountyV0.sol](https://github.com/OpenQDev/OpenQ-Contracts/blob/production/contracts/Bounty/Implementations/BountyV0.sol)
@@ -127,7 +127,7 @@ The `bountyId` is the [Global Node Id](https://docs.github.com/en/graphql/guides
 
 The one-to-one link between a bounty, a GitHub issue and a smart contract enables OpenQ to offboard much of the deposit accounting to the tried and true ERC-20 standard.
 
-Any exploit against a BountyV0 contract could acquire at most all of the deposits on that one issue. The core contract OpenQV0 holds no deposits.
+Any exploit against a BountyV0 contract could acquire at most all of the deposits on that one issue. The core contract OpenQV1 holds no deposits.
 
 This flexiibility allows us to accept any ERC-20, and in the future ERC-721, as bounty.
 
@@ -151,21 +151,21 @@ The BountyFactory is responsible for minting new bounties using the [ERC-1167 Mi
 
 The implementation contract hardcoded into the BountyFactory is [BountyV0](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Bounty/Implementations/BountyV0.sol).
 
-### [OpenQV0](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV0.sol)
+### [OpenQV1](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV1.sol)
 
 This is the core contract with which both the frontend and the [OpenQ Oracle](https://github.com/OpenQDev/OpenQ-OZ-Claim-Autotask) interacts.
 
 It is hosted behind an ERC-1967 [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable) contract.
 
-For that reason it does not have a constructor - it only has an [initialize](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV0.sol#L27) method.
+For that reason it does not have a constructor - it only has an [initialize](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV1.sol#L27) method.
 
 Being behind an upgradable proxy, the five Events decalred in [IOpenQ](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/IOpenQ.sol) will continue to be emitted from the same proxy even after the implementation is upgraded.
 
 #### onlyOracle
 
-The [`claimBounty`](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV0.sol#L120) method is protected by the `onlyOracle` modifier defined in [Oraclize](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Oracle/Oraclize.sol).
+The [`claimBounty`](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/OpenQ/Implementations/OpenQV1.sol#L120) method is protected by the `onlyOracle` modifier defined in [Oraclize](https://github.com/OpenQDev/OpenQ-Contracts/blob/development/contracts/Oracle/Oraclize.sol).
 
-Oraclize is a contract based off of OpenZeppelin's [Ownable](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol) contract. It exposes methods for updating the oracle's address which is allowed to call claim on the OpenQV0 contract.
+Oraclize is a contract based off of OpenZeppelin's [Ownable](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol) contract. It exposes methods for updating the oracle's address which is allowed to call claim on the OpenQV1 contract.
 
 The OpenQ Oracle private keys are held in a vault and transaction signer hosted on [OpenZepplelin Defender Relay](https://docs.openzeppelin.com/defender/relay). 
 
@@ -173,7 +173,7 @@ The OpenQ Oracle calls `claimBounty` when the [OpenZeppelin Defender Autotask](h
 
 #### onlyProxy
 
-We do not want to allow users to maliciously or accidentally call the OpenQV0.sol contract directly. If they were to do so, the Event would be emitted from the implementation and not from the proxy. Since our subgraph is indexing only the proxy address, this would break our accounting.
+We do not want to allow users to maliciously or accidentally call the OpenQV1.sol contract directly. If they were to do so, the Event would be emitted from the implementation and not from the proxy. Since our subgraph is indexing only the proxy address, this would break our accounting.
 
 `onlyProxy` is from the Open Zeppelin contract-upgradeable library on the [UUPSUpgradable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol#L38) contract.
 
@@ -185,7 +185,7 @@ Load the provider
 `provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545')`
 
 Load the artifact
-`artifact = require('artifacts/contracts/OpenQ/Implementations/OpenQV0.sol/OpenQV0.json')`
+`artifact = require('artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json')`
 
 Load the contract
 `openQ = new ethers.Contract('0xAddress', artifact.abi, provider)`
