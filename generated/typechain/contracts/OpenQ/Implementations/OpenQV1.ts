@@ -29,12 +29,12 @@ import type {
 } from "../../../common";
 
 export declare namespace OpenQDefinitions {
-  export type OperationStruct = {
+  export type InitOperationStruct = {
     operationType: PromiseOrValue<BigNumberish>;
     data: PromiseOrValue<BytesLike>;
   };
 
-  export type OperationStructOutput = [number, string] & {
+  export type InitOperationStructOutput = [number, string] & {
     operationType: number;
     data: string;
   };
@@ -196,7 +196,7 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      OpenQDefinitions.OperationStruct
+      OpenQDefinitions.InitOperationStruct
     ]
   ): string;
   encodeFunctionData(
@@ -761,7 +761,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.OperationStruct,
+      _initOperation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -917,7 +917,7 @@ export interface OpenQV1 extends BaseContract {
   mintBounty(
     _bountyId: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
-    _initOperation: OpenQDefinitions.OperationStruct,
+    _initOperation: OpenQDefinitions.InitOperationStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1073,7 +1073,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.OperationStruct,
+      _initOperation: OpenQDefinitions.InitOperationStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -1452,7 +1452,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.OperationStruct,
+      _initOperation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1609,7 +1609,7 @@ export interface OpenQV1 extends BaseContract {
     mintBounty(
       _bountyId: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.OperationStruct,
+      _initOperation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

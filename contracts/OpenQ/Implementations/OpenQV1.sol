@@ -83,7 +83,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization,
-        OpenQDefinitions.Operation memory _initOperation
+        OpenQDefinitions.InitOperation memory _initOperation
     ) external nonReentrant onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),

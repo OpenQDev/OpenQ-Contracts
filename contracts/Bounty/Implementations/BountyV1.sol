@@ -54,7 +54,9 @@ contract BountyV1 is BountyStorageV1 {
         payoutSchedule = _payoutSchedule;
     }
 
-    function _initByType(OpenQDefinitions.Operation memory operation) internal {
+    function _initByType(OpenQDefinitions.InitOperation memory operation)
+        internal
+    {
         uint32 operationType = operation.operationType;
         if (operationType == OpenQDefinitions.ATOMIC) {
             (
@@ -92,7 +94,7 @@ contract BountyV1 is BountyStorageV1 {
         address _issuer,
         string memory _organization,
         address _openQ,
-        OpenQDefinitions.Operation memory operation
+        OpenQDefinitions.InitOperation memory operation
     ) external initializer {
         require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');

@@ -2,13 +2,8 @@
 pragma solidity 0.8.13;
 
 library OpenQDefinitions {
-    /**
-     * @dev Batch operation data
-     */
-    struct Operation {
-        // Operation type
+    struct InitOperation {
         uint32 operationType;
-        // Data specific to the operation
         bytes data;
     }
 

@@ -53,7 +53,7 @@ contract BountyFactory is OnlyOpenQ {
         string memory _id,
         address _issuer,
         string memory _organization,
-        OpenQDefinitions.Operation memory operation
+        OpenQDefinitions.InitOperation memory operation
     ) external onlyOpenQ returns (address) {
         BeaconProxy bounty = new BeaconProxy(
             beacon,

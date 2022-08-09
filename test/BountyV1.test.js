@@ -7,11 +7,16 @@ const truffleAssert = require('truffle-assertions');
 const { generateDepositId, generateClaimantId } = require('./utils');
 
 describe.only('BountyV1.sol', () => {
+	// CONTRACT FACTORIES
 	let BountyV1;
+
+	// ACCOUNTS
+	let owner;
+
+	// MOCK ASSETS
 	let mockLink;
 	let mockDai;
-	let owner;
-	let initializationTimestamp;
+	let mockNft;
 
 	// UTILS
 	let abiCoder = new ethers.utils.AbiCoder;
@@ -38,6 +43,9 @@ describe.only('BountyV1.sol', () => {
 	let ongoingContract;
 	let tieredContract;
 
+	// MISC
+	let initializationTimestamp;
+
 	beforeEach(async () => {
 		BountyV1 = await ethers.getContractFactory('BountyV1');
 		const MockLink = await ethers.getContractFactory('MockLink');
@@ -45,7 +53,7 @@ describe.only('BountyV1.sol', () => {
 		const MockNft = await ethers.getContractFactory('MockNft');
 		[owner] = await ethers.getSigners();
 
-		// Deploy mock assets
+		// MOCK ASSETS
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
 
@@ -65,11 +73,8 @@ describe.only('BountyV1.sol', () => {
 		// Mint an Atomic Contract
 		atomicContract = await BountyV1.deploy();
 		await atomicContract.deployed();
-
 		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 100]);
-
 		atomicBountyInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
-
 		initializationTimestamp = await setNextBlockTimestamp();
 		await atomicContract.initialize(mockId, owner.address, organization, owner.address, atomicBountyInitOperation);
 
