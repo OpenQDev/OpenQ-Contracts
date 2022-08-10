@@ -116,8 +116,8 @@ interface IOpenQ {
 
     event PayoutSet(
         address bountyAddress,
-        address fundingGoalTokenAddress,
-        uint256 fundingGoalVolume,
+        address payoutTokenAddress,
+        uint256 payoutTokenVolume,
         uint256 bountyType,
         bytes data,
         uint256 version

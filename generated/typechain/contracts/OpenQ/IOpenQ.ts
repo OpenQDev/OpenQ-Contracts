@@ -183,8 +183,8 @@ export type NFTDepositReceivedEventFilter =
 
 export interface PayoutSetEventObject {
   bountyAddress: string;
-  fundingGoalTokenAddress: string;
-  fundingGoalVolume: BigNumber;
+  payoutTokenAddress: string;
+  payoutTokenVolume: BigNumber;
   bountyType: BigNumber;
   data: string;
   version: BigNumber;
@@ -436,16 +436,16 @@ export interface IOpenQ extends BaseContract {
 
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)"(
       bountyAddress?: null,
-      fundingGoalTokenAddress?: null,
-      fundingGoalVolume?: null,
+      payoutTokenAddress?: null,
+      payoutTokenVolume?: null,
       bountyType?: null,
       data?: null,
       version?: null
     ): PayoutSetEventFilter;
     PayoutSet(
       bountyAddress?: null,
-      fundingGoalTokenAddress?: null,
-      fundingGoalVolume?: null,
+      payoutTokenAddress?: null,
+      payoutTokenVolume?: null,
       bountyType?: null,
       data?: null,
       version?: null

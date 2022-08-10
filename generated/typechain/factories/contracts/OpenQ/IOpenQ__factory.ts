@@ -386,13 +386,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "fundingGoalTokenAddress",
+        name: "payoutTokenAddress",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "fundingGoalVolume",
+        name: "payoutTokenVolume",
         type: "uint256",
       },
       {
