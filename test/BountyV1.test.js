@@ -933,7 +933,7 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
-	describe('setFundingGoal', () => {
+	describe('setPayout', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();

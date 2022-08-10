@@ -1179,7 +1179,7 @@ describe('OpenQV1.sol', () => {
 	});
 
 	describe('tierClaimed', () => {
-		it.only('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
+		it('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -1188,10 +1188,11 @@ describe('OpenQV1.sol', () => {
 
 			await mockLink.approve(bountyAddress, 10000000);
 			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
-			await openQProxy.closeCompetition(owner.address);
+
+			await openQProxy.closeCompetition(bountyId);
 
 			// ASSUME
-			let tierClaimed = await bounty.tierClaimed(0);
+			let tierClaimed = await openQProxy.tierClaimed(bountyId, 0);
 			expect(tierClaimed).to.equal(false);
 
 			// ACT
@@ -1199,7 +1200,7 @@ describe('OpenQV1.sol', () => {
 			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData);
 
 			// ASSERT
-			tierClaimed = await bounty.tierClaimed(0);
+			tierClaimed = await openQProxy.tierClaimed(bountyId, 0);
 			expect(tierClaimed).to.equal(true);
 		});
 	});
