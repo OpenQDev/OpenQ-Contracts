@@ -69,17 +69,39 @@ contract BountyV1 is BountyStorageV1 {
             ) = abi.decode(_operation.data, (bool, address, uint256));
             _initAtomic(_hasFundingGoal, _fundingToken, _fundingGoal);
         } else if (operationType == OpenQDefinitions.ONGOING) {
-            (address _payoutTokenAddress, uint256 _payoutVolume) = abi.decode(
-                _operation.data,
-                (address, uint256)
+            (
+                address _payoutTokenAddress,
+                uint256 _payoutVolume,
+                bool _hasFundingGoal,
+                address _fundingGoalToken,
+                uint256 _fundingGoal
+            ) = abi.decode(
+                    _operation.data,
+                    (address, uint256, bool, address, uint256)
+                );
+            _initOngoingBounty(
+                _payoutTokenAddress,
+                _payoutVolume,
+                _hasFundingGoal,
+                _fundingGoalToken,
+                _fundingGoal
             );
-            _initOngoingBounty(_payoutTokenAddress, _payoutVolume);
         } else if (operationType == OpenQDefinitions.TIERED) {
-            uint256[] memory _payoutSchedule = abi.decode(
-                _operation.data,
-                (uint256[])
+            (
+                uint256[] memory _payoutSchedule,
+                bool _hasFundingGoal,
+                address _fundingGoalToken,
+                uint256 _fundingGoal
+            ) = abi.decode(
+                    _operation.data,
+                    (uint256[], bool, address, uint256)
+                );
+            _initTiered(
+                _payoutSchedule,
+                _hasFundingGoal,
+                _fundingGoalToken,
+                _fundingGoal
             );
-            _initTiered(_payoutSchedule);
         } else {
             revert('OQ: unknown init operation type');
         }
@@ -87,9 +109,9 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Initializes a bounty proxy with initial state
-     * @param _hasFundingGoal If a funding goal has been set
      * @param _fundingToken The token address to be used for funding
      * @param _fundingGoal The funding token volume
+     * @param _hasFundingGoal If a funding goal has been set
      */
     function _initAtomic(
         bool _hasFundingGoal,
@@ -109,11 +131,18 @@ contract BountyV1 is BountyStorageV1 {
      */
     function _initOngoingBounty(
         address _payoutTokenAddress,
-        uint256 _payoutVolume
+        uint256 _payoutVolume,
+        bool _hasFundingGoal,
+        address _fundingToken,
+        uint256 _fundingGoal
     ) internal {
         bountyType = 1;
         payoutTokenAddress = _payoutTokenAddress;
         payoutVolume = _payoutVolume;
+
+        hasFundingGoal = _hasFundingGoal;
+        fundingToken = _fundingToken;
+        fundingGoal = _fundingGoal;
     }
 
     /**
@@ -121,7 +150,12 @@ contract BountyV1 is BountyStorageV1 {
      * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
      * @dev _payoutSchedule must add up to 100
      */
-    function _initTiered(uint256[] memory _payoutSchedule) internal {
+    function _initTiered(
+        uint256[] memory _payoutSchedule,
+        bool _hasFundingGoal,
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) internal {
         bountyType = 2;
         uint256 sum;
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
@@ -129,6 +163,10 @@ contract BountyV1 is BountyStorageV1 {
         }
         require(sum == 100, 'Payout schedule must add up to 100');
         payoutSchedule = _payoutSchedule;
+
+        hasFundingGoal = _hasFundingGoal;
+        fundingToken = _fundingToken;
+        fundingGoal = _fundingGoal;
     }
 
     /**

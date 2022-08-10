@@ -34,9 +34,8 @@ describe('BountyV1.sol', () => {
 
 	// INITIALIZATION OPERATIONS
 	let atomicBountyInitOperation;
-	// let atomicBountyInitOperation;
-	let tieredBountyInitOperation;
 	let ongoingBountyInitOperation;
+	let tieredBountyInitOperation;
 
 	// TEST CONTRACTS
 	let atomicContract;
@@ -71,7 +70,7 @@ describe('BountyV1.sol', () => {
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 
-		// Mint an Atomic Contract
+		// Mint an Atomic Contract with a Funding Goal
 		atomicContract = await BountyV1.deploy();
 		await atomicContract.deployed();
 		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 100]);
@@ -90,11 +89,18 @@ describe('BountyV1.sol', () => {
 		await mockLink.approve(atomicContract.address, 10000000);
 		await mockDai.approve(atomicContract.address, 10000000);
 
+		// Mint an atomic contract with no funding goal
+		atomicContract_noFundingGoal = await BountyV1.deploy();
+		await atomicContract_noFundingGoal.deployed();
+		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [false, ethers.constants.AddressZero, 0]);
+		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
+		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, atomicBountyNoFundingGoalInitOperation);
+
 		// Mint an Ongoing Bounty
 		ongoingContract = await BountyV1.deploy();
 		await ongoingContract.deployed();
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [mockLink.address, '100']);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [mockLink.address, '100', true, mockLink.address, '100']);
 
 		ongoingBountyInitOperation = [ONGOING_CONTRACT, abiEncodedParams];
 
@@ -108,7 +114,7 @@ describe('BountyV1.sol', () => {
 		tieredContract = await BountyV1.deploy();
 		await tieredContract.deployed();
 
-		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]"], [[80, 20]]);
+		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[80, 20], true, mockLink.address, '100']);
 
 		tieredBountyInitOperation = [TIERED_CONTRACT, abiEncodedParamsTieredBounty];
 
@@ -117,13 +123,6 @@ describe('BountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredContract.address, 10000000);
 		await mockDai.approve(tieredContract.address, 10000000);
-
-		// Mint an atomic contract with no funding goal
-		atomicContract_noFundingGoal = await BountyV1.deploy();
-		await atomicContract_noFundingGoal.deployed();
-		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [false, ethers.constants.AddressZero, 0]);
-		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
-		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, atomicBountyNoFundingGoalInitOperation);
 	});
 
 	describe('initializer', () => {
@@ -189,26 +188,41 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('ONGOING', () => {
-			it('should init with correct payoutTokenAddress, payoutVolume, and bountyType', async () => {
+			it('should init with correct payoutTokenAddress, payoutVolume, bountyType, hasFundingGoal, fundingToken, and fundingGoal', async () => {
 				const actualBountyType = await ongoingContract.bountyType();
 				const actualBountyPayoutVolume = await ongoingContract.payoutVolume();
 				const actualBountyPayoutTokenAddress = await ongoingContract.payoutTokenAddress();
 
+				const actualBountyHasFundingGoal = await ongoingContract.hasFundingGoal();
+				const actualBountyFundingGoalAddress = await ongoingContract.fundingToken();
+				const actualBountyFundingGoal = await ongoingContract.fundingGoal();
+
 				await expect(actualBountyType).equals(1);
 				await expect(actualBountyPayoutVolume).equals(100);
 				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
+				await expect(actualBountyHasFundingGoal).equals(true);
+				await expect(actualBountyFundingGoalAddress).equals(mockLink.address);
+				await expect(actualBountyFundingGoal).equals(100);
 			});
 		});
 
 		describe('TIERED', () => {
-			it('should init with tiered and payout schedule', async () => {
+			it.only('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
 				const actualBountyType = await tieredContract.bountyType();
 				const actualBountyPayoutSchedule = await tieredContract.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
 
+				const actualBountyHasFundingGoal = await tieredContract.hasFundingGoal();
+				const actualBountyFundingGoalAddress = await tieredContract.fundingToken();
+				const actualBountyFundingGoal = await tieredContract.fundingGoal();
+
 				await expect(actualBountyType).equals(2);
 				await expect(payoutToString[0]).equals("80");
 				await expect(payoutToString[1]).equals("20");
+
+				await expect(actualBountyHasFundingGoal).equals(true);
+				await expect(actualBountyFundingGoalAddress).equals(mockLink.address);
+				await expect(actualBountyFundingGoal).equals(100);
 			});
 
 			it('should revert if payoutSchedule values do not add up to 100', async () => {

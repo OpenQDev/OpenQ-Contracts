@@ -565,7 +565,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         } else if (_bountyType == OpenQDefinitions.TIERED) {
             return status == 1;
         } else {
-            revert();
+            revert('UNKNOWN_BOUNTY_STATUS');
         }
     }
 
