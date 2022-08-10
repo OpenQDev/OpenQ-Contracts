@@ -23,6 +23,7 @@ export interface IOpenQInterface extends utils.Interface {
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
+    "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
   };
@@ -34,6 +35,7 @@ export interface IOpenQInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
 }
@@ -178,6 +180,21 @@ export type NFTDepositReceivedEvent = TypedEvent<
 
 export type NFTDepositReceivedEventFilter =
   TypedEventFilter<NFTDepositReceivedEvent>;
+
+export interface PayoutSetEventObject {
+  bountyAddress: string;
+  fundingGoalTokenAddress: string;
+  fundingGoalVolume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type PayoutSetEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, string, BigNumber],
+  PayoutSetEventObject
+>;
+
+export type PayoutSetEventFilter = TypedEventFilter<PayoutSetEvent>;
 
 export interface TokenBalanceClaimedEventObject {
   bountyId: string;
@@ -416,6 +433,23 @@ export interface IOpenQ extends BaseContract {
       data?: null,
       version?: null
     ): NFTDepositReceivedEventFilter;
+
+    "PayoutSet(address,address,uint256,uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutSetEventFilter;
+    PayoutSet(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutSetEventFilter;
 
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,

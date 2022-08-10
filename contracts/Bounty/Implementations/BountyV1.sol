@@ -411,7 +411,7 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
      */
-    function closeCompetition(address _closer) public {
+    function closeCompetition(address _closer) public onlyOpenQ {
         require(status == 0, 'COMPETITION_ALREADY_CLOSED');
         require(_closer == issuer, 'COMPETITION_CLOSER_NOT_ISSUER');
 
@@ -427,7 +427,7 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Similar to close() for single priced bounties. closeOngoing()
      */
-    function closeOngoing(address _closer) public {
+    function closeOngoing(address _closer) public onlyOpenQ {
         require(
             status == OpenQDefinitions.OPEN,
             'ONGOING_BOUNTY_ALREADY_CLOSED'
@@ -570,6 +570,14 @@ contract BountyV1 is BountyStorageV1 {
         fundingGoal = _fundingGoal;
         fundingToken = _fundingToken;
         hasFundingGoal = true;
+    }
+
+    function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
+        public
+        onlyOpenQ
+    {
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _payoutVolume;
     }
 
     /**

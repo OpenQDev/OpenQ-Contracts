@@ -89,6 +89,7 @@ export interface BountyV1Interface extends utils.Interface {
     "refundDeposit(bytes32,address)": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
     "setFundingGoal(address,uint256)": FunctionFragment;
+    "setPayout(address,uint256)": FunctionFragment;
     "setTierClaimed(uint256)": FunctionFragment;
     "status()": FunctionFragment;
     "tierClaimed(uint256)": FunctionFragment;
@@ -146,6 +147,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "refundDeposit"
       | "refunded"
       | "setFundingGoal"
+      | "setPayout"
       | "setTierClaimed"
       | "status"
       | "tierClaimed"
@@ -360,6 +362,10 @@ export interface BountyV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setPayout",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setTierClaimed",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -521,6 +527,7 @@ export interface BountyV1Interface extends utils.Interface {
     functionFragment: "setFundingGoal",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setPayout", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setTierClaimed",
     data: BytesLike
@@ -776,6 +783,12 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setPayout(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setTierClaimed(
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1002,6 +1015,12 @@ export interface BountyV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setPayout(
+    _payoutTokenAddress: PromiseOrValue<string>,
+    _payoutVolume: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setTierClaimed(
     _tier: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1225,6 +1244,12 @@ export interface BountyV1 extends BaseContract {
     setFundingGoal(
       _fundingToken: PromiseOrValue<string>,
       _fundingGoal: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPayout(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1460,6 +1485,12 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setPayout(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setTierClaimed(
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1688,6 +1719,12 @@ export interface BountyV1 extends BaseContract {
     setFundingGoal(
       _fundingToken: PromiseOrValue<string>,
       _fundingGoal: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPayout(
+      _payoutTokenAddress: PromiseOrValue<string>,
+      _payoutVolume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

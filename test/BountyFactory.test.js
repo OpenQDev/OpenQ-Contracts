@@ -63,7 +63,7 @@ describe('BountyFactory', () => {
 		bountyInitOperation = [0, []];
 
 		const abiCoder = new ethers.utils.AbiCoder;
-		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [notOpenQ.address, 100]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [notOpenQ.address, 100, true, notOpenQ.address, 100]);
 
 		initOperation = [1, abiEncodedParams];
 	});

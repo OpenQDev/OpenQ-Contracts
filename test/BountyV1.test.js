@@ -207,7 +207,7 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('TIERED', () => {
-			it.only('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
+			it('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
 				const actualBountyType = await tieredContract.bountyType();
 				const actualBountyPayoutSchedule = await tieredContract.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
@@ -230,7 +230,7 @@ describe('BountyV1.sol', () => {
 				tieredContract = await BountyV1.deploy();
 				await tieredContract.deployed();
 
-				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]"], [[1, 2]]);
+				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[1, 2], true, mockLink.address, 100]);
 
 				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
 
@@ -930,6 +930,35 @@ describe('BountyV1.sol', () => {
 			expect(hasNoFundingGoalexpected).to.equal(true);
 			expect(fundingToken).to.equal(mockLink.address);
 			expect(fundingToken).to.equal(mockLink.address);
+		});
+	});
+
+	describe('setFundingGoal', () => {
+		it('should revert if not called by OpenQ contract', async () => {
+			// ARRANGE
+			const [, notOwner] = await ethers.getSigners();
+			const volume = 10000;
+			let bountyWithNonOwnerAccount = ongoingContract.connect(notOwner);
+
+			// ASSERT
+			await expect(bountyWithNonOwnerAccount.setPayout(mockLink.address, volume)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it('should set payout token and volume', async () => {
+			// ASSUME
+			let initialTokenAddress = await ongoingContract.payoutTokenAddress();
+			let initialPayoutVolume = await ongoingContract.payoutVolume();
+			expect(initialTokenAddress).to.equal(mockLink.address);
+			expect(initialPayoutVolume).to.equal(100);
+
+			// ACT
+			await ongoingContract.setPayout(mockDai.address, 500);
+
+			// ASSERT
+			let expectedPayoutTokenAddress = await ongoingContract.payoutTokenAddress();
+			let expectedPayoutVolume = await ongoingContract.payoutVolume();
+			expect(expectedPayoutTokenAddress).to.equal(mockDai.address);
+			expect(expectedPayoutVolume).to.equal(500);
 		});
 	});
 

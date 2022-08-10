@@ -107,10 +107,10 @@ describe('OpenQV1.sol', () => {
 		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 1000]);
 		atomicBountyInitOperation = [0, atomicBountyAbiEncodedParams];
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256"], [mockLink.address, '100']);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [mockLink.address, '100', true, mockLink.address, 1000]);
 		ongoingBountyInitOperation = [1, abiEncodedParams];
 
-		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]"], [[60, 30, 10]]);
+		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[60, 30, 10], true, mockLink.address, 1000]);
 		tieredBountyInitOperation = [2, tieredAbiEncodedParams];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -1179,7 +1179,7 @@ describe('OpenQV1.sol', () => {
 	});
 
 	describe('tierClaimed', () => {
-		it('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
+		it.only('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -1188,7 +1188,7 @@ describe('OpenQV1.sol', () => {
 
 			await mockLink.approve(bountyAddress, 10000000);
 			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
-			await bounty.closeCompetition(owner.address);
+			await openQProxy.closeCompetition(owner.address);
 
 			// ASSUME
 			let tierClaimed = await bounty.tierClaimed(0);
@@ -1230,6 +1230,92 @@ describe('OpenQV1.sol', () => {
 			expect(ongoingClaimed).to.equal(true);
 		});
 	});
+
+	describe('fundingGoalSet', () => {
+		it('should set funding goal', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT
+			await openQProxy.setFundingGoal(bountyId, mockDai.address, 1000);
+
+			// ASSERT
+			let hasFundingGoal = await bounty.hasFundingGoal();
+			let fundingTokenAddress = await bounty.fundingToken();
+			let fundingGoal = await bounty.fundingGoal();
+			expect(hasFundingGoal).to.equal(true);
+			expect(fundingTokenAddress).to.equal(mockDai.address);
+			expect(fundingGoal).to.equal(1000);
+		});
+
+		it('should emit a FundingGoalSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT/ASSERT
+			await expect(await openQProxy.setFundingGoal(bountyId, mockDai.address, 1000))
+				.to.emit(openQProxy, 'FundingGoalSet')
+				.withArgs(bountyAddress, mockDai.address, 1000, 0, [], 1);
+		});
+
+		it('should revert if not called by issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const notOwnerContract = openQProxy.connect(oracle);
+
+			// ACT/ASSERT
+			await expect(notOwnerContract.setFundingGoal(bountyId, mockDai.address, 1000)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
+	describe('setPayout', () => {
+		it('should set payout', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT
+			await openQProxy.setPayout(bountyId, mockDai.address, 1000);
+
+			// ASSERT
+			let payoutTokenAddress = await bounty.payoutTokenAddress();
+			let payoutVolume = await bounty.payoutVolume();
+
+			expect(payoutTokenAddress).to.equal(mockDai.address);
+			expect(payoutVolume).to.equal(1000);
+		});
+
+		it('should emit a PayoutSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT/ASSERT
+			await expect(await openQProxy.setPayout(bountyId, mockDai.address, 1000))
+				.to.emit(openQProxy, 'PayoutSet')
+				.withArgs(bountyAddress, mockDai.address, 1000, 0, [], 1);
+		});
+
+		it('should revert if not called by issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const notOwnerContract = openQProxy.connect(oracle);
+
+			// ACT/ASSERT
+			await expect(notOwnerContract.setPayout(bountyId, mockDai.address, 1000)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
 });
 
 async function setNextBlockTimestamp(timestamp = 10) {

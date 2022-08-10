@@ -71,12 +71,42 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
+        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+
         bounty.setFundingGoal(_fundingGoalToken, _fundingGoalVolume);
 
         emit FundingGoalSet(
             bountyAddress,
             _fundingGoalToken,
             _fundingGoalVolume,
+            bounty.bountyType(),
+            new bytes(0),
+            VERSION_1
+        );
+    }
+
+    /**
+     * @dev Sets fundingGoal
+     * @param _bountyId The id to update
+     * @param _payoutToken The token address
+     * @param _payoutVolume The token volume
+     */
+    function setPayout(
+        string calldata _bountyId,
+        address _payoutToken,
+        uint256 _payoutVolume
+    ) external onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+
+        bounty.setPayout(_payoutToken, _payoutVolume);
+
+        emit PayoutSet(
+            bountyAddress,
+            _payoutToken,
+            _payoutVolume,
             bounty.bountyType(),
             new bytes(0),
             VERSION_1
@@ -365,6 +395,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         require(bountyIsOpen(_bountyId) == true, 'COMPETITION_ALREADY_CLOSED');
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
+        require(msg.sender == bounty.issuer(), 'CLOSER_NOT_ISSUER');
+
         bounty.closeCompetition(msg.sender);
 
         emit BountyClosed(
@@ -386,6 +418,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         );
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
+        require(msg.sender == bounty.issuer(), 'CLOSER_NOT_ISSUER');
+
         bounty.closeOngoing(msg.sender);
 
         emit BountyClosed(
