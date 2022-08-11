@@ -97,6 +97,19 @@ interface IOpenQ {
         uint256 version
     );
 
+    event NFTClaimed(
+        string bountyId,
+        address bountyAddress,
+        string organization,
+        address closer,
+        uint256 payoutTime,
+        address tokenAddress,
+        uint256 tokenId,
+        uint256 bountyType,
+        bytes data,
+        uint256 version
+    );
+
     event DepositExtended(
         bytes32 depositId,
         uint256 newExpiration,

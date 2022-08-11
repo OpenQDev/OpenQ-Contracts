@@ -22,6 +22,7 @@ export interface IOpenQInterface extends utils.Interface {
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
@@ -34,6 +35,7 @@ export interface IOpenQInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
@@ -145,6 +147,36 @@ export type FundingGoalSetEvent = TypedEvent<
 >;
 
 export type FundingGoalSetEventFilter = TypedEventFilter<FundingGoalSetEvent>;
+
+export interface NFTClaimedEventObject {
+  bountyId: string;
+  bountyAddress: string;
+  organization: string;
+  closer: string;
+  payoutTime: BigNumber;
+  tokenAddress: string;
+  tokenId: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type NFTClaimedEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    BigNumber
+  ],
+  NFTClaimedEventObject
+>;
+
+export type NFTClaimedEventFilter = TypedEventFilter<NFTClaimedEvent>;
 
 export interface NFTDepositReceivedEventObject {
   depositId: string;
@@ -404,6 +436,31 @@ export interface IOpenQ extends BaseContract {
       data?: null,
       version?: null
     ): FundingGoalSetEventFilter;
+
+    "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
+      bountyId?: null,
+      bountyAddress?: null,
+      organization?: null,
+      closer?: null,
+      payoutTime?: null,
+      tokenAddress?: null,
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): NFTClaimedEventFilter;
+    NFTClaimed(
+      bountyId?: null,
+      bountyAddress?: null,
+      organization?: null,
+      closer?: null,
+      payoutTime?: null,
+      tokenAddress?: null,
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): NFTClaimedEventFilter;
 
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)"(
       depositId?: null,

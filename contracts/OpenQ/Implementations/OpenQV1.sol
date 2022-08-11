@@ -350,6 +350,19 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             bytes32 _depositId = bounty.nftDeposits(i);
             if (bounty.tier(_depositId) == _tier) {
                 bounty.claimNft(_closer, _depositId);
+
+                emit NFTClaimed(
+                    bounty.bountyId(),
+                    bountyIdToAddress[bounty.bountyId()],
+                    bounty.organization(),
+                    _closer,
+                    block.timestamp,
+                    bounty.getTokenAddresses()[i],
+                    bounty.tokenId(_depositId),
+                    bounty.bountyType(),
+                    _closerData,
+                    VERSION_1
+                );
             }
         }
 
@@ -384,6 +397,19 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
         for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
             bounty.claimNft(_closer, bounty.nftDeposits(i));
+
+            emit NFTClaimed(
+                bounty.bountyId(),
+                bountyIdToAddress[bounty.bountyId()],
+                bounty.organization(),
+                _closer,
+                block.timestamp,
+                bounty.tokenAddress(bounty.nftDeposits(i)),
+                bounty.tokenId(bounty.nftDeposits(i)),
+                bounty.bountyType(),
+                _closerData,
+                VERSION_1
+            );
         }
 
         bounty.close(_closer, _closerData);
@@ -402,6 +428,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
     function closeCompetition(string calldata _bountyId) external {
         require(bountyIsOpen(_bountyId) == true, 'COMPETITION_ALREADY_CLOSED');
+        require(bountyType(_bountyId) == 2, 'NOT_A_COMPETITION_BOUNTY');
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
         require(msg.sender == bounty.issuer(), 'CLOSER_NOT_ISSUER');

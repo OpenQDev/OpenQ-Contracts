@@ -402,6 +402,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
+    "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "OracleTransferred(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -420,6 +421,7 @@ export interface OpenQV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -562,6 +564,36 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface NFTClaimedEventObject {
+  bountyId: string;
+  bountyAddress: string;
+  organization: string;
+  closer: string;
+  payoutTime: BigNumber;
+  tokenAddress: string;
+  tokenId: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type NFTClaimedEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    BigNumber
+  ],
+  NFTClaimedEventObject
+>;
+
+export type NFTClaimedEventFilter = TypedEventFilter<NFTClaimedEvent>;
 
 export interface NFTDepositReceivedEventObject {
   depositId: string;
@@ -1379,6 +1411,31 @@ export interface OpenQV1 extends BaseContract {
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
+      bountyId?: null,
+      bountyAddress?: null,
+      organization?: null,
+      closer?: null,
+      payoutTime?: null,
+      tokenAddress?: null,
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): NFTClaimedEventFilter;
+    NFTClaimed(
+      bountyId?: null,
+      bountyAddress?: null,
+      organization?: null,
+      closer?: null,
+      payoutTime?: null,
+      tokenAddress?: null,
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): NFTClaimedEventFilter;
 
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)"(
       depositId?: null,

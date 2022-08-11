@@ -300,6 +300,73 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "string",
+        name: "bountyId",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "bountyAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "organization",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "closer",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "payoutTime",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "bountyType",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "version",
+        type: "uint256",
+      },
+    ],
+    name: "NFTClaimed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "bytes32",
         name: "depositId",
         type: "bytes32",

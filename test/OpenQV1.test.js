@@ -53,7 +53,7 @@ describe('OpenQV1.sol', () => {
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
 		BountyV1 = await ethers.getContractFactory('BountyV1');
 
-		[owner, claimant, oracle, claimantThirdPlace] = await ethers.getSigners();
+		[owner, claimant, oracle, claimantSecondPlace] = await ethers.getSigners();
 
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
@@ -464,7 +464,7 @@ describe('OpenQV1.sol', () => {
 			expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 			// ACT
-			await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1);
+			await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
 
 			// ASSERT
 			expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
@@ -777,6 +777,26 @@ describe('OpenQV1.sol', () => {
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, 1)
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 1);
 				});
+
+				it.only('should emit an NftClaimed event with correct parameters', async () => {
+					// ARRANGE
+					await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+					await mockNft.approve(bountyAddress, 1);
+					await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
+
+					// Closer data for 2nd and 3rd place
+					let abiEncodedTieredCloserDataFirstPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
+
+					const expectedTimestamp = await setNextBlockTimestamp();
+
+					// ACT/ASSERT
+					const oracleContract = openQProxy.connect(oracle);
+					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
+						.to.emit(openQProxy, 'NFTClaimed')
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 0, abiEncodedSingleCloserData, 1);
+				});
 			});
 
 			describe('ONGOING', () => {
@@ -897,35 +917,38 @@ describe('OpenQV1.sol', () => {
 
 		describe('TIERED', () => {
 			it('should transfer NFT assets with tokenId corresponding to the tier the claimant won', async () => {
+				const FIRST_PLACE_NFT = 1;
+				const SECOND_PLACE_NFT = 2;
+
 				// ASSUME
-				expect(await mockNft.ownerOf(2)).to.equal(owner.address);
-				expect(await mockNft.ownerOf(3)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(FIRST_PLACE_NFT)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(SECOND_PLACE_NFT)).to.equal(owner.address);
 
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 				// Fund with NFTs for 2nd and 3rd place
-				await mockNft.approve(bountyAddress, 2);
-				await mockNft.approve(bountyAddress, 3);
-				await openQProxy.fundBountyNFT(bountyId, mockNft.address, 2, 1);
-				await openQProxy.fundBountyNFT(bountyId, mockNft.address, 3, 1);
+				await mockNft.approve(bountyAddress, FIRST_PLACE_NFT);
+				await mockNft.approve(bountyAddress, SECOND_PLACE_NFT);
+				await openQProxy.fundBountyNFT(bountyId, mockNft.address, FIRST_PLACE_NFT, 1, 0);
+				await openQProxy.fundBountyNFT(bountyId, mockNft.address, SECOND_PLACE_NFT, 1, 1);
 
 				// Close competition to allow for claiming
 				await openQProxy.closeCompetition(bountyId);
 
 				// Closer data for 2nd and 3rd place
-				let abiEncodedTieredCloserDataSecondPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 2]);
-				let abiEncodedTieredCloserDataThirdPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 3]);
+				let abiEncodedTieredCloserDataFirstPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
+				let abiEncodedTieredCloserDataSecondPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 
 				// ACT
 				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, claimant.address, abiEncodedTieredCloserDataSecondPlace);
-				await oracleContract.claimBounty(bountyId, claimantThirdPlace.address, abiEncodedTieredCloserDataThirdPlace);
+				await oracleContract.claimBounty(bountyId, claimant.address, abiEncodedTieredCloserDataFirstPlace);
+				await oracleContract.claimBounty(bountyId, claimantSecondPlace.address, abiEncodedTieredCloserDataSecondPlace);
 
 				// ASSERT
-				expect(await mockNft.ownerOf(2)).to.equal(claimant.address);
-				expect(await mockNft.ownerOf(3)).to.equal(claimantThirdPlace.address);
+				expect(await mockNft.ownerOf(FIRST_PLACE_NFT)).to.equal(claimant.address);
+				expect(await mockNft.ownerOf(SECOND_PLACE_NFT)).to.equal(claimantSecondPlace.address);
 			});
 		});
 	});
@@ -1082,7 +1105,7 @@ describe('OpenQV1.sol', () => {
 				await mockNft.approve(bountyAddress, 1);
 
 				const depositId = generateDepositId(bountyId, 0);
-				await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1);
+				await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
@@ -1154,6 +1177,21 @@ describe('OpenQV1.sol', () => {
 			// ASSERT
 			status = await bounty.status();
 			expect(status).to.equal(1);
+		});
+
+		it('should revert if not compeititon', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			let status = await bounty.status();
+			expect(status).to.equal(0);
+
+			// ASSERT
+			await expect(openQProxy.closeCompetition(bountyId)).to.be.revertedWith('NOT_A_COMPETITION_BOUNTY');
 		});
 
 		it('should emit BountyClosed', async () => {
