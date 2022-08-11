@@ -20,11 +20,12 @@ describe('OpenQV1.sol', () => {
 
 	// ACCOUNTS
 	let owner;
+	let oracle;
+	let claimant;
 
 	// CONSTANTS
 	let bountyId = 'mockIssueId';
 	let mockOrg = 'mock-org';
-	let oracle;
 
 	// INIT OPERATIONS
 	let atomicBountyInitOperation;
@@ -52,7 +53,7 @@ describe('OpenQV1.sol', () => {
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
 		BountyV1 = await ethers.getContractFactory('BountyV1');
 
-		[owner, , oracle] = await ethers.getSigners();
+		[owner, claimant, oracle, claimantThirdPlace] = await ethers.getSigners();
 
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
@@ -85,6 +86,7 @@ describe('OpenQV1.sol', () => {
 		await openQTokenWhitelist.addToken(ethers.constants.AddressZero);
 		await openQTokenWhitelist.addToken(mockNft.address);
 
+		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
@@ -859,7 +861,7 @@ describe('OpenQV1.sol', () => {
 			});
 		});
 
-		describe('Ongoing Bounties', () => {
+		describe('ONGOING', () => {
 			it('should transfer payoutVolume of payoutTokenAddress from bounty to claimant', async () => {
 				// ARRANGE
 				const volume = 100;
@@ -890,6 +892,40 @@ describe('OpenQV1.sol', () => {
 
 				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
 				expect(newClaimerMockTokenBalance).to.equal('100');
+			});
+		});
+
+		describe('TIERED', () => {
+			it('should transfer NFT assets with tokenId corresponding to the tier the claimant won', async () => {
+				// ASSUME
+				expect(await mockNft.ownerOf(2)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(3)).to.equal(owner.address);
+
+				// ARRANGE
+				await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				// Fund with NFTs for 2nd and 3rd place
+				await mockNft.approve(bountyAddress, 2);
+				await mockNft.approve(bountyAddress, 3);
+				await openQProxy.fundBountyNFT(bountyId, mockNft.address, 2, 1);
+				await openQProxy.fundBountyNFT(bountyId, mockNft.address, 3, 1);
+
+				// Close competition to allow for claiming
+				await openQProxy.closeCompetition(bountyId);
+
+				// Closer data for 2nd and 3rd place
+				let abiEncodedTieredCloserDataSecondPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 2]);
+				let abiEncodedTieredCloserDataThirdPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 3]);
+
+				// ACT
+				const oracleContract = openQProxy.connect(oracle);
+				await oracleContract.claimBounty(bountyId, claimant.address, abiEncodedTieredCloserDataSecondPlace);
+				await oracleContract.claimBounty(bountyId, claimantThirdPlace.address, abiEncodedTieredCloserDataThirdPlace);
+
+				// ASSERT
+				expect(await mockNft.ownerOf(2)).to.equal(claimant.address);
+				expect(await mockNft.ownerOf(3)).to.equal(claimantThirdPlace.address);
 			});
 		});
 	});

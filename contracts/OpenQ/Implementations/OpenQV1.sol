@@ -344,6 +344,13 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             );
         }
 
+        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
+            bytes32 _depositId = bounty.nftDeposits(i);
+            if (bounty.tokenId(_depositId) == _tier) {
+                bounty.claimNft(_closer, _depositId);
+            }
+        }
+
         bounty.setTierClaimed(_tier);
     }
 

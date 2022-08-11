@@ -385,7 +385,6 @@ contract BountyV1 is BountyStorageV1 {
         onlyOpenQ
         nonReentrant
     {
-        require(status == 0, 'CLAIMING_CLOSED_BOUNTY');
         _transferNft(
             tokenAddress[_depositId],
             _payoutAddress,
