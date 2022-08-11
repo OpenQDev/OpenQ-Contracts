@@ -117,7 +117,7 @@ describe('OpenQV1.sol', () => {
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
+		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 	});
 
 	describe('initialization', () => {
@@ -1228,7 +1228,7 @@ describe('OpenQV1.sol', () => {
 			await openQProxy.closeCompetition(bountyId);
 
 			// ASSUME
-			let tierClaimed = await openQProxy.tierClaimed(bountyId, 0);
+			let tierClaimed = await openQProxy.tierClaimed(bountyId, 1);
 			expect(tierClaimed).to.equal(false);
 
 			// ACT
@@ -1236,7 +1236,7 @@ describe('OpenQV1.sol', () => {
 			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData);
 
 			// ASSERT
-			tierClaimed = await openQProxy.tierClaimed(bountyId, 0);
+			tierClaimed = await openQProxy.tierClaimed(bountyId, 1);
 			expect(tierClaimed).to.equal(true);
 		});
 	});

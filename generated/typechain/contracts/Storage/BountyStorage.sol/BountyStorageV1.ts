@@ -57,6 +57,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "payoutVolume()": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
     "status()": FunctionFragment;
+    "tier(bytes32)": FunctionFragment;
     "tierClaimed(uint256)": FunctionFragment;
     "tokenAddress(bytes32)": FunctionFragment;
     "tokenId(bytes32)": FunctionFragment;
@@ -93,6 +94,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "payoutVolume"
       | "refunded"
       | "status"
+      | "tier"
       | "tierClaimed"
       | "tokenAddress"
       | "tokenId"
@@ -202,6 +204,10 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "tier",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tierClaimed",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -291,6 +297,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "refunded", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "status", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tier", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tierClaimed",
     data: BytesLike
@@ -438,6 +445,11 @@ export interface BountyStorageV1 extends BaseContract {
 
     status(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -554,6 +566,11 @@ export interface BountyStorageV1 extends BaseContract {
 
   status(overrides?: CallOverrides): Promise<BigNumber>;
 
+  tier(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   tierClaimed(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -669,6 +686,11 @@ export interface BountyStorageV1 extends BaseContract {
     ): Promise<boolean>;
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,
@@ -792,6 +814,11 @@ export interface BountyStorageV1 extends BaseContract {
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
 
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -910,6 +937,11 @@ export interface BountyStorageV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     status(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,

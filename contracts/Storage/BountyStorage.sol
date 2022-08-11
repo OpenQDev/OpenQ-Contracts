@@ -53,6 +53,7 @@ abstract contract BountyStorageV0 is
     mapping(bytes32 => uint256) public tokenId;
     mapping(bytes32 => uint256) public expiration;
     mapping(bytes32 => bool) public isNFT;
+    mapping(bytes32 => uint256) public tier;
 
     /**
      * @dev Array of depositIds

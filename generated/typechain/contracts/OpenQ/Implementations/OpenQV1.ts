@@ -53,7 +53,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "closeCompetition(string)": FunctionFragment;
     "closeOngoing(string)": FunctionFragment;
     "extendDeposit(string,bytes32,uint256)": FunctionFragment;
-    "fundBountyNFT(string,address,uint256,uint256)": FunctionFragment;
+    "fundBountyNFT(string,address,uint256,uint256,uint256)": FunctionFragment;
     "fundBountyToken(string,address,uint256,uint256)": FunctionFragment;
     "getImplementation()": FunctionFragment;
     "initialize(address)": FunctionFragment;
@@ -170,6 +170,7 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -794,6 +795,7 @@ export interface OpenQV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -964,6 +966,7 @@ export interface OpenQV1 extends BaseContract {
     _tokenAddress: PromiseOrValue<string>,
     _tokenId: PromiseOrValue<BigNumberish>,
     _expiration: PromiseOrValue<BigNumberish>,
+    _tier: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1134,6 +1137,7 @@ export interface OpenQV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1561,6 +1565,7 @@ export interface OpenQV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1732,6 +1737,7 @@ export interface OpenQV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

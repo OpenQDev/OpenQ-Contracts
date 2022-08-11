@@ -259,7 +259,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         string calldata _bountyId,
         address _tokenAddress,
         uint256 _tokenId,
-        uint256 _expiration
+        uint256 _expiration,
+        uint256 _tier
     ) external nonReentrant onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
@@ -271,7 +272,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             msg.sender,
             _tokenAddress,
             _tokenId,
-            _expiration
+            _expiration,
+            _tier
         );
 
         emit NFTDepositReceived(
@@ -346,7 +348,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
 
         for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
             bytes32 _depositId = bounty.nftDeposits(i);
-            if (bounty.tokenId(_depositId) == _tier) {
+            if (bounty.tier(_depositId) == _tier) {
                 bounty.claimNft(_closer, _depositId);
             }
         }

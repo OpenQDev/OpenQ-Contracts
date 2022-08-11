@@ -85,13 +85,14 @@ export interface BountyV1Interface extends utils.Interface {
     "payoutTokenAddress()": FunctionFragment;
     "payoutVolume()": FunctionFragment;
     "receiveFunds(address,address,uint256,uint256)": FunctionFragment;
-    "receiveNft(address,address,uint256,uint256)": FunctionFragment;
+    "receiveNft(address,address,uint256,uint256,uint256)": FunctionFragment;
     "refundDeposit(bytes32,address)": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
     "setFundingGoal(address,uint256)": FunctionFragment;
     "setPayout(address,uint256)": FunctionFragment;
     "setTierClaimed(uint256)": FunctionFragment;
     "status()": FunctionFragment;
+    "tier(bytes32)": FunctionFragment;
     "tierClaimed(uint256)": FunctionFragment;
     "tokenAddress(bytes32)": FunctionFragment;
     "tokenId(bytes32)": FunctionFragment;
@@ -150,6 +151,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "setPayout"
       | "setTierClaimed"
       | "status"
+      | "tier"
       | "tierClaimed"
       | "tokenAddress"
       | "tokenId"
@@ -346,6 +348,7 @@ export interface BountyV1Interface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
@@ -370,6 +373,10 @@ export interface BountyV1Interface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "tier",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
     functionFragment: "tierClaimed",
     values: [PromiseOrValue<BigNumberish>]
@@ -533,6 +540,7 @@ export interface BountyV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "status", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tier", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tierClaimed",
     data: BytesLike
@@ -763,6 +771,7 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -795,6 +804,11 @@ export interface BountyV1 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     status(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,
@@ -995,6 +1009,7 @@ export interface BountyV1 extends BaseContract {
     _tokenAddress: PromiseOrValue<string>,
     _tokenId: PromiseOrValue<BigNumberish>,
     _expiration: PromiseOrValue<BigNumberish>,
+    _tier: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1027,6 +1042,11 @@ export interface BountyV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   status(overrides?: CallOverrides): Promise<BigNumber>;
+
+  tier(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   tierClaimed(
     arg0: PromiseOrValue<BigNumberish>,
@@ -1227,6 +1247,7 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -1259,6 +1280,11 @@ export interface BountyV1 extends BaseContract {
     ): Promise<void>;
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,
@@ -1465,6 +1491,7 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1497,6 +1524,11 @@ export interface BountyV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,
@@ -1702,6 +1734,7 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _tokenId: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1734,6 +1767,11 @@ export interface BountyV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     status(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     tierClaimed(
       arg0: PromiseOrValue<BigNumberish>,

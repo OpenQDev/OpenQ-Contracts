@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe('BountyV1.sol', () => {
+describe.only('BountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV1;
 
@@ -363,13 +363,12 @@ describe('BountyV1.sol', () => {
 
 	describe('receiveNFT', () => {
 		describe('deposit initialization', () => {
-			it(`should initialize nft deposit data with correct: funder, tokenAddress, tokenId, depositTime, expiration, isNft
-			`, async () => {
+			it(`should initialize nft deposit data with correct: funder, tokenAddress, tokenId, depositTime, expiration, isNft, tier`, async () => {
 
 				// ACT
 				const expectedTimestamp = await setNextBlockTimestamp();
 				const depositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, thirtyDays);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 1, thirtyDays, 1);
 
 				// ASSERT
 				expect(await atomicContract.funder(depositId)).to.equal(owner.address);
@@ -377,6 +376,7 @@ describe('BountyV1.sol', () => {
 				expect(await atomicContract.tokenId(depositId)).to.equal(1);
 				expect(await atomicContract.expiration(depositId)).to.equal(thirtyDays);
 				expect(await atomicContract.isNFT(depositId)).to.equal(true);
+				expect(await atomicContract.tier(depositId)).to.equal(1);
 
 				const depositTime = await atomicContract.depositTime(depositId);
 				expect(depositTime.toString()).to.equal(expectedTimestamp.toString());
@@ -389,7 +389,7 @@ describe('BountyV1.sol', () => {
 				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
 
 				// ACT
-				await atomicContract.receiveNft(owner.address, mockNft.address, 0, 1);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 0, 1, 0);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(0)).to.equal(atomicContract.address);
@@ -406,18 +406,18 @@ describe('BountyV1.sol', () => {
 				expect(await mockNft.ownerOf(4)).to.equal(owner.address);
 
 				// ACT
-				await atomicContract.receiveNft(owner.address, mockNft.address, 0, 1);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 2, 1);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 3, 1);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 4, 1);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 0, 1, 0);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1, 0);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 2, 1, 0);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 3, 1, 0);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 4, 1, 0);
 
 				// ASSERT
-				await expect(atomicContract.receiveNft(owner.address, mockNft.address, 5, 1)).to.be.revertedWith('NFT_DEPOSIT_LIMIT_REACHED');
+				await expect(atomicContract.receiveNft(owner.address, mockNft.address, 5, 1, 0)).to.be.revertedWith('NFT_DEPOSIT_LIMIT_REACHED');
 			});
 
 			it('should revert if expiration is negative', async () => {
-				await expect(atomicContract.receiveNft(owner.address, mockNft.address, 0, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
+				await expect(atomicContract.receiveNft(owner.address, mockNft.address, 0, 0, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
 			});
 		});
 	});
@@ -546,7 +546,7 @@ describe('BountyV1.sol', () => {
 
 				// ARRANGE
 				const depositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1, 0);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(atomicContract.address);
@@ -743,14 +743,6 @@ describe('BountyV1.sol', () => {
 				// ASSERT
 				await expect(issueWithNonOwnerAccount.claimNft(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
 			});
-
-			it('should revert if issue is already closed', async () => {
-				// ARRANGE
-				await atomicContract.close(owner.address, closerData);
-
-				// ASSERT
-				await expect(atomicContract.claimNft(owner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('CLAIMING_CLOSED_BOUNTY');
-			});
 		});
 
 		describe('transfer', () => {
@@ -760,7 +752,7 @@ describe('BountyV1.sol', () => {
 
 				// ARRANGE
 				const depositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1);
+				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1, 0);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(atomicContract.address);

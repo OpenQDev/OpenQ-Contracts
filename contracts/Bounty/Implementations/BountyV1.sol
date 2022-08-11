@@ -226,7 +226,8 @@ contract BountyV1 is BountyStorageV1 {
         address _sender,
         address _tokenAddress,
         uint256 _tokenId,
-        uint256 _expiration
+        uint256 _expiration,
+        uint256 _tier
     ) external onlyOpenQ nonReentrant returns (bytes32) {
         require(
             nftDeposits.length < nftDepositLimit,
@@ -243,6 +244,7 @@ contract BountyV1 is BountyStorageV1 {
         tokenId[depositId] = _tokenId;
         expiration[depositId] = _expiration;
         isNFT[depositId] = true;
+        tier[depositId] = _tier;
 
         deposits.push(depositId);
         nftDeposits.push(depositId);
