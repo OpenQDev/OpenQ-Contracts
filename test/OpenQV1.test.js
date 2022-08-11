@@ -538,19 +538,19 @@ describe('OpenQV1.sol', () => {
 		describe('TIERED', () => {
 			it('should return TRUE if competition bounty is closed, FALSE if competition bounty is open', async () => {
 				// ARRANGE
-				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+				await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 				// ASSUME
 				let bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
-				expect(bountyIsClaimable).to.equal(true);
+				expect(bountyIsClaimable).to.equal(false);
 
 				// ACT
 				await openQProxy.closeCompetition(bountyId);
 
 				// ASSERT
 				bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
-				expect(bountyIsClaimable).to.equal(false);
+				expect(bountyIsClaimable).to.equal(true);
 			});
 		});
 	});
@@ -831,7 +831,7 @@ describe('OpenQV1.sol', () => {
 					const volume = 1000;
 					const bounty = BountyV1.attach(bountyAddress);
 					const payoutSchedule = await bounty.getPayoutSchedule();
-					const proportion = payoutSchedule[0].toString();
+					const proportion = payoutSchedule[1].toString();
 					const payoutAmount = (proportion / 100) * volume;
 
 					await mockLink.approve(bountyAddress, 10000000);
@@ -851,7 +851,7 @@ describe('OpenQV1.sol', () => {
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 1);
 				});
 
-				it.only('should emit an NftClaimed event with correct parameters', async () => {
+				it('should emit an NftClaimed event with correct parameters', async () => {
 					// ARRANGE
 					await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -1253,6 +1253,21 @@ describe('OpenQV1.sol', () => {
 			// ASSERT
 			status = await bounty.status();
 			expect(status).to.equal(1);
+		});
+
+		it('should revert if not ongoing', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			let status = await bounty.status();
+			expect(status).to.equal(0);
+
+			// ASSERT
+			await expect(openQProxy.closeOngoing(bountyId)).to.be.revertedWith('NOT_AN_ONGOING_BOUNTY');
 		});
 
 		it('should emit BountyClosed', async () => {
