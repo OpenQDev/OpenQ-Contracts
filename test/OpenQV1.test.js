@@ -778,7 +778,7 @@ describe('OpenQV1.sol', () => {
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 1);
 				});
 
-				it.only('should emit an NftClaimed event with correct parameters', async () => {
+				it('should emit an NftClaimed event with correct parameters', async () => {
 					// ARRANGE
 					await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -849,6 +849,28 @@ describe('OpenQV1.sol', () => {
 						.to.emit(openQProxy, 'TokenBalanceClaimed')
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData, 1)
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 1);
+				});
+
+				it.only('should emit an NftClaimed event with correct parameters', async () => {
+					// ARRANGE
+					await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+					await mockNft.approve(bountyAddress, 1);
+					await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
+
+					// Closer data for 2nd and 3rd place
+					let abiEncodedTieredCloserDataFirstPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
+
+					await openQProxy.closeCompetition(bountyId);
+
+					const expectedTimestamp = await setNextBlockTimestamp();
+
+					// ACT/ASSERT
+					const oracleContract = openQProxy.connect(oracle);
+					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserDataFirstPlace))
+						.to.emit(openQProxy, 'NFTClaimed')
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 1);
 				});
 			});
 

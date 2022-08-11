@@ -357,7 +357,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
                     bounty.organization(),
                     _closer,
                     block.timestamp,
-                    bounty.getTokenAddresses()[i],
+                    bounty.tokenAddress(_depositId),
                     bounty.tokenId(_depositId),
                     bounty.bountyType(),
                     _closerData,
