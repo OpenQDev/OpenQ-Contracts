@@ -23,7 +23,7 @@ contract TestToken is ERC20 {
     /**
      * @dev See {ERC20-_mint}.
      */
-    function mint(address account, uint256 amount) public returns (bool) {
+    function mint(address account, uint256 amount) external returns (bool) {
         assert(amount <= MINT_LIMIT); // no revert msg for you, bad boy
         ERC20._mint(account, amount);
         return true;
@@ -31,5 +31,10 @@ contract TestToken is ERC20 {
 
     function decimals() public view override returns (uint8) {
         return _decimals;
+    }
+
+    // Shuts up slither about making decimals() external :-)
+    function getDecimals() external view returns (uint8) {
+        return decimals();
     }
 }

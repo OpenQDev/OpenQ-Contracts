@@ -181,7 +181,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) public payable nonReentrant onlyProxy {
+    ) external payable nonReentrant onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
@@ -266,7 +266,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
         require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
-        require(bountyIsOpen(_bountyId) == true, 'FUNDING_CLOSED_BOUNTY');
+        require(bountyIsOpen(_bountyId), 'FUNDING_CLOSED_BOUNTY');
 
         bytes32 depositId = bounty.receiveNft(
             msg.sender,
@@ -427,7 +427,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     function closeCompetition(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId) == true, 'COMPETITION_ALREADY_CLOSED');
+        require(bountyIsOpen(_bountyId), 'COMPETITION_ALREADY_CLOSED');
         require(
             bountyType(_bountyId) == OpenQDefinitions.TIERED,
             'NOT_A_COMPETITION_BOUNTY'
@@ -451,10 +451,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     function closeOngoing(string calldata _bountyId) external {
-        require(
-            bountyIsOpen(_bountyId) == true,
-            'ONGOING_BOUNTY_ALREADY_CLOSED'
-        );
+        require(bountyIsOpen(_bountyId), 'ONGOING_BOUNTY_ALREADY_CLOSED');
         require(
             bountyType(_bountyId) == OpenQDefinitions.ONGOING,
             'NOT_AN_ONGOING_BOUNTY'
@@ -487,10 +484,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address _closer,
         bytes calldata _closerData
     ) external onlyOracle nonReentrant {
-        require(
-            bountyIsClaimable(_bountyId) == true,
-            'BOUNTY_IS_NOT_CLAIMABLE'
-        );
+        require(bountyIsClaimable(_bountyId), 'BOUNTY_IS_NOT_CLAIMABLE');
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
         uint256 _bountyType = bounty.bountyType();
@@ -596,7 +590,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     function tierClaimed(string calldata _bountyId, uint256 _tier)
-        public
+        external
         view
         returns (bool)
     {
@@ -610,7 +604,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         string calldata _bountyId,
         string calldata claimant,
         string calldata claimantAsset
-    ) public view returns (bool) {
+    ) external view returns (bool) {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
         bytes32 claimantId = keccak256(abi.encode(claimant, claimantAsset));

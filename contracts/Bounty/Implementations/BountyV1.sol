@@ -412,7 +412,7 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
      */
-    function closeCompetition(address _closer) public onlyOpenQ {
+    function closeCompetition(address _closer) external onlyOpenQ {
         require(status == 0, 'COMPETITION_ALREADY_CLOSED');
         require(_closer == issuer, 'COMPETITION_CLOSER_NOT_ISSUER');
 
@@ -428,7 +428,7 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Similar to close() for single priced bounties. closeOngoing()
      */
-    function closeOngoing(address _closer) public onlyOpenQ {
+    function closeOngoing(address _closer) external onlyOpenQ {
         require(
             status == OpenQDefinitions.OPEN,
             'ONGOING_BOUNTY_ALREADY_CLOSED'
@@ -560,12 +560,12 @@ contract BountyV1 is BountyStorageV1 {
      * SETTERS
      */
 
-    function setTierClaimed(uint256 _tier) public onlyOpenQ {
+    function setTierClaimed(uint256 _tier) external onlyOpenQ {
         tierClaimed[_tier] = true;
     }
 
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
-        public
+        external
         onlyOpenQ
     {
         fundingGoal = _fundingGoal;
@@ -574,7 +574,7 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
-        public
+        external
         onlyOpenQ
     {
         payoutTokenAddress = _payoutTokenAddress;
@@ -652,7 +652,7 @@ contract BountyV1 is BountyStorageV1 {
      * @dev Returns the total number of unique tokens deposited on the bounty
      * @return tokenAddressesCount The length of the array of all ERC20 token addresses which have funded this bounty
      */
-    function getTokenAddressesCount() public view returns (uint256) {
+    function getTokenAddressesCount() external view returns (uint256) {
         return tokenAddresses.values().length;
     }
 

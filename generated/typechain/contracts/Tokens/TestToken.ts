@@ -35,6 +35,7 @@ export interface TestTokenInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
+    "getDecimals()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
@@ -52,6 +53,7 @@ export interface TestTokenInterface extends utils.Interface {
       | "balanceOf"
       | "decimals"
       | "decreaseAllowance"
+      | "getDecimals"
       | "increaseAllowance"
       | "mint"
       | "name"
@@ -81,6 +83,10 @@ export interface TestTokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getDecimals",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
@@ -116,6 +122,10 @@ export interface TestTokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getDecimals",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -222,6 +232,8 @@ export interface TestToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getDecimals(overrides?: CallOverrides): Promise<[number]>;
+
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
@@ -281,6 +293,8 @@ export interface TestToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getDecimals(overrides?: CallOverrides): Promise<number>;
+
   increaseAllowance(
     spender: PromiseOrValue<string>,
     addedValue: PromiseOrValue<BigNumberish>,
@@ -339,6 +353,8 @@ export interface TestToken extends BaseContract {
       subtractedValue: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    getDecimals(overrides?: CallOverrides): Promise<number>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -424,6 +440,8 @@ export interface TestToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
@@ -483,6 +501,8 @@ export interface TestToken extends BaseContract {
       subtractedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    getDecimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
