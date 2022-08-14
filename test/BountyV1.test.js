@@ -257,7 +257,7 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('TIERED FIXED', () => {
-			it('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
+			it.only('should init with tiered and payout schedule, payoutTokenAddress', async () => {
 				const actualBountyType = await tieredFixedContract.bountyType();
 				const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
@@ -265,8 +265,8 @@ describe('BountyV1.sol', () => {
 				const actualBountyPayoutTokenAddress = await tieredFixedContract.payoutTokenAddress();
 
 				await expect(actualBountyType).equals(3);
-				await expect(payoutToString[0]).equals("1000");
-				await expect(payoutToString[1]).equals("500");
+				await expect(payoutToString[0]).equals("100");
+				await expect(payoutToString[1]).equals("50");
 
 				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
 			});
@@ -762,10 +762,16 @@ describe('BountyV1.sol', () => {
 				// ACT/ASSERT
 				await expect(tieredContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
 			});
+
+			it('should revert if competition is not TIERED', async () => {
+				// ACT/ASSERT
+				tieredFixedContract.closeCompetition(owner.address);
+				await expect(tieredFixedContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('NOT_A_TIERED_BOUNTY');
+			});
 		});
 
 		describe.only('TIERED FIXED', () => {
-			it.only('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
+			it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
 				// ARRANGE
 				const volume = 150;
 
@@ -802,7 +808,13 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if competition is not closed', async () => {
 				// ACT/ASSERT
-				await expect(tieredContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+				await expect(tieredFixedContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+			});
+
+			it('should revert if competition is not TIERED FIXED', async () => {
+				// ACT/ASSERT
+				tieredContract.closeCompetition(owner.address);
+				await expect(tieredContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('NOT_A_TIERED_FIXED_BOUNTY');
 			});
 		});
 	});

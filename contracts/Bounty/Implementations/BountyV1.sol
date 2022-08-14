@@ -388,6 +388,7 @@ contract BountyV1 is BountyStorageV1 {
         address _tokenAddress
     ) external onlyOpenQ nonReentrant returns (uint256) {
         require(status == OpenQDefinitions.CLOSED, 'COMPETITION_NOT_CLOSED');
+        require(bountyType == OpenQDefinitions.TIERED, 'NOT_A_TIERED_BOUNTY');
         require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
 
         uint256 claimedBalance = (payoutSchedule[_tier] *
@@ -409,6 +410,10 @@ contract BountyV1 is BountyStorageV1 {
         returns (uint256)
     {
         require(status == OpenQDefinitions.CLOSED, 'COMPETITION_NOT_CLOSED');
+        require(
+            bountyType == OpenQDefinitions.TIERED_FIXED,
+            'NOT_A_TIERED_FIXED_BOUNTY'
+        );
         require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
 
         uint256 claimedBalance = payoutSchedule[_tier];
