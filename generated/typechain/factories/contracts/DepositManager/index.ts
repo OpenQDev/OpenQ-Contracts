@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { DepositManager__factory } from "./DepositManager__factory";
+export { DepositManagerOwnable__factory } from "./DepositManagerOwnable__factory";

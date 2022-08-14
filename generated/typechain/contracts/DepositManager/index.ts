@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { DepositManager } from "./DepositManager";
+export type { DepositManagerOwnable } from "./DepositManagerOwnable";

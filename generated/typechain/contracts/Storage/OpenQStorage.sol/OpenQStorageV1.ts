@@ -32,6 +32,8 @@ export interface OpenQStorageV1Interface extends utils.Interface {
     "VERSION_1()": FunctionFragment;
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
+    "claimManager()": FunctionFragment;
+    "depositManager()": FunctionFragment;
     "owner()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -45,6 +47,8 @@ export interface OpenQStorageV1Interface extends utils.Interface {
       | "VERSION_1"
       | "bountyFactory"
       | "bountyIdToAddress"
+      | "claimManager"
+      | "depositManager"
       | "owner"
       | "proxiableUUID"
       | "renounceOwnership"
@@ -61,6 +65,14 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "bountyIdToAddress",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositManager",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -91,6 +103,14 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "bountyIdToAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "depositManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -210,6 +230,10 @@ export interface OpenQStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    claimManager(overrides?: CallOverrides): Promise<[string]>;
+
+    depositManager(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
@@ -244,6 +268,10 @@ export interface OpenQStorageV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  claimManager(overrides?: CallOverrides): Promise<string>;
+
+  depositManager(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
@@ -277,6 +305,10 @@ export interface OpenQStorageV1 extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    claimManager(overrides?: CallOverrides): Promise<string>;
+
+    depositManager(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -348,6 +380,10 @@ export interface OpenQStorageV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    claimManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    depositManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
@@ -382,6 +418,10 @@ export interface OpenQStorageV1 extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    claimManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    depositManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

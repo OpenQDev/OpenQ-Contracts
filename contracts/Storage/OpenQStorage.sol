@@ -25,5 +25,7 @@ abstract contract OpenQStorageV1 is
 {
     uint256 public constant VERSION_1 = 1;
     BountyFactory public bountyFactory;
+    address public claimManager;
+    address public depositManager;
     mapping(string => address) public bountyIdToAddress;
 }

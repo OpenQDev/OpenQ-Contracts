@@ -35,6 +35,7 @@ export interface BountyStorageV0Interface extends utils.Interface {
     "claimManager()": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
+    "depositManager()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
     "deposits(uint256)": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
@@ -63,6 +64,7 @@ export interface BountyStorageV0Interface extends utils.Interface {
       | "claimManager"
       | "closer"
       | "closerData"
+      | "depositManager"
       | "depositTime"
       | "deposits"
       | "expiration"
@@ -99,6 +101,10 @@ export interface BountyStorageV0Interface extends utils.Interface {
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "closerData",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositManager",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -186,6 +192,10 @@ export interface BountyStorageV0Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "depositManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "depositTime",
     data: BytesLike
   ): Result;
@@ -227,11 +237,9 @@ export interface BountyStorageV0Interface extends utils.Interface {
 
   events: {
     "Initialized(uint8)": EventFragment;
-    "OracleTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
 }
 
 export interface InitializedEventObject {
@@ -240,18 +248,6 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export interface OracleTransferredEventObject {
-  previousClaimManager: string;
-  newClaimManager: string;
-}
-export type OracleTransferredEvent = TypedEvent<
-  [string, string],
-  OracleTransferredEventObject
->;
-
-export type OracleTransferredEventFilter =
-  TypedEventFilter<OracleTransferredEvent>;
 
 export interface BountyStorageV0 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -291,6 +287,8 @@ export interface BountyStorageV0 extends BaseContract {
     closer(overrides?: CallOverrides): Promise<[string]>;
 
     closerData(overrides?: CallOverrides): Promise<[string]>;
+
+    depositManager(overrides?: CallOverrides): Promise<[string]>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -383,6 +381,8 @@ export interface BountyStorageV0 extends BaseContract {
 
   closerData(overrides?: CallOverrides): Promise<string>;
 
+  depositManager(overrides?: CallOverrides): Promise<string>;
+
   depositTime(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -474,6 +474,8 @@ export interface BountyStorageV0 extends BaseContract {
 
     closerData(overrides?: CallOverrides): Promise<string>;
 
+    depositManager(overrides?: CallOverrides): Promise<string>;
+
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -556,15 +558,6 @@ export interface BountyStorageV0 extends BaseContract {
   filters: {
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
-
-    "OracleTransferred(address,address)"(
-      previousClaimManager?: PromiseOrValue<string> | null,
-      newClaimManager?: PromiseOrValue<string> | null
-    ): OracleTransferredEventFilter;
-    OracleTransferred(
-      previousClaimManager?: PromiseOrValue<string> | null,
-      newClaimManager?: PromiseOrValue<string> | null
-    ): OracleTransferredEventFilter;
   };
 
   estimateGas: {
@@ -579,6 +572,8 @@ export interface BountyStorageV0 extends BaseContract {
     closer(overrides?: CallOverrides): Promise<BigNumber>;
 
     closerData(overrides?: CallOverrides): Promise<BigNumber>;
+
+    depositManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -671,6 +666,8 @@ export interface BountyStorageV0 extends BaseContract {
     closer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     closerData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    depositManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,

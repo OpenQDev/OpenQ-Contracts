@@ -24,25 +24,6 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "previousClaimManager",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newClaimManager",
-        type: "address",
-      },
-    ],
-    name: "OracleTransferred",
-    type: "event",
-  },
-  {
     inputs: [],
     name: "bountyClosedTime",
     outputs: [
@@ -115,6 +96,19 @@ const _abi = [
         internalType: "bytes",
         name: "",
         type: "bytes",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "depositManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",

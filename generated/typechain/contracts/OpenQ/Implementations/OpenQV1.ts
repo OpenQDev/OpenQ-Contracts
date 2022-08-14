@@ -48,8 +48,10 @@ export interface OpenQV1Interface extends utils.Interface {
     "bountyIdToAddress(string)": FunctionFragment;
     "bountyIsOpen(string)": FunctionFragment;
     "bountyType(string)": FunctionFragment;
+    "claimManager()": FunctionFragment;
     "closeCompetition(string)": FunctionFragment;
     "closeOngoing(string)": FunctionFragment;
+    "depositManager()": FunctionFragment;
     "getImplementation()": FunctionFragment;
     "initialize()": FunctionFragment;
     "mintBounty(string,string,(uint32,bytes))": FunctionFragment;
@@ -57,6 +59,8 @@ export interface OpenQV1Interface extends utils.Interface {
     "proxiableUUID()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setBountyFactory(address)": FunctionFragment;
+    "setClaimManager(address)": FunctionFragment;
+    "setDepositManager(address)": FunctionFragment;
     "setFundingGoal(string,address,uint256)": FunctionFragment;
     "setPayout(string,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
@@ -72,8 +76,10 @@ export interface OpenQV1Interface extends utils.Interface {
       | "bountyIdToAddress"
       | "bountyIsOpen"
       | "bountyType"
+      | "claimManager"
       | "closeCompetition"
       | "closeOngoing"
+      | "depositManager"
       | "getImplementation"
       | "initialize"
       | "mintBounty"
@@ -81,6 +87,8 @@ export interface OpenQV1Interface extends utils.Interface {
       | "proxiableUUID"
       | "renounceOwnership"
       | "setBountyFactory"
+      | "setClaimManager"
+      | "setDepositManager"
       | "setFundingGoal"
       | "setPayout"
       | "transferOwnership"
@@ -110,12 +118,20 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "claimManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "closeCompetition",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "closeOngoing",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositManager",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getImplementation",
@@ -144,6 +160,14 @@ export interface OpenQV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setBountyFactory",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setClaimManager",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDepositManager",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -194,11 +218,19 @@ export interface OpenQV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "bountyType", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "claimManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "closeCompetition",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "closeOngoing",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "depositManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -218,6 +250,14 @@ export interface OpenQV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setBountyFactory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setClaimManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDepositManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -622,6 +662,8 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    claimManager(overrides?: CallOverrides): Promise<[string]>;
+
     closeCompetition(
       _bountyId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -631,6 +673,8 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    depositManager(overrides?: CallOverrides): Promise<[string]>;
 
     getImplementation(overrides?: CallOverrides): Promise<[string]>;
 
@@ -655,6 +699,16 @@ export interface OpenQV1 extends BaseContract {
 
     setBountyFactory(
       _bountyFactory: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setClaimManager(
+      _claimManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setDepositManager(
+      _depositManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -713,6 +767,8 @@ export interface OpenQV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  claimManager(overrides?: CallOverrides): Promise<string>;
+
   closeCompetition(
     _bountyId: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -722,6 +778,8 @@ export interface OpenQV1 extends BaseContract {
     _bountyId: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  depositManager(overrides?: CallOverrides): Promise<string>;
 
   getImplementation(overrides?: CallOverrides): Promise<string>;
 
@@ -746,6 +804,16 @@ export interface OpenQV1 extends BaseContract {
 
   setBountyFactory(
     _bountyFactory: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setClaimManager(
+    _claimManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setDepositManager(
+    _depositManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -804,6 +872,8 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    claimManager(overrides?: CallOverrides): Promise<string>;
+
     closeCompetition(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -813,6 +883,8 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    depositManager(overrides?: CallOverrides): Promise<string>;
 
     getImplementation(overrides?: CallOverrides): Promise<string>;
 
@@ -833,6 +905,16 @@ export interface OpenQV1 extends BaseContract {
 
     setBountyFactory(
       _bountyFactory: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setClaimManager(
+      _claimManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setDepositManager(
+      _depositManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1166,6 +1248,8 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    claimManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     closeCompetition(
       _bountyId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1175,6 +1259,8 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    depositManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     getImplementation(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1199,6 +1285,16 @@ export interface OpenQV1 extends BaseContract {
 
     setBountyFactory(
       _bountyFactory: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setClaimManager(
+      _claimManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setDepositManager(
+      _depositManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1258,6 +1354,8 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    claimManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     closeCompetition(
       _bountyId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1267,6 +1365,8 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    depositManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getImplementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1291,6 +1391,16 @@ export interface OpenQV1 extends BaseContract {
 
     setBountyFactory(
       _bountyFactory: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setClaimManager(
+      _claimManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setDepositManager(
+      _depositManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

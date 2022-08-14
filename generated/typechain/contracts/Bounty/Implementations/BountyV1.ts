@@ -58,6 +58,7 @@ export interface BountyV1Interface extends utils.Interface {
     "closeOngoing(address)": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
+    "depositManager()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
     "deposits(uint256)": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
@@ -74,7 +75,7 @@ export interface BountyV1Interface extends utils.Interface {
     "getTokenAddressesCount()": FunctionFragment;
     "getTokenBalance(address)": FunctionFragment;
     "hasFundingGoal()": FunctionFragment;
-    "initialize(string,address,string,address,(uint32,bytes))": FunctionFragment;
+    "initialize(string,address,string,address,address,address,(uint32,bytes))": FunctionFragment;
     "isFixedPayout()": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
@@ -120,6 +121,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "closeOngoing"
       | "closer"
       | "closerData"
+      | "depositManager"
       | "depositTime"
       | "deposits"
       | "expiration"
@@ -227,6 +229,10 @@ export interface BountyV1Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "depositManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "depositTime",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -297,6 +303,8 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -456,6 +464,10 @@ export interface BountyV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "depositManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "depositTime",
     data: BytesLike
   ): Result;
@@ -584,11 +596,9 @@ export interface BountyV1Interface extends utils.Interface {
 
   events: {
     "Initialized(uint8)": EventFragment;
-    "OracleTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
 }
 
 export interface InitializedEventObject {
@@ -597,18 +607,6 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export interface OracleTransferredEventObject {
-  previousClaimManager: string;
-  newClaimManager: string;
-}
-export type OracleTransferredEvent = TypedEvent<
-  [string, string],
-  OracleTransferredEventObject
->;
-
-export type OracleTransferredEventFilter =
-  TypedEventFilter<OracleTransferredEvent>;
 
 export interface BountyV1 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -703,6 +701,8 @@ export interface BountyV1 extends BaseContract {
 
     closerData(overrides?: CallOverrides): Promise<[string]>;
 
+    depositManager(overrides?: CallOverrides): Promise<[string]>;
+
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -766,6 +766,8 @@ export interface BountyV1 extends BaseContract {
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
       operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -951,6 +953,8 @@ export interface BountyV1 extends BaseContract {
 
   closerData(overrides?: CallOverrides): Promise<string>;
 
+  depositManager(overrides?: CallOverrides): Promise<string>;
+
   depositTime(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1014,6 +1018,8 @@ export interface BountyV1 extends BaseContract {
     _issuer: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
     _openQ: PromiseOrValue<string>,
+    _claimManager: PromiseOrValue<string>,
+    _depositManager: PromiseOrValue<string>,
     operation: OpenQDefinitions.InitOperationStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1199,6 +1205,8 @@ export interface BountyV1 extends BaseContract {
 
     closerData(overrides?: CallOverrides): Promise<string>;
 
+    depositManager(overrides?: CallOverrides): Promise<string>;
+
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1262,6 +1270,8 @@ export interface BountyV1 extends BaseContract {
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
       operation: OpenQDefinitions.InitOperationStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1384,15 +1394,6 @@ export interface BountyV1 extends BaseContract {
   filters: {
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
-
-    "OracleTransferred(address,address)"(
-      previousClaimManager?: PromiseOrValue<string> | null,
-      newClaimManager?: PromiseOrValue<string> | null
-    ): OracleTransferredEventFilter;
-    OracleTransferred(
-      previousClaimManager?: PromiseOrValue<string> | null,
-      newClaimManager?: PromiseOrValue<string> | null
-    ): OracleTransferredEventFilter;
   };
 
   estimateGas: {
@@ -1462,6 +1463,8 @@ export interface BountyV1 extends BaseContract {
 
     closerData(overrides?: CallOverrides): Promise<BigNumber>;
 
+    depositManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1525,6 +1528,8 @@ export interface BountyV1 extends BaseContract {
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
       operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1711,6 +1716,8 @@ export interface BountyV1 extends BaseContract {
 
     closerData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    depositManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1776,6 +1783,8 @@ export interface BountyV1 extends BaseContract {
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
       _openQ: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
       operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

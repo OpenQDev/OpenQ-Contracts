@@ -24,20 +24,20 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export interface ClaimManagerOwnableInterface extends utils.Interface {
+export interface DepositManagerOwnableInterface extends utils.Interface {
   functions: {
-    "claimManager()": FunctionFragment;
+    "depositManager()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "claimManager"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "depositManager"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "claimManager",
+    functionFragment: "depositManager",
     values?: undefined
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "claimManager",
+    functionFragment: "depositManager",
     data: BytesLike
   ): Result;
 
@@ -55,12 +55,12 @@ export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
-export interface ClaimManagerOwnable extends BaseContract {
+export interface DepositManagerOwnable extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ClaimManagerOwnableInterface;
+  interface: DepositManagerOwnableInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -82,13 +82,13 @@ export interface ClaimManagerOwnable extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    claimManager(overrides?: CallOverrides): Promise<[string]>;
+    depositManager(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  claimManager(overrides?: CallOverrides): Promise<string>;
+  depositManager(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    claimManager(overrides?: CallOverrides): Promise<string>;
+    depositManager(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -97,10 +97,10 @@ export interface ClaimManagerOwnable extends BaseContract {
   };
 
   estimateGas: {
-    claimManager(overrides?: CallOverrides): Promise<BigNumber>;
+    depositManager(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    claimManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    depositManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

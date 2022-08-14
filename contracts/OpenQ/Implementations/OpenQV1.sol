@@ -54,6 +54,8 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             _bountyId,
             msg.sender,
             _organization,
+            claimManager,
+            depositManager,
             _initOperation
         );
 
@@ -83,6 +85,30 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         onlyOwner
     {
         bountyFactory = BountyFactory(_bountyFactory);
+    }
+
+    /**
+     * @dev Sets bountyFactory address
+     * @param _claimManager The ClaimManager address
+     */
+    function setClaimManager(address _claimManager)
+        external
+        onlyProxy
+        onlyOwner
+    {
+        claimManager = _claimManager;
+    }
+
+    /**
+     * @dev Sets bountyFactory address
+     * @param _depositManager The DepositManager address
+     */
+    function setDepositManager(address _depositManager)
+        external
+        onlyProxy
+        onlyOwner
+    {
+        depositManager = _depositManager;
     }
 
     /**

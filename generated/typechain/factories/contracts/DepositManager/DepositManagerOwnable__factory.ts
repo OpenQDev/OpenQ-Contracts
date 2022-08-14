@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  ClaimManagerOwnable,
-  ClaimManagerOwnableInterface,
-} from "../../../contracts/ClaimManager/ClaimManagerOwnable";
+  DepositManagerOwnable,
+  DepositManagerOwnableInterface,
+} from "../../../contracts/DepositManager/DepositManagerOwnable";
 
 const _abi = [
   {
@@ -25,7 +25,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "claimManager",
+    name: "depositManager",
     outputs: [
       {
         internalType: "address",
@@ -38,15 +38,19 @@ const _abi = [
   },
 ];
 
-export class ClaimManagerOwnable__factory {
+export class DepositManagerOwnable__factory {
   static readonly abi = _abi;
-  static createInterface(): ClaimManagerOwnableInterface {
-    return new utils.Interface(_abi) as ClaimManagerOwnableInterface;
+  static createInterface(): DepositManagerOwnableInterface {
+    return new utils.Interface(_abi) as DepositManagerOwnableInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): ClaimManagerOwnable {
-    return new Contract(address, _abi, signerOrProvider) as ClaimManagerOwnable;
+  ): DepositManagerOwnable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as DepositManagerOwnable;
   }
 }

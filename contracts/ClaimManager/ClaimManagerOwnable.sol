@@ -16,21 +16,13 @@ abstract contract ClaimManagerOwnable is ContextUpgradeable {
      */
 
     /**
-     * @dev Oracle address
+     * @dev Claim Manager address
      */
     address private _claimManager;
 
     /**
-     * @dev Oracle address
-     */
-    event OracleTransferred(
-        address indexed previousClaimManager,
-        address indexed newClaimManager
-    );
-
-    /**
      * @dev Initializes child contract with _initialClaimManager. Only callabel during initialization.
-     * @param _initialClaimManager The initial oracle address
+     * @param _initialClaimManager The initial claim manager address
      */
     function __ClaimManagerOwnable_init(address _initialClaimManager)
         internal
@@ -42,16 +34,6 @@ abstract contract ClaimManagerOwnable is ContextUpgradeable {
     /**
      * TRANSACTIONS
      */
-
-    /**
-     * @dev Transfers oracle of the contract to a new account (`newClaimManager`).
-     * @dev Internal function without access restriction.
-     */
-    function _transferOracle(address newClaimManager) internal virtual {
-        address oldClaimManager = _claimManager;
-        _claimManager = newClaimManager;
-        emit OracleTransferred(oldClaimManager, newClaimManager);
-    }
 
     /**
      * UTILITY

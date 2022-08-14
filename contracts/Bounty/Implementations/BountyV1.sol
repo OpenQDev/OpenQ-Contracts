@@ -35,13 +35,18 @@ contract BountyV1 is BountyStorageV1 {
         address _issuer,
         string memory _organization,
         address _openQ,
+        address _claimManager,
+        address _depositManager,
         OpenQDefinitions.InitOperation memory operation
     ) external initializer {
         require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
         require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
 
         __ReentrancyGuard_init();
+
         __OnlyOpenQ_init(_openQ);
+        __ClaimManagerOwnable_init(_claimManager);
+        __DepositManagerOwnable_init(_depositManager);
 
         bountyId = _bountyId;
         issuer = _issuer;

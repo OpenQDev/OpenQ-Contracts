@@ -53,16 +53,20 @@ contract BountyFactory is OnlyOpenQ {
         string memory _id,
         address _issuer,
         string memory _organization,
+        address _claimManager,
+        address _depositManager,
         OpenQDefinitions.InitOperation memory operation
     ) external onlyOpenQ returns (address) {
         BeaconProxy bounty = new BeaconProxy(
             beacon,
             abi.encodeWithSignature(
-                'initialize(string,address,string,address,(uint32,bytes))',
+                'initialize(string,address,string,address,address,address,(uint32,bytes))',
                 _id,
                 _issuer,
                 _organization,
                 openQ(),
+                _claimManager,
+                _depositManager,
                 operation
             )
         );
