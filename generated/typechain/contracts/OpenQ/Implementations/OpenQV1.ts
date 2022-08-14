@@ -46,10 +46,8 @@ export interface OpenQV1Interface extends utils.Interface {
     "bountyAddressToBountyId(address)": FunctionFragment;
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
-    "bountyIsClaimable(string)": FunctionFragment;
     "bountyIsOpen(string)": FunctionFragment;
     "bountyType(string)": FunctionFragment;
-    "claimBounty(string,address,bytes)": FunctionFragment;
     "closeCompetition(string)": FunctionFragment;
     "closeOngoing(string)": FunctionFragment;
     "extendDeposit(string,bytes32,uint256)": FunctionFragment;
@@ -59,7 +57,6 @@ export interface OpenQV1Interface extends utils.Interface {
     "initialize(address)": FunctionFragment;
     "isWhitelisted(address)": FunctionFragment;
     "mintBounty(string,string,(uint32,bytes))": FunctionFragment;
-    "ongoingClaimed(string,string,string)": FunctionFragment;
     "openQTokenWhitelist()": FunctionFragment;
     "oracle()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -70,7 +67,6 @@ export interface OpenQV1Interface extends utils.Interface {
     "setFundingGoal(string,address,uint256)": FunctionFragment;
     "setPayout(string,address,uint256)": FunctionFragment;
     "setTokenWhitelist(address)": FunctionFragment;
-    "tierClaimed(string,uint256)": FunctionFragment;
     "tokenAddressLimitReached(string)": FunctionFragment;
     "transferOracle(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
@@ -84,10 +80,8 @@ export interface OpenQV1Interface extends utils.Interface {
       | "bountyAddressToBountyId"
       | "bountyFactory"
       | "bountyIdToAddress"
-      | "bountyIsClaimable"
       | "bountyIsOpen"
       | "bountyType"
-      | "claimBounty"
       | "closeCompetition"
       | "closeOngoing"
       | "extendDeposit"
@@ -97,7 +91,6 @@ export interface OpenQV1Interface extends utils.Interface {
       | "initialize"
       | "isWhitelisted"
       | "mintBounty"
-      | "ongoingClaimed"
       | "openQTokenWhitelist"
       | "oracle"
       | "owner"
@@ -108,7 +101,6 @@ export interface OpenQV1Interface extends utils.Interface {
       | "setFundingGoal"
       | "setPayout"
       | "setTokenWhitelist"
-      | "tierClaimed"
       | "tokenAddressLimitReached"
       | "transferOracle"
       | "transferOwnership"
@@ -130,24 +122,12 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "bountyIsClaimable",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "bountyIsOpen",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "bountyType",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimBounty",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: "closeCompetition",
@@ -205,14 +185,6 @@ export interface OpenQV1Interface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "ongoingClaimed",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "openQTokenWhitelist",
     values?: undefined
   ): string;
@@ -255,10 +227,6 @@ export interface OpenQV1Interface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "tierClaimed",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "tokenAddressLimitReached",
     values: [PromiseOrValue<string>]
   ): string;
@@ -293,18 +261,10 @@ export interface OpenQV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "bountyIsClaimable",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "bountyIsOpen",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "bountyType", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "claimBounty",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "closeCompetition",
     data: BytesLike
@@ -336,10 +296,6 @@ export interface OpenQV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "mintBounty", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "ongoingClaimed",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "openQTokenWhitelist",
     data: BytesLike
   ): Result;
@@ -368,10 +324,6 @@ export interface OpenQV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setPayout", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setTokenWhitelist",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tierClaimed",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -783,11 +735,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    bountyIsClaimable(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -797,13 +744,6 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    claimBounty(
-      _bountyId: PromiseOrValue<string>,
-      _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     closeCompetition(
       _bountyId: PromiseOrValue<string>,
@@ -858,13 +798,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    ongoingClaimed(
-      _bountyId: PromiseOrValue<string>,
-      claimant: PromiseOrValue<string>,
-      claimantAsset: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     openQTokenWhitelist(overrides?: CallOverrides): Promise<[string]>;
 
     oracle(overrides?: CallOverrides): Promise<[string]>;
@@ -907,12 +840,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    tierClaimed(
-      _bountyId: PromiseOrValue<string>,
-      _tier: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     tokenAddressLimitReached(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -954,11 +881,6 @@ export interface OpenQV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  bountyIsClaimable(
-    _bountyId: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   bountyIsOpen(
     _bountyId: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -968,13 +890,6 @@ export interface OpenQV1 extends BaseContract {
     _bountyId: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  claimBounty(
-    _bountyId: PromiseOrValue<string>,
-    _closer: PromiseOrValue<string>,
-    _closerData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   closeCompetition(
     _bountyId: PromiseOrValue<string>,
@@ -1029,13 +944,6 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  ongoingClaimed(
-    _bountyId: PromiseOrValue<string>,
-    claimant: PromiseOrValue<string>,
-    claimantAsset: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
   oracle(overrides?: CallOverrides): Promise<string>;
@@ -1078,12 +986,6 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  tierClaimed(
-    _bountyId: PromiseOrValue<string>,
-    _tier: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   tokenAddressLimitReached(
     _bountyId: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -1125,11 +1027,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    bountyIsClaimable(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1139,13 +1036,6 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    claimBounty(
-      _bountyId: PromiseOrValue<string>,
-      _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     closeCompetition(
       _bountyId: PromiseOrValue<string>,
@@ -1200,13 +1090,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    ongoingClaimed(
-      _bountyId: PromiseOrValue<string>,
-      claimant: PromiseOrValue<string>,
-      claimantAsset: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
     oracle(overrides?: CallOverrides): Promise<string>;
@@ -1246,12 +1129,6 @@ export interface OpenQV1 extends BaseContract {
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    tierClaimed(
-      _bountyId: PromiseOrValue<string>,
-      _tier: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     tokenAddressLimitReached(
       _bountyId: PromiseOrValue<string>,
@@ -1578,11 +1455,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    bountyIsClaimable(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1591,13 +1463,6 @@ export interface OpenQV1 extends BaseContract {
     bountyType(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    claimBounty(
-      _bountyId: PromiseOrValue<string>,
-      _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     closeCompetition(
@@ -1653,13 +1518,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    ongoingClaimed(
-      _bountyId: PromiseOrValue<string>,
-      claimant: PromiseOrValue<string>,
-      claimantAsset: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     openQTokenWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
 
     oracle(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1700,12 +1558,6 @@ export interface OpenQV1 extends BaseContract {
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tierClaimed(
-      _bountyId: PromiseOrValue<string>,
-      _tier: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     tokenAddressLimitReached(
@@ -1750,11 +1602,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    bountyIsClaimable(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     bountyIsOpen(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1763,13 +1610,6 @@ export interface OpenQV1 extends BaseContract {
     bountyType(
       _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    claimBounty(
-      _bountyId: PromiseOrValue<string>,
-      _closer: PromiseOrValue<string>,
-      _closerData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     closeCompetition(
@@ -1825,13 +1665,6 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    ongoingClaimed(
-      _bountyId: PromiseOrValue<string>,
-      claimant: PromiseOrValue<string>,
-      claimantAsset: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     openQTokenWhitelist(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1874,12 +1707,6 @@ export interface OpenQV1 extends BaseContract {
     setTokenWhitelist(
       _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tierClaimed(
-      _bountyId: PromiseOrValue<string>,
-      _tier: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     tokenAddressLimitReached(
