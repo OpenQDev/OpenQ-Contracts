@@ -369,6 +369,58 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         bounty.setTierClaimed(_tier);
     }
 
+    function _claimTieredFixed(
+        BountyV1 bounty,
+        address _closer,
+        bytes calldata _closerData
+    ) internal {
+        (, , , , uint256 _tier) = abi.decode(
+            _closerData,
+            (address, string, address, string, uint256)
+        );
+
+        uint256 volume = bounty.claimTiered(
+            _closer,
+            _tier,
+            bounty.payoutTokenAddress()
+        );
+
+        emit TokenBalanceClaimed(
+            bounty.bountyId(),
+            bountyIdToAddress[bounty.bountyId()],
+            bounty.organization(),
+            _closer,
+            block.timestamp,
+            bounty.payoutTokenAddress(),
+            volume,
+            bounty.bountyType(),
+            _closerData,
+            VERSION_1
+        );
+
+        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
+            bytes32 _depositId = bounty.nftDeposits(i);
+            if (bounty.tier(_depositId) == _tier) {
+                bounty.claimNft(_closer, _depositId);
+
+                emit NFTClaimed(
+                    bounty.bountyId(),
+                    bountyIdToAddress[bounty.bountyId()],
+                    bounty.organization(),
+                    _closer,
+                    block.timestamp,
+                    bounty.tokenAddress(_depositId),
+                    bounty.tokenId(_depositId),
+                    bounty.bountyType(),
+                    _closerData,
+                    VERSION_1
+                );
+            }
+        }
+
+        bounty.setTierClaimed(_tier);
+    }
+
     function _claimSingle(
         BountyV1 bounty,
         address _closer,

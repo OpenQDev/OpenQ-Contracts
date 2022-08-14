@@ -131,7 +131,7 @@ describe('BountyV1.sol', () => {
 		tieredFixedContract = await BountyV1.deploy();
 		await tieredFixedContract.deployed();
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address"], [[1000, 500], mockLink.address]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address"], [[100, 50], mockLink.address]);
 
 		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
@@ -257,7 +257,7 @@ describe('BountyV1.sol', () => {
 		});
 
 		describe('TIERED FIXED', () => {
-			it.only('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
+			it('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
 				const actualBountyType = await tieredFixedContract.bountyType();
 				const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
@@ -731,7 +731,7 @@ describe('BountyV1.sol', () => {
 
 				await tieredContract.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
 
-				const deposits = await atomicContract.getDeposits();
+				const deposits = await tieredContract.getDeposits();
 				const linkDepositId = deposits[0];
 
 				await tieredContract.closeCompetition(owner.address);
@@ -756,6 +756,48 @@ describe('BountyV1.sol', () => {
 				// // ASSERT
 				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
 				expect(secondPlaceMockTokenBalance).to.equal('200');
+			});
+
+			it('should revert if competition is not closed', async () => {
+				// ACT/ASSERT
+				await expect(tieredContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+			});
+		});
+
+		describe.only('TIERED FIXED', () => {
+			it.only('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
+				// ARRANGE
+				const volume = 150;
+
+				const [, firstPlace, secondPlace] = await ethers.getSigners();
+
+				await tieredFixedContract.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+
+				const deposits = await tieredFixedContract.getDeposits();
+				const linkDepositId = deposits[0];
+
+				await tieredFixedContract.closeCompetition(owner.address);
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredFixedContract.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('150');
+
+				const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+				expect(claimerMockTokenBalance).to.equal('0');
+
+				// ACT
+				await tieredFixedContract.claimTieredFixed(firstPlace.address, 0);
+
+				// // ASSERT
+				const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+				expect(newClaimerMockTokenBalance).to.equal('100');
+
+				// ACT
+				await tieredFixedContract.claimTieredFixed(secondPlace.address, 1);
+
+				// // ASSERT
+				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
+				expect(secondPlaceMockTokenBalance).to.equal('50');
 			});
 
 			it('should revert if competition is not closed', async () => {

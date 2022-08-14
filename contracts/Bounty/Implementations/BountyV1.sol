@@ -398,6 +398,26 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
+     * @dev Transfers the volume for the given tier
+     * @param _payoutAddress The destination address for the fund
+     * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
+     */
+    function claimTieredFixed(address _payoutAddress, uint256 _tier)
+        external
+        onlyOpenQ
+        nonReentrant
+        returns (uint256)
+    {
+        require(status == OpenQDefinitions.CLOSED, 'COMPETITION_NOT_CLOSED');
+        require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
+
+        uint256 claimedBalance = payoutSchedule[_tier];
+
+        _transferToken(payoutTokenAddress, claimedBalance, _payoutAddress);
+        return claimedBalance;
+    }
+
+    /**
      * @dev Transfers NFT from bounty address to _payoutAddress
      * @param _payoutAddress The destination address for the NFT
      * @param _depositId The payout address of the bounty

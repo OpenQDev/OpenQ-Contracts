@@ -50,6 +50,7 @@ export interface BountyV1Interface extends utils.Interface {
     "claimNft(address,bytes32)": FunctionFragment;
     "claimOngoingPayout(address,bytes)": FunctionFragment;
     "claimTiered(address,uint256,address)": FunctionFragment;
+    "claimTieredFixed(address,uint256)": FunctionFragment;
     "claimantId(bytes32)": FunctionFragment;
     "close(address,bytes)": FunctionFragment;
     "closeCompetition(address)": FunctionFragment;
@@ -110,6 +111,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "claimNft"
       | "claimOngoingPayout"
       | "claimTiered"
+      | "claimTieredFixed"
       | "claimantId"
       | "close"
       | "closeCompetition"
@@ -192,6 +194,10 @@ export interface BountyV1Interface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimTieredFixed",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "claimantId",
@@ -423,6 +429,10 @@ export interface BountyV1Interface extends utils.Interface {
     functionFragment: "claimTiered",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimTieredFixed",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "claimantId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
   decodeFunctionResult(
@@ -633,6 +643,12 @@ export interface BountyV1 extends BaseContract {
       _payoutAddress: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _tokenAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    claimTieredFixed(
+      _payoutAddress: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -876,6 +892,12 @@ export interface BountyV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  claimTieredFixed(
+    _payoutAddress: PromiseOrValue<string>,
+    _tier: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   claimantId(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1113,6 +1135,12 @@ export interface BountyV1 extends BaseContract {
       _payoutAddress: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _tokenAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    claimTieredFixed(
+      _payoutAddress: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1362,6 +1390,12 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    claimTieredFixed(
+      _payoutAddress: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     claimantId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1600,6 +1634,12 @@ export interface BountyV1 extends BaseContract {
       _payoutAddress: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _tokenAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimTieredFixed(
+      _payoutAddress: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
