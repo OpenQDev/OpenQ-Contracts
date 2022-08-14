@@ -210,7 +210,13 @@ contract BountyV1 is BountyStorageV1 {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) external payable onlyOpenQ nonReentrant returns (bytes32, uint256) {
+    )
+        external
+        payable
+        onlyDepositManager
+        nonReentrant
+        returns (bytes32, uint256)
+    {
         require(_volume != 0, 'ZERO_VOLUME_SENT');
         require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
         require(status == 0, 'BOUNTY_IS_CLOSED');
@@ -252,7 +258,7 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _tokenId,
         uint256 _expiration,
         uint256 _tier
-    ) external onlyOpenQ nonReentrant returns (bytes32) {
+    ) external onlyDepositManager nonReentrant returns (bytes32) {
         require(
             nftDeposits.length < nftDepositLimit,
             'NFT_DEPOSIT_LIMIT_REACHED'
@@ -283,7 +289,7 @@ contract BountyV1 is BountyStorageV1 {
      */
     function refundDeposit(bytes32 _depositId, address _funder)
         external
-        onlyOpenQ
+        onlyDepositManager
         nonReentrant
     {
         // Check
@@ -328,7 +334,7 @@ contract BountyV1 is BountyStorageV1 {
         bytes32 _depositId,
         uint256 _seconds,
         address _funder
-    ) external onlyOpenQ nonReentrant returns (uint256) {
+    ) external onlyDepositManager nonReentrant returns (uint256) {
         require(status == 0, 'CLOSED_BOUNTY');
         require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
         require(
