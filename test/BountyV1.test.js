@@ -12,6 +12,8 @@ describe('BountyV1.sol', () => {
 
 	// ACCOUNTS
 	let owner;
+	let claimManager;
+	let depositManager;
 
 	// MOCK ASSETS
 	let mockLink;
@@ -54,7 +56,7 @@ describe('BountyV1.sol', () => {
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
-		[owner] = await ethers.getSigners();
+		[owner, claimManager, depositManager] = await ethers.getSigners();
 
 		// MOCK ASSETS
 		mockLink = await MockLink.deploy();
@@ -79,7 +81,7 @@ describe('BountyV1.sol', () => {
 		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 100]);
 		atomicBountyInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
 		initializationTimestamp = await setNextBlockTimestamp();
-		await atomicContract.initialize(mockId, owner.address, organization, owner.address, atomicBountyInitOperation);
+		await atomicContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
 		await mockNft.approve(atomicContract.address, 0);
 		await mockNft.approve(atomicContract.address, 1);
@@ -97,7 +99,7 @@ describe('BountyV1.sol', () => {
 		await atomicContract_noFundingGoal.deployed();
 		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [false, ethers.constants.AddressZero, 0]);
 		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
-		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, atomicBountyNoFundingGoalInitOperation);
+		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
 
 		// Mint an Ongoing Bounty
 		ongoingContract = await BountyV1.deploy();
@@ -107,7 +109,7 @@ describe('BountyV1.sol', () => {
 
 		ongoingBountyInitOperation = [ONGOING_CONTRACT, abiEncodedParams];
 
-		await ongoingContract.initialize(mockId, owner.address, organization, owner.address, ongoingBountyInitOperation);
+		await ongoingContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, ongoingBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(ongoingContract.address, 10000000);
@@ -121,7 +123,7 @@ describe('BountyV1.sol', () => {
 
 		tieredBountyInitOperation = [TIERED_CONTRACT, abiEncodedParamsTieredBounty];
 
-		await tieredContract.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperation);
+		await tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredContract.address, 10000000);
@@ -135,14 +137,14 @@ describe('BountyV1.sol', () => {
 
 		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
-		await tieredFixedContract.initialize(mockId, owner.address, organization, owner.address, tieredFixedBountyInitOperation);
+		await tieredFixedContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredFixedContract.address, 10000000);
 		await mockDai.approve(tieredFixedContract.address, 10000000);
 	});
 
-	describe('initializer', () => {
+	describe.only('initializer', () => {
 		describe('ATOMIC', () => {
 			it(`should initialize bounty with correct: bountyId, issuer, organization, status, openQImplementation, bountyCreatedTime, and bountyType`, async () => {
 				// ARRANGE
@@ -170,7 +172,7 @@ describe('BountyV1.sol', () => {
 				atomicContract = await BountyV1.deploy();
 
 				// ASSERT
-				await expect(atomicContract.initialize("", owner.address, organization, owner.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+				await expect(atomicContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 			});
 
 			it('should revert if organization is empty', async () => {
@@ -179,7 +181,7 @@ describe('BountyV1.sol', () => {
 				atomicContract = await BountyV1.deploy();
 
 				// ASSERT
-				await expect(atomicContract.initialize(mockId, owner.address, "", owner.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+				await expect(atomicContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 			});
 
 			it('should revert if given an invalid operaion', async () => {
@@ -188,7 +190,7 @@ describe('BountyV1.sol', () => {
 				atomicContract = await BountyV1.deploy();
 
 				// ASSERT
-				await expect(atomicContract.initialize(mockId, owner.address, organization, owner.address, [42, []])).to.be.revertedWith('OQ: unknown init operation type');
+				await expect(atomicContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, [42, []])).to.be.revertedWith('OQ: unknown init operation type');
 			});
 
 			it('should init with correct payoutTokenAddress, payoutVolume, and actualBountyType', async () => {
@@ -252,12 +254,12 @@ describe('BountyV1.sol', () => {
 				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
 
 				// ACT/ASSERT
-				await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperation)).to.be.revertedWith('Payout schedule must add up to 100');
+				await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('Payout schedule must add up to 100');
 			});
 		});
 
 		describe('TIERED FIXED', () => {
-			it.only('should init with tiered and payout schedule, payoutTokenAddress', async () => {
+			it('should init with tiered and payout schedule, payoutTokenAddress', async () => {
 				const actualBountyType = await tieredFixedContract.bountyType();
 				const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
 				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
@@ -381,7 +383,7 @@ describe('BountyV1.sol', () => {
 
 					const newBounty = await BountyV1.deploy();
 					await newBounty.deployed();
-					await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, atomicBountyInitOperation);
+					await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
 					await mockLink.approve(newBounty.address, 20000);
 					await newBounty.receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
@@ -770,7 +772,7 @@ describe('BountyV1.sol', () => {
 			});
 		});
 
-		describe.only('TIERED FIXED', () => {
+		describe('TIERED FIXED', () => {
 			it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
 				// ARRANGE
 				const volume = 150;
