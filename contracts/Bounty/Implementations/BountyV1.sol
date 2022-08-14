@@ -371,7 +371,7 @@ contract BountyV1 is BountyStorageV1 {
     function claimOngoingPayout(
         address _payoutAddress,
         bytes calldata _closerData
-    ) external onlyOpenQ nonReentrant returns (address, uint256) {
+    ) external onlyClaimManager nonReentrant returns (address, uint256) {
         (, string memory claimant, , string memory claimantAsset) = abi.decode(
             _closerData,
             (address, string, address, string)

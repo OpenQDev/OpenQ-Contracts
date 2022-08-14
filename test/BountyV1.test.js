@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe('BountyV1.sol', () => {
+describe.only('BountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV1;
 
@@ -275,8 +275,8 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
-	describe.only('receiveFunds', () => {
-		describe.only('ALL', () => {
+	describe('receiveFunds', () => {
+		describe('ALL', () => {
 			it('should revert if not called by Deposit Manager contract', async () => {
 				// ARRANGE
 				const [, , , , notDepositManager] = await ethers.getSigners();
@@ -403,7 +403,7 @@ describe('BountyV1.sol', () => {
 				// ACT
 				const expectedTimestamp = await setNextBlockTimestamp();
 				const depositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, thirtyDays, 1);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, thirtyDays, 1);
 
 				// ASSERT
 				expect(await atomicContract.funder(depositId)).to.equal(owner.address);
@@ -424,7 +424,7 @@ describe('BountyV1.sol', () => {
 				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
 
 				// ACT
-				await atomicContract.receiveNft(owner.address, mockNft.address, 0, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 0, 1, 0);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(0)).to.equal(atomicContract.address);
@@ -441,18 +441,18 @@ describe('BountyV1.sol', () => {
 				expect(await mockNft.ownerOf(4)).to.equal(owner.address);
 
 				// ACT
-				await atomicContract.receiveNft(owner.address, mockNft.address, 0, 1, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 2, 1, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 3, 1, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 4, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 0, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 2, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 3, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 4, 1, 0);
 
 				// ASSERT
-				await expect(atomicContract.receiveNft(owner.address, mockNft.address, 5, 1, 0)).to.be.revertedWith('NFT_DEPOSIT_LIMIT_REACHED');
+				await expect(atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 5, 1, 0)).to.be.revertedWith('NFT_DEPOSIT_LIMIT_REACHED');
 			});
 
 			it('should revert if expiration is negative', async () => {
-				await expect(atomicContract.receiveNft(owner.address, mockNft.address, 0, 0, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
+				await expect(atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 0, 0, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
 			});
 		});
 	});
@@ -464,28 +464,28 @@ describe('BountyV1.sol', () => {
 
 			// ASSUME
 			const linkDepositId = generateDepositId(mockId, 0);
-			await atomicContract.receiveFunds(owner.address, mockLink.address, volume, 1);
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
 
 			// ACT
-			await atomicContract.extendDeposit(linkDepositId, 1000, owner.address);
+			await atomicContract.connect(depositManager).extendDeposit(linkDepositId, 1000, owner.address);
 
 			// ASSERT
 			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
-			await expect(atomicContract.refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+			await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 		});
 	});
 
 	describe('refundDeposit', () => {
 		describe('require and revert', () => {
-			it('should revert if not called by OpenQ contract', async () => {
+			it('should revert if not called by Deposit Manager contract', async () => {
 				// ARRANGE
-				const [, notOwner] = await ethers.getSigners();
-				let issueWithNonOwnerAccount = atomicContract.connect(notOwner);
+				const [, , , , , notDepositManager] = await ethers.getSigners();
+				let issueWithNonOwnerAccount = atomicContract.connect(notDepositManager);
 
 				const mockDepositId = generateDepositId(owner.address, mockLink.address, 123);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.refundDeposit(mockDepositId, owner.address)).to.be.revertedWith('Method is only callable by OpenQ');
+				await expect(issueWithNonOwnerAccount.refundDeposit(mockDepositId, owner.address)).to.be.revertedWith('DepositManagerOwnable: caller is not the current OpenQ Deposit Manager');
 			});
 
 			it('should revert if called before expiration', async () => {
@@ -494,10 +494,10 @@ describe('BountyV1.sol', () => {
 
 				// ASSUME
 				const linkDepositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveFunds(owner.address, mockLink.address, volume, 10000);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 10000);
 
 				// ACT
-				await expect(atomicContract.refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+				await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 			});
 		});
 
@@ -508,21 +508,21 @@ describe('BountyV1.sol', () => {
 
 				// ASSUME
 				const linkDepositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveFunds(owner.address, mockLink.address, volume, 1);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
 				expect(await atomicContract.refunded(linkDepositId)).to.equal(false);
 
 				const daiDepositId = generateDepositId(mockId, 1);
-				await atomicContract.receiveFunds(owner.address, mockDai.address, volume, 1);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, 1);
 				expect(await atomicContract.refunded(daiDepositId)).to.equal(false);
 
 				const protocolDepositId = generateDepositId(mockId, 2);
-				await atomicContract.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
 				expect(await atomicContract.refunded(protocolDepositId)).to.equal(false);
 
 				// ACT
-				await atomicContract.refundDeposit(linkDepositId, owner.address);
-				await atomicContract.refundDeposit(daiDepositId, owner.address);
-				await atomicContract.refundDeposit(protocolDepositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(daiDepositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(protocolDepositId, owner.address);
 
 				// ASSERT
 				expect(await atomicContract.refunded(linkDepositId)).to.equal(true);
@@ -537,13 +537,13 @@ describe('BountyV1.sol', () => {
 				const volume = 100;
 
 				const linkDepositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveFunds(owner.address, mockLink.address, volume, 1);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
 
 				const daiDepositId = generateDepositId(mockId, 1);
-				await atomicContract.receiveFunds(owner.address, mockDai.address, volume, 1);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, 1);
 
 				const protocolDepositId = generateDepositId(mockId, 2);
-				await atomicContract.receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
@@ -560,8 +560,8 @@ describe('BountyV1.sol', () => {
 				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
 
 				// // // ACT
-				await atomicContract.refundDeposit(linkDepositId, owner.address);
-				await atomicContract.refundDeposit(daiDepositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(daiDepositId, owner.address);
 
 				// // // // ASSERT
 				const newBountyMockLinkBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
@@ -581,13 +581,13 @@ describe('BountyV1.sol', () => {
 
 				// ARRANGE
 				const depositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, 0);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(atomicContract.address);
 
 				// ACT
-				await atomicContract.refundDeposit(depositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(depositId, owner.address);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -603,7 +603,7 @@ describe('BountyV1.sol', () => {
 			const [, claimer] = await ethers.getSigners();
 			const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
 
-			await atomicContract.receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
 
 			const deposits = await atomicContract.getDeposits();
 			const protocolDepositId = deposits[0];
@@ -615,7 +615,7 @@ describe('BountyV1.sol', () => {
 			const claimerProtocolBalance = (await ethers.provider.getBalance(claimer.address));
 
 			// ACT
-			await atomicContract.claimBalance(claimer.address, ethers.constants.AddressZero);
+			await atomicContract.connect(claimManager).claimBalance(claimer.address, ethers.constants.AddressZero);
 
 			// ASSERT
 			const newBountyProtocolTokenBalance = (await atomicContract.provider.getBalance(atomicContract.address)).toString();
@@ -631,8 +631,8 @@ describe('BountyV1.sol', () => {
 			const [, claimer] = await ethers.getSigners();
 			const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
 
-			await atomicContract.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-			await atomicContract.receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
 
 			const deposits = await atomicContract.getDeposits();
 			const linkDepositId = deposits[0];
@@ -650,8 +650,8 @@ describe('BountyV1.sol', () => {
 			expect(claimerFakeTokenBalance).to.equal('0');
 
 			// ACT
-			await atomicContract.claimBalance(claimer.address, mockLink.address);
-			await atomicContract.claimBalance(claimer.address, mockDai.address);
+			await atomicContract.connect(claimManager).claimBalance(claimer.address, mockLink.address);
+			await atomicContract.connect(claimManager).claimBalance(claimer.address, mockDai.address);
 
 			// ASSERT
 			const newBountyMockLinkBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
@@ -672,7 +672,7 @@ describe('BountyV1.sol', () => {
 
 				const [, claimer] = await ethers.getSigners();
 
-				await ongoingContract.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+				await ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
 
 				const deposits = await atomicContract.getDeposits();
 				const linkDepositId = deposits[0];
@@ -685,7 +685,7 @@ describe('BountyV1.sol', () => {
 				expect(claimerMockTokenBalance).to.equal('0');
 
 				// ACT
-				await ongoingContract.claimOngoingPayout(claimer.address, closerData);
+				await ongoingContract.connect(claimManager).claimOngoingPayout(claimer.address, closerData);
 
 				// ASSERT
 				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
@@ -695,7 +695,7 @@ describe('BountyV1.sol', () => {
 				expect(newBountyMockLinkBalance).to.equal('200');
 
 				// ACT
-				await ongoingContract.claimOngoingPayout(claimer.address, closerData);
+				await ongoingContract.connect(claimManager).claimOngoingPayout(claimer.address, closerData);
 
 				// ASSERT
 				const newClaimerMockTokenBalance2 = (await mockLink.balanceOf(claimer.address)).toString();
@@ -708,7 +708,7 @@ describe('BountyV1.sol', () => {
 			it('should set claimantId to true for the claimant and claimant asset', async () => {
 				// ARRANGE
 				let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
-				await ongoingContract.receiveFunds(owner.address, mockLink.address, 10000000, thirtyDays);
+				await ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 10000000, thirtyDays);
 
 
 				// ASSUME
@@ -716,7 +716,7 @@ describe('BountyV1.sol', () => {
 				expect(claimantIdClaimed).to.equal(false);
 
 				// ACT
-				await ongoingContract.claimOngoingPayout(owner.address, closerData);
+				await ongoingContract.connect(claimManager).claimOngoingPayout(owner.address, closerData);
 
 				// ASSERT
 				claimantIdClaimed = await ongoingContract.claimantId(claimantId);
@@ -731,7 +731,7 @@ describe('BountyV1.sol', () => {
 
 				const [, firstPlace, secondPlace] = await ethers.getSigners();
 
-				await tieredContract.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+				await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
 
 				const deposits = await tieredContract.getDeposits();
 				const linkDepositId = deposits[0];
@@ -746,14 +746,14 @@ describe('BountyV1.sol', () => {
 				expect(claimerMockTokenBalance).to.equal('0');
 
 				// ACT
-				await tieredContract.claimTiered(firstPlace.address, 0, mockLink.address);
+				await tieredContract.connect(claimManager).claimTiered(firstPlace.address, 0, mockLink.address);
 
 				// // ASSERT
 				const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
 				expect(newClaimerMockTokenBalance).to.equal('800');
 
 				// ACT
-				await tieredContract.claimTiered(secondPlace.address, 1, mockLink.address);
+				await tieredContract.connect(claimManager).claimTiered(secondPlace.address, 1, mockLink.address);
 
 				// // ASSERT
 				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
@@ -762,13 +762,13 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if competition is not closed', async () => {
 				// ACT/ASSERT
-				await expect(tieredContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+				await expect(tieredContract.connect(claimManager).claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
 			});
 
 			it('should revert if competition is not TIERED', async () => {
 				// ACT/ASSERT
 				tieredFixedContract.closeCompetition(owner.address);
-				await expect(tieredFixedContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('NOT_A_TIERED_BOUNTY');
+				await expect(tieredFixedContract.connect(claimManager).claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('NOT_A_TIERED_BOUNTY');
 			});
 		});
 
@@ -779,7 +779,7 @@ describe('BountyV1.sol', () => {
 
 				const [, firstPlace, secondPlace] = await ethers.getSigners();
 
-				await tieredFixedContract.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+				await tieredFixedContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
 
 				const deposits = await tieredFixedContract.getDeposits();
 				const linkDepositId = deposits[0];
@@ -794,14 +794,14 @@ describe('BountyV1.sol', () => {
 				expect(claimerMockTokenBalance).to.equal('0');
 
 				// ACT
-				await tieredFixedContract.claimTieredFixed(firstPlace.address, 0);
+				await tieredFixedContract.connect(claimManager).claimTieredFixed(firstPlace.address, 0);
 
 				// // ASSERT
 				const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
 				expect(newClaimerMockTokenBalance).to.equal('100');
 
 				// ACT
-				await tieredFixedContract.claimTieredFixed(secondPlace.address, 1);
+				await tieredFixedContract.connect(claimManager).claimTieredFixed(secondPlace.address, 1);
 
 				// // ASSERT
 				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
@@ -810,27 +810,27 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if competition is not closed', async () => {
 				// ACT/ASSERT
-				await expect(tieredFixedContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+				await expect(tieredFixedContract.connect(claimManager).claimTieredFixed(owner.address, 0)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
 			});
 
 			it('should revert if competition is not TIERED FIXED', async () => {
 				// ACT/ASSERT
 				tieredContract.closeCompetition(owner.address);
-				await expect(tieredContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('NOT_A_TIERED_FIXED_BOUNTY');
+				await expect(tieredContract.connect(claimManager).claimTieredFixed(owner.address, 0)).to.be.revertedWith('NOT_A_TIERED_FIXED_BOUNTY');
 			});
 		});
 	});
 
 	describe('claimNft', () => {
 		describe('require and revert', () => {
-			it('should revert if not called by OpenQ contract', async () => {
+			it('should revert if not called by Claim Manager contract', async () => {
 				// ARRANGE
-				const [, notOwner] = await ethers.getSigners();
+				const [, , , , , notClaimManager] = await ethers.getSigners();
 				const value = 10000;
-				let issueWithNonOwnerAccount = atomicContract.connect(notOwner);
+				let issueWithNonOwnerAccount = atomicContract.connect(notClaimManager);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.claimNft(notOwner.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('Method is only callable by OpenQ');
+				await expect(issueWithNonOwnerAccount.claimNft(notClaimManager.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
 			});
 		});
 
@@ -841,13 +841,13 @@ describe('BountyV1.sol', () => {
 
 				// ARRANGE
 				const depositId = generateDepositId(mockId, 0);
-				await atomicContract.receiveNft(owner.address, mockNft.address, 1, 1, 0);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, 0);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(atomicContract.address);
 
 				// ACT
-				await atomicContract.claimNft(owner.address, depositId);
+				await atomicContract.connect(claimManager).claimNft(owner.address, depositId);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -910,7 +910,7 @@ describe('BountyV1.sol', () => {
 
 				const [, firstPlace, secondPlace] = await ethers.getSigners();
 
-				await tieredContract.receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+				await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
 
 				const deposits = await atomicContract.getDeposits();
 				const linkDepositId = deposits[0];
