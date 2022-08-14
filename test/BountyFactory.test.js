@@ -22,6 +22,8 @@ describe('BountyFactory', () => {
 	let oracle;
 	let owner;
 	let notOpenQ;
+	let claimManager;
+	let depositManager;
 
 	let bountyInitOperation;
 	let initOperation;
@@ -33,7 +35,7 @@ describe('BountyFactory', () => {
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');
 		BountyV1 = await hre.ethers.getContractFactory('BountyV1');
 
-		[owner, oracle, notOpenQ] = await ethers.getSigners();
+		[owner, oracle, notOpenQ, claimManager, depositManager] = await ethers.getSigners();
 
 		// Deploy OpenQV1 Implementation
 		openQImplementation = await OpenQImplementation.deploy();
@@ -54,7 +56,7 @@ describe('BountyFactory', () => {
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
-		await openQProxy.initialize(oracle.address);
+		await openQProxy.initialize();
 
 		// Deploy BountyFactory
 		bountyFactory = await BountyFactory.deploy(openQProxy.address, bountyBeacon.address);
@@ -77,7 +79,7 @@ describe('BountyFactory', () => {
 
 	describe('Access Controls', () => {
 		it('should revert if called directly, not through OpenQProxy', async () => {
-			await expect(bountyFactory.mintBounty('mock-id', owner.address, 'mock-organization', initOperation)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(bountyFactory.mintBounty('mock-id', owner.address, 'mock-organization', claimManager.address, depositManager.address, initOperation)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 	});
 
@@ -91,6 +93,8 @@ describe('BountyFactory', () => {
 				'mock-id',
 				owner.address,
 				'mock-organization',
+				claimManager.address,
+				depositManager.address,
 				initOperation
 			);
 
@@ -101,6 +105,8 @@ describe('BountyFactory', () => {
 			const bountyId = await newBounty.bountyId();
 			const organization = await newBounty.organization();
 			const openQAddress = await newBounty.openQ();
+			const claimManagerAddress = await newBounty.claimManager();
+			const depositManagerAddress = await newBounty.depositManager();
 			const bountyType = await newBounty.bountyType();
 			const payoutVolume = await newBounty.payoutVolume();
 			const payoutTokenAddress = await newBounty.payoutTokenAddress();
@@ -111,8 +117,12 @@ describe('BountyFactory', () => {
 			expect(bountyType).to.equal(1);
 			expect(payoutVolume).to.equal('100');
 			expect(payoutTokenAddress).to.equal(notOpenQ.address);
+			expect(payoutTokenAddress).to.equal(notOpenQ.address);
+			expect(payoutTokenAddress).to.equal(notOpenQ.address);
+			expect(claimManagerAddress).to.equal(claimManager.address);
+			expect(depositManagerAddress).to.equal(depositManager.address);
 
-			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address, bountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
+			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, bountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
 	});
 });
