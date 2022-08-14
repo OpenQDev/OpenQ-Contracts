@@ -102,6 +102,12 @@ contract BountyV1 is BountyStorageV1 {
                 _fundingGoalToken,
                 _fundingGoal
             );
+        } else if (operationType == OpenQDefinitions.TIERED_FIXED) {
+            (
+                uint256[] memory _payoutSchedule,
+                address _payoutTokenAddress
+            ) = abi.decode(_operation.data, (uint256[], address));
+            _initTieredFixed(_payoutSchedule, _payoutTokenAddress);
         } else {
             revert('OQ: unknown init operation type');
         }
@@ -118,7 +124,7 @@ contract BountyV1 is BountyStorageV1 {
         address _fundingToken,
         uint256 _fundingGoal
     ) internal {
-        bountyType = 0;
+        bountyType = OpenQDefinitions.ATOMIC;
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
@@ -136,7 +142,7 @@ contract BountyV1 is BountyStorageV1 {
         address _fundingToken,
         uint256 _fundingGoal
     ) internal {
-        bountyType = 1;
+        bountyType = OpenQDefinitions.ONGOING;
         payoutTokenAddress = _payoutTokenAddress;
         payoutVolume = _payoutVolume;
 
@@ -156,7 +162,7 @@ contract BountyV1 is BountyStorageV1 {
         address _fundingToken,
         uint256 _fundingGoal
     ) internal {
-        bountyType = 2;
+        bountyType = OpenQDefinitions.TIERED;
         uint256 sum;
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
             sum += _payoutSchedule[i];
@@ -167,6 +173,20 @@ contract BountyV1 is BountyStorageV1 {
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
+    }
+
+    /**
+     * @dev Initializes a bounty proxy with initial state
+     * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
+     * @dev _payoutSchedule must add up to 100
+     */
+    function _initTieredFixed(
+        uint256[] memory _payoutSchedule,
+        address _payoutTokenAddress
+    ) internal {
+        bountyType = OpenQDefinitions.TIERED_FIXED;
+        payoutSchedule = _payoutSchedule;
+        payoutTokenAddress = _payoutTokenAddress;
     }
 
     /**

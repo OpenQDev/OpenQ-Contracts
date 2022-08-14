@@ -44,6 +44,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
     "fundingToken()": FunctionFragment;
     "fundingTotals(address)": FunctionFragment;
     "hasFundingGoal()": FunctionFragment;
+    "isFixedPayout()": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
@@ -81,6 +82,7 @@ export interface BountyStorageV1Interface extends utils.Interface {
       | "fundingToken"
       | "fundingTotals"
       | "hasFundingGoal"
+      | "isFixedPayout"
       | "isNFT"
       | "issuer"
       | "nftDepositLimit"
@@ -153,6 +155,10 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "hasFundingGoal",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFixedPayout",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -258,6 +264,10 @@ export interface BountyStorageV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "hasFundingGoal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isFixedPayout",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isNFT", data: BytesLike): Result;
@@ -398,6 +408,8 @@ export interface BountyStorageV1 extends BaseContract {
 
     hasFundingGoal(overrides?: CallOverrides): Promise<[boolean]>;
 
+    isFixedPayout(overrides?: CallOverrides): Promise<[boolean]>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -519,6 +531,8 @@ export interface BountyStorageV1 extends BaseContract {
 
   hasFundingGoal(overrides?: CallOverrides): Promise<boolean>;
 
+  isFixedPayout(overrides?: CallOverrides): Promise<boolean>;
+
   isNFT(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -639,6 +653,8 @@ export interface BountyStorageV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     hasFundingGoal(overrides?: CallOverrides): Promise<boolean>;
+
+    isFixedPayout(overrides?: CallOverrides): Promise<boolean>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
@@ -767,6 +783,8 @@ export interface BountyStorageV1 extends BaseContract {
 
     hasFundingGoal(overrides?: CallOverrides): Promise<BigNumber>;
 
+    isFixedPayout(overrides?: CallOverrides): Promise<BigNumber>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -888,6 +906,8 @@ export interface BountyStorageV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     hasFundingGoal(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isFixedPayout(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,

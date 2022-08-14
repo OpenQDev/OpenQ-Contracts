@@ -31,17 +31,20 @@ describe('BountyV1.sol', () => {
 	let ATOMIC_CONTRACT = 0;
 	let ONGOING_CONTRACT = 1;
 	let TIERED_CONTRACT = 2;
+	let TIERED_FIXED_CONTRACT = 3;
 
 	// INITIALIZATION OPERATIONS
 	let atomicBountyInitOperation;
 	let ongoingBountyInitOperation;
 	let tieredBountyInitOperation;
+	let tieredFixedBountyInitOperation;
 
 	// TEST CONTRACTS
 	let atomicContract;
 	let atomicContract_noFundingGoal;
 	let ongoingContract;
 	let tieredContract;
+	let tieredFixedContract;
 
 	// MISC
 	let initializationTimestamp;
@@ -123,6 +126,20 @@ describe('BountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredContract.address, 10000000);
 		await mockDai.approve(tieredContract.address, 10000000);
+
+		// Mint a Tiered Fixed Bounty
+		tieredFixedContract = await BountyV1.deploy();
+		await tieredFixedContract.deployed();
+
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address"], [[1000, 500], mockLink.address]);
+
+		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+
+		await tieredFixedContract.initialize(mockId, owner.address, organization, owner.address, tieredFixedBountyInitOperation);
+
+		// Pre-approve LINK and DAI for transfers during testing
+		await mockLink.approve(tieredFixedContract.address, 10000000);
+		await mockDai.approve(tieredFixedContract.address, 10000000);
 	});
 
 	describe('initializer', () => {
@@ -236,6 +253,22 @@ describe('BountyV1.sol', () => {
 
 				// ACT/ASSERT
 				await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, tieredBountyInitOperation)).to.be.revertedWith('Payout schedule must add up to 100');
+			});
+		});
+
+		describe('TIERED FIXED', () => {
+			it.only('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
+				const actualBountyType = await tieredFixedContract.bountyType();
+				const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
+				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
+
+				const actualBountyPayoutTokenAddress = await tieredFixedContract.payoutTokenAddress();
+
+				await expect(actualBountyType).equals(3);
+				await expect(payoutToString[0]).equals("1000");
+				await expect(payoutToString[1]).equals("500");
+
+				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
 			});
 		});
 	});

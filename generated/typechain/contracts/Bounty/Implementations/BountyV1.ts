@@ -73,6 +73,7 @@ export interface BountyV1Interface extends utils.Interface {
     "getTokenBalance(address)": FunctionFragment;
     "hasFundingGoal()": FunctionFragment;
     "initialize(string,address,string,address,(uint32,bytes))": FunctionFragment;
+    "isFixedPayout()": FunctionFragment;
     "isNFT(bytes32)": FunctionFragment;
     "issuer()": FunctionFragment;
     "nftDepositLimit()": FunctionFragment;
@@ -132,6 +133,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "getTokenBalance"
       | "hasFundingGoal"
       | "initialize"
+      | "isFixedPayout"
       | "isNFT"
       | "issuer"
       | "nftDepositLimit"
@@ -289,6 +291,10 @@ export interface BountyV1Interface extends utils.Interface {
       PromiseOrValue<string>,
       OpenQDefinitions.InitOperationStruct
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFixedPayout",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "isNFT",
@@ -485,6 +491,10 @@ export interface BountyV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isFixedPayout",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "isNFT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "issuer", data: BytesLike): Result;
   decodeFunctionResult(
@@ -717,6 +727,8 @@ export interface BountyV1 extends BaseContract {
       operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    isFixedPayout(overrides?: CallOverrides): Promise<[boolean]>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
@@ -956,6 +968,8 @@ export interface BountyV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  isFixedPayout(overrides?: CallOverrides): Promise<boolean>;
+
   isNFT(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1193,6 +1207,8 @@ export interface BountyV1 extends BaseContract {
       operation: OpenQDefinitions.InitOperationStruct,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    isFixedPayout(overrides?: CallOverrides): Promise<boolean>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
@@ -1438,6 +1454,8 @@ export interface BountyV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    isFixedPayout(overrides?: CallOverrides): Promise<BigNumber>;
+
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1678,6 +1696,8 @@ export interface BountyV1 extends BaseContract {
       operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    isFixedPayout(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isNFT(
       arg0: PromiseOrValue<BytesLike>,
