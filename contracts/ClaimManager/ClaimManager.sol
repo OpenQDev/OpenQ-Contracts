@@ -58,6 +58,18 @@ contract ClaimManager is IOpenQ, Oraclize, OwnableUpgradeable, UUPSUpgradeable {
             _claimTieredFixed(bounty, _closer, _closerData);
         } else {
             _claimSingle(bounty, _closer, _closerData);
+            bounty.close(_closer, _closerData);
+
+            emit BountyClosed(
+                bounty.bountyId(),
+                _bountyAddress,
+                bounty.organization(),
+                address(0),
+                block.timestamp,
+                bounty.bountyType(),
+                new bytes(0),
+                VERSION_1
+            );
         }
 
         emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_1);

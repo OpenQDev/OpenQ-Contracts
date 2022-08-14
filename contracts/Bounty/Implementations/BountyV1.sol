@@ -454,7 +454,7 @@ contract BountyV1 is BountyStorageV1 {
      */
     function close(address _payoutAddress, bytes calldata _closerData)
         external
-        onlyOpenQ
+        onlyClaimManager
     {
         require(status == 0, 'CLOSING_CLOSED_BOUNTY');
         status = 1;
