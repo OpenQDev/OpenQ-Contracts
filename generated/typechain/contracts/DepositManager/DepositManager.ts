@@ -26,39 +26,24 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../common";
 
-export declare namespace OpenQDefinitions {
-  export type InitOperationStruct = {
-    operationType: PromiseOrValue<BigNumberish>;
-    data: PromiseOrValue<BytesLike>;
-  };
-
-  export type InitOperationStructOutput = [number, string] & {
-    operationType: number;
-    data: string;
-  };
-}
-
-export interface OpenQV1Interface extends utils.Interface {
+export interface DepositManagerInterface extends utils.Interface {
   functions: {
     "VERSION_1()": FunctionFragment;
-    "bountyAddressToBountyId(address)": FunctionFragment;
-    "bountyFactory()": FunctionFragment;
-    "bountyIdToAddress(string)": FunctionFragment;
-    "bountyIsOpen(string)": FunctionFragment;
-    "bountyType(string)": FunctionFragment;
-    "closeCompetition(string)": FunctionFragment;
-    "closeOngoing(string)": FunctionFragment;
-    "getImplementation()": FunctionFragment;
+    "bountyIsOpen(address)": FunctionFragment;
+    "extendDeposit(address,bytes32,uint256)": FunctionFragment;
+    "fundBountyNFT(address,address,uint256,uint256,uint256)": FunctionFragment;
+    "fundBountyToken(address,address,uint256,uint256)": FunctionFragment;
     "initialize()": FunctionFragment;
-    "mintBounty(string,string,(uint32,bytes))": FunctionFragment;
+    "isWhitelisted(address)": FunctionFragment;
+    "openQTokenWhitelist()": FunctionFragment;
     "owner()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
+    "refundDeposit(address,bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "setBountyFactory(address)": FunctionFragment;
-    "setFundingGoal(string,address,uint256)": FunctionFragment;
-    "setPayout(string,address,uint256)": FunctionFragment;
+    "setTokenWhitelist(address)": FunctionFragment;
+    "tokenAddressLimitReached(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
@@ -67,22 +52,19 @@ export interface OpenQV1Interface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "VERSION_1"
-      | "bountyAddressToBountyId"
-      | "bountyFactory"
-      | "bountyIdToAddress"
       | "bountyIsOpen"
-      | "bountyType"
-      | "closeCompetition"
-      | "closeOngoing"
-      | "getImplementation"
+      | "extendDeposit"
+      | "fundBountyNFT"
+      | "fundBountyToken"
       | "initialize"
-      | "mintBounty"
+      | "isWhitelisted"
+      | "openQTokenWhitelist"
       | "owner"
       | "proxiableUUID"
+      | "refundDeposit"
       | "renounceOwnership"
-      | "setBountyFactory"
-      | "setFundingGoal"
-      | "setPayout"
+      | "setTokenWhitelist"
+      | "tokenAddressLimitReached"
       | "transferOwnership"
       | "upgradeTo"
       | "upgradeToAndCall"
@@ -90,48 +72,47 @@ export interface OpenQV1Interface extends utils.Interface {
 
   encodeFunctionData(functionFragment: "VERSION_1", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "bountyAddressToBountyId",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "bountyFactory",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "bountyIdToAddress",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "bountyIsOpen",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "bountyType",
-    values: [PromiseOrValue<string>]
+    functionFragment: "extendDeposit",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "closeCompetition",
-    values: [PromiseOrValue<string>]
+    functionFragment: "fundBountyNFT",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "closeOngoing",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getImplementation",
-    values?: undefined
+    functionFragment: "fundBountyToken",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "mintBounty",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      OpenQDefinitions.InitOperationStruct
-    ]
+    functionFragment: "isWhitelisted",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "openQTokenWhitelist",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -139,28 +120,20 @@ export interface OpenQV1Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "refundDeposit",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setBountyFactory",
+    functionFragment: "setTokenWhitelist",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setFundingGoal",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPayout",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    functionFragment: "tokenAddressLimitReached",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -177,39 +150,37 @@ export interface OpenQV1Interface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "VERSION_1", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "bountyAddressToBountyId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "bountyFactory",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "bountyIdToAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "bountyIsOpen",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "bountyType", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "closeCompetition",
+    functionFragment: "extendDeposit",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "closeOngoing",
+    functionFragment: "fundBountyNFT",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getImplementation",
+    functionFragment: "fundBountyToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mintBounty", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isWhitelisted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "openQTokenWhitelist",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "refundDeposit",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -217,14 +188,13 @@ export interface OpenQV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setBountyFactory",
+    functionFragment: "setTokenWhitelist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setFundingGoal",
+    functionFragment: "tokenAddressLimitReached",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setPayout", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -571,12 +541,12 @@ export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
 
 export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
-export interface OpenQV1 extends BaseContract {
+export interface DepositManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: OpenQV1Interface;
+  interface: DepositManagerInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -600,77 +570,69 @@ export interface OpenQV1 extends BaseContract {
   functions: {
     VERSION_1(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    bountyAddressToBountyId(
-      _bountyAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    bountyFactory(overrides?: CallOverrides): Promise<[string]>;
-
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     bountyIsOpen(
-      _bountyId: PromiseOrValue<string>,
+      _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    bountyType(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    closeCompetition(
-      _bountyId: PromiseOrValue<string>,
+    extendDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    closeOngoing(
-      _bountyId: PromiseOrValue<string>,
+    fundBountyNFT(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getImplementation(overrides?: CallOverrides): Promise<[string]>;
+    fundBountyToken(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     initialize(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    mintBounty(
-      _bountyId: PromiseOrValue<string>,
-      _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.InitOperationStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    isWhitelisted(
+      _tokenAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    openQTokenWhitelist(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
+    refundDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setBountyFactory(
-      _bountyFactory: PromiseOrValue<string>,
+    setTokenWhitelist(
+      _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setFundingGoal(
-      _bountyId: PromiseOrValue<string>,
-      _fundingGoalToken: PromiseOrValue<string>,
-      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPayout(
-      _bountyId: PromiseOrValue<string>,
-      _payoutToken: PromiseOrValue<string>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    tokenAddressLimitReached(
+      _bountyAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -691,77 +653,69 @@ export interface OpenQV1 extends BaseContract {
 
   VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
-  bountyAddressToBountyId(
-    _bountyAddress: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  bountyFactory(overrides?: CallOverrides): Promise<string>;
-
-  bountyIdToAddress(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   bountyIsOpen(
-    _bountyId: PromiseOrValue<string>,
+    _bountyAddress: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  bountyType(
-    _bountyId: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  closeCompetition(
-    _bountyId: PromiseOrValue<string>,
+  extendDeposit(
+    _bountyAddress: PromiseOrValue<string>,
+    _depositId: PromiseOrValue<BytesLike>,
+    _seconds: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  closeOngoing(
-    _bountyId: PromiseOrValue<string>,
+  fundBountyNFT(
+    _bountyAddress: PromiseOrValue<string>,
+    _tokenAddress: PromiseOrValue<string>,
+    _tokenId: PromiseOrValue<BigNumberish>,
+    _expiration: PromiseOrValue<BigNumberish>,
+    _tier: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getImplementation(overrides?: CallOverrides): Promise<string>;
+  fundBountyToken(
+    _bountyAddress: PromiseOrValue<string>,
+    _tokenAddress: PromiseOrValue<string>,
+    _volume: PromiseOrValue<BigNumberish>,
+    _expiration: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   initialize(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  mintBounty(
-    _bountyId: PromiseOrValue<string>,
-    _organization: PromiseOrValue<string>,
-    _initOperation: OpenQDefinitions.InitOperationStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  isWhitelisted(
+    _tokenAddress: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
+  refundDeposit(
+    _bountyAddress: PromiseOrValue<string>,
+    _depositId: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setBountyFactory(
-    _bountyFactory: PromiseOrValue<string>,
+  setTokenWhitelist(
+    _openQTokenWhitelist: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setFundingGoal(
-    _bountyId: PromiseOrValue<string>,
-    _fundingGoalToken: PromiseOrValue<string>,
-    _fundingGoalVolume: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPayout(
-    _bountyId: PromiseOrValue<string>,
-    _payoutToken: PromiseOrValue<string>,
-    _payoutVolume: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  tokenAddressLimitReached(
+    _bountyAddress: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
@@ -782,73 +736,65 @@ export interface OpenQV1 extends BaseContract {
   callStatic: {
     VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bountyAddressToBountyId(
-      _bountyAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    bountyFactory(overrides?: CallOverrides): Promise<string>;
-
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     bountyIsOpen(
-      _bountyId: PromiseOrValue<string>,
+      _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    bountyType(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    closeCompetition(
-      _bountyId: PromiseOrValue<string>,
+    extendDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    closeOngoing(
-      _bountyId: PromiseOrValue<string>,
+    fundBountyNFT(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    getImplementation(overrides?: CallOverrides): Promise<string>;
+    fundBountyToken(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     initialize(overrides?: CallOverrides): Promise<void>;
 
-    mintBounty(
-      _bountyId: PromiseOrValue<string>,
-      _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.InitOperationStruct,
+    isWhitelisted(
+      _tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<boolean>;
+
+    openQTokenWhitelist(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
+    refundDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    setBountyFactory(
-      _bountyFactory: PromiseOrValue<string>,
+    setTokenWhitelist(
+      _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setFundingGoal(
-      _bountyId: PromiseOrValue<string>,
-      _fundingGoalToken: PromiseOrValue<string>,
-      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
+    tokenAddressLimitReached(
+      _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
-
-    setPayout(
-      _bountyId: PromiseOrValue<string>,
-      _payoutToken: PromiseOrValue<string>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -1144,76 +1090,68 @@ export interface OpenQV1 extends BaseContract {
   estimateGas: {
     VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bountyAddressToBountyId(
+    bountyIsOpen(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    bountyFactory(overrides?: CallOverrides): Promise<BigNumber>;
-
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    bountyIsOpen(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    bountyType(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    closeCompetition(
-      _bountyId: PromiseOrValue<string>,
+    extendDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    closeOngoing(
-      _bountyId: PromiseOrValue<string>,
+    fundBountyNFT(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    getImplementation(overrides?: CallOverrides): Promise<BigNumber>;
+    fundBountyToken(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     initialize(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    mintBounty(
-      _bountyId: PromiseOrValue<string>,
-      _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.InitOperationStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    isWhitelisted(
+      _tokenAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    openQTokenWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
+    refundDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setBountyFactory(
-      _bountyFactory: PromiseOrValue<string>,
+    setTokenWhitelist(
+      _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setFundingGoal(
-      _bountyId: PromiseOrValue<string>,
-      _fundingGoalToken: PromiseOrValue<string>,
-      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPayout(
-      _bountyId: PromiseOrValue<string>,
-      _payoutToken: PromiseOrValue<string>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    tokenAddressLimitReached(
+      _bountyAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     transferOwnership(
@@ -1236,76 +1174,70 @@ export interface OpenQV1 extends BaseContract {
   populateTransaction: {
     VERSION_1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    bountyAddressToBountyId(
+    bountyIsOpen(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    bountyFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    bountyIsOpen(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    bountyType(
-      _bountyId: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    closeCompetition(
-      _bountyId: PromiseOrValue<string>,
+    extendDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      _seconds: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    closeOngoing(
-      _bountyId: PromiseOrValue<string>,
+    fundBountyNFT(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getImplementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    fundBountyToken(
+      _bountyAddress: PromiseOrValue<string>,
+      _tokenAddress: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
+      _expiration: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     initialize(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    mintBounty(
-      _bountyId: PromiseOrValue<string>,
-      _organization: PromiseOrValue<string>,
-      _initOperation: OpenQDefinitions.InitOperationStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    isWhitelisted(
+      _tokenAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    openQTokenWhitelist(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    refundDeposit(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setBountyFactory(
-      _bountyFactory: PromiseOrValue<string>,
+    setTokenWhitelist(
+      _openQTokenWhitelist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setFundingGoal(
-      _bountyId: PromiseOrValue<string>,
-      _fundingGoalToken: PromiseOrValue<string>,
-      _fundingGoalVolume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPayout(
-      _bountyId: PromiseOrValue<string>,
-      _payoutToken: PromiseOrValue<string>,
-      _payoutVolume: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    tokenAddressLimitReached(
+      _bountyAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(

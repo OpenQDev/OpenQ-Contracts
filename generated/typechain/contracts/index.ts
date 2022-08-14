@@ -7,6 +7,8 @@ import type * as bountyFactory from "./BountyFactory";
 export type { bountyFactory };
 import type * as claimManager from "./ClaimManager";
 export type { claimManager };
+import type * as depositManager from "./DepositManager";
+export type { depositManager };
 import type * as onlyOpenQ from "./OnlyOpenQ";
 export type { onlyOpenQ };
 import type * as openQ from "./OpenQ";

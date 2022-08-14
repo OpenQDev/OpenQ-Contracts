@@ -14,7 +14,6 @@ import 'hardhat/console.sol';
  */
 contract BountyV1 is BountyStorageV1 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
-    using SafeMathUpgradeable for uint256;
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
@@ -289,8 +288,7 @@ contract BountyV1 is BountyStorageV1 {
             'ONLY_FUNDER_CAN_REQUEST_REFUND'
         );
         require(
-            block.timestamp >=
-                depositTime[_depositId].add(expiration[_depositId]),
+            block.timestamp >= depositTime[_depositId] + expiration[_depositId],
             'PREMATURE_REFUND_REQUEST'
         );
 
@@ -542,7 +540,7 @@ contract BountyV1 is BountyStorageV1 {
         /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
          * is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
          * Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
-        return balanceAfter.sub(balanceBefore);
+        return balanceAfter - balanceBefore;
     }
 
     /**

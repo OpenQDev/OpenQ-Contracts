@@ -157,6 +157,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ClaimManagerOwnable__factory>;
     getContractFactory(
+      name: "DepositManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DepositManager__factory>;
+    getContractFactory(
       name: "OnlyOpenQ",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OnlyOpenQ__factory>;
@@ -397,6 +401,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ClaimManagerOwnable>;
+    getContractAt(
+      name: "DepositManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DepositManager>;
     getContractAt(
       name: "OnlyOpenQ",
       address: string,

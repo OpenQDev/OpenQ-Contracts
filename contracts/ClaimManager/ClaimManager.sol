@@ -12,15 +12,12 @@ import '../Oracle/Oraclize.sol';
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 
 /**
  * @title OpenQV1
  * @dev Main administrative contract for all bounty operations
  */
 contract ClaimManager is IOpenQ, Oraclize, OwnableUpgradeable, UUPSUpgradeable {
-    using SafeMathUpgradeable for uint256;
-
     uint256 public constant VERSION_1 = 1;
 
     /**

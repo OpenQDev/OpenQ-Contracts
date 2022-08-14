@@ -61,25 +61,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "previousOracle",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOracle",
-        type: "address",
-      },
-    ],
-    name: "OracleTransferred",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
         name: "previousOwner",
         type: "address",
       },
@@ -141,32 +122,6 @@ const _abi = [
       },
     ],
     name: "bountyIdToAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "openQTokenWhitelist",
-    outputs: [
-      {
-        internalType: "contract OpenQTokenWhitelist",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "oracle",
     outputs: [
       {
         internalType: "address",

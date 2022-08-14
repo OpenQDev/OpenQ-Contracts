@@ -34,6 +34,10 @@ async function deployContracts() {
 		console.log(`MockDai (Blacklisted) Deployed to ${mockDaiBlacklisted.address}\n`);
 	}
 
+	console.log('\n------------------------------------------');
+	console.log('DEPLOYING OPENQ MAIN CONTRACT');
+	console.log('------------------------------------------');
+
 	console.log('Deploying OpenQV1 (Implementation)...');
 	const OpenQImplementationV1 = await ethers.getContractFactory('OpenQV1');
 	const openQImplementationV1 = await OpenQImplementationV1.deploy();
@@ -53,6 +57,10 @@ async function deployContracts() {
 
 	await openQProxy.initialize();
 
+	console.log('\n------------------------------------------');
+	console.log('DEPLOYING OPENQ CLAIM MANAGER');
+	console.log('------------------------------------------');
+
 	console.log('Deploying Claim Manager Implementation...');
 	const ClaimManager = await ethers.getContractFactory('ClaimManager');
 	let claimManager = await ClaimManager.deploy();
@@ -62,7 +70,6 @@ async function deployContracts() {
 	console.log(`Claim Manager Implementation Deployed to ${claimManager.address} in block number ${deployBlockNumber_claimManager}\n`);
 
 	console.log('Deploying Claim Manager Proxy...');
-	console.log('okkkk', claimManager.address);
 	const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
 	let claimManagerProxy = await ClaimManagerProxy.deploy(claimManager.address, []);
 	const claimManagerProxyConfirmation = await claimManagerProxy.deployed();
@@ -70,10 +77,35 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`Claim Manager Proxy Deployed to ${claimManagerProxy.address} in block number ${deployBlockNumber_claimManagerProxy}\n`);
 
-	// Attach the ClaimManager ABI to the OpenQProxy address to send method calls to the delegatecall
+	// Attach the DepositManager ABI to the OpenQProxy address to send method calls to the delegatecall
 	claimManagerProxy = await ClaimManager.attach(claimManager.address);
 
 	await claimManagerProxy.initialize(process.env.ORACLE_ADDRESS);
+
+	console.log('\n------------------------------------------');
+	console.log('DEPLOYING OPENQ DEPOSIT MANAGER');
+	console.log('------------------------------------------');
+
+	console.log('Deploying Deposit Manager Implementation...');
+	const DepositManager = await ethers.getContractFactory('DepositManager');
+	let depositManager = await DepositManager.deploy();
+	const depositManagerConfirmation = await depositManager.deployed();
+	const deployBlockNumber_depositManager = parseInt(depositManagerConfirmation.provider._fastBlockNumber);
+	await optionalSleep(10000);
+	console.log(`Deposit Manager Implementation Deployed to ${depositManager.address} in block number ${deployBlockNumber_depositManager}\n`);
+
+	console.log('Deploying Deposit Manager Proxy...');
+	const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
+	let depositManagerProxy = await DepositManagerProxy.deploy(depositManager.address, []);
+	const depositManagerProxyConfirmation = await depositManagerProxy.deployed();
+	const deployBlockNumber_depositManagerProxy = parseInt(depositManagerProxyConfirmation.provider._fastBlockNumber);
+	await optionalSleep(10000);
+	console.log(`Deposit Manager Proxy Deployed to ${depositManagerProxy.address} in block number ${deployBlockNumber_depositManagerProxy}\n`);
+
+	// Attach the ClaimManager ABI to the OpenQProxy address to send method calls to the delegatecall
+	depositManagerProxy = await DepositManager.attach(depositManager.address);
+
+	await depositManagerProxy.initialize();
 
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
@@ -81,6 +113,12 @@ async function deployContracts() {
 	await openQTokenWhitelist.deployed();
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
+
+	console.log('\nConfiguring OpenQV1 with OpenQTokenWhitelist...');
+	console.log(`Setting OpenQTokenWhitelist on OpenQV1 to ${openQTokenWhitelist.address}...`);
+	await depositManagerProxy.setTokenWhitelist(openQTokenWhitelist.address);
+	await optionalSleep(10000);
+	console.log(`OpenQTokenWhitelist successfully set on DepositManager to ${openQTokenWhitelist.address}`);
 
 	console.log('Deploying BountyV1...');
 	const BountyV1 = await ethers.getContractFactory('BountyV1');
@@ -124,12 +162,6 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`BountyFactory successfully set on OpenQV1 to ${bountyFactory.address}`);
 
-	console.log('\nConfiguring OpenQV1 with OpenQTokenWhitelist...');
-	console.log(`Setting OpenQTokenWhitelist on OpenQV1 to ${openQTokenWhitelist.address}...`);
-	await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
-	await optionalSleep(10000);
-	console.log(`OpenQTokenWhitelist successfully set on OpenQV1 to ${openQTokenWhitelist.address}`);
-
 	console.log('\nContracts deployed and configured successfully!');
 
 	/* Write newly deployed contract addresses to .env.contracts for use in:
@@ -140,6 +172,8 @@ async function deployContracts() {
 	if (network.name === 'docker' || network.name === 'localhost') {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationV1.address}"
+CLAIM_MANAGER_PROXY_ADDRESS="${claimManagerProxy.address}"
+DEPOSIT_MANAGER_PROXY_ADDRESS="${depositManagerProxy.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV1.address}"

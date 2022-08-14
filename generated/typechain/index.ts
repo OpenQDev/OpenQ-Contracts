@@ -78,6 +78,8 @@ export type { ClaimManager } from "./contracts/ClaimManager/ClaimManager";
 export { ClaimManager__factory } from "./factories/contracts/ClaimManager/ClaimManager__factory";
 export type { ClaimManagerOwnable } from "./contracts/ClaimManager/ClaimManagerOwnable";
 export { ClaimManagerOwnable__factory } from "./factories/contracts/ClaimManager/ClaimManagerOwnable__factory";
+export type { DepositManager } from "./contracts/DepositManager/DepositManager";
+export { DepositManager__factory } from "./factories/contracts/DepositManager/DepositManager__factory";
 export type { OnlyOpenQ } from "./contracts/OnlyOpenQ/OnlyOpenQ";
 export { OnlyOpenQ__factory } from "./factories/contracts/OnlyOpenQ/OnlyOpenQ__factory";
 export type { OpenQV1 } from "./contracts/OpenQ/Implementations/OpenQV1";
