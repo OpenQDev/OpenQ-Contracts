@@ -51,7 +51,29 @@ async function deployContracts() {
 	// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 	openQProxy = await OpenQImplementationV1.attach(openQProxy.address);
 
-	await openQProxy.initialize(process.env.ORACLE_ADDRESS);
+	await openQProxy.initialize();
+
+	console.log('Deploying Claim Manager Implementation...');
+	const ClaimManager = await ethers.getContractFactory('ClaimManager');
+	let claimManager = await ClaimManager.deploy();
+	const claimManagerConfirmation = await claimManager.deployed();
+	const deployBlockNumber_claimManager = parseInt(claimManagerConfirmation.provider._fastBlockNumber);
+	await optionalSleep(10000);
+	console.log(`Claim Manager Implementation Deployed to ${claimManager.address} in block number ${deployBlockNumber_claimManager}\n`);
+
+	console.log('Deploying Claim Manager Proxy...');
+	console.log('okkkk', claimManager.address);
+	const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
+	let claimManagerProxy = await ClaimManagerProxy.deploy(claimManager.address, []);
+	const claimManagerProxyConfirmation = await claimManagerProxy.deployed();
+	const deployBlockNumber_claimManagerProxy = parseInt(claimManagerProxyConfirmation.provider._fastBlockNumber);
+	await optionalSleep(10000);
+	console.log(`Claim Manager Proxy Deployed to ${claimManagerProxy.address} in block number ${deployBlockNumber_claimManagerProxy}\n`);
+
+	// Attach the ClaimManager ABI to the OpenQProxy address to send method calls to the delegatecall
+	claimManagerProxy = await ClaimManager.attach(claimManager.address);
+
+	await claimManagerProxy.initialize(process.env.ORACLE_ADDRESS);
 
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');

@@ -23,13 +23,11 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     constructor() {}
 
     /**
-     * @dev Initializes the OpenQProxy storage with necessary storage variables like oracle and owner
-     * @param oracle The oracle address to be used for onlyOracle methods (e.g. claimBounty)
+     * @dev Initializes the OpenQProxy storage with necessary storage variables like owner
      */
-    function initialize(address oracle) external initializer onlyProxy {
+    function initialize() external initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        __Oraclize_init(oracle);
         __ReentrancyGuard_init();
     }
 
@@ -111,18 +109,6 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             new bytes(0),
             VERSION_1
         );
-    }
-
-    /**
-     * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
-     * @param _newOracle The new oracle address
-     */
-    function transferOracle(address _newOracle) external onlyProxy onlyOwner {
-        require(
-            _newOracle != address(0),
-            'Oraclize: new oracle is the zero address'
-        );
-        _transferOracle(_newOracle);
     }
 
     /**

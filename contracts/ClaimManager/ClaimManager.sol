@@ -10,11 +10,15 @@ import 'hardhat/console.sol';
 import '../Library/OpenQDefinitions.sol';
 import '../Oracle/Oraclize.sol';
 
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+
 /**
  * @title OpenQV1
  * @dev Main administrative contract for all bounty operations
  */
-contract ClaimManager is IOpenQ, Oraclize {
+contract ClaimManager is IOpenQ, Oraclize, OwnableUpgradeable, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     uint256 public constant VERSION_1 = 1;
@@ -24,6 +28,16 @@ contract ClaimManager is IOpenQ, Oraclize {
      */
 
     constructor() {}
+
+    /**
+     * @dev Initializes the ClaimManager storage with necessary storage variables like oracle and owner
+     * @param oracle The oracle address to be used for onlyOracle methods (e.g. claimBounty)
+     */
+    function initialize(address oracle) external initializer {
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+        __Oraclize_init(oracle);
+    }
 
     /**
      * @dev Transfers full balance of bounty and any NFT deposits from bounty address to closer
@@ -256,5 +270,22 @@ contract ClaimManager is IOpenQ, Oraclize {
         } else {
             revert('UNKNOWN_BOUNTY_STATUS');
         }
+    }
+
+    /**
+     * @dev Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
+     */
+    function _authorizeUpgrade(address) internal override onlyOwner {}
+
+    /**
+     * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
+     * @param _newOracle The new oracle address
+     */
+    function transferOracle(address _newOracle) external onlyProxy onlyOwner {
+        require(
+            _newOracle != address(0),
+            'Oraclize: new oracle is the zero address'
+        );
+        _transferOracle(_newOracle);
     }
 }

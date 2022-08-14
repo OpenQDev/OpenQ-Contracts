@@ -345,7 +345,7 @@ contract BountyV1 is BountyStorageV1 {
      */
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
-        onlyOpenQ
+        onlyClaimManager
         nonReentrant
         returns (uint256)
     {
@@ -386,7 +386,7 @@ contract BountyV1 is BountyStorageV1 {
         address _payoutAddress,
         uint256 _tier,
         address _tokenAddress
-    ) external onlyOpenQ nonReentrant returns (uint256) {
+    ) external onlyClaimManager nonReentrant returns (uint256) {
         require(status == OpenQDefinitions.CLOSED, 'COMPETITION_NOT_CLOSED');
         require(bountyType == OpenQDefinitions.TIERED, 'NOT_A_TIERED_BOUNTY');
         require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
@@ -405,7 +405,7 @@ contract BountyV1 is BountyStorageV1 {
      */
     function claimTieredFixed(address _payoutAddress, uint256 _tier)
         external
-        onlyOpenQ
+        onlyClaimManager
         nonReentrant
         returns (uint256)
     {
@@ -429,7 +429,7 @@ contract BountyV1 is BountyStorageV1 {
      */
     function claimNft(address _payoutAddress, bytes32 _depositId)
         external
-        onlyOpenQ
+        onlyClaimManager
         nonReentrant
     {
         _transferNft(

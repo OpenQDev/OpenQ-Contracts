@@ -18,6 +18,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgra
  * @dev Custom imports inherited by BountyV0
  */
 import '../OnlyOpenQ/OnlyOpenQ.sol';
+import '../ClaimManager/ClaimManagerOwnable.sol';
 import '../Library/OpenQDefinitions.sol';
 
 /**
@@ -27,7 +28,8 @@ import '../Library/OpenQDefinitions.sol';
 abstract contract BountyStorageV0 is
     ReentrancyGuardUpgradeable,
     ERC721HolderUpgradeable,
-    OnlyOpenQ
+    OnlyOpenQ,
+    ClaimManagerOwnable
 {
     /**
      * @dev Bounty data
@@ -102,7 +104,7 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     uint256[] public payoutSchedule;
     mapping(address => uint256) public fundingTotals;
     mapping(uint256 => bool) public tierClaimed;
-		bool public isFixedPayout;
+    bool public isFixedPayout;
 
     /**
     Funding goal

@@ -32,6 +32,7 @@ export interface BountyStorageV0Interface extends utils.Interface {
     "bountyClosedTime()": FunctionFragment;
     "bountyCreatedTime()": FunctionFragment;
     "bountyId()": FunctionFragment;
+    "claimManager()": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
@@ -59,6 +60,7 @@ export interface BountyStorageV0Interface extends utils.Interface {
       | "bountyClosedTime"
       | "bountyCreatedTime"
       | "bountyId"
+      | "claimManager"
       | "closer"
       | "closerData"
       | "depositTime"
@@ -90,6 +92,10 @@ export interface BountyStorageV0Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "bountyId", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "claimManager",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "closerData",
@@ -173,6 +179,10 @@ export interface BountyStorageV0Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "bountyId", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "claimManager",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
   decodeFunctionResult(
@@ -217,9 +227,11 @@ export interface BountyStorageV0Interface extends utils.Interface {
 
   events: {
     "Initialized(uint8)": EventFragment;
+    "OracleTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
 }
 
 export interface InitializedEventObject {
@@ -228,6 +240,18 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface OracleTransferredEventObject {
+  previousClaimManager: string;
+  newClaimManager: string;
+}
+export type OracleTransferredEvent = TypedEvent<
+  [string, string],
+  OracleTransferredEventObject
+>;
+
+export type OracleTransferredEventFilter =
+  TypedEventFilter<OracleTransferredEvent>;
 
 export interface BountyStorageV0 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -261,6 +285,8 @@ export interface BountyStorageV0 extends BaseContract {
     bountyCreatedTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     bountyId(overrides?: CallOverrides): Promise<[string]>;
+
+    claimManager(overrides?: CallOverrides): Promise<[string]>;
 
     closer(overrides?: CallOverrides): Promise<[string]>;
 
@@ -351,6 +377,8 @@ export interface BountyStorageV0 extends BaseContract {
 
   bountyId(overrides?: CallOverrides): Promise<string>;
 
+  claimManager(overrides?: CallOverrides): Promise<string>;
+
   closer(overrides?: CallOverrides): Promise<string>;
 
   closerData(overrides?: CallOverrides): Promise<string>;
@@ -440,6 +468,8 @@ export interface BountyStorageV0 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<string>;
 
+    claimManager(overrides?: CallOverrides): Promise<string>;
+
     closer(overrides?: CallOverrides): Promise<string>;
 
     closerData(overrides?: CallOverrides): Promise<string>;
@@ -526,6 +556,15 @@ export interface BountyStorageV0 extends BaseContract {
   filters: {
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "OracleTransferred(address,address)"(
+      previousClaimManager?: PromiseOrValue<string> | null,
+      newClaimManager?: PromiseOrValue<string> | null
+    ): OracleTransferredEventFilter;
+    OracleTransferred(
+      previousClaimManager?: PromiseOrValue<string> | null,
+      newClaimManager?: PromiseOrValue<string> | null
+    ): OracleTransferredEventFilter;
   };
 
   estimateGas: {
@@ -534,6 +573,8 @@ export interface BountyStorageV0 extends BaseContract {
     bountyCreatedTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     bountyId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    claimManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     closer(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -624,6 +665,8 @@ export interface BountyStorageV0 extends BaseContract {
     bountyCreatedTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     bountyId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    claimManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     closer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

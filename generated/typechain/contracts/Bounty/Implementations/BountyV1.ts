@@ -47,6 +47,7 @@ export interface BountyV1Interface extends utils.Interface {
     "bountyId()": FunctionFragment;
     "bountyType()": FunctionFragment;
     "claimBalance(address,address)": FunctionFragment;
+    "claimManager()": FunctionFragment;
     "claimNft(address,bytes32)": FunctionFragment;
     "claimOngoingPayout(address,bytes)": FunctionFragment;
     "claimTiered(address,uint256,address)": FunctionFragment;
@@ -108,6 +109,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "bountyId"
       | "bountyType"
       | "claimBalance"
+      | "claimManager"
       | "claimNft"
       | "claimOngoingPayout"
       | "claimTiered"
@@ -178,6 +180,10 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "claimBalance",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimManager",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "claimNft",
@@ -420,6 +426,10 @@ export interface BountyV1Interface extends utils.Interface {
     functionFragment: "claimBalance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimManager",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "claimNft", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimOngoingPayout",
@@ -574,9 +584,11 @@ export interface BountyV1Interface extends utils.Interface {
 
   events: {
     "Initialized(uint8)": EventFragment;
+    "OracleTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
 }
 
 export interface InitializedEventObject {
@@ -585,6 +597,18 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface OracleTransferredEventObject {
+  previousClaimManager: string;
+  newClaimManager: string;
+}
+export type OracleTransferredEvent = TypedEvent<
+  [string, string],
+  OracleTransferredEventObject
+>;
+
+export type OracleTransferredEventFilter =
+  TypedEventFilter<OracleTransferredEvent>;
 
 export interface BountyV1 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -626,6 +650,8 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    claimManager(overrides?: CallOverrides): Promise<[string]>;
 
     claimNft(
       _payoutAddress: PromiseOrValue<string>,
@@ -873,6 +899,8 @@ export interface BountyV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  claimManager(overrides?: CallOverrides): Promise<string>;
+
   claimNft(
     _payoutAddress: PromiseOrValue<string>,
     _depositId: PromiseOrValue<BytesLike>,
@@ -1119,6 +1147,8 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    claimManager(overrides?: CallOverrides): Promise<string>;
+
     claimNft(
       _payoutAddress: PromiseOrValue<string>,
       _depositId: PromiseOrValue<BytesLike>,
@@ -1354,6 +1384,15 @@ export interface BountyV1 extends BaseContract {
   filters: {
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "OracleTransferred(address,address)"(
+      previousClaimManager?: PromiseOrValue<string> | null,
+      newClaimManager?: PromiseOrValue<string> | null
+    ): OracleTransferredEventFilter;
+    OracleTransferred(
+      previousClaimManager?: PromiseOrValue<string> | null,
+      newClaimManager?: PromiseOrValue<string> | null
+    ): OracleTransferredEventFilter;
   };
 
   estimateGas: {
@@ -1370,6 +1409,8 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    claimManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     claimNft(
       _payoutAddress: PromiseOrValue<string>,
@@ -1617,6 +1658,8 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    claimManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     claimNft(
       _payoutAddress: PromiseOrValue<string>,
