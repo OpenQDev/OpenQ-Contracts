@@ -186,6 +186,8 @@ MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS="${mockDaiBlacklisted.address}"
 	} else {
 		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
 OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationV1.address}"
+CLAIM_MANAGER_PROXY_ADDRESS="${claimManagerProxy.address}"
+DEPOSIT_MANAGER_PROXY_ADDRESS="${depositManagerProxy.address}"
 OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
 BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
 OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV1.address}"

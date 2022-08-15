@@ -44,7 +44,7 @@ contract ClaimManager is IOpenQ, Oraclize, OwnableUpgradeable, UUPSUpgradeable {
         address _bountyAddress,
         address _closer,
         bytes calldata _closerData
-    ) external onlyOracle {
+    ) external onlyOracle onlyProxy {
         require(bountyIsClaimable(_bountyAddress), 'BOUNTY_IS_NOT_CLAIMABLE');
 
         BountyV1 bounty = BountyV1(payable(_bountyAddress));

@@ -60,7 +60,7 @@ contract DepositManager is OwnableUpgradeable, UUPSUpgradeable, IOpenQ {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) external payable {
+    ) external payable onlyProxy {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         if (!isWhitelisted(_tokenAddress)) {
@@ -102,7 +102,7 @@ contract DepositManager is OwnableUpgradeable, UUPSUpgradeable, IOpenQ {
         address _bountyAddress,
         bytes32 _depositId,
         uint256 _seconds
-    ) external {
+    ) external onlyProxy {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         require(
@@ -137,7 +137,7 @@ contract DepositManager is OwnableUpgradeable, UUPSUpgradeable, IOpenQ {
         uint256 _tokenId,
         uint256 _expiration,
         uint256 _tier
-    ) external {
+    ) external onlyProxy {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
@@ -174,6 +174,7 @@ contract DepositManager is OwnableUpgradeable, UUPSUpgradeable, IOpenQ {
      */
     function refundDeposit(address _bountyAddress, bytes32 _depositId)
         external
+        onlyProxy
     {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
