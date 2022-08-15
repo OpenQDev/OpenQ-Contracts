@@ -136,7 +136,7 @@ describe.only('ClaimManager.sol', () => {
 		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 	});
 
-	describe.only('bountyIsClaimable', () => {
+	describe('bountyIsClaimable', () => {
 		describe('ATOMIC', () => {
 			it('should return TRUE if atomic bounty is open, FALSE if atomic bounty is closed', async () => {
 				// ARRANGE
@@ -196,21 +196,20 @@ describe.only('ClaimManager.sol', () => {
 	});
 
 	describe('claimBounty', () => {
-		describe('require and revert', () => {
+		describe.only('require and revert', () => {
 			it('should revert if not called by OpenQ Oracle', async () => {
 				// ASSERT
-				await expect(openQProxy.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('Oraclize: caller is not the current OpenQ Oracle');
+				await expect(claimManager.claimBounty(ethers.constants.AddressZero, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('Oraclize: caller is not the current OpenQ Oracle');
 			});
 
 			it('should revert if bounty is already closed', async () => {
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
-				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 				// ASSERT
-				await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('BOUNTY_IS_NOT_CLAIMABLE');
+				await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('BOUNTY_IS_NOT_CLAIMABLE');
 			});
 		});
 
