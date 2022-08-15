@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe.only('ClaimManager.sol', () => {
+describe('ClaimManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -35,6 +35,7 @@ describe.only('ClaimManager.sol', () => {
 	let atomicBountyInitOperation;
 	let ongoingBountyInitOperation;
 	let tieredBountyInitOperation;
+	let tieredFixedBountyInitOperation;
 
 	// CLOSER DATA
 	let abiCoder;
@@ -42,6 +43,7 @@ describe.only('ClaimManager.sol', () => {
 	let abiEncodedSingleCloserData;
 	let abiEncodedOngoingCloserData;
 	let abiEncodedTieredCloserData;
+	let abiEncodedTieredFixedCloserData;
 
 	let BountyV1;
 
@@ -138,9 +140,13 @@ describe.only('ClaimManager.sol', () => {
 		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[60, 30, 10], true, mockLink.address, 1000]);
 		tieredBountyInitOperation = [2, tieredAbiEncodedParams];
 
+		const tieredFixedAbiEncodedParams = abiCoder.encode(["uint256[]", "address"], [[100, 50], mockLink.address]);
+		tieredFixedBountyInitOperation = [3, tieredFixedAbiEncodedParams];
+
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
+		abiEncodedTieredFixedCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 	});
 
 	describe('initialization', () => {
@@ -219,6 +225,25 @@ describe.only('ClaimManager.sol', () => {
 			it('should return TRUE if competition bounty is closed, FALSE if competition bounty is open', async () => {
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				// ASSUME
+				let bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
+				expect(bountyIsClaimable).to.equal(false);
+
+				// ACT
+				await openQProxy.closeCompetition(bountyId);
+
+				// ASSERT
+				bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
+				expect(bountyIsClaimable).to.equal(true);
+			});
+		});
+
+		describe('TIERED FIXED', () => {
+			it('should return TRUE if competition bounty is closed, FALSE if competition bounty is open', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(bountyId, mockOrg, tieredFixedBountyInitOperation);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 				// ASSUME

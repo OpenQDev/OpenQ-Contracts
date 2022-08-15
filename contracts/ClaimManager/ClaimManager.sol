@@ -262,7 +262,10 @@ contract ClaimManager is ClaimManagerStorageV1 {
             _bountyType == OpenQDefinitions.ONGOING
         ) {
             return status == 0;
-        } else if (_bountyType == OpenQDefinitions.TIERED) {
+        } else if (
+            _bountyType == OpenQDefinitions.TIERED ||
+            _bountyType == OpenQDefinitions.TIERED_FIXED
+        ) {
             return status == 1;
         } else {
             revert('UNKNOWN_BOUNTY_STATUS');
