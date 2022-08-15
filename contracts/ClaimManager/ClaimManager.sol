@@ -1,25 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.16;
 
-/**
- * @dev Custom imports
- */
-import '../OpenQ/IOpenQ.sol';
-import '../Storage/OpenQStorage.sol';
-import 'hardhat/console.sol';
-import '../Library/OpenQDefinitions.sol';
-import '../Oracle/Oraclize.sol';
-
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+import './ClaimManagerStorage.sol';
 
 /**
  * @title OpenQV1
  * @dev Main administrative contract for all bounty operations
  */
-contract ClaimManager is IOpenQ, Oraclize, OwnableUpgradeable, UUPSUpgradeable {
-    uint256 public constant VERSION_1 = 1;
-
+contract ClaimManager is ClaimManagerStorageV1 {
     /**
      * INITIALIZATION
      */
