@@ -41,7 +41,7 @@ describe('OpenQProxy', () => {
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
-		await openQProxy.initialize(oracle.address);
+		await openQProxy.initialize();
 	});
 
 	describe('constructor', () => {
@@ -96,33 +96,6 @@ describe('OpenQProxy', () => {
 		});
 	});
 
-	describe('transferOracle', () => {
-		it('should revert if not called by owner', async () => {
-			// ARRANGE
-			[, notOwner] = await ethers.getSigners();
-			let notOwnerContract = openQProxy.connect(notOwner);
-
-			// ACT / ASSERT
-			await expect(notOwnerContract.transferOracle(randomContractUpgradeAddress.address)).to.be.revertedWith('Ownable: caller is not the owner');
-		});
-
-		it('should revert if not called via delegatecall', async () => {
-			// ACT / ASSERT
-			await expect(openQImplementation.transferOracle(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
-		});
-
-		it('should transfer oracle address', async () => {
-			// ASSUME
-			expect(await openQProxy.oracle()).equals(oracle.address);
-
-			// ACT
-			await openQProxy.transferOracle(notOwner.address);
-
-			// ASSERT
-			expect(await openQProxy.oracle()).equals(notOwner.address);
-		});
-	});
-
 	describe('setBountyFactory', () => {
 		it('should revert if not called by owner', async () => {
 			// ARRANGE
@@ -147,37 +120,6 @@ describe('OpenQProxy', () => {
 
 			// ASSERT
 			expect(await openQProxy.bountyFactory()).equals(notOwner.address);
-		});
-	});
-
-	describe('setOpenQTokenWhitelist', () => {
-		it('should revert if not called by owner', async () => {
-			// ARRANGE
-			[, notOwner] = await ethers.getSigners();
-			let notOwnerContract = openQProxy.connect(notOwner);
-
-			// ACT / ASSERT
-			await expect(notOwnerContract.setTokenWhitelist(randomContractUpgradeAddress.address)).to.be.revertedWith('Ownable: caller is not the owner');
-		});
-
-		it('should revert if not called via delegatecall', async () => {
-			// ACT / ASSERT
-			await expect(openQImplementation.setTokenWhitelist(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
-		});
-
-		it('should set OpenQTokenWhitelist', async () => {
-			// ASSUME
-			expect(await openQProxy.openQTokenWhitelist()).equals(ethers.constants.AddressZero);
-
-			// ARRANGE
-			const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);
-			await openQTokenWhitelist.deployed();
-
-			// ACT
-			await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
-
-			// ASSERT
-			expect(await openQProxy.openQTokenWhitelist()).equals(openQTokenWhitelist.address);
 		});
 	});
 });

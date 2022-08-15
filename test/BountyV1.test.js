@@ -305,7 +305,7 @@ describe('BountyV1.sol', () => {
 				// ARRANGE
 				const volume = 1000;
 
-				await atomicContract.close(owner.address, []);
+				await atomicContract.connect(claimManager).close(owner.address, []);
 				await tieredContract.closeCompetition(owner.address);
 				await ongoingContract.closeOngoing(owner.address);
 
@@ -856,7 +856,7 @@ describe('BountyV1.sol', () => {
 	});
 
 	describe('closeBounty', () => {
-		describe.only('SINGLE', () => {
+		describe('SINGLE', () => {
 			it('should revert if not called by ClaimManager contract', async () => {
 				// ARRANGE
 				const [, , , , , notClaimManager] = await ethers.getSigners();

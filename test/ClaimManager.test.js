@@ -142,6 +142,33 @@ describe('ClaimManager.sol', () => {
 		});
 	});
 
+	describe('transferOracle', () => {
+		it('should revert if not called by owner', async () => {
+			// ARRANGE
+			[, notOwner] = await ethers.getSigners();
+			let notOwnerContract = claimManager.connect(notOwner);
+
+			// ACT / ASSERT
+			await expect(notOwnerContract.transferOracle(owner.address)).to.be.revertedWith('Ownable: caller is not the owner');
+		});
+
+		it('should revert if not called via delegatecall', async () => {
+			// ACT / ASSERT
+			await expect(openQImplementation.transferOracle(owner.address)).to.be.revertedWith('Function must be called through delegatecall');
+		});
+
+		it('should transfer oracle address', async () => {
+			// ASSUME
+			expect(await claimManager.oracle()).equals(oracle.address);
+
+			// ACT
+			await claimManager.transferOracle(notOwner.address);
+
+			// ASSERT
+			expect(await claimManager.oracle()).equals(notOwner.address);
+		});
+	});
+
 	describe('bountyIsClaimable', () => {
 		describe('ATOMIC', () => {
 			it('should return TRUE if atomic bounty is open, FALSE if atomic bounty is closed', async () => {

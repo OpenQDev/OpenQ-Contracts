@@ -43,6 +43,7 @@ contract DepositManager is OwnableUpgradeable, UUPSUpgradeable, IOpenQ {
     function setTokenWhitelist(address _openQTokenWhitelist)
         external
         onlyOwner
+        onlyProxy
     {
         openQTokenWhitelist = OpenQTokenWhitelist(_openQTokenWhitelist);
     }

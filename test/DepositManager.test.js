@@ -20,6 +20,8 @@ describe('DepositManager.sol', () => {
 	let depositManager;
 	let claimManager;
 
+	let depositManagerImplementation;
+
 	// ACCOUNTS
 	let owner;
 	let oracle;
@@ -104,8 +106,17 @@ describe('DepositManager.sol', () => {
 		bountyFactory = await BountyFactory.deploy(openQProxy.address, beacon.address);
 		await bountyFactory.deployed();
 
-		depositManager = await DepositManager.deploy();
-		await depositManager.deployed();
+		// DEPOSIT MANAGER //
+
+		depositManagerImplementation = await DepositManager.deploy();
+		await depositManagerImplementation.deployed();
+
+		const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
+		let depositManagerProxy = await DepositManagerProxy.deploy(depositManagerImplementation.address, []);
+		await depositManagerProxy.deployed();
+
+		depositManager = await DepositManager.attach(depositManagerProxy.address);
+
 		await depositManager.initialize();
 
 		claimManager = await ClaimManager.deploy();
@@ -136,6 +147,43 @@ describe('DepositManager.sol', () => {
 	describe('initialization', () => {
 		it('should initialize with correct fields', async () => {
 			expect(await depositManager.owner()).equals(owner.address);
+		});
+	});
+
+	describe.only('setOpenQTokenWhitelist', () => {
+		it('should revert if not called by owner', async () => {
+			// ARRANGE
+			[, notOwner] = await ethers.getSigners();
+
+			// ACT / ASSERT
+			await expect(depositManager.connect(notOwner).setTokenWhitelist(owner.address)).to.be.revertedWith('Ownable: caller is not the owner');
+		});
+
+		it('should revert if not called via delegatecall', async () => {
+			// ACT / ASSERT
+			await depositManagerImplementation.initialize();
+			await expect(depositManagerImplementation.setTokenWhitelist(owner.address)).to.be.revertedWith('Function must be called through delegatecall');
+		});
+
+		it('should set OpenQTokenWhitelist', async () => {
+			// ASSUME
+			const DepositManager = await ethers.getContractFactory('DepositManager');
+			let freshDepositManager = await DepositManager.deploy();
+			await freshDepositManager.deployed();
+			await freshDepositManager.initialize();
+
+			expect(await freshDepositManager.openQTokenWhitelist()).equals(ethers.constants.AddressZero);
+
+			// ARRANGE
+			const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
+			const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);
+			await openQTokenWhitelist.deployed();
+
+			// ACT
+			await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
+
+			// ASSERT
+			expect(await depositManager.openQTokenWhitelist()).equals(openQTokenWhitelist.address);
 		});
 	});
 
