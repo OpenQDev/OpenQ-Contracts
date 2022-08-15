@@ -110,17 +110,18 @@ describe('DepositManager.sol', () => {
 
 		depositManagerImplementation = await DepositManager.deploy();
 		await depositManagerImplementation.deployed();
-
 		const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
 		let depositManagerProxy = await DepositManagerProxy.deploy(depositManagerImplementation.address, []);
 		await depositManagerProxy.deployed();
-
 		depositManager = await DepositManager.attach(depositManagerProxy.address);
-
 		await depositManager.initialize();
 
-		claimManager = await ClaimManager.deploy();
-		await claimManager.deployed();
+		claimManagerImplementation = await ClaimManager.deploy();
+		await claimManagerImplementation.deployed();
+		const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
+		let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerImplementation.address, []);
+		await claimManagerProxy.deployed();
+		claimManager = await ClaimManager.attach(claimManagerProxy.address);
 		await claimManager.initialize(oracle.address);
 
 		await openQProxy.setBountyFactory(bountyFactory.address);
@@ -150,7 +151,7 @@ describe('DepositManager.sol', () => {
 		});
 	});
 
-	describe.only('setOpenQTokenWhitelist', () => {
+	describe('setOpenQTokenWhitelist', () => {
 		it('should revert if not called by owner', async () => {
 			// ARRANGE
 			[, notOwner] = await ethers.getSigners();

@@ -70,12 +70,20 @@ describe('OpenQV1.sol', () => {
 
 		await openQProxy.initialize();
 
-		depositManager = await DepositManager.deploy();
-		await depositManager.deployed();
+		let depositManagerImplementation = await DepositManager.deploy();
+		await depositManagerImplementation.deployed();
+		const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
+		let depositManagerProxy = await DepositManagerProxy.deploy(depositManagerImplementation.address, []);
+		await depositManagerProxy.deployed();
+		depositManager = await DepositManager.attach(depositManagerProxy.address);
 		await depositManager.initialize();
 
-		claimManager = await ClaimManager.deploy();
-		await claimManager.deployed();
+		claimManagerImplementation = await ClaimManager.deploy();
+		await claimManagerImplementation.deployed();
+		const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
+		let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerImplementation.address, []);
+		await claimManagerProxy.deployed();
+		claimManager = await ClaimManager.attach(claimManagerProxy.address);
 		await claimManager.initialize(oracle.address);
 
 		mockLink = await MockLink.deploy();

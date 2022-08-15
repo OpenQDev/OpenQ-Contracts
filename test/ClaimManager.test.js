@@ -20,6 +20,8 @@ describe('ClaimManager.sol', () => {
 	let mockNft;
 	let openQTokenWhitelist;
 
+	let claimManagerImplementation;
+
 	// ACCOUNTS
 	let owner;
 	let oracle;
@@ -82,9 +84,6 @@ describe('ClaimManager.sol', () => {
 		mockNft = await MockNft.deploy();
 		await mockNft.deployed();
 
-		claimManager = await ClaimManager.deploy();
-		await claimManager.deployed();
-
 		openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5);
 		await openQTokenWhitelist.deployed();
 
@@ -107,12 +106,20 @@ describe('ClaimManager.sol', () => {
 		bountyFactory = await BountyFactory.deploy(openQProxy.address, beacon.address);
 		await bountyFactory.deployed();
 
-		depositManager = await DepositManager.deploy();
-		await depositManager.deployed();
+		let depositManagerImplementation = await DepositManager.deploy();
+		await depositManagerImplementation.deployed();
+		const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
+		let depositManagerProxy = await DepositManagerProxy.deploy(depositManagerImplementation.address, []);
+		await depositManagerProxy.deployed();
+		depositManager = await DepositManager.attach(depositManagerProxy.address);
 		await depositManager.initialize();
 
-		claimManager = await ClaimManager.deploy();
-		await claimManager.deployed();
+		claimManagerImplementation = await ClaimManager.deploy();
+		await claimManagerImplementation.deployed();
+		const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
+		let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerImplementation.address, []);
+		await claimManagerProxy.deployed();
+		claimManager = await ClaimManager.attach(claimManagerProxy.address);
 		await claimManager.initialize(oracle.address);
 
 		await openQProxy.setBountyFactory(bountyFactory.address);
@@ -154,7 +161,7 @@ describe('ClaimManager.sol', () => {
 
 		it('should revert if not called via delegatecall', async () => {
 			// ACT / ASSERT
-			await expect(openQImplementation.transferOracle(owner.address)).to.be.revertedWith('Function must be called through delegatecall');
+			await expect(claimManagerImplementation.transferOracle(owner.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
 		it('should transfer oracle address', async () => {
