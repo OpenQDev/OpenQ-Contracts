@@ -265,6 +265,29 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         return bounty.bountyId();
     }
 
+    function tierClaimed(string calldata _bountyId, uint256 _tier)
+        external
+        view
+        returns (bool)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        bool _tierClaimed = bounty.tierClaimed(_tier);
+        return _tierClaimed;
+    }
+
+    function ongoingClaimed(
+        string calldata _bountyId,
+        string calldata claimant,
+        string calldata claimantAsset
+    ) external view returns (bool) {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        bytes32 claimantId = keccak256(abi.encode(claimant, claimantAsset));
+        bool _ongoingClaimed = bounty.claimantId(claimantId);
+        return _ongoingClaimed;
+    }
+
     /**
      * UPGRADES
      */

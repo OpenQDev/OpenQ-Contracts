@@ -64,10 +64,10 @@ contract ClaimManager is IOpenQ, Oraclize, OwnableUpgradeable, UUPSUpgradeable {
                 bounty.bountyId(),
                 _bountyAddress,
                 bounty.organization(),
-                address(0),
+                _closer,
                 block.timestamp,
                 bounty.bountyType(),
-                new bytes(0),
+                _closerData,
                 VERSION_1
             );
         }

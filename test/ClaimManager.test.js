@@ -196,7 +196,7 @@ describe.only('ClaimManager.sol', () => {
 	});
 
 	describe('claimBounty', () => {
-		describe.only('require and revert', () => {
+		describe('require and revert', () => {
 			it('should revert if not called by OpenQ Oracle', async () => {
 				// ASSERT
 				await expect(claimManager.claimBounty(ethers.constants.AddressZero, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('Oraclize: caller is not the current OpenQ Oracle');
@@ -225,8 +225,7 @@ describe.only('ClaimManager.sol', () => {
 				expect(openBounty).to.equal(true);
 
 				// ACT
-				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData);
+				await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 				// ASSERT
 				const closedBounty = await openQProxy.bountyIsOpen(bountyId);
@@ -250,8 +249,7 @@ describe.only('ClaimManager.sol', () => {
 				expect(closer).to.equal(ethers.constants.AddressZero);
 
 				// ACT
-				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData);
+				await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 				// ASSERT
 				const newCloser = await newBounty.closer();
@@ -281,8 +279,7 @@ describe.only('ClaimManager.sol', () => {
 				expect(closer).to.equal(ethers.constants.AddressZero);
 
 				// ACT
-				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData);
+				await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 				// ASSERT
 				const newCloser = await newBounty.closer();
@@ -302,9 +299,9 @@ describe.only('ClaimManager.sol', () => {
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
 
-					await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
-					await openQProxy.fundBountyToken(bountyId, mockDai.address, volume, 1);
-					await openQProxy.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 					const [, claimer] = await ethers.getSigners();
 
@@ -322,8 +319,8 @@ describe.only('ClaimManager.sol', () => {
 					expect(claimerFakeTokenBalance).to.equal('0');
 
 					// // // ACT
-					const oracleContract = openQProxy.connect(oracle);
-					await oracleContract.claimBounty(bountyId, claimer.address, abiEncodedSingleCloserData);
+
+					await claimManager.connect(oracle).claimBounty(bountyAddress, claimer.address, abiEncodedSingleCloserData);
 
 					// // ASSERT
 					const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -348,8 +345,8 @@ describe.only('ClaimManager.sol', () => {
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 					// ACT
-					const oracleContract = openQProxy.connect(oracle);
-					await oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData);
+
+					await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 					// ASSERT
 					expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -376,11 +373,11 @@ describe.only('ClaimManager.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 
-					await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
 
 					// ACT
-					const oracleContract = openQProxy.connect(oracle);
-					await oracleContract.claimBounty(bountyId, claimer.address, abiEncodedOngoingCloserData);
+
+					await claimManager.connect(oracle).claimBounty(bountyAddress, claimer.address, abiEncodedOngoingCloserData);
 
 					// ASSERT
 					const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -403,15 +400,15 @@ describe.only('ClaimManager.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
-					await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
-					await openQProxy.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
 					// ASSERT
-					const oracleContract = openQProxy.connect(oracle);
-					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
-						.to.emit(openQProxy, 'TokenBalanceClaimed')
+
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
+						.to.emit(claimManager, 'TokenBalanceClaimed')
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData, 1)
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, 1)
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 1);
@@ -423,7 +420,7 @@ describe.only('ClaimManager.sol', () => {
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 					await mockNft.approve(bountyAddress, 1);
-					await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
+					await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0);
 
 					// Closer data for 2nd and 3rd place
 					let abiEncodedTieredCloserDataFirstPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
@@ -431,9 +428,9 @@ describe.only('ClaimManager.sol', () => {
 					const expectedTimestamp = await setNextBlockTimestamp();
 
 					// ACT/ASSERT
-					const oracleContract = openQProxy.connect(oracle);
-					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
-						.to.emit(openQProxy, 'NFTClaimed')
+
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
+						.to.emit(claimManager, 'NFTClaimed')
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 0, abiEncodedSingleCloserData, 1);
 				});
 			});
@@ -449,14 +446,14 @@ describe.only('ClaimManager.sol', () => {
 					const payoutVolume = await bounty.payoutVolume();
 
 					await mockLink.approve(bountyAddress, 10000000);
-					await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
 					// ASSERT
-					const oracleContract = openQProxy.connect(oracle);
-					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedOngoingCloserData))
-						.to.emit(openQProxy, 'TokenBalanceClaimed')
+
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedOngoingCloserData))
+						.to.emit(claimManager, 'TokenBalanceClaimed')
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData, 1);
 				});
 			});
@@ -475,17 +472,17 @@ describe.only('ClaimManager.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
-					await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
-					await openQProxy.fundBountyToken(bountyId, mockDai.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
 
 					await openQProxy.closeCompetition(bountyId);
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
 					// ASSERT
-					const oracleContract = openQProxy.connect(oracle);
-					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData))
-						.to.emit(openQProxy, 'TokenBalanceClaimed')
+
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData))
+						.to.emit(claimManager, 'TokenBalanceClaimed')
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData, 1)
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 1);
 				});
@@ -496,7 +493,7 @@ describe.only('ClaimManager.sol', () => {
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 					await mockNft.approve(bountyAddress, 1);
-					await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
+					await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0);
 
 					// Closer data for 2nd and 3rd place
 					let abiEncodedTieredCloserDataFirstPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
@@ -506,9 +503,9 @@ describe.only('ClaimManager.sol', () => {
 					const expectedTimestamp = await setNextBlockTimestamp();
 
 					// ACT/ASSERT
-					const oracleContract = openQProxy.connect(oracle);
-					await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserDataFirstPlace))
-						.to.emit(openQProxy, 'NFTClaimed')
+
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserDataFirstPlace))
+						.to.emit(claimManager, 'NFTClaimed')
 						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 1);
 				});
 			});
@@ -521,9 +518,9 @@ describe.only('ClaimManager.sol', () => {
 
 				// ACT
 				// ASSERT
-				const oracleContract = openQProxy.connect(oracle);
-				await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
-					.to.emit(openQProxy, 'ClaimSuccess')
+
+				await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
+					.to.emit(claimManager, 'ClaimSuccess')
 					.withArgs(expectedTimestamp, 0, abiEncodedSingleCloserData, 1);
 			});
 
@@ -535,9 +532,9 @@ describe.only('ClaimManager.sol', () => {
 
 				// ACT
 				// ASSERT
-				const oracleContract = openQProxy.connect(oracle);
-				await expect(oracleContract.claimBounty(bountyId, owner.address, abiEncodedSingleCloserData))
-					.to.emit(openQProxy, 'BountyClosed')
+
+				await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
+					.to.emit(claimManager, 'BountyClosed')
 					.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, 0, abiEncodedSingleCloserData, 1);
 			});
 		});
@@ -552,7 +549,7 @@ describe.only('ClaimManager.sol', () => {
 
 				await mockLink.approve(bountyAddress, 10000000);
 
-				await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
 
 				const [, claimer] = await ethers.getSigners();
 
@@ -564,8 +561,8 @@ describe.only('ClaimManager.sol', () => {
 				expect(claimerMockTokenBalance).to.equal('0');
 
 				// // // ACT
-				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, claimer.address, abiEncodedSingleCloserData);
+
+				await claimManager.connect(oracle).claimBounty(bountyAddress, claimer.address, abiEncodedSingleCloserData);
 
 				// // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -592,8 +589,8 @@ describe.only('ClaimManager.sol', () => {
 				// Fund with NFTs for 2nd and 3rd place
 				await mockNft.approve(bountyAddress, FIRST_PLACE_NFT);
 				await mockNft.approve(bountyAddress, SECOND_PLACE_NFT);
-				await openQProxy.fundBountyNFT(bountyId, mockNft.address, FIRST_PLACE_NFT, 1, 0);
-				await openQProxy.fundBountyNFT(bountyId, mockNft.address, SECOND_PLACE_NFT, 1, 1);
+				await depositManager.fundBountyNFT(bountyAddress, mockNft.address, FIRST_PLACE_NFT, 1, 0);
+				await depositManager.fundBountyNFT(bountyAddress, mockNft.address, SECOND_PLACE_NFT, 1, 1);
 
 				// Close competition to allow for claiming
 				await openQProxy.closeCompetition(bountyId);
@@ -603,9 +600,9 @@ describe.only('ClaimManager.sol', () => {
 				let abiEncodedTieredCloserDataSecondPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 
 				// ACT
-				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, claimant.address, abiEncodedTieredCloserDataFirstPlace);
-				await oracleContract.claimBounty(bountyId, claimantSecondPlace.address, abiEncodedTieredCloserDataSecondPlace);
+
+				await claimManager.connect(oracle).claimBounty(bountyAddress, claimant.address, abiEncodedTieredCloserDataFirstPlace);
+				await claimManager.connect(oracle).claimBounty(bountyAddress, claimantSecondPlace.address, abiEncodedTieredCloserDataSecondPlace);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(FIRST_PLACE_NFT)).to.equal(claimant.address);
@@ -623,7 +620,7 @@ describe.only('ClaimManager.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
 
 			await openQProxy.closeCompetition(bountyId);
 
@@ -632,8 +629,8 @@ describe.only('ClaimManager.sol', () => {
 			expect(tierClaimed).to.equal(false);
 
 			// ACT
-			const oracleContract = openQProxy.connect(oracle);
-			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData);
+
+			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData);
 
 			// ASSERT
 			tierClaimed = await openQProxy.tierClaimed(bountyId, 1);
@@ -650,7 +647,7 @@ describe.only('ClaimManager.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
 
 			let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
 
@@ -659,8 +656,8 @@ describe.only('ClaimManager.sol', () => {
 			expect(ongoingClaimed).to.equal(false);
 
 			// ACT
-			const oracleContract = openQProxy.connect(oracle);
-			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedOngoingCloserData);
+
+			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedOngoingCloserData);
 
 			// // ASSERT
 			ongoingClaimed = await bounty.claimantId(claimantId);

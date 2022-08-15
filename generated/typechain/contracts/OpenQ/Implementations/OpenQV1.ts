@@ -55,6 +55,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "getImplementation()": FunctionFragment;
     "initialize()": FunctionFragment;
     "mintBounty(string,string,(uint32,bytes))": FunctionFragment;
+    "ongoingClaimed(string,string,string)": FunctionFragment;
     "owner()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -63,6 +64,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "setDepositManager(address)": FunctionFragment;
     "setFundingGoal(string,address,uint256)": FunctionFragment;
     "setPayout(string,address,uint256)": FunctionFragment;
+    "tierClaimed(string,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
@@ -83,6 +85,7 @@ export interface OpenQV1Interface extends utils.Interface {
       | "getImplementation"
       | "initialize"
       | "mintBounty"
+      | "ongoingClaimed"
       | "owner"
       | "proxiableUUID"
       | "renounceOwnership"
@@ -91,6 +94,7 @@ export interface OpenQV1Interface extends utils.Interface {
       | "setDepositManager"
       | "setFundingGoal"
       | "setPayout"
+      | "tierClaimed"
       | "transferOwnership"
       | "upgradeTo"
       | "upgradeToAndCall"
@@ -149,6 +153,14 @@ export interface OpenQV1Interface extends utils.Interface {
       OpenQDefinitions.InitOperationStruct
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "ongoingClaimed",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proxiableUUID",
@@ -185,6 +197,10 @@ export interface OpenQV1Interface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tierClaimed",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -239,6 +255,10 @@ export interface OpenQV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mintBounty", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ongoingClaimed",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
@@ -265,6 +285,10 @@ export interface OpenQV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setPayout", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tierClaimed",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -689,6 +713,13 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
@@ -725,6 +756,12 @@ export interface OpenQV1 extends BaseContract {
       _payoutVolume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    tierClaimed(
+      _bountyId: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -794,6 +831,13 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  ongoingClaimed(
+    _bountyId: PromiseOrValue<string>,
+    claimant: PromiseOrValue<string>,
+    claimantAsset: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
@@ -830,6 +874,12 @@ export interface OpenQV1 extends BaseContract {
     _payoutVolume: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  tierClaimed(
+    _bountyId: PromiseOrValue<string>,
+    _tier: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
@@ -897,6 +947,13 @@ export interface OpenQV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
@@ -931,6 +988,12 @@ export interface OpenQV1 extends BaseContract {
       _payoutVolume: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    tierClaimed(
+      _bountyId: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -1275,6 +1338,13 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1310,6 +1380,12 @@ export interface OpenQV1 extends BaseContract {
       _payoutToken: PromiseOrValue<string>,
       _payoutVolume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    tierClaimed(
+      _bountyId: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     transferOwnership(
@@ -1381,6 +1457,13 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    ongoingClaimed(
+      _bountyId: PromiseOrValue<string>,
+      claimant: PromiseOrValue<string>,
+      claimantAsset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1416,6 +1499,12 @@ export interface OpenQV1 extends BaseContract {
       _payoutToken: PromiseOrValue<string>,
       _payoutVolume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    tierClaimed(
+      _bountyId: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
