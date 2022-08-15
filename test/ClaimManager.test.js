@@ -136,6 +136,12 @@ describe('ClaimManager.sol', () => {
 		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 	});
 
+	describe('initialization', () => {
+		it('should initialize with correct fields', async () => {
+			expect(await claimManager.oracle()).equals('0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC');
+		});
+	});
+
 	describe('bountyIsClaimable', () => {
 		describe('ATOMIC', () => {
 			it('should return TRUE if atomic bounty is open, FALSE if atomic bounty is closed', async () => {
