@@ -78,7 +78,7 @@ contract DepositManager is OwnableUpgradeable, UUPSUpgradeable, IOpenQ {
         emit TokenDepositReceived(
             depositId,
             _bountyAddress,
-            'TokenDepositReceived_MockissueId',
+            bounty.bountyId(),
             bounty.organization(),
             _tokenAddress,
             block.timestamp,
@@ -191,7 +191,7 @@ contract DepositManager is OwnableUpgradeable, UUPSUpgradeable, IOpenQ {
 
         emit DepositRefunded(
             _depositId,
-            'DepositRefunded_mockBountyId',
+            bounty.bountyId(),
             _bountyAddress,
             bounty.organization(),
             block.timestamp,

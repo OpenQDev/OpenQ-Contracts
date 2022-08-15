@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -292,7 +292,7 @@ describe('DepositManager.sol', () => {
 			// ASSERT
 			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1))
 				.to.emit(depositManager, 'TokenDepositReceived')
-				.withArgs(depositId, bountyAddress, 'TokenDepositReceived_MockissueId', mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, [], 1);
+				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, [], 1);
 		});
 	});
 
@@ -322,13 +322,13 @@ describe('DepositManager.sol', () => {
 				// ASSERT
 				await expect(depositManager.refundDeposit(bountyAddress, protocolDepositId))
 					.to.emit(depositManager, 'DepositRefunded')
-					.withArgs(protocolDepositId, 'DepositRefunded_mockBountyId', bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], 1);
+					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], 1);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
 				await expect(depositManager.refundDeposit(bountyAddress, tokenDepositId))
 					.to.emit(depositManager, 'DepositRefunded')
-					.withArgs(tokenDepositId, 'DepositRefunded_mockBountyId', bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, [], 1);
+					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, [], 1);
 			});
 		});
 
