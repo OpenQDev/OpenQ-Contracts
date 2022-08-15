@@ -614,7 +614,7 @@ contract BountyV1 is BountyStorageV1 {
      * SETTERS
      */
 
-    function setTierClaimed(uint256 _tier) external onlyOpenQ {
+    function setTierClaimed(uint256 _tier) external onlyClaimManager {
         tierClaimed[_tier] = true;
     }
 

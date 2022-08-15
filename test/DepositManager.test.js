@@ -134,7 +134,7 @@ describe.only('DepositManager.sol', () => {
 	});
 
 	describe('fundBounty', () => {
-		it.only('should revert if bounty is already closed', async () => {
+		it('should revert if bounty is already closed', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -150,18 +150,17 @@ describe.only('DepositManager.sol', () => {
 		it('should revert if tiered bounty is already closed', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
 			await openQProxy.closeCompetition(bountyId);
 
-			const oracleContract = openQProxy.connect(oracle);
-			await oracleContract.claimBounty(bountyId, owner.address, abiEncodedTieredCloserData);
-
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData);
 
 			await mockLink.approve(bountyAddress, 10000000);
 			await mockDai.approve(bountyAddress, 10000000);
 
 			// ACT + ASSERT
-			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
+			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
 		});
 
 		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
@@ -176,10 +175,10 @@ describe.only('DepositManager.sol', () => {
 			// set lower capacity for token
 			await openQTokenWhitelist.setTokenAddressLimit(1);
 
-			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
 
 			// ACT + ASSERT
-			await expect(openQProxy.fundBountyToken(bountyId, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
+			await expect(depositManager.fundBountyToken(bountyAddress, blacklistedMockDai.address, 10000000, 1)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
 		});
 
 		it('should ALLOW funding with whitelisted token EVEN IF bounty is at funded token address capacity', async () => {
@@ -194,10 +193,10 @@ describe.only('DepositManager.sol', () => {
 			// set lower capacity for token
 			await openQTokenWhitelist.setTokenAddressLimit(1);
 
-			await openQProxy.fundBountyToken(bountyId, mockLink.address, 10000000, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
 
 			// ACT + ASSERT
-			await expect(openQProxy.fundBountyToken(bountyId, mockDai.address, 10000000, 1)).to.not.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
+			await expect(depositManager.fundBountyToken(bountyAddress, mockDai.address, 10000000, 1)).to.not.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
 		});
 
 		it('should set funder to msg.sender', async () => {
@@ -209,7 +208,7 @@ describe.only('DepositManager.sol', () => {
 
 			// ACT
 			await mockLink.approve(bountyAddress, 10000000);
-			openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1);
+			depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1);
 
 			const depositId = generateDepositId(bountyId, 0);
 
@@ -241,8 +240,8 @@ describe.only('DepositManager.sol', () => {
 
 			// ACT
 			const value = 100;
-			await openQProxy.fundBountyToken(bountyId, mockLink.address, value, 1);
-			await openQProxy.fundBountyToken(bountyId, mockDai.address, value, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, value, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockDai.address, value, 1);
 
 			// // ASSERT
 			const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -266,7 +265,7 @@ describe.only('DepositManager.sol', () => {
 			expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 			// ACT
-			await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
+			await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0);
 
 			// ASSERT
 			expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
@@ -291,9 +290,9 @@ describe.only('DepositManager.sol', () => {
 
 			// ACT
 			// ASSERT
-			await expect(openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1))
-				.to.emit(openQProxy, 'TokenDepositReceived')
-				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, [], 1);
+			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1))
+				.to.emit(depositManager, 'TokenDepositReceived')
+				.withArgs(depositId, bountyAddress, 'TokenDepositReceived_MockissueId', mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, [], 1);
 		});
 	});
 
@@ -312,24 +311,24 @@ describe.only('DepositManager.sol', () => {
 				const volume = 100;
 				const depositedTimestamp = await setNextBlockTimestamp();
 				const tokenDepositId = generateDepositId(bountyId, 0);
-				await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
 
 				const protocolDepositId = generateDepositId(bountyId, 1);
-				await openQProxy.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				const expectedTimestamp = await setNextBlockTimestamp(2764800);
 
 				// ACT
 				// ASSERT
-				await expect(openQProxy.refundDeposit(bountyId, protocolDepositId))
-					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], 1);
+				await expect(depositManager.refundDeposit(bountyAddress, protocolDepositId))
+					.to.emit(depositManager, 'DepositRefunded')
+					.withArgs(protocolDepositId, 'DepositRefunded_mockBountyId', bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], 1);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
-				await expect(openQProxy.refundDeposit(bountyId, tokenDepositId))
-					.to.emit(openQProxy, 'DepositRefunded')
-					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, [], 1);
+				await expect(depositManager.refundDeposit(bountyAddress, tokenDepositId))
+					.to.emit(depositManager, 'DepositRefunded')
+					.withArgs(tokenDepositId, 'DepositRefunded_mockBountyId', bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, [], 1);
 			});
 		});
 
@@ -346,10 +345,10 @@ describe.only('DepositManager.sol', () => {
 				await mockDai.approve(bountyAddress, 100000);
 
 				const depositId = generateDepositId(bountyId, 0);
-				await openQProxy.fundBountyToken(bountyId, mockDai.address, 100000, 276000);
+				await depositManager.fundBountyToken(bountyAddress, mockDai.address, 100000, 276000);
 
 				// ACT / ASSERT
-				await expect(openQProxy.refundDeposit(bountyId, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+				await expect(depositManager.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 			});
 
 			it('should revert if not funder', async () => {
@@ -371,7 +370,7 @@ describe.only('DepositManager.sol', () => {
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
 
 				// ACT / ASSERT
-				await expect(openQProxy.refundDeposit(bountyId, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
+				await expect(depositManager.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
 			});
 		});
 
@@ -389,13 +388,13 @@ describe.only('DepositManager.sol', () => {
 				const volume = 100;
 
 				const linkDepositId = generateDepositId(bountyId, 0);
-				await openQProxy.fundBountyToken(bountyId, mockLink.address, volume, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
 
 				const daiDepositId = generateDepositId(bountyId, 1);
-				await openQProxy.fundBountyToken(bountyId, mockDai.address, volume, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
 
 				const protocolDepositId = generateDepositId(bountyId, 2);
-				await openQProxy.fundBountyToken(bountyId, ethers.constants.AddressZero, volume, 1, { value: volume });
+				await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				const thirtyTwoDays = 2765000;
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
@@ -418,9 +417,9 @@ describe.only('DepositManager.sol', () => {
 				);
 
 				// ACT
-				await openQProxy.refundDeposit(bountyId, linkDepositId);
-				await openQProxy.refundDeposit(bountyId, daiDepositId);
-				await openQProxy.refundDeposit(bountyId, protocolDepositId);
+				await depositManager.refundDeposit(bountyAddress, linkDepositId);
+				await depositManager.refundDeposit(bountyAddress, daiDepositId);
+				await depositManager.refundDeposit(bountyAddress, protocolDepositId);
 
 				// // ASSERT
 				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -449,13 +448,13 @@ describe.only('DepositManager.sol', () => {
 				await mockNft.approve(bountyAddress, 1);
 
 				const depositId = generateDepositId(bountyId, 0);
-				await openQProxy.fundBountyNFT(bountyId, mockNft.address, 1, 1, 0);
+				await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
 
 				// ACT
-				await openQProxy.refundDeposit(bountyId, depositId);
+				await depositManager.refundDeposit(bountyAddress, depositId);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -472,16 +471,16 @@ describe.only('DepositManager.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1);
 
 			const depositId = generateDepositId(bountyId, 0);
 
 			// ACT
-			await openQProxy.extendDeposit(bountyId, depositId, 1000);
+			await depositManager.extendDeposit(bountyAddress, depositId, 1000);
 
 			// ASSERT
 			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
-			await expect(openQProxy.refundDeposit(bountyId, depositId)).to.be.revertedWith("PREMATURE_REFUND_REQUEST");
+			await expect(depositManager.refundDeposit(bountyAddress, depositId)).to.be.revertedWith("PREMATURE_REFUND_REQUEST");
 		});
 
 		it('should emit DepositExtended event', async () => {
@@ -492,13 +491,13 @@ describe.only('DepositManager.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await openQProxy.fundBountyToken(bountyId, mockLink.address, 100, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1);
 
 			const depositId = generateDepositId(bountyId, 0);
 
 			// ACT
-			await expect(openQProxy.extendDeposit(bountyId, depositId, 1000))
-				.to.emit(openQProxy, 'DepositExtended')
+			await expect(depositManager.extendDeposit(bountyAddress, depositId, 1000))
+				.to.emit(depositManager, 'DepositExtended')
 				.withArgs(depositId, 1001, 0, [], 1);
 		});
 	});
