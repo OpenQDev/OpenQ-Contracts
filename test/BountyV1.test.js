@@ -856,28 +856,27 @@ describe('BountyV1.sol', () => {
 	});
 
 	describe('closeBounty', () => {
-		describe('SINGLE', () => {
-			it('should revert if not called by OpenQ contract', async () => {
+		describe.only('SINGLE', () => {
+			it('should revert if not called by ClaimManager contract', async () => {
 				// ARRANGE
-				const [, notOwner] = await ethers.getSigners();
-				let issueWithNonOwnerAccount = atomicContract.connect(notOwner);
+				const [, , , , , notClaimManager] = await ethers.getSigners();
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.close(owner.address, closerData)).to.be.revertedWith('Method is only callable by OpenQ');
+				await expect(atomicContract.connect(notClaimManager).close(owner.address, closerData)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
 			});
 
 			it('should revert if already closed', async () => {
 				// ARRANGE
-				atomicContract.close(owner.address, closerData);
+				atomicContract.connect(claimManager).close(owner.address, closerData);
 				//ACT / ASSERT
-				await expect(atomicContract.close(owner.address, closerData)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
+				await expect(atomicContract.connect(claimManager).close(owner.address, closerData)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
 			});
 
 			it('should change status to CLOSED (1)', async () => {
 				// ASSUME
 				await expect(await atomicContract.status()).equals(0);
 				//ACT
-				await atomicContract.close(owner.address, closerData);
+				await atomicContract.connect(claimManager).close(owner.address, closerData);
 				// ASSERT
 				await expect(await atomicContract.status()).equals(1);
 			});
@@ -886,7 +885,7 @@ describe('BountyV1.sol', () => {
 				// ASSUME
 				await expect(await atomicContract.closer()).equals(ethers.constants.AddressZero);
 				//ACT
-				await atomicContract.close(owner.address, closerData);
+				await atomicContract.connect(claimManager).close(owner.address, closerData);
 				// ASSERT
 				await expect(await atomicContract.closer()).equals(owner.address);
 			});
@@ -897,7 +896,7 @@ describe('BountyV1.sol', () => {
 				// ASSUME
 				await expect(await atomicContract.bountyClosedTime()).equals(0);
 				//ACT
-				await atomicContract.close(owner.address, closerData);
+				await atomicContract.connect(claimManager).close(owner.address, closerData);
 				// ASSERT
 				await expect(await atomicContract.bountyClosedTime()).equals(expectedTimestamp);
 			});
