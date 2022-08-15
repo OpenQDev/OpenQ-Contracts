@@ -8,10 +8,12 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('ClaimManager.sol', () => {
+describe.only('ClaimManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
+	let claimManager;
+	let depositManager;
 	let mockLink;
 	let mockDai;
 	let blacklistedMockDai;
@@ -48,6 +50,8 @@ describe('ClaimManager.sol', () => {
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
+		const DepositManager = await ethers.getContractFactory('DepositManager');
+		const ClaimManager = await ethers.getContractFactory('ClaimManager');
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
@@ -103,8 +107,18 @@ describe('ClaimManager.sol', () => {
 		bountyFactory = await BountyFactory.deploy(openQProxy.address, beacon.address);
 		await bountyFactory.deployed();
 
+		depositManager = await DepositManager.deploy();
+		await depositManager.deployed();
+		await depositManager.initialize();
+
+		claimManager = await ClaimManager.deploy();
+		await claimManager.deployed();
+		await claimManager.initialize(oracle.address);
+
 		await openQProxy.setBountyFactory(bountyFactory.address);
-		await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
+		await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
+		await openQProxy.setDepositManager(depositManager.address);
+		await openQProxy.setClaimManager(claimManager.address);
 
 		abiCoder = new ethers.utils.AbiCoder;
 
@@ -122,7 +136,7 @@ describe('ClaimManager.sol', () => {
 		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 	});
 
-	describe('bountyIsClaimable', () => {
+	describe.only('bountyIsClaimable', () => {
 		describe('ATOMIC', () => {
 			it('should return TRUE if atomic bounty is open, FALSE if atomic bounty is closed', async () => {
 				// ARRANGE
@@ -130,15 +144,14 @@ describe('ClaimManager.sol', () => {
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 				// ASSUME
-				let bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				let bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
 				expect(bountyIsClaimable).to.equal(true);
 
 				// ACT
-				const oracleContract = openQProxy.connect(oracle);
-				await oracleContract.claimBounty(bountyId, owner.address, []);
+				await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, []);
 
 				// ASSERT
-				bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
 				expect(bountyIsClaimable).to.equal(false);
 			});
 		});
@@ -150,14 +163,14 @@ describe('ClaimManager.sol', () => {
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 				// ASSUME
-				let bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				let bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
 				expect(bountyIsClaimable).to.equal(true);
 
 				// ACT
 				await openQProxy.closeOngoing(bountyId);
 
 				// ASSERT
-				bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
 				expect(bountyIsClaimable).to.equal(false);
 			});
 		});
@@ -169,14 +182,14 @@ describe('ClaimManager.sol', () => {
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 				// ASSUME
-				let bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				let bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
 				expect(bountyIsClaimable).to.equal(false);
 
 				// ACT
 				await openQProxy.closeCompetition(bountyId);
 
 				// ASSERT
-				bountyIsClaimable = await openQProxy.bountyIsClaimable(bountyId);
+				bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
 				expect(bountyIsClaimable).to.equal(true);
 			});
 		});
