@@ -94,7 +94,7 @@ export interface BountyV1Interface extends utils.Interface {
     "refunded(bytes32)": FunctionFragment;
     "setFundingGoal(address,uint256)": FunctionFragment;
     "setPayout(address,uint256)": FunctionFragment;
-    "setPayoutSchedule(uint256[])": FunctionFragment;
+    "setPayoutSchedule(uint256[],address)": FunctionFragment;
     "setTierClaimed(uint256)": FunctionFragment;
     "status()": FunctionFragment;
     "tier(bytes32)": FunctionFragment;
@@ -398,7 +398,7 @@ export interface BountyV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setPayoutSchedule",
-    values: [PromiseOrValue<BigNumberish>[]]
+    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setTierClaimed",
@@ -866,6 +866,7 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      caller: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1123,6 +1124,7 @@ export interface BountyV1 extends BaseContract {
 
   setPayoutSchedule(
     _payoutSchedule: PromiseOrValue<BigNumberish>[],
+    caller: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1380,6 +1382,7 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      caller: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1643,6 +1646,7 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      caller: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1905,6 +1909,7 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      caller: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

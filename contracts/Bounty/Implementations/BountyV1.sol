@@ -635,10 +635,11 @@ contract BountyV1 is BountyStorageV1 {
         payoutVolume = _payoutVolume;
     }
 
-    function setPayoutSchedule(uint256[] calldata _payoutSchedule)
-        external
-        onlyOpenQ
-    {
+    function setPayoutSchedule(
+        uint256[] calldata _payoutSchedule,
+        address caller
+    ) external onlyOpenQ {
+        require(caller == issuer, 'CALLER_NOT_ISSUER');
         if (bountyType == OpenQDefinitions.TIERED) {
             uint256 sum;
             for (uint256 i = 0; i < _payoutSchedule.length; i++) {
