@@ -503,27 +503,9 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
-	describe('extendDeposit', () => {
-		it('should extend deposit expiration by _seconds', async () => {
-			// ARRANGE
-			const volume = 100;
-
-			// ASSUME
-			const linkDepositId = generateDepositId(mockId, 0);
-			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
-
-			// ACT
-			await atomicContract.connect(depositManager).extendDeposit(linkDepositId, 1000, owner.address);
-
-			// ASSERT
-			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
-			await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
-		});
-	});
-
 	describe('refundDeposit', () => {
 
-		describe('require and revert', () => {
+		describe('REVERTS', () => {
 			it('should revert if not called by Deposit Manager contract', async () => {
 				// ARRANGE
 				const [, , , , , notDepositManager] = await ethers.getSigners();
@@ -642,74 +624,99 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
-	describe('claimBalance', () => {
-		it('should transfer protocol token from contract to payout address and set token balance to zero', async () => {
+	describe('extendDeposit', () => {
+		it('should extend deposit expiration by _seconds', async () => {
 			// ARRANGE
 			const volume = 100;
 
-			const [, claimer] = await ethers.getSigners();
-			const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
-
-			await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
-
-			const deposits = await atomicContract.getDeposits();
-			const protocolDepositId = deposits[0];
-
 			// ASSUME
-			const bountyProtocolTokenBalance = (await atomicContract.provider.getBalance(atomicContract.address)).toString();
-			expect(bountyProtocolTokenBalance).to.equal('100');
-
-			const claimerProtocolBalance = (await ethers.provider.getBalance(claimer.address));
+			const linkDepositId = generateDepositId(mockId, 0);
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
 
 			// ACT
-			await atomicContract.connect(claimManager).claimBalance(claimer.address, ethers.constants.AddressZero);
+			await atomicContract.connect(depositManager).extendDeposit(linkDepositId, 1000, owner.address);
 
 			// ASSERT
-			const newBountyProtocolTokenBalance = (await atomicContract.provider.getBalance(atomicContract.address)).toString();
-			const tokenBalance = (await atomicContract.provider.getBalance(atomicContract.address)).toString();
-			expect(newBountyProtocolTokenBalance).to.equal('0');
-			expect(tokenBalance).to.equal('0');
+			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
+			await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 		});
+	});
 
-		it('should transfer ERC20 token from contract to payout address and set token balance to zero', async () => {
-			// ARRANGE
-			const volume = 100;
+	describe('claimBalance', () => {
+		describe('ATOMIC', () => {
+			it('should transfer protocol token from contract to payout address and set token balance to zero', async () => {
+				// ARRANGE
+				const volume = 100;
 
-			const [, claimer] = await ethers.getSigners();
-			const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
+				const [, claimer] = await ethers.getSigners();
+				const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
 
-			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
 
-			const deposits = await atomicContract.getDeposits();
-			const linkDepositId = deposits[0];
-			const daiDepositId = deposits[1];
+				const deposits = await atomicContract.getDeposits();
+				const protocolDepositId = deposits[0];
 
-			// ASSUME
-			const bountyMockTokenBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
-			const bountyFakeTokenBalance = (await mockDai.balanceOf(atomicContract.address)).toString();
-			expect(bountyMockTokenBalance).to.equal('100');
-			expect(bountyFakeTokenBalance).to.equal('100');
+				// ASSUME
+				const bountyProtocolTokenBalance = (await atomicContract.provider.getBalance(atomicContract.address)).toString();
+				expect(bountyProtocolTokenBalance).to.equal('100');
 
-			const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
-			const claimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
-			expect(claimerMockTokenBalance).to.equal('0');
-			expect(claimerFakeTokenBalance).to.equal('0');
+				const claimerProtocolBalance = (await ethers.provider.getBalance(claimer.address));
 
-			// ACT
-			await atomicContract.connect(claimManager).claimBalance(claimer.address, mockLink.address);
-			await atomicContract.connect(claimManager).claimBalance(claimer.address, mockDai.address);
+				// ACT
+				await atomicContract.connect(claimManager).claimBalance(claimer.address, ethers.constants.AddressZero);
 
-			// ASSERT
-			const newBountyMockLinkBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
-			const newBountyFakeTokenBalance = (await mockDai.balanceOf(atomicContract.address)).toString();
-			expect(newBountyMockLinkBalance).to.equal('0');
-			expect(newBountyFakeTokenBalance).to.equal('0');
+				// ASSERT
+				const newBountyProtocolTokenBalance = (await atomicContract.provider.getBalance(atomicContract.address)).toString();
+				const tokenBalance = (await atomicContract.provider.getBalance(atomicContract.address)).toString();
+				expect(newBountyProtocolTokenBalance).to.equal('0');
+				expect(tokenBalance).to.equal('0');
+			});
 
-			const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
-			const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
-			expect(newClaimerMockTokenBalance).to.equal('100');
-			expect(newClaimerFakeTokenBalance).to.equal('100');
+			it('should transfer ERC20 token from contract to payout address and set token balance to zero', async () => {
+				// ARRANGE
+				const volume = 100;
+
+				const [, claimer] = await ethers.getSigners();
+				const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
+
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
+
+				const deposits = await atomicContract.getDeposits();
+				const linkDepositId = deposits[0];
+				const daiDepositId = deposits[1];
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
+				const bountyFakeTokenBalance = (await mockDai.balanceOf(atomicContract.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('100');
+				expect(bountyFakeTokenBalance).to.equal('100');
+
+				const claimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				const claimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
+				expect(claimerMockTokenBalance).to.equal('0');
+				expect(claimerFakeTokenBalance).to.equal('0');
+
+				// ACT
+				await atomicContract.connect(claimManager).claimBalance(claimer.address, mockLink.address);
+				await atomicContract.connect(claimManager).claimBalance(claimer.address, mockDai.address);
+
+				// ASSERT
+				const newBountyMockLinkBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
+				const newBountyFakeTokenBalance = (await mockDai.balanceOf(atomicContract.address)).toString();
+				expect(newBountyMockLinkBalance).to.equal('0');
+				expect(newBountyFakeTokenBalance).to.equal('0');
+
+				const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimer.address)).toString();
+				const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimer.address)).toString();
+				expect(newClaimerMockTokenBalance).to.equal('100');
+				expect(newClaimerFakeTokenBalance).to.equal('100');
+			});
+
+			it('should revert if not called by claim manager', async () => {
+				// ACT/ASSERT
+				await expect(atomicContract.claimBalance(owner.address, mockLink.address)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
+			});
 		});
 
 		describe('ONGOING', () => {
@@ -769,6 +776,11 @@ describe('BountyV1.sol', () => {
 				claimantIdClaimed = await ongoingContract.claimantId(claimantId);
 				expect(claimantIdClaimed).to.equal(true);
 			});
+
+			it('should revert if not called by claim manager', async () => {
+				// ACT/ASSERT
+				await expect(ongoingContract.claimOngoingPayout(owner.address, closerData)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
+			});
 		});
 
 		describe('TIERED', () => {
@@ -812,6 +824,11 @@ describe('BountyV1.sol', () => {
 				await expect(tieredContract.connect(claimManager).claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
 			});
 
+			it('should revert if not called by claim manager', async () => {
+				// ACT/ASSERT
+				await expect(tieredContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
+			});
+
 			it('should revert if competition is not TIERED', async () => {
 				// ACT/ASSERT
 				tieredFixedContract.closeCompetition(owner.address);
@@ -827,9 +844,6 @@ describe('BountyV1.sol', () => {
 				const [, firstPlace, secondPlace] = await ethers.getSigners();
 
 				await tieredFixedContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-
-				const deposits = await tieredFixedContract.getDeposits();
-				const linkDepositId = deposits[0];
 
 				await tieredFixedContract.closeCompetition(owner.address);
 
@@ -858,6 +872,11 @@ describe('BountyV1.sol', () => {
 			it('should revert if competition is not closed', async () => {
 				// ACT/ASSERT
 				await expect(tieredFixedContract.connect(claimManager).claimTieredFixed(owner.address, 0)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+			});
+
+			it('should revert if not called by claim manager', async () => {
+				// ACT/ASSERT
+				await expect(tieredFixedContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
 			});
 
 			it('should revert if competition is not TIERED FIXED', async () => {
@@ -902,8 +921,8 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
-	describe('closeBounty', () => {
-		describe('SINGLE', () => {
+	describe('close', () => {
+		describe('ATOMIC - close', () => {
 			it('should revert if not called by ClaimManager contract', async () => {
 				// ARRANGE
 				const [, , , , , notClaimManager] = await ethers.getSigners();
@@ -949,6 +968,35 @@ describe('BountyV1.sol', () => {
 			});
 		});
 
+		describe('ONGOING - closeCompetition', () => {
+			it('should set status to 1 and bountyClosedTime', async () => {
+				let bountyClosedTime = await ongoingContract.bountyClosedTime();
+				let status = await ongoingContract.status();
+
+				expect(bountyClosedTime).to.equal(0);
+				expect(status).to.equal(0);
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+				await ongoingContract.closeOngoing(owner.address);
+
+				bountyClosedTime = await ongoingContract.bountyClosedTime();
+				status = await ongoingContract.status();
+
+				expect(bountyClosedTime).to.equal(expectedTimestamp);
+				expect(status).to.equal(1);
+			});
+
+			it('should revert if caller is not issuer', async () => {
+				const [, notOwner] = await ethers.getSigners();
+				await expect(ongoingContract.closeOngoing(notOwner.address)).to.be.revertedWith('BOUNTY_CLOSER_NOT_ISSUER');
+			});
+
+			it('should revert if already closed', async () => {
+				await ongoingContract.closeOngoing(owner.address);
+				await expect(ongoingContract.closeOngoing(owner.address)).to.be.revertedWith('ONGOING_BOUNTY_ALREADY_CLOSED');
+			});
+		});
+
 		describe('TIERED - closeCompetition', () => {
 			it('should set bounty status to 1, freeze balances and set bountyClosedTime', async () => {
 				// ARRANGE
@@ -957,9 +1005,6 @@ describe('BountyV1.sol', () => {
 				const [, firstPlace, secondPlace] = await ethers.getSigners();
 
 				await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-
-				const deposits = await atomicContract.getDeposits();
-				const linkDepositId = deposits[0];
 
 				// ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredContract.address)).toString();
@@ -998,35 +1043,6 @@ describe('BountyV1.sol', () => {
 			it('should revert if already closed', async () => {
 				await tieredContract.closeCompetition(owner.address);
 				await expect(tieredContract.closeCompetition(owner.address)).to.be.revertedWith('COMPETITION_ALREADY_CLOSED');
-			});
-		});
-
-		describe('ONGOING - closeCompetition', () => {
-			it('should set status to 1 and bountyClosedTime', async () => {
-				let bountyClosedTime = await ongoingContract.bountyClosedTime();
-				let status = await ongoingContract.status();
-
-				expect(bountyClosedTime).to.equal(0);
-				expect(status).to.equal(0);
-
-				const expectedTimestamp = await setNextBlockTimestamp();
-				await ongoingContract.closeOngoing(owner.address);
-
-				bountyClosedTime = await ongoingContract.bountyClosedTime();
-				status = await ongoingContract.status();
-
-				expect(bountyClosedTime).to.equal(expectedTimestamp);
-				expect(status).to.equal(1);
-			});
-
-			it('should revert if caller is not issuer', async () => {
-				const [, notOwner] = await ethers.getSigners();
-				await expect(ongoingContract.closeOngoing(notOwner.address)).to.be.revertedWith('BOUNTY_CLOSER_NOT_ISSUER');
-			});
-
-			it('should revert if already closed', async () => {
-				await ongoingContract.closeOngoing(owner.address);
-				await expect(ongoingContract.closeOngoing(owner.address)).to.be.revertedWith('ONGOING_BOUNTY_ALREADY_CLOSED');
 			});
 		});
 	});
@@ -1089,7 +1105,7 @@ describe('BountyV1.sol', () => {
 		});
 	});
 
-	describe.only('setPayoutSchedule', () => {
+	describe('setPayoutSchedule', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();

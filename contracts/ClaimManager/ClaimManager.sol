@@ -25,8 +25,10 @@ contract ClaimManager is ClaimManagerStorageV1 {
     }
 
     /**
-     * @dev Transfers full balance of bounty and any NFT deposits from bounty address to closer
-     * @param _closer The payout address of the bounty
+     * @dev Calls appropriate claim method based on bounty type
+     * @param _bountyAddress The payout address of the bounty
+     * @param _closer The payout address of the claimant
+     * @param _closerData ABI Encoded data associated with this claim
      */
     function claimBounty(
         address _bountyAddress,
@@ -38,13 +40,7 @@ contract ClaimManager is ClaimManagerStorageV1 {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
 
-        if (_bountyType == OpenQDefinitions.ONGOING) {
-            _claimOngoing(bounty, _closer, _closerData);
-        } else if (_bountyType == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, _closer, _closerData);
-        } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(bounty, _closer, _closerData);
-        } else {
+        if (_bountyType == OpenQDefinitions.ATOMIC) {
             _claimSingle(bounty, _closer, _closerData);
             bounty.close(_closer, _closerData);
 
@@ -58,13 +54,21 @@ contract ClaimManager is ClaimManagerStorageV1 {
                 _closerData,
                 VERSION_1
             );
+        } else if (_bountyType == OpenQDefinitions.ONGOING) {
+            _claimOngoing(bounty, _closer, _closerData);
+        } else if (_bountyType == OpenQDefinitions.TIERED) {
+            _claimTiered(bounty, _closer, _closerData);
+        } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
+            _claimTieredFixed(bounty, _closer, _closerData);
+        } else {
+            revert();
         }
 
         emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_1);
     }
 
     /**
-     * TRANSACTIONS
+     * CLAIM HELPERS
      */
 
     function _claimSingle(
@@ -143,6 +147,9 @@ contract ClaimManager is ClaimManagerStorageV1 {
             _closerData,
             (address, string, address, string, uint256)
         );
+
+        require(!bounty.tierClaimed(_tier), 'TIER_ALREADY_CLAIMED');
+
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimTiered(
                 _closer,
@@ -197,11 +204,9 @@ contract ClaimManager is ClaimManagerStorageV1 {
             (address, string, address, string, uint256)
         );
 
-        uint256 volume = bounty.claimTiered(
-            _closer,
-            _tier,
-            bounty.payoutTokenAddress()
-        );
+        require(!bounty.tierClaimed(_tier), 'TIER_ALREADY_CLAIMED');
+
+        uint256 volume = bounty.claimTieredFixed(_closer, _tier);
 
         emit TokenBalanceClaimed(
             bounty.bountyId(),
@@ -271,6 +276,10 @@ contract ClaimManager is ClaimManagerStorageV1 {
             revert('UNKNOWN_BOUNTY_STATUS');
         }
     }
+
+    /**
+     * ADMIN
+     */
 
     /**
      * @dev Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
