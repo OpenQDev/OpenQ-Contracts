@@ -171,7 +171,7 @@ contract BountyV1 is BountyStorageV1 {
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
             sum += _payoutSchedule[i];
         }
-        require(sum == 100, 'Payout schedule must add up to 100');
+        require(sum == 100, 'PAYOUT_SCHEDULE_MUST_ADD_TO_100');
         payoutSchedule = _payoutSchedule;
 
         hasFundingGoal = _hasFundingGoal;

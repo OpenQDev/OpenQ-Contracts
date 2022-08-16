@@ -2,8 +2,9 @@
 const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 const { ethers } = require("hardhat");
-require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
+require('@nomiclabs/hardhat-waffle');
+
 const { generateDepositId, generateClaimantId } = require('./utils');
 
 describe('BountyV1.sol', () => {
@@ -49,13 +50,18 @@ describe('BountyV1.sol', () => {
 	let tieredFixedContract;
 
 	// MISC
-	let initializationTimestamp;
+	let initializationTimestampAtomic;
+	let initializationTimestampAtomicNoFundingGoal;
+	let initializationTimestampOngoing;
+	let initializationTimestampTiered;
+	let initializationTimestampTieredFixed;
 
 	beforeEach(async () => {
 		BountyV1 = await ethers.getContractFactory('BountyV1');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
+
 		[owner, claimManager, depositManager] = await ethers.getSigners();
 
 		// MOCK ASSETS
@@ -75,7 +81,7 @@ describe('BountyV1.sol', () => {
 		await mockNft.safeMint(owner.address);
 		await mockNft.safeMint(owner.address);
 
-		// Mint an Atomic Contract with a Funding Goal
+		// ATOMIC CONTRACT W/ FUNDING GOAL
 		atomicContract = await BountyV1.deploy();
 		await atomicContract.deployed();
 		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 100]);
@@ -94,14 +100,15 @@ describe('BountyV1.sol', () => {
 		await mockLink.approve(atomicContract.address, 10000000);
 		await mockDai.approve(atomicContract.address, 10000000);
 
-		// Mint an atomic contract with no funding goal
+		// ATOMIC CONTRACT W/ NO FUNDING GOAL
 		atomicContract_noFundingGoal = await BountyV1.deploy();
 		await atomicContract_noFundingGoal.deployed();
 		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [false, ethers.constants.AddressZero, 0]);
 		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
+		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
 		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
 
-		// Mint an Ongoing Bounty
+		// ONGOING BOUNTY
 		ongoingContract = await BountyV1.deploy();
 		await ongoingContract.deployed();
 
@@ -109,13 +116,14 @@ describe('BountyV1.sol', () => {
 
 		ongoingBountyInitOperation = [ONGOING_CONTRACT, abiEncodedParams];
 
+		initializationTimestampOngoing = await setNextBlockTimestamp();
 		await ongoingContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, ongoingBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(ongoingContract.address, 10000000);
 		await mockDai.approve(ongoingContract.address, 10000000);
 
-		// Mint a Tiered Bounty
+		// TIERED BOUNTY
 		tieredContract = await BountyV1.deploy();
 		await tieredContract.deployed();
 
@@ -123,13 +131,14 @@ describe('BountyV1.sol', () => {
 
 		tieredBountyInitOperation = [TIERED_CONTRACT, abiEncodedParamsTieredBounty];
 
+		initializationTimestampTiered = await setNextBlockTimestamp();
 		await tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredContract.address, 10000000);
 		await mockDai.approve(tieredContract.address, 10000000);
 
-		// Mint a Tiered Fixed Bounty
+		// TIERED FIXED BOUNTY
 		tieredFixedContract = await BountyV1.deploy();
 		await tieredFixedContract.deployed();
 
@@ -137,6 +146,7 @@ describe('BountyV1.sol', () => {
 
 		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
+		initializationTimestampTieredFixed = await setNextBlockTimestamp();
 		await tieredFixedContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
 
 		// Pre-approve LINK and DAI for transfers during testing
@@ -144,28 +154,101 @@ describe('BountyV1.sol', () => {
 		await mockDai.approve(tieredFixedContract.address, 10000000);
 	});
 
-	describe('initializer', () => {
+	describe.only('initializer', () => {
 		describe('ATOMIC', () => {
-			it(`should initialize bounty with correct: bountyId, issuer, organization, status, openQImplementation, bountyCreatedTime, and bountyType`, async () => {
-				// ARRANGE
-				const actualBountyId = await atomicContract.bountyId();
-				const actualIssuer = await atomicContract.issuer();
-				const actualOrganization = await atomicContract.organization();
-				const actualStatus = await atomicContract.status();
-				const actualOpenQ = await atomicContract.openQ();
-				const actualBounyCreatedTime = await atomicContract.bountyCreatedTime();
-				const actualBounyType = await atomicContract.bountyType();
+			it(`should initialize bounty with correct metadata`, async () => {
+				// ARRANGE/ASSERT
+				await expect(await atomicContract.bountyId()).equals(mockId);
+				await expect(await atomicContract.issuer()).equals(owner.address);
+				await expect(await atomicContract.organization()).equals(organization);
+				await expect(await atomicContract.status()).equals(0);
+				await expect(await atomicContract.openQ()).equals(owner.address);
+				await expect(await atomicContract.claimManager()).equals(claimManager.address);
+				await expect(await atomicContract.depositManager()).equals(depositManager.address);
+				await expect(await atomicContract.bountyCreatedTime()).equals(initializationTimestamp);
+				await expect(await atomicContract.bountyType()).equals(ATOMIC_CONTRACT);
+				await expect(await atomicContract.hasFundingGoal()).equals(true);
+				await expect(await atomicContract.fundingToken()).equals(mockLink.address);
+				await expect(await atomicContract.fundingGoal()).equals(100);
+			});
+		});
 
-				// ASSERT
-				await expect(actualBountyId).equals(mockId);
-				await expect(actualIssuer).equals(owner.address);
-				await expect(organization).equals(organization);
-				await expect(actualStatus).equals(0);
-				await expect(actualOpenQ).equals(owner.address);
-				await expect(actualBounyCreatedTime).equals(initializationTimestamp);
-				await expect(actualBounyType).equals(0);
+		describe('ONGOING', () => {
+			it('should init with correct payoutTokenAddress, payoutVolume, bountyType, hasFundingGoal, fundingToken, and fundingGoal', async () => {
+				await expect(await ongoingContract.bountyId()).equals(mockId);
+				await expect(await ongoingContract.issuer()).equals(owner.address);
+				await expect(await ongoingContract.organization()).equals(organization);
+				await expect(await ongoingContract.status()).equals(0);
+				await expect(await ongoingContract.openQ()).equals(owner.address);
+				await expect(await ongoingContract.claimManager()).equals(claimManager.address);
+				await expect(await ongoingContract.depositManager()).equals(depositManager.address);
+				await expect(await ongoingContract.bountyCreatedTime()).equals(initializationTimestampOngoing);
+				await expect(await ongoingContract.bountyType()).equals(ONGOING_CONTRACT);
+				await expect(await ongoingContract.hasFundingGoal()).equals(true);
+				await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
+				await expect(await ongoingContract.fundingGoal()).equals(100);
+				await expect(await ongoingContract.payoutTokenAddress()).equals(mockLink.address);
+				await expect(await ongoingContract.payoutVolume()).equals(100);
+			});
+		});
+
+		describe('TIERED', () => {
+			it('should init with tiered correct metadata', async () => {
+				const actualBountyPayoutSchedule = await tieredContract.getPayoutSchedule();
+				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
+
+
+				await expect(await tieredContract.bountyId()).equals(mockId);
+				await expect(await tieredContract.issuer()).equals(owner.address);
+				await expect(await tieredContract.organization()).equals(organization);
+				await expect(await tieredContract.status()).equals(0);
+				await expect(await tieredContract.openQ()).equals(owner.address);
+				await expect(await tieredContract.claimManager()).equals(claimManager.address);
+				await expect(await tieredContract.depositManager()).equals(depositManager.address);
+				await expect(await tieredContract.bountyCreatedTime()).equals(initializationTimestampTiered);
+				await expect(await tieredContract.bountyType()).equals(TIERED_CONTRACT);
+				await expect(await tieredContract.hasFundingGoal()).equals(true);
+				await expect(await tieredContract.fundingToken()).equals(mockLink.address);
+				await expect(await tieredContract.fundingGoal()).equals(100);
+				await expect(payoutToString[0]).equals("80");
+				await expect(payoutToString[1]).equals("20");
 			});
 
+			it('should revert if payoutSchedule values do not add up to 100', async () => {
+				// ARRANGE
+				tieredContract = await BountyV1.deploy();
+				await tieredContract.deployed();
+
+				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[1, 2], true, mockLink.address, 100]);
+
+				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
+
+				// ACT/ASSERT
+				await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('PAYOUT_SCHEDULE_MUST_ADD_TO_100');
+			});
+		});
+
+		describe('TIERED FIXED', () => {
+			it('should init with tiered and payout schedule, payoutTokenAddress', async () => {
+				const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
+				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
+
+				await expect(await tieredFixedContract.bountyId()).equals(mockId);
+				await expect(await tieredFixedContract.issuer()).equals(owner.address);
+				await expect(await tieredFixedContract.organization()).equals(organization);
+				await expect(await tieredFixedContract.status()).equals(0);
+				await expect(await tieredFixedContract.openQ()).equals(owner.address);
+				await expect(await tieredFixedContract.claimManager()).equals(claimManager.address);
+				await expect(await tieredFixedContract.depositManager()).equals(depositManager.address);
+				await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestampTieredFixed);
+				await expect(await tieredFixedContract.bountyType()).equals(TIERED_FIXED_CONTRACT);
+				await expect(await tieredFixedContract.hasFundingGoal()).equals(false);
+				await expect(payoutToString[0]).equals("100");
+				await expect(payoutToString[1]).equals("50");
+			});
+		});
+
+		describe('REVERTS', () => {
 			it('should revert if bountyId is empty', async () => {
 				// ARRANGE
 				const BountyV1 = await ethers.getContractFactory('BountyV1');
@@ -191,86 +274,6 @@ describe('BountyV1.sol', () => {
 
 				// ASSERT
 				await expect(atomicContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, [42, []])).to.be.revertedWith('OQ: unknown init operation type');
-			});
-
-			it('should init with correct payoutTokenAddress, payoutVolume, and actualBountyType', async () => {
-				const actualBountyType = await atomicContract.bountyType();
-				const actualBountyFundingGoal = await atomicContract.fundingGoal();
-				const actualBountyFundingTokenAddress = await atomicContract.fundingToken();
-				const actualBountyHasFundingGoal = await atomicContract.hasFundingGoal();
-
-				await expect(actualBountyType).equals(0);
-				await expect(actualBountyFundingGoal).equals(100);
-				await expect(actualBountyFundingTokenAddress).equals(mockLink.address);
-				await expect(actualBountyHasFundingGoal).equals(true);
-			});
-		});
-
-		describe('ONGOING', () => {
-			it('should init with correct payoutTokenAddress, payoutVolume, bountyType, hasFundingGoal, fundingToken, and fundingGoal', async () => {
-				const actualBountyType = await ongoingContract.bountyType();
-				const actualBountyPayoutVolume = await ongoingContract.payoutVolume();
-				const actualBountyPayoutTokenAddress = await ongoingContract.payoutTokenAddress();
-
-				const actualBountyHasFundingGoal = await ongoingContract.hasFundingGoal();
-				const actualBountyFundingGoalAddress = await ongoingContract.fundingToken();
-				const actualBountyFundingGoal = await ongoingContract.fundingGoal();
-
-				await expect(actualBountyType).equals(1);
-				await expect(actualBountyPayoutVolume).equals(100);
-				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
-				await expect(actualBountyHasFundingGoal).equals(true);
-				await expect(actualBountyFundingGoalAddress).equals(mockLink.address);
-				await expect(actualBountyFundingGoal).equals(100);
-			});
-		});
-
-		describe('TIERED', () => {
-			it('should init with tiered and payout schedule, hasFundingGoal, fundingToken, fundingGoal', async () => {
-				const actualBountyType = await tieredContract.bountyType();
-				const actualBountyPayoutSchedule = await tieredContract.getPayoutSchedule();
-				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
-
-				const actualBountyHasFundingGoal = await tieredContract.hasFundingGoal();
-				const actualBountyFundingGoalAddress = await tieredContract.fundingToken();
-				const actualBountyFundingGoal = await tieredContract.fundingGoal();
-
-				await expect(actualBountyType).equals(2);
-				await expect(payoutToString[0]).equals("80");
-				await expect(payoutToString[1]).equals("20");
-
-				await expect(actualBountyHasFundingGoal).equals(true);
-				await expect(actualBountyFundingGoalAddress).equals(mockLink.address);
-				await expect(actualBountyFundingGoal).equals(100);
-			});
-
-			it('should revert if payoutSchedule values do not add up to 100', async () => {
-				// ARRANGE
-				tieredContract = await BountyV1.deploy();
-				await tieredContract.deployed();
-
-				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[1, 2], true, mockLink.address, 100]);
-
-				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
-
-				// ACT/ASSERT
-				await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('Payout schedule must add up to 100');
-			});
-		});
-
-		describe('TIERED FIXED', () => {
-			it('should init with tiered and payout schedule, payoutTokenAddress', async () => {
-				const actualBountyType = await tieredFixedContract.bountyType();
-				const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
-				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
-
-				const actualBountyPayoutTokenAddress = await tieredFixedContract.payoutTokenAddress();
-
-				await expect(actualBountyType).equals(3);
-				await expect(payoutToString[0]).equals("100");
-				await expect(payoutToString[1]).equals("50");
-
-				await expect(actualBountyPayoutTokenAddress).equals(mockLink.address);
 			});
 		});
 	});
