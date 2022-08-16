@@ -635,6 +635,21 @@ contract BountyV1 is BountyStorageV1 {
         payoutVolume = _payoutVolume;
     }
 
+    function setPayoutSchedule(uint256[] calldata _payoutSchedule)
+        external
+        onlyOpenQ
+    {
+        if (bountyType == OpenQDefinitions.TIERED) {
+            uint256 sum;
+            for (uint256 i = 0; i < _payoutSchedule.length; i++) {
+                sum += _payoutSchedule[i];
+            }
+            require(sum == 100, 'PAYOUT_SCHEDULE_MUST_ADD_TO_100');
+        }
+
+        payoutSchedule = _payoutSchedule;
+    }
+
     /**
      * UTILITY
      */
