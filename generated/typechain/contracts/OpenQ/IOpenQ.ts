@@ -24,6 +24,7 @@ export interface IOpenQInterface extends utils.Interface {
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
+    "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
@@ -37,6 +38,7 @@ export interface IOpenQInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
@@ -212,6 +214,22 @@ export type NFTDepositReceivedEvent = TypedEvent<
 
 export type NFTDepositReceivedEventFilter =
   TypedEventFilter<NFTDepositReceivedEvent>;
+
+export interface PayoutScheduleSetEventObject {
+  bountyAddress: string;
+  payoutTokenAddress: string;
+  payoutSchedule: BigNumber[];
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type PayoutScheduleSetEvent = TypedEvent<
+  [string, string, BigNumber[], BigNumber, string, BigNumber],
+  PayoutScheduleSetEventObject
+>;
+
+export type PayoutScheduleSetEventFilter =
+  TypedEventFilter<PayoutScheduleSetEvent>;
 
 export interface PayoutSetEventObject {
   bountyAddress: string;
@@ -490,6 +508,23 @@ export interface IOpenQ extends BaseContract {
       data?: null,
       version?: null
     ): NFTDepositReceivedEventFilter;
+
+    "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutSchedule?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutScheduleSetEventFilter;
+    PayoutScheduleSet(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutSchedule?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutScheduleSetEventFilter;
 
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)"(
       bountyAddress?: null,

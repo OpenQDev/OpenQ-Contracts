@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV1.sol', () => {
+describe.only('OpenQV1.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -24,6 +24,7 @@ describe('OpenQV1.sol', () => {
 	let owner;
 	let oracle;
 	let claimant;
+	let notIssuer;
 
 	// CONSTANTS
 	let bountyId = 'mockIssueId';
@@ -33,6 +34,8 @@ describe('OpenQV1.sol', () => {
 	let atomicBountyInitOperation;
 	let ongoingBountyInitOperation;
 	let tieredBountyInitOperation;
+	let tieredBountyInitOperationNot100;
+	let tieredFixedBountyInitOperation;
 
 	// CLOSER DATA
 	let abiCoder;
@@ -40,6 +43,7 @@ describe('OpenQV1.sol', () => {
 	let abiEncodedSingleCloserData;
 	let abiEncodedOngoingCloserData;
 	let abiEncodedTieredCloserData;
+	let abiEncodedTieredFixedCloserData;
 
 	let BountyV1;
 
@@ -57,7 +61,7 @@ describe('OpenQV1.sol', () => {
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
 		BountyV1 = await ethers.getContractFactory('BountyV1');
 
-		[owner, claimant, oracle, claimantSecondPlace] = await ethers.getSigners();
+		[owner, claimant, oracle, claimantSecondPlace, notIssuer] = await ethers.getSigners();
 
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
@@ -136,9 +140,16 @@ describe('OpenQV1.sol', () => {
 		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[60, 30, 10], true, mockLink.address, 1000]);
 		tieredBountyInitOperation = [2, tieredAbiEncodedParams];
 
+		const tieredAbiEncodedParamsNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[60, 30, 10, 90], true, mockLink.address, 1000]);
+		tieredBountyInitOperationNot100 = [2, tieredAbiEncodedParamsNot100];
+
+		const tieredFixedAbiEncodedParams = abiCoder.encode(["uint256[]", "address"], [[60, 30, 10], mockLink.address]);
+		tieredFixedBountyInitOperation = [3, tieredFixedAbiEncodedParams];
+
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
+		abiEncodedTieredFixedCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 	});
 
 	describe('initialization', () => {
@@ -349,6 +360,46 @@ describe('OpenQV1.sol', () => {
 				expect(payoutToString[1]).to.equal(30);
 				expect(payoutToString[2]).to.equal(10);
 			});
+
+			it('should revert if payout schedule does not add to 100', async () => {
+				await expect(openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperationNot100)).to.be.revertedWith('PAYOUT_SCHEDULE_MUST_ADD_TO_100');
+			});
+		});
+
+		describe('TIERED FIXED', () => {
+			it('should correctly init bountyType and payout schedule', async () => {
+				// ARRANGE
+				const expectedTimestamp = await setNextBlockTimestamp();
+
+				// ACT
+				await openQProxy.mintBounty(bountyId, mockOrg, tieredFixedBountyInitOperation);
+
+				const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				const Bounty = await ethers.getContractFactory('BountyV1');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+
+				// ASSERT
+				expect(await newBounty.bountyId()).to.equal(bountyId);
+				expect(await newBounty.bountyCreatedTime()).to.equal(expectedTimestamp);
+				expect(await newBounty.bountyClosedTime()).to.equal(0);
+				expect(await newBounty.issuer()).to.equal(owner.address);
+				expect(await newBounty.closer()).to.equal(ethers.constants.AddressZero);
+				expect(await newBounty.status()).to.equal(0);
+				expect(await newBounty.bountyType()).to.equal(3);
+				expect(await newBounty.payoutTokenAddress()).to.equal(mockLink.address);
+
+				const payoutSchedule = await newBounty.getPayoutSchedule();
+				const payoutToString = payoutSchedule.map(thing => parseInt(thing.toString()));
+
+				expect(payoutToString[0]).to.equal(60);
+				expect(payoutToString[1]).to.equal(30);
+				expect(payoutToString[2]).to.equal(10);
+			});
 		});
 	});
 
@@ -514,7 +565,7 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
-	describe('fundingGoalSet', () => {
+	describe('setFundingGoal', () => {
 		it('should set funding goal', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
@@ -596,6 +647,93 @@ describe('OpenQV1.sol', () => {
 
 			// ACT/ASSERT
 			await expect(notOwnerContract.setPayout(bountyId, mockDai.address, 1000)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
+	describe('setPayoutSchedule', () => {
+		it('should revert if payout schedule does not add to 100', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			// ACT/ASSERT
+			await expect(openQProxy.setPayoutSchedule(bountyId, [20, 23, 43])).to.be.revertedWith('PAYOUT_SCHEDULE_MUST_ADD_TO_100');
+		});
+
+		it('should revert if caller is not issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			// ACT/ASSERT
+			await expect(openQProxy.connect(notIssuer).setPayoutSchedule(bountyId, [20, 23, 43])).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+
+		it('should set payout schedule', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT
+			await openQProxy.setPayoutSchedule(bountyId, [70, 20, 10]);
+
+			// ASSERT
+			const payoutSchedule = await bounty.getPayoutSchedule();
+			const payoutToString = payoutSchedule.map(thing => parseInt(thing.toString()));
+			expect(payoutToString[0]).to.equal(70);
+			expect(payoutToString[1]).to.equal(20);
+			expect(payoutToString[2]).to.equal(10);
+		});
+
+		it('should emit PayoutScheduleSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await expect(openQProxy.setPayoutSchedule(bountyId, [70, 20, 10]))
+				.to.emit(openQProxy, 'PayoutScheduleSet')
+				.withArgs(bountyAddress, ethers.constants.AddressZero, [70, 20, 10], 2, [], 1);
+		});
+	});
+
+	describe('setPayoutScheduleFixed', () => {
+		it('should revert if caller is not issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredFixedBountyInitOperation);
+			// ACT/ASSERT
+			await expect(openQProxy.connect(notIssuer).setPayoutScheduleFixed(bountyId, [1000, 500, 250], mockDai.address)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+
+		it('should set payout schedule and payout token address', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredFixedBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT
+			await openQProxy.setPayoutScheduleFixed(bountyId, [70, 20, 10], mockDai.address);
+
+			// ASSERT
+			const payoutSchedule = await bounty.getPayoutSchedule();
+			const payoutToken = await bounty.payoutTokenAddress();
+			const payoutToString = payoutSchedule.map(thing => parseInt(thing.toString()));
+			expect(payoutToString[0]).to.equal(70);
+			expect(payoutToString[1]).to.equal(20);
+			expect(payoutToString[2]).to.equal(10);
+			expect(payoutToken).to.equal(mockDai.address);
+		});
+
+		it('should emit PayoutScheduleSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredFixedBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await expect(openQProxy.setPayoutScheduleFixed(bountyId, [70, 20, 10], mockDai.address))
+				.to.emit(openQProxy, 'PayoutScheduleSet')
+				.withArgs(bountyAddress, mockDai.address, [70, 20, 10], 3, [], 1);
 		});
 	});
 

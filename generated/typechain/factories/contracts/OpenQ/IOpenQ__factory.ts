@@ -458,6 +458,49 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint256[]",
+        name: "payoutSchedule",
+        type: "uint256[]",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "bountyType",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "version",
+        type: "uint256",
+      },
+    ],
+    name: "PayoutScheduleSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "bountyAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "payoutTokenAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
         internalType: "uint256",
         name: "payoutTokenVolume",
         type: "uint256",

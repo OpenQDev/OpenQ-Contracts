@@ -140,7 +140,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     /**
-     * @dev Sets fundingGoal
+     * @dev Sets payout token address and volume
      * @param _bountyId The id to update
      * @param _payoutToken The token address
      * @param _payoutVolume The token volume
@@ -161,6 +161,60 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
             bountyAddress,
             _payoutToken,
             _payoutVolume,
+            bounty.bountyType(),
+            new bytes(0),
+            VERSION_1
+        );
+    }
+
+    /**
+     * @dev Sets payout token address and volume
+     * @param _bountyId The id to update
+     * @param _payoutSchedule The token address
+     */
+    function setPayoutSchedule(
+        string calldata _bountyId,
+        uint256[] calldata _payoutSchedule
+    ) external onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+
+        bounty.setPayoutSchedule(_payoutSchedule);
+
+        emit PayoutScheduleSet(
+            bountyAddress,
+            address(0),
+            _payoutSchedule,
+            bounty.bountyType(),
+            new bytes(0),
+            VERSION_1
+        );
+    }
+
+    /**
+     * @dev Sets payout token address and volume
+     * @param _bountyId The id to update
+     * @param _payoutSchedule The token address
+     * @param _payoutTokenAddress The token volume
+     */
+    function setPayoutScheduleFixed(
+        string calldata _bountyId,
+        uint256[] calldata _payoutSchedule,
+        address _payoutTokenAddress
+    ) external onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+
+        bounty.setPayoutScheduleFixed(_payoutSchedule, _payoutTokenAddress);
+
+        emit PayoutScheduleSet(
+            bountyAddress,
+            _payoutTokenAddress,
+            _payoutSchedule,
             bounty.bountyType(),
             new bytes(0),
             VERSION_1

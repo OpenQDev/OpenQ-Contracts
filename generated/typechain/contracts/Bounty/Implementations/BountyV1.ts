@@ -93,7 +93,8 @@ export interface BountyV1Interface extends utils.Interface {
     "refunded(bytes32)": FunctionFragment;
     "setFundingGoal(address,uint256)": FunctionFragment;
     "setPayout(address,uint256)": FunctionFragment;
-    "setPayoutSchedule(uint256[],address)": FunctionFragment;
+    "setPayoutSchedule(uint256[])": FunctionFragment;
+    "setPayoutScheduleFixed(uint256[],address)": FunctionFragment;
     "setTierClaimed(uint256)": FunctionFragment;
     "status()": FunctionFragment;
     "tier(bytes32)": FunctionFragment;
@@ -157,6 +158,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "setFundingGoal"
       | "setPayout"
       | "setPayoutSchedule"
+      | "setPayoutScheduleFixed"
       | "setTierClaimed"
       | "status"
       | "tier"
@@ -392,6 +394,10 @@ export interface BountyV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setPayoutSchedule",
+    values: [PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPayoutScheduleFixed",
     values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -575,6 +581,10 @@ export interface BountyV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setPayout", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setPayoutSchedule",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPayoutScheduleFixed",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -854,7 +864,12 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
-      caller: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPayoutScheduleFixed(
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1110,7 +1125,12 @@ export interface BountyV1 extends BaseContract {
 
   setPayoutSchedule(
     _payoutSchedule: PromiseOrValue<BigNumberish>[],
-    caller: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPayoutScheduleFixed(
+    _payoutSchedule: PromiseOrValue<BigNumberish>[],
+    _payoutTokenAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1366,7 +1386,12 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
-      caller: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPayoutScheduleFixed(
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1628,7 +1653,12 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
-      caller: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPayoutScheduleFixed(
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1889,7 +1919,12 @@ export interface BountyV1 extends BaseContract {
 
     setPayoutSchedule(
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
-      caller: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPayoutScheduleFixed(
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

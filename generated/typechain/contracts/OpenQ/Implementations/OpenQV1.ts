@@ -64,6 +64,8 @@ export interface OpenQV1Interface extends utils.Interface {
     "setDepositManager(address)": FunctionFragment;
     "setFundingGoal(string,address,uint256)": FunctionFragment;
     "setPayout(string,address,uint256)": FunctionFragment;
+    "setPayoutSchedule(string,uint256[])": FunctionFragment;
+    "setPayoutScheduleFixed(string,uint256[],address)": FunctionFragment;
     "tierClaimed(string,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
@@ -94,6 +96,8 @@ export interface OpenQV1Interface extends utils.Interface {
       | "setDepositManager"
       | "setFundingGoal"
       | "setPayout"
+      | "setPayoutSchedule"
+      | "setPayoutScheduleFixed"
       | "tierClaimed"
       | "transferOwnership"
       | "upgradeTo"
@@ -199,6 +203,18 @@ export interface OpenQV1Interface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "setPayoutSchedule",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPayoutScheduleFixed",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tierClaimed",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -286,6 +302,14 @@ export interface OpenQV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setPayout", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setPayoutSchedule",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPayoutScheduleFixed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "tierClaimed",
     data: BytesLike
   ): Result;
@@ -312,6 +336,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
@@ -330,6 +355,7 @@ export interface OpenQV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
@@ -547,6 +573,22 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
+export interface PayoutScheduleSetEventObject {
+  bountyAddress: string;
+  payoutTokenAddress: string;
+  payoutSchedule: BigNumber[];
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type PayoutScheduleSetEvent = TypedEvent<
+  [string, string, BigNumber[], BigNumber, string, BigNumber],
+  PayoutScheduleSetEventObject
+>;
+
+export type PayoutScheduleSetEventFilter =
+  TypedEventFilter<PayoutScheduleSetEvent>;
+
 export interface PayoutSetEventObject {
   bountyAddress: string;
   payoutTokenAddress: string;
@@ -757,6 +799,19 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setPayoutSchedule(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPayoutScheduleFixed(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     tierClaimed(
       _bountyId: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
@@ -875,6 +930,19 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setPayoutSchedule(
+    _bountyId: PromiseOrValue<string>,
+    _payoutSchedule: PromiseOrValue<BigNumberish>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPayoutScheduleFixed(
+    _bountyId: PromiseOrValue<string>,
+    _payoutSchedule: PromiseOrValue<BigNumberish>[],
+    _payoutTokenAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   tierClaimed(
     _bountyId: PromiseOrValue<string>,
     _tier: PromiseOrValue<BigNumberish>,
@@ -986,6 +1054,19 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _payoutToken: PromiseOrValue<string>,
       _payoutVolume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPayoutSchedule(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPayoutScheduleFixed(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1207,6 +1288,23 @@ export interface OpenQV1 extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
+    "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutSchedule?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutScheduleSetEventFilter;
+    PayoutScheduleSet(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutSchedule?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutScheduleSetEventFilter;
+
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)"(
       bountyAddress?: null,
       payoutTokenAddress?: null,
@@ -1382,6 +1480,19 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setPayoutSchedule(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPayoutScheduleFixed(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     tierClaimed(
       _bountyId: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
@@ -1498,6 +1609,19 @@ export interface OpenQV1 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _payoutToken: PromiseOrValue<string>,
       _payoutVolume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPayoutSchedule(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPayoutScheduleFixed(
+      _bountyId: PromiseOrValue<string>,
+      _payoutSchedule: PromiseOrValue<BigNumberish>[],
+      _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

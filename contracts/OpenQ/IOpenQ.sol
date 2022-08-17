@@ -135,4 +135,13 @@ interface IOpenQ {
         bytes data,
         uint256 version
     );
+
+    event PayoutScheduleSet(
+        address bountyAddress,
+        address payoutTokenAddress,
+        uint256[] payoutSchedule,
+        uint256 bountyType,
+        bytes data,
+        uint256 version
+    );
 }
