@@ -16,6 +16,9 @@ async function fundBounties() {
 	const OpenQ = await ethers.getContractFactory('OpenQV1');
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
+	const DepositManager = await ethers.getContractFactory('DepositManager');
+	const depositManager = await DepositManager.attach(process.env.DEPOSIT_MANAGER_PROXY_ADDRESS);
+
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGWnnz85GjwA1', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq', 'I_kwDOGWnnz85CZwGJ', 'I_kwDOGWnnz85AkiDt', 'I_kwDOGWnnz85Oi-oQ'];
 	const githubIssueIdsOtherOrgs = ['I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW'];
 
@@ -60,44 +63,44 @@ async function fundBounties() {
 	const thirtyDays = 2592000;
 
 	console.log('Funding approved for Client 1');
-	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
-	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
-	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
-	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtySeconds);
+	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);
+	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);
+	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);
+	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);
 	await optionalSleep(5000);
 	console.log('Funded  for Client 1');
 
-	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtyDays);
+	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtyDays);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIdsOtherOrgs[0], mockDai.address, two, thirtySeconds);
+	await depositManager.fundBountyToken(bounty1Address, mockDai.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[1], mockLink.address, one, fifteenDays);
+	await depositManager.fundBountyToken(bounty2Address, mockLink.address, one, fifteenDays);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[1], mockDai.address, two, thirtySeconds);
+	await depositManager.fundBountyToken(bounty2Address, mockDai.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[1], ethers.constants.AddressZero, one, fifteenDays, { value: one });
+	await depositManager.fundBountyToken(bounty2Address, ethers.constants.AddressZero, one, fifteenDays, { value: one });
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[5], ethers.constants.AddressZero, one, thirtySeconds, { value: one });
+	await depositManager.fundBountyToken(bounty3Address, ethers.constants.AddressZero, one, thirtySeconds, { value: one });
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[5], ethers.constants.AddressZero, one, thirtySeconds, { value: one });
+	await depositManager.fundBountyToken(bounty3Address, ethers.constants.AddressZero, one, thirtySeconds, { value: one });
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[5], mockDai.address, two, fifteenDays);
+	await depositManager.fundBountyToken(bounty3Address, mockDai.address, two, fifteenDays);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[5], mockLink.address, two, thirtySeconds);
+	await depositManager.fundBountyToken(bounty3Address, mockLink.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[6], mockDai.address, two, fifteenDays);
+	await depositManager.fundBountyToken(ongoingBountyAddress, mockDai.address, two, fifteenDays);
 	await optionalSleep(5000);
 
-	await openQ.fundBountyToken(githubIssueIds[6], mockLink.address, two, thirtySeconds);
+	await depositManager.fundBountyToken(ongoingBountyAddress, mockLink.address, two, thirtySeconds);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 1');
@@ -127,16 +130,16 @@ async function fundBounties() {
 
 	console.log('Funding approved for Client 2');
 
-	await openQ.connect(contributor).fundBountyToken(githubIssueIdsOtherOrgs[0], mockLink.address, one, thirtyDays);
+	await depositManager.connect(contributor).fundBountyToken(bounty1Address, mockLink.address, one, thirtyDays);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBountyToken(githubIssueIdsOtherOrgs[0], mockDai.address, one, thirtySeconds);
+	await depositManager.connect(contributor).fundBountyToken(bounty1Address, mockDai.address, one, thirtySeconds);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBountyToken(githubIssueIds[1], mockLink.address, one, fifteenDays);
+	await depositManager.connect(contributor).fundBountyToken(bounty2Address, mockLink.address, one, fifteenDays);
 	await optionalSleep(5000);
 
-	await openQ.connect(contributor).fundBountyToken(githubIssueIds[1], mockDai.address, one, thirtyDays);
+	await depositManager.connect(contributor).fundBountyToken(bounty2Address, mockDai.address, one, thirtyDays);
 	await optionalSleep(5000);
 
 	console.log('Funding succeeded for Client 2');

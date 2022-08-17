@@ -102,8 +102,8 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`Deposit Manager Proxy Deployed to ${depositManagerProxy.address} in block number ${deployBlockNumber_depositManagerProxy}\n`);
 
-	// Attach the ClaimManager ABI to the OpenQProxy address to send method calls to the delegatecall
-	depositManagerProxy = await DepositManager.attach(depositManager.address);
+	// Attach the DepositManager ABI to the DepositManager proxy address to send method calls to the delegatecall
+	depositManagerProxy = await DepositManager.attach(depositManagerProxy.address);
 
 	await depositManagerProxy.initialize();
 
@@ -114,8 +114,8 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
 
-	console.log('\nConfiguring OpenQV1 with OpenQTokenWhitelist...');
-	console.log(`Setting OpenQTokenWhitelist on OpenQV1 to ${openQTokenWhitelist.address}...`);
+	console.log('\nConfiguring DepositManager with OpenQTokenWhitelist...');
+	console.log(`Setting OpenQTokenWhitelist on DepositManager to ${openQTokenWhitelist.address}...`);
 	await depositManagerProxy.setTokenWhitelist(openQTokenWhitelist.address);
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist successfully set on DepositManager to ${openQTokenWhitelist.address}`);
@@ -161,6 +161,18 @@ async function deployContracts() {
 	await openQProxy.setBountyFactory(bountyFactory.address);
 	await optionalSleep(10000);
 	console.log(`BountyFactory successfully set on OpenQV1 to ${bountyFactory.address}`);
+
+	console.log('\nConfiguring OpenQV1 with DepositManager...');
+	console.log(`Setting BountyFactory on OpenQV1 to ${depositManagerProxy.address}...`);
+	await openQProxy.setDepositManager(depositManagerProxy.address);
+	await optionalSleep(10000);
+	console.log(`DepositManager successfully set on OpenQV1 to ${depositManagerProxy.address}`);
+
+	console.log('\nConfiguring OpenQV1 with ClaimManager...');
+	console.log(`Setting BountyFactory on OpenQV1 to ${claimManagerProxy.address}...`);
+	await openQProxy.setClaimManager(claimManagerProxy.address);
+	await optionalSleep(10000);
+	console.log(`ClaimManager successfully set on OpenQV1 to ${claimManagerProxy.address}`);
 
 	console.log('\nContracts deployed and configured successfully!');
 

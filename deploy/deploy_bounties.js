@@ -15,10 +15,12 @@ async function deployBounties() {
 	const githubIssueIds = ['I_kwDOE5zs-M480ik8', 'I_kwDOGWnnz85GjwA1', 'I_kwDOGAqhQc48U5_r', 'I_kwDOGWnnz84-qyDq', 'I_kwDOGWnnz85CZwGJ', 'I_kwDOGWnnz85AkiDt', 'I_kwDOGWnnz85Oi-oQ'];
 	const githubIssueIdsOtherOrgs = ['I_kwDOCHE8585AYvGo', 'I_kwDOGWnnz85AkkDW', 'I_kwDOB7jojM5HoxGM', 'I_kwDOBhc8WM5Fqi_o', 'I_kwDOCQWAHM5EzBw7'];
 
-	let bountyInitOperation = [0, []];
-
 	let abiCoder = new ethers.utils.AbiCoder;
-	const abiEncodedParams = abiCoder.encode(['address', 'uint256'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100']);
+
+	const abiEncodedParamsAtomic = abiCoder.encode(['bool', 'address', 'uint256'], [true, process.env.MOCK_LINK_TOKEN_ADDRESS, '100']);
+	let bountyInitOperation = [0, abiEncodedParamsAtomic];
+
+	const abiEncodedParams = abiCoder.encode(['address', 'uint256', 'bool', 'address', 'uint256'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100', true, process.env.MOCK_LINK_TOKEN_ADDRESS, '1000']);
 	let ongoingBountyInitOperation = [1, abiEncodedParams];
 
 	console.log('Minting Bounty 1...');
