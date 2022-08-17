@@ -27,7 +27,6 @@ async function fundBounties() {
 	const bounty3Address = await openQ.bountyIdToAddress(githubIssueIds[5]);
 	const ongoingBountyAddress = await openQ.bountyIdToAddress(githubIssueIds[6]);
 
-
 	// Pre-load with some deposits
 	const one = ethers.BigNumber.from('1000000000000000000');
 	const two = ethers.BigNumber.from('2000000000000000000');
@@ -63,6 +62,8 @@ async function fundBounties() {
 	const thirtyDays = 2592000;
 
 	console.log('Funding approved for Client 1');
+	const isWhitelisted = await depositManager.isWhitelisted(mockLink.address);
+	console.log('isWhitelisted', isWhitelisted);
 	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(bounty1Address, mockLink.address, one, thirtySeconds);

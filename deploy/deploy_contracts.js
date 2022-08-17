@@ -109,7 +109,7 @@ async function deployContracts() {
 
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(1);
+	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5);
 	await openQTokenWhitelist.deployed();
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
