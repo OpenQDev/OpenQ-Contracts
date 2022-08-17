@@ -106,7 +106,6 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     uint256[] public payoutSchedule;
     mapping(address => uint256) public fundingTotals;
     mapping(uint256 => bool) public tierClaimed;
-    bool public isFixedPayout;
 
     /**
     Funding goal
