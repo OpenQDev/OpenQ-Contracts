@@ -182,31 +182,31 @@ async function deployContracts() {
 	*/
 	let addresses;
 	if (network.name === 'docker' || network.name === 'localhost') {
-		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationV1.address}"
-CLAIM_MANAGER_PROXY_ADDRESS="${claimManagerProxy.address}"
-DEPOSIT_MANAGER_PROXY_ADDRESS="${depositManagerProxy.address}"
-OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
-BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV1.address}"
-OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
-OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
-MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
-MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
-MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS="${mockDaiBlacklisted.address}"
+		addresses = `OPENQ_PROXY_ADDRESS=${openQProxy.address}
+OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV1.address}
+CLAIM_MANAGER_PROXY_ADDRESS=${claimManagerProxy.address}
+DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
+OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
+BOUNTY_BEACON_ADDRESS=${bountyBeacon.address}
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS=${bountyV1.address}
+OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
+OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
+MOCK_LINK_TOKEN_ADDRESS=${mockLink.address}
+MOCK_DAI_TOKEN_ADDRESS=${mockDai.address}
+MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS=${mockDaiBlacklisted.address}
 `;
 	} else {
-		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementationV1.address}"
-CLAIM_MANAGER_PROXY_ADDRESS="${claimManagerProxy.address}"
-DEPOSIT_MANAGER_PROXY_ADDRESS="${depositManagerProxy.address}"
-OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
-BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV1.address}"
-OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
-OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
-MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
-MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"
+		addresses = `OPENQ_PROXY_ADDRESS=${openQProxy.address}
+OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV1.address}
+CLAIM_MANAGER_PROXY_ADDRESS=${claimManagerProxy.address}
+DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
+OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
+BOUNTY_BEACON_ADDRESS=${bountyBeacon.address}
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS=${bountyV1.address}
+OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
+OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
+MOCK_LINK_TOKEN_ADDRESS=0x326C977E6efc84E512bB9C30f76E30c160eD06FB
+MOCK_DAI_TOKEN_ADDRESS=0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1
 `;
 	}
 
