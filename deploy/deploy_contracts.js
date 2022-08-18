@@ -78,7 +78,7 @@ async function deployContracts() {
 	console.log(`Claim Manager Proxy Deployed to ${claimManagerProxy.address} in block number ${deployBlockNumber_claimManagerProxy}\n`);
 
 	// Attach the DepositManager ABI to the OpenQProxy address to send method calls to the delegatecall
-	claimManagerProxy = await ClaimManager.attach(claimManager.address);
+	claimManagerProxy = await ClaimManager.attach(claimManagerProxy.address);
 
 	await claimManagerProxy.initialize(process.env.ORACLE_ADDRESS);
 
