@@ -39,7 +39,6 @@ async function configureWhitelist() {
 	for (let token of tokenMetadata) {
 		console.log(`Adding ${token.name} at address ${token.address}`);
 		await openQTokenWhitelist.addToken(token.address);
-		await openQTokenWhitelist.addToken(token.address);
 	}
 
 	console.log('OpenQTokenWhitelist successfully configured with default tokens');

@@ -457,6 +457,7 @@ contract BountyV1 is BountyStorageV1 {
         onlyClaimManager
     {
         require(status == 0, 'CLOSING_CLOSED_BOUNTY');
+        require(_payoutAddress != address(0), 'NO_ZERO_ADDRESS');
         status = 1;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
