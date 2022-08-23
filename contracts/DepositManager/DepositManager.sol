@@ -136,7 +136,7 @@ contract DepositManager is DepositManagerStorageV1 {
         emit NFTDepositReceived(
             depositId,
             _bountyAddress,
-            'NFTDepositReceived_bountyIdMock',
+            bounty.bountyId(),
             bounty.organization(),
             _tokenAddress,
             block.timestamp,

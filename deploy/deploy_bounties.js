@@ -1,7 +1,7 @@
 const { ethers, network } = require('hardhat');
 const { optionalSleep } = require('./utils');
 const path = require('path');
-const { openQIssueIds, otherOrgIssueIds } = require('./gitHubIssueIds.json');
+const { openQIssueIds, otherOrgIssueIds, otherOrgIssueOwners } = require('./gitHubIssueIds.json');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 async function deployBounties() {
@@ -51,7 +51,7 @@ async function deployBounties() {
 	console.log('Atomic Contract with no funding goal deployed!');
 
 	console.log('Minting Atomic Contract with no funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[0], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', atomicBountyNoFundingGoalInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[0], otherOrgIssueOwners[0], atomicBountyNoFundingGoalInitOperation);
 	await optionalSleep(10000);
 	console.log('Atomic Contract with no funding goal deployed!');
 
@@ -61,7 +61,7 @@ async function deployBounties() {
 	console.log('Atomic Contract with funding goal deployed!');
 
 	console.log('Minting Atomic Contract with funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[1], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', atomicBountyInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[1], otherOrgIssueOwners[1], atomicBountyInitOperation);
 	await optionalSleep(10000);
 	console.log('Atomic Contract with funding goal deployed!');
 
@@ -72,7 +72,7 @@ async function deployBounties() {
 	console.log('Ongoing contract with no funding goal deployed!');
 
 	console.log('Minting Ongoing contract with no funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[2], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyNoFundingGoalInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[2], otherOrgIssueOwners[2], ongoingBountyNoFundingGoalInitOperation);
 	await optionalSleep(10000);
 	console.log('Ongoing contract with no funding goal deployed!');
 
@@ -82,7 +82,7 @@ async function deployBounties() {
 	console.log('Ongoing contract with funding goal deployed!');
 
 	console.log('Minting Ongoing contract with funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[3], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[3], otherOrgIssueOwners[3], ongoingBountyInitOperation);
 	await optionalSleep(10000);
 	console.log('Ongoing contract with funding goal deployed!');
 
@@ -93,7 +93,7 @@ async function deployBounties() {
 	console.log('Contest percentage contract with funding goal deployed!');
 
 	console.log('Minting Contest percentage contract with funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[4], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[4], otherOrgIssueOwners[4], contestPercentageInitOperation);
 	await optionalSleep(10000);
 	console.log('Contest percentage contract with funding goal deployed!');
 
@@ -103,7 +103,7 @@ async function deployBounties() {
 	console.log('Contest percentage contract with no  funding goal deployed!');
 
 	console.log('Minting Contest percentage contract with no funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[5], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageNoFundingGoalInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[5], otherOrgIssueOwners[5], contestPercentageNoFundingGoalInitOperation);
 	await optionalSleep(10000);
 	console.log('Contest percentage contract with no  funding goal deployed!');
 
@@ -113,7 +113,7 @@ async function deployBounties() {
 	console.log('Minting Contest fixed contract deployed!');
 
 	console.log('Minting Contest fixed contract...');
-	await openQ.mintBounty(otherOrgIssueIds[6], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestFixedInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[6], otherOrgIssueOwners[6], contestFixedInitOperation);
 	await optionalSleep(10000);
 	console.log('Minting Contest fixed contract deployed!');
 

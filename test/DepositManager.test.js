@@ -326,6 +326,24 @@ describe('DepositManager.sol', () => {
 			expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
 		});
 
+		it.only('should emit an NFTDepositReceived event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await mockNft.approve(bountyAddress, 1);
+
+			// ASSUME
+			expect(await mockNft.ownerOf(1)).to.equal(owner.address);
+
+			const depositId = generateDepositId(bountyId, 0);
+			const expectedTimestamp = await setNextBlockTimestamp();
+
+			// ACT/ASSERT
+			await expect(depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0))
+				.to.emit(depositManager, 'NFTDepositReceived')
+				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockNft.address, expectedTimestamp, owner.address, 1, 1, 0, [], 1);
+		});
+
 		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, depositId, tokenStandard, tokenId, bountyType and data', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
