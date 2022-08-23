@@ -326,7 +326,7 @@ describe('DepositManager.sol', () => {
 			expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
 		});
 
-		it.only('should emit an NFTDepositReceived event', async () => {
+		it('should emit an NFTDepositReceived event', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);

@@ -640,6 +640,7 @@ contract BountyV1 is BountyStorageV1 {
         external
         onlyOpenQ
     {
+        require(bountyType == 2, 'BOUNTY_NOT_PERCENTAGE_COMPETITION');
         uint256 sum;
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
             sum += _payoutSchedule[i];
@@ -653,6 +654,7 @@ contract BountyV1 is BountyStorageV1 {
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
     ) external onlyOpenQ {
+        require(bountyType == 3, 'BOUNTY_NOT_FIXED_COMPETITION');
         payoutSchedule = _payoutSchedule;
         payoutTokenAddress = _payoutTokenAddress;
     }

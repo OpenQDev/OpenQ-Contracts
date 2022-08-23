@@ -1114,6 +1114,11 @@ describe('BountyV1.sol', () => {
 			await expect(tieredContract.connect(notOwner).setPayoutSchedule([80, 20])).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
+		it('should revert if not a percentage competition', async () => {
+			// ACT / ASSERT
+			await expect(tieredFixedContract.setPayoutSchedule([80, 20])).to.be.revertedWith('BOUNTY_NOT_PERCENTAGE_COMPETITION');
+		});
+
 		it('should revert if payoutschedule doesnt add to 100', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
@@ -1149,6 +1154,11 @@ describe('BountyV1.sol', () => {
 
 			// ASSERT
 			await expect(tieredFixedContract.connect(notOwner).setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it('should revert if not a fixed competition', async () => {
+			// ACT / ASSERT
+			await expect(tieredContract.setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('BOUNTY_NOT_FIXED_COMPETITION');
 		});
 
 		it('should set payout schedule and payout token address', async () => {
