@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe('BountyV1.sol', () => {
+describe.only('BountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV1;
 
@@ -309,9 +309,9 @@ describe('BountyV1.sol', () => {
 				await tieredContract.closeCompetition(owner.address);
 				await ongoingContract.closeOngoing(owner.address);
 
-				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
-				await expect(ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
-				await expect(tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('BOUNTY_IS_CLOSED');
+				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('CONTRACT_IS_CLOSED');
+				await expect(ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('CONTRACT_IS_CLOSED');
+				await expect(tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('CONTRACT_IS_CLOSED');
 			});
 		});
 
@@ -821,7 +821,7 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if competition is not closed', async () => {
 				// ACT/ASSERT
-				await expect(tieredContract.connect(claimManager).claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+				await expect(tieredContract.connect(claimManager).claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('CONTRACT_NOT_CLOSED');
 			});
 
 			it('should revert if not called by claim manager', async () => {
@@ -871,7 +871,7 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if competition is not closed', async () => {
 				// ACT/ASSERT
-				await expect(tieredFixedContract.connect(claimManager).claimTieredFixed(owner.address, 0)).to.be.revertedWith('COMPETITION_NOT_CLOSED');
+				await expect(tieredFixedContract.connect(claimManager).claimTieredFixed(owner.address, 0)).to.be.revertedWith('CONTRACT_NOT_CLOSED');
 			});
 
 			it('should revert if not called by claim manager', async () => {
@@ -935,7 +935,7 @@ describe('BountyV1.sol', () => {
 				// ARRANGE
 				atomicContract.connect(claimManager).close(owner.address, closerData);
 				//ACT / ASSERT
-				await expect(atomicContract.connect(claimManager).close(owner.address, closerData)).to.be.revertedWith('CLOSING_CLOSED_BOUNTY');
+				await expect(atomicContract.connect(claimManager).close(owner.address, closerData)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 			});
 
 			it('should change status to CLOSED (1)', async () => {
@@ -988,12 +988,12 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if caller is not issuer', async () => {
 				const [, notOwner] = await ethers.getSigners();
-				await expect(ongoingContract.closeOngoing(notOwner.address)).to.be.revertedWith('BOUNTY_CLOSER_NOT_ISSUER');
+				await expect(ongoingContract.closeOngoing(notOwner.address)).to.be.revertedWith('CALLER_NOT_ISSUER');
 			});
 
 			it('should revert if already closed', async () => {
 				await ongoingContract.closeOngoing(owner.address);
-				await expect(ongoingContract.closeOngoing(owner.address)).to.be.revertedWith('ONGOING_BOUNTY_ALREADY_CLOSED');
+				await expect(ongoingContract.closeOngoing(owner.address)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 			});
 		});
 
@@ -1037,12 +1037,12 @@ describe('BountyV1.sol', () => {
 
 			it('should revert if caller is not issuer', async () => {
 				const [, notOwner] = await ethers.getSigners();
-				await expect(tieredContract.closeCompetition(notOwner.address)).to.be.revertedWith('COMPETITION_CLOSER_NOT_ISSUER');
+				await expect(tieredContract.closeCompetition(notOwner.address)).to.be.revertedWith('CALLER_NOT_ISSUER');
 			});
 
 			it('should revert if already closed', async () => {
 				await tieredContract.closeCompetition(owner.address);
-				await expect(tieredContract.closeCompetition(owner.address)).to.be.revertedWith('COMPETITION_ALREADY_CLOSED');
+				await expect(tieredContract.closeCompetition(owner.address)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 			});
 		});
 	});
@@ -1116,7 +1116,7 @@ describe('BountyV1.sol', () => {
 
 		it('should revert if not a percentage competition', async () => {
 			// ACT / ASSERT
-			await expect(tieredFixedContract.setPayoutSchedule([80, 20])).to.be.revertedWith('BOUNTY_NOT_PERCENTAGE_COMPETITION');
+			await expect(tieredFixedContract.setPayoutSchedule([80, 20])).to.be.revertedWith('NOT_A_TIERED_BOUNTY');
 		});
 
 		it('should revert if payoutschedule doesnt add to 100', async () => {
@@ -1158,7 +1158,7 @@ describe('BountyV1.sol', () => {
 
 		it('should revert if not a fixed competition', async () => {
 			// ACT / ASSERT
-			await expect(tieredContract.setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('BOUNTY_NOT_FIXED_COMPETITION');
+			await expect(tieredContract.setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('NOT_A_FIXED_TIERED_BOUNTY');
 		});
 
 		it('should set payout schedule and payout token address', async () => {

@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe.only('OpenQV1.sol', () => {
+describe('OpenQV1.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -488,7 +488,7 @@ describe.only('OpenQV1.sol', () => {
 		});
 	});
 
-	describe.only('closeOngoing', () => {
+	describe('closeOngoing', () => {
 		it('should close ongoing', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);

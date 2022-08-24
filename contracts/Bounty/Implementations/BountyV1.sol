@@ -6,6 +6,7 @@ pragma solidity 0.8.16;
  */
 import '../../Storage/BountyStorage.sol';
 import '../../Library/OpenQDefinitions.sol';
+import '../../Library/Errors.sol';
 import 'hardhat/console.sol';
 
 /**
@@ -39,8 +40,8 @@ contract BountyV1 is BountyStorageV1 {
         address _depositManager,
         OpenQDefinitions.InitOperation memory operation
     ) external initializer {
-        require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
-        require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
+        require(bytes(_bountyId).length != 0, Errors.NO_EMPTY_BOUNTY_ID);
+        require(bytes(_organization).length != 0, Errors.NO_EMPTY_ORGANIZATION);
 
         __ReentrancyGuard_init();
 
@@ -171,7 +172,7 @@ contract BountyV1 is BountyStorageV1 {
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
             sum += _payoutSchedule[i];
         }
-        require(sum == 100, 'PAYOUT_SCHEDULE_MUST_ADD_TO_100');
+        require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
         payoutSchedule = _payoutSchedule;
 
         hasFundingGoal = _hasFundingGoal;
@@ -217,10 +218,9 @@ contract BountyV1 is BountyStorageV1 {
         nonReentrant
         returns (bytes32, uint256)
     {
-        require(_volume != 0, 'ZERO_VOLUME_SENT');
-        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
-        require(status == 0, 'BOUNTY_IS_CLOSED');
-        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
+        require(_volume != 0, Errors.ZERO_VOLUME_SENT);
+        require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
+        require(status == 0, Errors.CONTRACT_IS_CLOSED);
 
         bytes32 depositId = _generateDepositId();
 
@@ -261,9 +261,9 @@ contract BountyV1 is BountyStorageV1 {
     ) external onlyDepositManager nonReentrant returns (bytes32) {
         require(
             nftDeposits.length < nftDepositLimit,
-            'NFT_DEPOSIT_LIMIT_REACHED'
+            Errors.NFT_DEPOSIT_LIMIT_REACHED
         );
-        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
+        require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
         bytes32 depositId = _generateDepositId();
@@ -293,14 +293,11 @@ contract BountyV1 is BountyStorageV1 {
         nonReentrant
     {
         // Check
-        require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
-        require(
-            funder[_depositId] == _funder,
-            'ONLY_FUNDER_CAN_REQUEST_REFUND'
-        );
+        require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
+        require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
         require(
             block.timestamp >= depositTime[_depositId] + expiration[_depositId],
-            'PREMATURE_REFUND_REQUEST'
+            Errors.PREMATURE_REFUND_REQUEST
         );
 
         // Effects
@@ -335,12 +332,9 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _seconds,
         address _funder
     ) external onlyDepositManager nonReentrant returns (uint256) {
-        require(status == 0, 'CLOSED_BOUNTY');
-        require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
-        require(
-            funder[_depositId] == _funder,
-            'ONLY_FUNDER_CAN_REQUEST_EXTENSION'
-        );
+        require(status == 0, Errors.CONTRACT_IS_CLOSED);
+        require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
+        require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
 
         expiration[_depositId] = expiration[_depositId] + _seconds;
 
@@ -396,9 +390,12 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _tier,
         address _tokenAddress
     ) external onlyClaimManager nonReentrant returns (uint256) {
-        require(status == OpenQDefinitions.CLOSED, 'COMPETITION_NOT_CLOSED');
-        require(bountyType == OpenQDefinitions.TIERED, 'NOT_A_TIERED_BOUNTY');
-        require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
+        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
+        require(
+            bountyType == OpenQDefinitions.TIERED,
+            Errors.NOT_A_TIERED_BOUNTY
+        );
+        require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
 
         uint256 claimedBalance = (payoutSchedule[_tier] *
             fundingTotals[_tokenAddress]) / 100;
@@ -418,12 +415,12 @@ contract BountyV1 is BountyStorageV1 {
         nonReentrant
         returns (uint256)
     {
-        require(status == OpenQDefinitions.CLOSED, 'COMPETITION_NOT_CLOSED');
+        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
         require(
             bountyType == OpenQDefinitions.TIERED_FIXED,
-            'NOT_A_TIERED_FIXED_BOUNTY'
+            Errors.NOT_A_TIERED_FIXED_BOUNTY
         );
-        require(!tierClaimed[_tier], 'TIER_ALREADY_CLAIMED');
+        require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
 
         uint256 claimedBalance = payoutSchedule[_tier];
 
@@ -456,8 +453,8 @@ contract BountyV1 is BountyStorageV1 {
         external
         onlyClaimManager
     {
-        require(status == 0, 'CLOSING_CLOSED_BOUNTY');
-        require(_payoutAddress != address(0), 'NO_ZERO_ADDRESS');
+        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
+        require(_payoutAddress != address(0), Errors.NO_ZERO_ADDRESS);
         status = 1;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
@@ -468,8 +465,8 @@ contract BountyV1 is BountyStorageV1 {
      * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
      */
     function closeCompetition(address _closer) external onlyOpenQ {
-        require(status == 0, 'COMPETITION_ALREADY_CLOSED');
-        require(_closer == issuer, 'COMPETITION_CLOSER_NOT_ISSUER');
+        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
+        require(_closer == issuer, Errors.CALLER_NOT_ISSUER);
 
         status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
@@ -486,9 +483,9 @@ contract BountyV1 is BountyStorageV1 {
     function closeOngoing(address _closer) external onlyOpenQ {
         require(
             status == OpenQDefinitions.OPEN,
-            'ONGOING_BOUNTY_ALREADY_CLOSED'
+            Errors.CONTRACT_ALREADY_CLOSED
         );
-        require(_closer == issuer, 'BOUNTY_CLOSER_NOT_ISSUER');
+        require(_closer == issuer, Errors.CALLER_NOT_ISSUER);
 
         status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
@@ -547,7 +544,10 @@ contract BountyV1 is BountyStorageV1 {
         IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         token.safeTransferFrom(_funder, address(this), _volume);
         uint256 balanceAfter = getERC20Balance(_tokenAddress);
-        require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
+        require(
+            balanceAfter >= balanceBefore,
+            Errors.TOKEN_TRANSFER_IN_OVERFLOW
+        );
 
         /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
          * is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
@@ -640,12 +640,12 @@ contract BountyV1 is BountyStorageV1 {
         external
         onlyOpenQ
     {
-        require(bountyType == 2, 'BOUNTY_NOT_PERCENTAGE_COMPETITION');
+        require(bountyType == 2, Errors.NOT_A_TIERED_BOUNTY);
         uint256 sum;
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
             sum += _payoutSchedule[i];
         }
-        require(sum == 100, 'PAYOUT_SCHEDULE_MUST_ADD_TO_100');
+        require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
 
         payoutSchedule = _payoutSchedule;
     }
@@ -654,7 +654,7 @@ contract BountyV1 is BountyStorageV1 {
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
     ) external onlyOpenQ {
-        require(bountyType == 3, 'BOUNTY_NOT_FIXED_COMPETITION');
+        require(bountyType == 3, Errors.NOT_A_FIXED_TIERED_BOUNTY);
         payoutSchedule = _payoutSchedule;
         payoutTokenAddress = _payoutTokenAddress;
     }
