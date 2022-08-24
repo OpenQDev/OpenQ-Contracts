@@ -66,6 +66,7 @@ export interface OpenQV1Interface extends utils.Interface {
     "setPayout(string,address,uint256)": FunctionFragment;
     "setPayoutSchedule(string,uint256[])": FunctionFragment;
     "setPayoutScheduleFixed(string,uint256[],address)": FunctionFragment;
+    "solvent(string)": FunctionFragment;
     "tierClaimed(string,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
@@ -98,6 +99,7 @@ export interface OpenQV1Interface extends utils.Interface {
       | "setPayout"
       | "setPayoutSchedule"
       | "setPayoutScheduleFixed"
+      | "solvent"
       | "tierClaimed"
       | "transferOwnership"
       | "upgradeTo"
@@ -215,6 +217,10 @@ export interface OpenQV1Interface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "solvent",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tierClaimed",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -309,6 +315,7 @@ export interface OpenQV1Interface extends utils.Interface {
     functionFragment: "setPayoutScheduleFixed",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "solvent", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tierClaimed",
     data: BytesLike
@@ -812,6 +819,11 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    solvent(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     tierClaimed(
       _bountyId: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
@@ -943,6 +955,11 @@ export interface OpenQV1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  solvent(
+    _bountyId: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   tierClaimed(
     _bountyId: PromiseOrValue<string>,
     _tier: PromiseOrValue<BigNumberish>,
@@ -1069,6 +1086,11 @@ export interface OpenQV1 extends BaseContract {
       _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    solvent(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     tierClaimed(
       _bountyId: PromiseOrValue<string>,
@@ -1493,6 +1515,11 @@ export interface OpenQV1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    solvent(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tierClaimed(
       _bountyId: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
@@ -1623,6 +1650,11 @@ export interface OpenQV1 extends BaseContract {
       _payoutSchedule: PromiseOrValue<BigNumberish>[],
       _payoutTokenAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    solvent(
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     tierClaimed(

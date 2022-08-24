@@ -332,6 +332,14 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         return _tierClaimed;
     }
 
+    function solvent(string calldata _bountyId) external view returns (bool) {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV1 bounty = BountyV1(payable(bountyAddress));
+
+        uint256 balance = bounty.getTokenBalance(bounty.payoutTokenAddress());
+        return balance >= bounty.payoutVolume();
+    }
+
     function ongoingClaimed(
         string calldata _bountyId,
         string calldata claimant,

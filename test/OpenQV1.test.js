@@ -488,6 +488,33 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
+	describe.only('solvent', () => {
+		it('should return TRUE for solvent ongoing contracts', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
+
+			const solvent = await openQProxy.solvent(bountyId);
+			expect(solvent).to.equal(true);
+		});
+
+		it('should return FALSE for insolvent ongoing contracts', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			const solvent = await openQProxy.solvent(bountyId);
+			expect(solvent).to.equal(false);
+		});
+	});
+
 	describe('closeOngoing', () => {
 		it('should close ongoing', async () => {
 			// ARRANGE
