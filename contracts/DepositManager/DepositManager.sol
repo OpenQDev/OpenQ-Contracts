@@ -2,6 +2,7 @@
 pragma solidity 0.8.16;
 
 import './DepositManagerStorage.sol';
+import '../Library/Errors.sol';
 
 contract DepositManager is DepositManagerStorageV1 {
     /**
@@ -48,11 +49,11 @@ contract DepositManager is DepositManagerStorageV1 {
         if (!isWhitelisted(_tokenAddress)) {
             require(
                 !tokenAddressLimitReached(_bountyAddress),
-                'TOO_MANY_TOKEN_ADDRESSES'
+                Errors.TOO_MANY_TOKEN_ADDRESSES
             );
         }
 
-        require(bountyIsOpen(_bountyAddress), 'FUNDING_CLOSED_BOUNTY');
+        require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
             value: msg.value
@@ -89,7 +90,7 @@ contract DepositManager is DepositManagerStorageV1 {
 
         require(
             bounty.funder(_depositId) == msg.sender,
-            'ONLY_FUNDER_CAN_REQUEST_EXTENSION'
+            Errors.CALLER_NOT_FUNDER
         );
 
         uint256 newExpiration = bounty.extendDeposit(
@@ -122,8 +123,8 @@ contract DepositManager is DepositManagerStorageV1 {
     ) external onlyProxy {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
-        require(isWhitelisted(_tokenAddress), 'TOKEN_NOT_ACCEPTED');
-        require(bountyIsOpen(_bountyAddress), 'FUNDING_CLOSED_BOUNTY');
+        require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
+        require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
 
         bytes32 depositId = bounty.receiveNft(
             msg.sender,
@@ -162,13 +163,13 @@ contract DepositManager is DepositManagerStorageV1 {
 
         require(
             bounty.funder(_depositId) == msg.sender,
-            'ONLY_FUNDER_CAN_REQUEST_REFUND'
+            Errors.CALLER_NOT_FUNDER
         );
 
         require(
             block.timestamp >=
                 bounty.depositTime(_depositId) + bounty.expiration(_depositId),
-            'PREMATURE_REFUND_REQUEST'
+            Errors.PREMATURE_REFUND_REQUEST
         );
 
         bounty.refundDeposit(_depositId, msg.sender);

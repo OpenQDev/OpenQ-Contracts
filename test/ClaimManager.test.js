@@ -286,7 +286,7 @@ describe('ClaimManager.sol', () => {
 					await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 					// ASSERT
-					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('BOUNTY_IS_NOT_CLAIMABLE');
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('CONTRACT_IS_NOT_CLAIMABLE');
 				});
 			});
 
@@ -497,7 +497,7 @@ describe('ClaimManager.sol', () => {
 					await openQProxy.closeOngoing(bountyId);
 
 					// ACT/ASSERT
-					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('BOUNTY_IS_NOT_CLAIMABLE');
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData)).to.be.revertedWith('CONTRACT_IS_NOT_CLAIMABLE');
 				});
 			});
 
@@ -579,7 +579,7 @@ describe('ClaimManager.sol', () => {
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 					// ACT/ASSERT
-					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData)).to.be.revertedWith('BOUNTY_IS_NOT_CLAIMABLE');
+					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData)).to.be.revertedWith('CONTRACT_IS_NOT_CLAIMABLE');
 				});
 			});
 

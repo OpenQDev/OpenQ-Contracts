@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -199,7 +199,7 @@ describe('DepositManager.sol', () => {
 			await mockLink.approve(bountyAddress, 10000000);
 
 			// ACT + ASSERT;
-			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
+			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
 		it('should revert if tiered bounty is already closed', async () => {
@@ -215,7 +215,7 @@ describe('DepositManager.sol', () => {
 			await mockDai.approve(bountyAddress, 10000000);
 
 			// ACT + ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1)).to.be.revertedWith('FUNDING_CLOSED_BOUNTY');
+			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
 		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
@@ -443,7 +443,7 @@ describe('DepositManager.sol', () => {
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
 
 				// ACT / ASSERT
-				await expect(depositManager.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('ONLY_FUNDER_CAN_REQUEST_REFUND');
+				await expect(depositManager.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('CALLER_NOT_FUNDER');
 			});
 		});
 

@@ -2,6 +2,7 @@
 pragma solidity 0.8.16;
 
 import './ClaimManagerStorage.sol';
+import '../Library/Errors.sol';
 
 /**
  * @title OpenQV1
@@ -35,7 +36,10 @@ contract ClaimManager is ClaimManagerStorageV1 {
         address _closer,
         bytes calldata _closerData
     ) external onlyOracle onlyProxy {
-        require(bountyIsClaimable(_bountyAddress), 'BOUNTY_IS_NOT_CLAIMABLE');
+        require(
+            bountyIsClaimable(_bountyAddress),
+            Errors.CONTRACT_IS_NOT_CLAIMABLE
+        );
 
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
@@ -148,7 +152,7 @@ contract ClaimManager is ClaimManagerStorageV1 {
             (address, string, address, string, uint256)
         );
 
-        require(!bounty.tierClaimed(_tier), 'TIER_ALREADY_CLAIMED');
+        require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
 
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimTiered(
@@ -204,7 +208,7 @@ contract ClaimManager is ClaimManagerStorageV1 {
             (address, string, address, string, uint256)
         );
 
-        require(!bounty.tierClaimed(_tier), 'TIER_ALREADY_CLAIMED');
+        require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
 
         uint256 volume = bounty.claimTieredFixed(_closer, _tier);
 
@@ -291,10 +295,7 @@ contract ClaimManager is ClaimManagerStorageV1 {
      * @param _newOracle The new oracle address
      */
     function transferOracle(address _newOracle) external onlyProxy onlyOwner {
-        require(
-            _newOracle != address(0),
-            'Oraclize: new oracle is the zero address'
-        );
+        require(_newOracle != address(0), Errors.NO_ZERO_ADDRESS);
         _transferOracle(_newOracle);
     }
 }
