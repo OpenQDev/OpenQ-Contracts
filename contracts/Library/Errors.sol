@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity 0.8.16;
+
+library Errors {
+    string constant BOUNTY_ALREADY_EXISTS = 'BOUNTY_ALREADY_EXISTS';
+    string constant CALLER_NOT_ISSUER = 'CALLER_NOT_ISSUER';
+    string constant COMPETITION_ALREADY_CLOSED = 'COMPETITION_ALREADY_CLOSED';
+    string constant CONTRACT_ALREADY_CLOSED = 'CONTRACT_ALREADY_CLOSED';
+    string constant NOT_A_COMPETITION_CONTRACT = 'NOT_A_COMPETITION_CONTRACT';
+    string constant NOT_AN_ONGOING_CONTRACT = 'NOT_AN_ONGOING_CONTRACT';
+}

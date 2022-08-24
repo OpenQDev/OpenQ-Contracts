@@ -8,6 +8,7 @@ import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
 import 'hardhat/console.sol';
 import '../../Library/OpenQDefinitions.sol';
+import '../../Library/Errors.sol';
 
 /**
  * @title OpenQV1
@@ -47,7 +48,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     ) external nonReentrant onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),
-            'BOUNTY_ALREADY_EXISTS'
+            Errors.BOUNTY_ALREADY_EXISTS
         );
 
         address bountyAddress = bountyFactory.mintBounty(
@@ -125,7 +126,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setFundingGoal(_fundingGoalToken, _fundingGoalVolume);
 
@@ -153,7 +154,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setPayout(_payoutToken, _payoutVolume);
 
@@ -179,7 +180,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setPayoutSchedule(_payoutSchedule);
 
@@ -207,7 +208,7 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV1 bounty = BountyV1(payable(bountyAddress));
 
-        require(msg.sender == bounty.issuer(), 'CALLER_NOT_ISSUER');
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setPayoutScheduleFixed(_payoutSchedule, _payoutTokenAddress);
 
@@ -222,15 +223,15 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     function closeCompetition(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId), 'COMPETITION_ALREADY_CLOSED');
+        require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
         require(
             bountyType(_bountyId) == OpenQDefinitions.TIERED ||
                 bountyType(_bountyId) == OpenQDefinitions.TIERED_FIXED,
-            'NOT_A_COMPETITION_BOUNTY'
+            Errors.NOT_A_COMPETITION_CONTRACT
         );
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
-        require(msg.sender == bounty.issuer(), 'CLOSER_NOT_ISSUER');
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.closeCompetition(msg.sender);
 
@@ -247,14 +248,14 @@ contract OpenQV1 is OpenQStorageV1, IOpenQ {
     }
 
     function closeOngoing(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId), 'ONGOING_BOUNTY_ALREADY_CLOSED');
+        require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
         require(
             bountyType(_bountyId) == OpenQDefinitions.ONGOING,
-            'NOT_AN_ONGOING_BOUNTY'
+            Errors.NOT_AN_ONGOING_CONTRACT
         );
 
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
-        require(msg.sender == bounty.issuer(), 'CLOSER_NOT_ISSUER');
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.closeOngoing(msg.sender);
 

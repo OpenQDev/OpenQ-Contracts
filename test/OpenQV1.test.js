@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV1.sol', () => {
+describe.only('OpenQV1.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -435,7 +435,38 @@ describe('OpenQV1.sol', () => {
 			expect(status).to.equal(0);
 
 			// ASSERT
-			await expect(openQProxy.closeCompetition(bountyId)).to.be.revertedWith('NOT_A_COMPETITION_BOUNTY');
+			await expect(openQProxy.closeCompetition(bountyId)).to.be.revertedWith('NOT_A_COMPETITION_CONTRACT');
+		});
+
+		it('should revert if already closed', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			let status = await bounty.status();
+			expect(status).to.equal(0);
+
+			// ASSERT
+			await openQProxy.closeCompetition(bountyId);
+			await expect(openQProxy.closeCompetition(bountyId)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
+		});
+
+		it('should revert if caller not issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			let status = await bounty.status();
+			expect(status).to.equal(0);
+
+			// ASSERT
+			await expect(openQProxy.connect(notIssuer).closeCompetition(bountyId)).to.be.revertedWith('CALLER_NOT_ISSUER');
 		});
 
 		it('should emit BountyClosed', async () => {
@@ -457,7 +488,7 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
-	describe('closeOngoing', () => {
+	describe.only('closeOngoing', () => {
 		it('should close ongoing', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
@@ -489,7 +520,38 @@ describe('OpenQV1.sol', () => {
 			expect(status).to.equal(0);
 
 			// ASSERT
-			await expect(openQProxy.closeOngoing(bountyId)).to.be.revertedWith('NOT_AN_ONGOING_BOUNTY');
+			await expect(openQProxy.closeOngoing(bountyId)).to.be.revertedWith('NOT_AN_ONGOING_CONTRACT');
+		});
+
+		it('should revert if already closed', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			let status = await bounty.status();
+			expect(status).to.equal(0);
+			await openQProxy.closeOngoing(bountyId);
+
+			// ASSERT
+			await expect(openQProxy.closeOngoing(bountyId)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
+		});
+
+		it('should revert if caller not issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			let status = await bounty.status();
+			expect(status).to.equal(0);
+
+			// ASSERT
+			await expect(openQProxy.connect(notIssuer).closeOngoing(bountyId)).to.be.revertedWith('CALLER_NOT_ISSUER');
 		});
 
 		it('should emit BountyClosed', async () => {
