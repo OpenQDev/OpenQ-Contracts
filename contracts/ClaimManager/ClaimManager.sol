@@ -2,11 +2,10 @@
 pragma solidity 0.8.16;
 
 import './ClaimManagerStorage.sol';
-import '../Library/Errors.sol';
 
 /**
- * @title OpenQV1
- * @dev Main administrative contract for all bounty operations
+ * @title ClaimManager
+ * @dev Contract with claim abilities on work contracts
  */
 contract ClaimManager is ClaimManagerStorageV1 {
     /**

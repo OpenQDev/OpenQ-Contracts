@@ -2,7 +2,6 @@
 pragma solidity 0.8.16;
 
 import './DepositManagerStorage.sol';
-import '../Library/Errors.sol';
 
 contract DepositManager is DepositManagerStorageV1 {
     /**

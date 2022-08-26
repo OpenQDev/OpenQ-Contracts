@@ -6,13 +6,14 @@ pragma solidity 0.8.16;
  */
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
-import '../OpenQ/IOpenQ.sol';
 
 /**
  * @dev Custom imports inherited by DepositManagerV1
  */
+import '../OpenQ/IOpenQ.sol';
 import '../Tokens/OpenQTokenWhitelist.sol';
 import '../Bounty/Implementations/BountyV1.sol';
+import '../Library/Errors.sol';
 
 /**
  * @title DepositManagerStorageV1
