@@ -29,9 +29,21 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC1967UpgradeUpgradeable__factory>;
     getContractFactory(
+      name: "Initializable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Initializable__factory>;
+    getContractFactory(
       name: "UUPSUpgradeable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UUPSUpgradeable__factory>;
+    getContractFactory(
+      name: "ReentrancyGuardUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReentrancyGuardUpgradeable__factory>;
+    getContractFactory(
+      name: "IERC20PermitUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20PermitUpgradeable__factory>;
     getContractFactory(
       name: "IERC20Upgradeable",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -44,6 +56,14 @@ declare module "hardhat/types/runtime" {
       name: "IERC721Upgradeable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC721Upgradeable__factory>;
+    getContractFactory(
+      name: "ERC721HolderUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC721HolderUpgradeable__factory>;
+    getContractFactory(
+      name: "ContextUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ContextUpgradeable__factory>;
     getContractFactory(
       name: "IERC165Upgradeable",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -117,10 +137,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC165__factory>;
     getContractFactory(
-      name: "BountyV0",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.BountyV0__factory>;
-    getContractFactory(
       name: "BountyV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BountyV1__factory>;
@@ -133,13 +149,33 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BountyFactory__factory>;
     getContractFactory(
+      name: "ClaimManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClaimManager__factory>;
+    getContractFactory(
+      name: "ClaimManagerOwnable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClaimManagerOwnable__factory>;
+    getContractFactory(
+      name: "ClaimManagerStorageV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClaimManagerStorageV1__factory>;
+    getContractFactory(
+      name: "DepositManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DepositManager__factory>;
+    getContractFactory(
+      name: "DepositManagerOwnable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DepositManagerOwnable__factory>;
+    getContractFactory(
+      name: "DepositManagerStorageV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DepositManagerStorageV1__factory>;
+    getContractFactory(
       name: "OnlyOpenQ",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OnlyOpenQ__factory>;
-    getContractFactory(
-      name: "OpenQV0",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OpenQV0__factory>;
     getContractFactory(
       name: "OpenQV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -165,14 +201,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BountyStorageV1__factory>;
     getContractFactory(
-      name: "NewBaseContract",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.NewBaseContract__factory>;
-    getContractFactory(
-      name: "OpenQStorageV0",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OpenQStorageV0__factory>;
-    getContractFactory(
       name: "OpenQStorageV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQStorageV1__factory>;
@@ -192,6 +220,10 @@ declare module "hardhat/types/runtime" {
       name: "OpenQTokenWhitelist",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQTokenWhitelist__factory>;
+    getContractFactory(
+      name: "TestToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TestToken__factory>;
     getContractFactory(
       name: "TokenWhitelist",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -222,10 +254,25 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC1967UpgradeUpgradeable>;
     getContractAt(
+      name: "Initializable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Initializable>;
+    getContractAt(
       name: "UUPSUpgradeable",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.UUPSUpgradeable>;
+    getContractAt(
+      name: "ReentrancyGuardUpgradeable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReentrancyGuardUpgradeable>;
+    getContractAt(
+      name: "IERC20PermitUpgradeable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20PermitUpgradeable>;
     getContractAt(
       name: "IERC20Upgradeable",
       address: string,
@@ -241,6 +288,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC721Upgradeable>;
+    getContractAt(
+      name: "ERC721HolderUpgradeable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC721HolderUpgradeable>;
+    getContractAt(
+      name: "ContextUpgradeable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ContextUpgradeable>;
     getContractAt(
       name: "IERC165Upgradeable",
       address: string,
@@ -332,11 +389,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC165>;
     getContractAt(
-      name: "BountyV0",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.BountyV0>;
-    getContractAt(
       name: "BountyV1",
       address: string,
       signer?: ethers.Signer
@@ -352,15 +404,40 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BountyFactory>;
     getContractAt(
+      name: "ClaimManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClaimManager>;
+    getContractAt(
+      name: "ClaimManagerOwnable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClaimManagerOwnable>;
+    getContractAt(
+      name: "ClaimManagerStorageV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClaimManagerStorageV1>;
+    getContractAt(
+      name: "DepositManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DepositManager>;
+    getContractAt(
+      name: "DepositManagerOwnable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DepositManagerOwnable>;
+    getContractAt(
+      name: "DepositManagerStorageV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DepositManagerStorageV1>;
+    getContractAt(
       name: "OnlyOpenQ",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OnlyOpenQ>;
-    getContractAt(
-      name: "OpenQV0",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OpenQV0>;
     getContractAt(
       name: "OpenQV1",
       address: string,
@@ -392,16 +469,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BountyStorageV1>;
     getContractAt(
-      name: "NewBaseContract",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.NewBaseContract>;
-    getContractAt(
-      name: "OpenQStorageV0",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OpenQStorageV0>;
-    getContractAt(
       name: "OpenQStorageV1",
       address: string,
       signer?: ethers.Signer
@@ -426,6 +493,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OpenQTokenWhitelist>;
+    getContractAt(
+      name: "TestToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestToken>;
     getContractAt(
       name: "TokenWhitelist",
       address: string,

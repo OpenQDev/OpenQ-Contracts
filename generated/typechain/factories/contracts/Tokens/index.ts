@@ -6,4 +6,5 @@ export { MockDai__factory } from "./MockDai__factory";
 export { MockLink__factory } from "./MockLink__factory";
 export { MockNft__factory } from "./MockNft__factory";
 export { OpenQTokenWhitelist__factory } from "./OpenQTokenWhitelist__factory";
+export { TestToken__factory } from "./TestToken__factory";
 export { TokenWhitelist__factory } from "./TokenWhitelist__factory";

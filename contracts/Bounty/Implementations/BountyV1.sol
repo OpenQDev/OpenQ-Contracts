@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 /**
  * @dev Custom imports
@@ -12,7 +12,6 @@ import '../../Storage/BountyStorage.sol';
  */
 contract BountyV1 is BountyStorageV1 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
-    using SafeMathUpgradeable for uint256;
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
@@ -24,28 +23,179 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Initializes a bounty proxy with initial state
-     * @param _bountyId The unique bountyId
+     * @param _bountyId The unique bounty identifier
      * @param _issuer The sender of the mint bounty transaction
-     * @param _organization The organization that owns the bounty
+     * @param _organization The organization associated with the bounty
      * @param _openQ The OpenQProxy address
+     * @param _claimManager The Claim Manager address
+     * @param _depositManager The Deposit Manager address
      */
     function initialize(
         string memory _bountyId,
         address _issuer,
         string memory _organization,
-        address _openQ
+        address _openQ,
+        address _claimManager,
+        address _depositManager,
+        OpenQDefinitions.InitOperation memory operation
     ) external initializer {
-        require(bytes(_bountyId).length != 0, 'NO_EMPTY_BOUNTY_ID');
-        require(bytes(_organization).length != 0, 'NO_EMPTY_ORGANIZATION');
+        require(bytes(_bountyId).length != 0, Errors.NO_EMPTY_BOUNTY_ID);
+        require(bytes(_organization).length != 0, Errors.NO_EMPTY_ORGANIZATION);
 
         __ReentrancyGuard_init();
+
         __OnlyOpenQ_init(_openQ);
+        __ClaimManagerOwnable_init(_claimManager);
+        __DepositManagerOwnable_init(_depositManager);
 
         bountyId = _bountyId;
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
+
+        _initByType(operation);
+    }
+
+    /**
+     * @dev Initializes a bounty based on its type
+     * @param _operation ABI-encoded data determining the type of bounty being initialized and associated data
+     */
+    function _initByType(OpenQDefinitions.InitOperation memory _operation)
+        internal
+    {
+        uint32 operationType = _operation.operationType;
+        if (operationType == OpenQDefinitions.ATOMIC) {
+            (
+                bool _hasFundingGoal,
+                address _fundingToken,
+                uint256 _fundingGoal
+            ) = abi.decode(_operation.data, (bool, address, uint256));
+            _initAtomic(_hasFundingGoal, _fundingToken, _fundingGoal);
+        } else if (operationType == OpenQDefinitions.ONGOING) {
+            (
+                address _payoutTokenAddress,
+                uint256 _payoutVolume,
+                bool _hasFundingGoal,
+                address _fundingGoalToken,
+                uint256 _fundingGoal
+            ) = abi.decode(
+                    _operation.data,
+                    (address, uint256, bool, address, uint256)
+                );
+            _initOngoingBounty(
+                _payoutTokenAddress,
+                _payoutVolume,
+                _hasFundingGoal,
+                _fundingGoalToken,
+                _fundingGoal
+            );
+        } else if (operationType == OpenQDefinitions.TIERED) {
+            (
+                uint256[] memory _payoutSchedule,
+                bool _hasFundingGoal,
+                address _fundingGoalToken,
+                uint256 _fundingGoal
+            ) = abi.decode(
+                    _operation.data,
+                    (uint256[], bool, address, uint256)
+                );
+            _initTiered(
+                _payoutSchedule,
+                _hasFundingGoal,
+                _fundingGoalToken,
+                _fundingGoal
+            );
+        } else if (operationType == OpenQDefinitions.TIERED_FIXED) {
+            (
+                uint256[] memory _payoutSchedule,
+                address _payoutTokenAddress
+            ) = abi.decode(_operation.data, (uint256[], address));
+            _initTieredFixed(_payoutSchedule, _payoutTokenAddress);
+        } else {
+            revert('OQ: unknown init operation type');
+        }
+    }
+
+    /**
+     * @dev Initializes an atomic contract with initial state
+     * @param _hasFundingGoal If a funding goal has been set
+     * @param _fundingToken The token address to be used for funding
+     * @param _fundingGoal The funding token volume
+     */
+    function _initAtomic(
+        bool _hasFundingGoal,
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) internal {
+        bountyType = OpenQDefinitions.ATOMIC;
+        hasFundingGoal = _hasFundingGoal;
+        fundingToken = _fundingToken;
+        fundingGoal = _fundingGoal;
+    }
+
+    /**
+     * @dev Initializes an ongoing bounty proxy with initial state
+     * @param _payoutTokenAddress The token address for ongoing payouts
+     * @param _payoutVolume The volume of token to payout for each successful claim
+     * @param _hasFundingGoal If a funding goal has been set
+     * @param _fundingToken The token address to be used for funding
+     * @param _fundingGoal The funding token volume
+     */
+    function _initOngoingBounty(
+        address _payoutTokenAddress,
+        uint256 _payoutVolume,
+        bool _hasFundingGoal,
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) internal {
+        bountyType = OpenQDefinitions.ONGOING;
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _payoutVolume;
+
+        hasFundingGoal = _hasFundingGoal;
+        fundingToken = _fundingToken;
+        fundingGoal = _fundingGoal;
+    }
+
+    /**
+     * @dev Initializes a bounty proxy with initial state
+     * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
+     * @param _hasFundingGoal If a funding goal has been set
+     * @param _fundingToken The token address to be used for funding
+     * @param _fundingGoal The funding token volume
+     */
+    function _initTiered(
+        uint256[] memory _payoutSchedule,
+        bool _hasFundingGoal,
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) internal {
+        bountyType = OpenQDefinitions.TIERED;
+        uint256 sum;
+        for (uint256 i = 0; i < _payoutSchedule.length; i++) {
+            sum += _payoutSchedule[i];
+        }
+        require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
+        payoutSchedule = _payoutSchedule;
+
+        hasFundingGoal = _hasFundingGoal;
+        fundingToken = _fundingToken;
+        fundingGoal = _fundingGoal;
+    }
+
+    /**
+     * @dev Initializes a fixed tiered bounty proxy with initial state
+     * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
+     * @param _payoutTokenAddress Fixed token address for funding
+     */
+    function _initTieredFixed(
+        uint256[] memory _payoutSchedule,
+        address _payoutTokenAddress
+    ) internal {
+        bountyType = OpenQDefinitions.TIERED_FIXED;
+        payoutSchedule = _payoutSchedule;
+        payoutTokenAddress = _payoutTokenAddress;
     }
 
     /**
@@ -65,9 +215,16 @@ contract BountyV1 is BountyStorageV1 {
         address _tokenAddress,
         uint256 _volume,
         uint256 _expiration
-    ) external payable onlyOpenQ nonReentrant returns (bytes32, uint256) {
-        require(_volume != 0, 'ZERO_VOLUME_SENT');
-        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
+    )
+        external
+        payable
+        onlyDepositManager
+        nonReentrant
+        returns (bytes32, uint256)
+    {
+        require(_volume != 0, Errors.ZERO_VOLUME_SENT);
+        require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
+        require(status == 0, Errors.CONTRACT_IS_CLOSED);
 
         bytes32 depositId = _generateDepositId();
 
@@ -97,19 +254,21 @@ contract BountyV1 is BountyStorageV1 {
      * @param _tokenAddress The ERC721 token address of the NFT
      * @param _tokenId The tokenId of the NFT to transfer
      * @param _expiration The duration until the deposit becomes refundable
+     * @param _tier (optional) The tier associated with the bounty (only relevant if bounty type is tiered)
      * @return depositId
      */
     function receiveNft(
         address _sender,
         address _tokenAddress,
         uint256 _tokenId,
-        uint256 _expiration
-    ) external onlyOpenQ nonReentrant returns (bytes32) {
+        uint256 _expiration,
+        uint256 _tier
+    ) external onlyDepositManager nonReentrant returns (bytes32) {
         require(
             nftDeposits.length < nftDepositLimit,
-            'NFT_DEPOSIT_LIMIT_REACHED'
+            Errors.NFT_DEPOSIT_LIMIT_REACHED
         );
-        require(_expiration > 0, 'EXPIRATION_NOT_GREATER_THAN_ZERO');
+        require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
         _receiveNft(_tokenAddress, _sender, _tokenId);
 
         bytes32 depositId = _generateDepositId();
@@ -120,6 +279,7 @@ contract BountyV1 is BountyStorageV1 {
         tokenId[depositId] = _tokenId;
         expiration[depositId] = _expiration;
         isNFT[depositId] = true;
+        tier[depositId] = _tier;
 
         deposits.push(depositId);
         nftDeposits.push(depositId);
@@ -134,19 +294,15 @@ contract BountyV1 is BountyStorageV1 {
      */
     function refundDeposit(bytes32 _depositId, address _funder)
         external
-        onlyOpenQ
+        onlyDepositManager
         nonReentrant
     {
         // Check
-        require(refunded[_depositId] == false, 'DEPOSIT_ALREADY_REFUNDED');
+        require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
+        require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
         require(
-            funder[_depositId] == _funder,
-            'ONLY_FUNDER_CAN_REQUEST_REFUND'
-        );
-        require(
-            block.timestamp >=
-                depositTime[_depositId].add(expiration[_depositId]),
-            'PREMATURE_REFUND_REQUEST'
+            block.timestamp >= depositTime[_depositId] + expiration[_depositId],
+            Errors.PREMATURE_REFUND_REQUEST
         );
 
         // Effects
@@ -171,26 +327,109 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
+     * @dev Extends deposit duration
+     * @param _depositId The deposit to extend
+     * @param _seconds Number of seconds to extend deposit
+     * @param _funder The initial funder of the deposit
+     */
+    function extendDeposit(
+        bytes32 _depositId,
+        uint256 _seconds,
+        address _funder
+    ) external onlyDepositManager nonReentrant returns (uint256) {
+        require(status == 0, Errors.CONTRACT_IS_CLOSED);
+        require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
+        require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
+
+        expiration[_depositId] = expiration[_depositId] + _seconds;
+
+        return expiration[_depositId];
+    }
+
+    /**
      * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
-     * @param _tokenAddress A unique string to identify a bounty
-     * @param _payoutAddress The destination address for the fund
+     * @param _tokenAddress ERC20 token address or Zero Address for protocol token
+     * @param _payoutAddress The destination address for the funds
      */
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
-        onlyOpenQ
+        onlyClaimManager
         nonReentrant
         returns (uint256)
     {
-        uint256 claimedBalance;
+        uint256 claimedBalance = getTokenBalance(_tokenAddress);
+        _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
+        return claimedBalance;
+    }
 
-        if (_tokenAddress == address(0)) {
-            claimedBalance = address(this).balance;
-            _transferProtocolToken(_payoutAddress, claimedBalance);
-        } else {
-            claimedBalance = getERC20Balance(_tokenAddress);
-            _transferERC20(_tokenAddress, _payoutAddress, claimedBalance);
-        }
+    /**
+     * @dev Transfers a payout amount of an ongoing bounty to claimant for claimant asset
+     * @param _payoutAddress The destination address for the funds
+     * @param _closerData ABI-encoded data of the claimant and claimant asset
+     */
+    function claimOngoingPayout(
+        address _payoutAddress,
+        bytes calldata _closerData
+    ) external onlyClaimManager nonReentrant returns (address, uint256) {
+        (, string memory claimant, , string memory claimantAsset) = abi.decode(
+            _closerData,
+            (address, string, address, string)
+        );
 
+        bytes32 _claimantId = _generateClaimantId(claimant, claimantAsset);
+
+        claimantId[_claimantId] = true;
+
+        _transferToken(payoutTokenAddress, payoutVolume, _payoutAddress);
+        return (payoutTokenAddress, payoutVolume);
+    }
+
+    /**
+     * @dev Transfers the tiered percentage of the token balance of _tokenAddress from bounty to _payoutAddress
+     * @param _payoutAddress The destination address for the fund
+     * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
+     * @param _tokenAddress The token address being claimed
+     */
+    function claimTiered(
+        address _payoutAddress,
+        uint256 _tier,
+        address _tokenAddress
+    ) external onlyClaimManager nonReentrant returns (uint256) {
+        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
+        require(
+            bountyType == OpenQDefinitions.TIERED,
+            Errors.NOT_A_TIERED_BOUNTY
+        );
+        require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
+
+        uint256 claimedBalance = (payoutSchedule[_tier] *
+            fundingTotals[_tokenAddress]) / 100;
+
+        _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
+        return claimedBalance;
+    }
+
+    /**
+     * @dev Transfers the fixed amount of balance associated with the tier
+     * @param _payoutAddress The destination address for the fund
+     * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
+     */
+    function claimTieredFixed(address _payoutAddress, uint256 _tier)
+        external
+        onlyClaimManager
+        nonReentrant
+        returns (uint256)
+    {
+        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
+        require(
+            bountyType == OpenQDefinitions.TIERED_FIXED,
+            Errors.NOT_A_TIERED_FIXED_BOUNTY
+        );
+        require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
+
+        uint256 claimedBalance = payoutSchedule[_tier];
+
+        _transferToken(payoutTokenAddress, claimedBalance, _payoutAddress);
         return claimedBalance;
     }
 
@@ -201,10 +440,9 @@ contract BountyV1 is BountyStorageV1 {
      */
     function claimNft(address _payoutAddress, bytes32 _depositId)
         external
-        onlyOpenQ
+        onlyClaimManager
         nonReentrant
     {
-        require(status == 0, 'CLAIMING_CLOSED_BOUNTY');
         _transferNft(
             tokenAddress[_depositId],
             _payoutAddress,
@@ -213,19 +451,91 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSEd)
+     * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSED)
      * @param _payoutAddress The closer of the bounty
+     * @param _closerData ABI-encoded data about the claimant and claimant asset
      */
-    function close(address _payoutAddress) external onlyOpenQ {
-        require(this.status() == 0, 'CLOSING_CLOSED_BOUNTY');
+    function close(address _payoutAddress, bytes calldata _closerData)
+        external
+        onlyClaimManager
+    {
+        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
+        require(_payoutAddress != address(0), Errors.NO_ZERO_ADDRESS);
         status = 1;
         closer = _payoutAddress;
+        bountyClosedTime = block.timestamp;
+        closerData = _closerData;
+    }
+
+    /**
+     * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
+     * @param _closer Address of the closer
+     */
+    function closeCompetition(address _closer) external onlyOpenQ {
+        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
+        require(_closer == issuer, Errors.CALLER_NOT_ISSUER);
+
+        status = OpenQDefinitions.CLOSED;
+        bountyClosedTime = block.timestamp;
+
+        for (uint256 i = 0; i < getTokenAddresses().length; i++) {
+            address _tokenAddress = getTokenAddresses()[i];
+            fundingTotals[_tokenAddress] = getTokenBalance(_tokenAddress);
+        }
+    }
+
+    /**
+     * @dev Similar to close() for single priced bounties. Stops all withdrawls.
+     * @param _closer Address of the closer
+     */
+    function closeOngoing(address _closer) external onlyOpenQ {
+        require(
+            status == OpenQDefinitions.OPEN,
+            Errors.CONTRACT_ALREADY_CLOSED
+        );
+        require(_closer == issuer, Errors.CALLER_NOT_ISSUER);
+
+        status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
     }
 
     /**
      * TRANSFER HELPERS
      */
+
+    /**
+     * @dev Returns token balance for both ERC20 or protocol token
+     * @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
+     */
+    function getTokenBalance(address _tokenAddress)
+        public
+        view
+        returns (uint256)
+    {
+        if (_tokenAddress == address(0)) {
+            return address(this).balance;
+        } else {
+            return getERC20Balance(_tokenAddress);
+        }
+    }
+
+    /**
+     * @dev Transfers _volume of both ERC20 or protocol token to _payoutAddress
+     * @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
+     * @param _volume Volume to transfer
+     * @param _payoutAddress Destination address
+     */
+    function _transferToken(
+        address _tokenAddress,
+        uint256 _volume,
+        address _payoutAddress
+    ) internal {
+        if (_tokenAddress == address(0)) {
+            _transferProtocolToken(_payoutAddress, _volume);
+        } else {
+            _transferERC20(_tokenAddress, _payoutAddress, _volume);
+        }
+    }
 
     /**
      * @dev Receives _volume of ERC20 at _tokenAddress from _funder to bounty address
@@ -242,12 +552,15 @@ contract BountyV1 is BountyStorageV1 {
         IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         token.safeTransferFrom(_funder, address(this), _volume);
         uint256 balanceAfter = getERC20Balance(_tokenAddress);
-        require(balanceAfter >= balanceBefore, 'TOKEN_TRANSFER_IN_OVERFLOW');
+        require(
+            balanceAfter >= balanceBefore,
+            Errors.TOKEN_TRANSFER_IN_OVERFLOW
+        );
 
         /* The reason we take the balanceBefore and balanceAfter rather than the raw volume
          * is because certain ERC20 contracts ( e.g. USDT) take fees on transfers.
          * Therefore the volume received after transferFrom can be lower than the raw volume sent by the sender */
-        return balanceAfter.sub(balanceBefore);
+        return balanceAfter - balanceBefore;
     }
 
     /**
@@ -307,6 +620,77 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
+     * SETTERS
+     */
+
+    /**
+     * @dev Sets tierClaimed to true for the given tier
+     * @param _tier The tier being claimed
+     */
+    function setTierClaimed(uint256 _tier) external onlyClaimManager {
+        tierClaimed[_tier] = true;
+    }
+
+    /**
+     * @dev Sets the funding goal
+     * @param _fundingToken Token address for funding goal
+     * @param _fundingGoal Token volume for funding goal
+     */
+    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
+        external
+        onlyOpenQ
+    {
+        fundingGoal = _fundingGoal;
+        fundingToken = _fundingToken;
+        hasFundingGoal = true;
+    }
+
+    /**
+     * @dev Sets the funding goal
+     * @param _payoutTokenAddress Sets payout token address
+     * @param _payoutVolume Sets payout token volume
+     */
+    function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
+        external
+        onlyOpenQ
+    {
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _payoutVolume;
+    }
+
+    /**
+     * @dev Sets the payout schedule
+     * @param _payoutSchedule Array of payout schedule
+     */
+    function setPayoutSchedule(uint256[] calldata _payoutSchedule)
+        external
+        onlyOpenQ
+    {
+        require(bountyType == 2, Errors.NOT_A_TIERED_BOUNTY);
+        uint256 sum;
+        for (uint256 i = 0; i < _payoutSchedule.length; i++) {
+            sum += _payoutSchedule[i];
+        }
+        require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
+
+        payoutSchedule = _payoutSchedule;
+    }
+
+    /**
+     * @dev Sets the payout schedule
+     * @param _payoutSchedule Array of payout schedule
+     * @param _payoutTokenAddress Token address to be used for payouts
+     */
+    function setPayoutScheduleFixed(
+        uint256[] calldata _payoutSchedule,
+        address _payoutTokenAddress
+    ) external onlyOpenQ {
+        require(bountyType == 3, Errors.NOT_A_FIXED_TIERED_BOUNTY);
+        payoutSchedule = _payoutSchedule;
+        payoutTokenAddress = _payoutTokenAddress;
+    }
+
+    /**
      * UTILITY
      */
 
@@ -315,6 +699,16 @@ contract BountyV1 is BountyStorageV1 {
      */
     function _generateDepositId() internal view returns (bytes32) {
         return keccak256(abi.encode(bountyId, deposits.length));
+    }
+
+    /**
+     * @dev Generates a unique claimant ID from user and asset
+     */
+    function _generateClaimantId(
+        string memory claimant,
+        string memory claimantAsset
+    ) internal pure returns (bytes32) {
+        return keccak256(abi.encode(claimant, claimantAsset));
     }
 
     /**
@@ -340,6 +734,14 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
+     * @dev Returns an array for the payoutSchedule
+     * @return payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
+     */
+    function getPayoutSchedule() external view returns (uint256[] memory) {
+        return payoutSchedule;
+    }
+
+    /**
      * @dev Returns an array of ONLY NFT deposits for this bounty
      * @return nftDeposits The array of NFT deposits
      */
@@ -356,29 +758,19 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev receive() method to accept protocol tokens
+     * @dev Returns the total number of unique tokens deposited on the bounty
+     * @return tokenAddressesCount The length of the array of all ERC20 token addresses which have funded this bounty
      */
-    receive() external payable {}
-
-    /**
-     * @dev Override of IERC721ReceiverUpgradeable.onERC721Received(address,address,uint256,bytes) to enable receiving NFTs
-     */
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure override returns (bytes4) {
-        return
-            bytes4(
-                keccak256('onERC721Received(address,address,uint256,bytes)')
-            );
+    function getTokenAddressesCount() external view returns (uint256) {
+        return tokenAddresses.values().length;
     }
 
     /**
-     * @dev Reverts any attempt to send unknown calldata
+     * @dev receive() method to accept protocol tokens
      */
-    fallback() external {
-        revert();
+    receive() external payable {
+        revert(
+            'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'
+        );
     }
 }

@@ -19,29 +19,29 @@ describe('OpenQProxy', () => {
 	let BountyFactory;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV0');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
 		OpenQTokenWhitelist = await hre.ethers.getContractFactory('OpenQTokenWhitelist');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 
 		[owner, notOwner, oracle] = await ethers.getSigners();
 
-		// Deploy OpenQV0 Implementation
+		// Deploy OpenQV1 Implementation
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
 
 		randomContractUpgradeAddress = await OpenQImplementation.deploy();
 		await randomContractUpgradeAddress.deployed();
 
-		// Deploy OpenQProxy with the previously deployed OpenQV0 implementation's address
+		// Deploy OpenQProxy with the previously deployed OpenQV1 implementation's address
 		openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
 		await openQProxy.deployed();
 
-		// Attach the OpenQV0 ABI to the OpenQProxy address to send method calls to the delegatecall
+		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
-		await openQProxy.initialize(oracle.address);
+		await openQProxy.initialize();
 	});
 
 	describe('constructor', () => {
@@ -74,7 +74,7 @@ describe('OpenQProxy', () => {
 			// ASSUME
 			expect(await openQProxy.getImplementation()).equals(openQImplementation.address);
 
-			const OpenQ = await hre.ethers.getContractFactory('OpenQV0');
+			const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
 			newOpenQ = await OpenQ.deploy();
 			await newOpenQ.deployed();
 
@@ -93,33 +93,6 @@ describe('OpenQProxy', () => {
 
 			// ACT / ASSERT
 			await expect(openQProxy.upgradeTo(notOwner.address)).to.be.reverted;
-		});
-	});
-
-	describe('transferOracle', () => {
-		it('should revert if not called by owner', async () => {
-			// ARRANGE
-			[, notOwner] = await ethers.getSigners();
-			let notOwnerContract = openQProxy.connect(notOwner);
-
-			// ACT / ASSERT
-			await expect(notOwnerContract.transferOracle(randomContractUpgradeAddress.address)).to.be.revertedWith('Ownable: caller is not the owner');
-		});
-
-		it('should revert if not called via delegatecall', async () => {
-			// ACT / ASSERT
-			await expect(openQImplementation.transferOracle(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
-		});
-
-		it('should transfer oracle address', async () => {
-			// ASSUME
-			expect(await openQProxy.oracle()).equals(oracle.address);
-
-			// ACT
-			await openQProxy.transferOracle(notOwner.address);
-
-			// ASSERT
-			expect(await openQProxy.oracle()).equals(notOwner.address);
 		});
 	});
 
@@ -147,37 +120,6 @@ describe('OpenQProxy', () => {
 
 			// ASSERT
 			expect(await openQProxy.bountyFactory()).equals(notOwner.address);
-		});
-	});
-
-	describe('setOpenQTokenWhitelist', () => {
-		it('should revert if not called by owner', async () => {
-			// ARRANGE
-			[, notOwner] = await ethers.getSigners();
-			let notOwnerContract = openQProxy.connect(notOwner);
-
-			// ACT / ASSERT
-			await expect(notOwnerContract.setTokenWhitelist(randomContractUpgradeAddress.address)).to.be.revertedWith('Ownable: caller is not the owner');
-		});
-
-		it('should revert if not called via delegatecall', async () => {
-			// ACT / ASSERT
-			await expect(openQImplementation.setTokenWhitelist(randomContractUpgradeAddress.address)).to.be.revertedWith('Function must be called through delegatecall');
-		});
-
-		it('should set OpenQTokenWhitelist', async () => {
-			// ASSUME
-			expect(await openQProxy.openQTokenWhitelist()).equals(ethers.constants.AddressZero);
-
-			// ARRANGE
-			const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);
-			await openQTokenWhitelist.deployed();
-
-			// ACT
-			await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
-
-			// ASSERT
-			expect(await openQProxy.openQTokenWhitelist()).equals(openQTokenWhitelist.address);
 		});
 	});
 });

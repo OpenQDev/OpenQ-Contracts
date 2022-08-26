@@ -11,6 +11,19 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "version",
+        type: "uint8",
+      },
+    ],
+    name: "Initialized",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "bountyClosedTime",
     outputs: [
@@ -51,6 +64,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "claimManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "closer",
     outputs: [
       {
@@ -67,9 +93,22 @@ const _abi = [
     name: "closerData",
     outputs: [
       {
-        internalType: "string",
+        internalType: "bytes",
         name: "",
-        type: "string",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "depositManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -219,22 +258,22 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "operator",
+        name: "",
         type: "address",
       },
       {
         internalType: "address",
-        name: "from",
+        name: "",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "tokenId",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "bytes",
-        name: "data",
+        name: "",
         type: "bytes",
       },
     ],
@@ -316,6 +355,25 @@ const _abi = [
   {
     inputs: [],
     name: "status",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "tier",
     outputs: [
       {
         internalType: "uint256",

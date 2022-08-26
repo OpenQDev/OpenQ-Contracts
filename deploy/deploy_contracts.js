@@ -34,11 +34,9 @@ async function deployContracts() {
 		console.log(`MockDai (Blacklisted) Deployed to ${mockDaiBlacklisted.address}\n`);
 	}
 
-	console.log('Deploying OpenQV0 (Implementation)...');
-	const OpenQImplementation = await ethers.getContractFactory('OpenQV0');
-	const openQImplementation = await OpenQImplementation.deploy();
-	await openQImplementation.deployed();
-	console.log(`OpenQV0 (Implementation) Deployed to ${openQImplementation.address}\n`);
+	console.log('\n------------------------------------------');
+	console.log('DEPLOYING OPENQ MAIN CONTRACT');
+	console.log('------------------------------------------');
 
 	console.log('Deploying OpenQV1 (Implementation)...');
 	const OpenQImplementationV1 = await ethers.getContractFactory('OpenQV1');
@@ -48,30 +46,79 @@ async function deployContracts() {
 
 	console.log('Deploying OpenQProxy...');
 	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
-	let openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
+	let openQProxy = await OpenQProxy.deploy(openQImplementationV1.address, []);
 	const confirmation = await openQProxy.deployed();
-	const deployBlockNumber = parseInt(confirmation.provider._fastBlockNumber);
+	const deployBlockNumber = 1;
 	await optionalSleep(10000);
-	console.log(`OpenQV0 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}\n`);
+	console.log(`OpenQV1 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}\n`);
 
-	// Attach the OpenQV0 ABI to the OpenQProxy address to send method calls to the delegatecall
-	openQProxy = await OpenQImplementation.attach(openQProxy.address);
+	// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
+	openQProxy = await OpenQImplementationV1.attach(openQProxy.address);
 
-	await openQProxy.initialize(process.env.ORACLE_ADDRESS);
+	await openQProxy.initialize();
+
+	console.log('\n------------------------------------------');
+	console.log('DEPLOYING OPENQ CLAIM MANAGER');
+	console.log('------------------------------------------');
+
+	console.log('Deploying Claim Manager Implementation...');
+	const ClaimManager = await ethers.getContractFactory('ClaimManager');
+	let claimManager = await ClaimManager.deploy();
+	const claimManagerConfirmation = await claimManager.deployed();
+	const deployBlockNumber_claimManager = 1;
+	await optionalSleep(10000);
+	console.log(`Claim Manager Implementation Deployed to ${claimManager.address} in block number ${deployBlockNumber_claimManager}\n`);
+
+	console.log('Deploying Claim Manager Proxy...');
+	const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
+	let claimManagerProxy = await ClaimManagerProxy.deploy(claimManager.address, []);
+	const claimManagerProxyConfirmation = await claimManagerProxy.deployed();
+	const deployBlockNumber_claimManagerProxy = 1;
+	await optionalSleep(10000);
+	console.log(`Claim Manager Proxy Deployed to ${claimManagerProxy.address} in block number ${deployBlockNumber_claimManagerProxy}\n`);
+
+	// Attach the DepositManager ABI to the OpenQProxy address to send method calls to the delegatecall
+	claimManagerProxy = await ClaimManager.attach(claimManagerProxy.address);
+
+	await claimManagerProxy.initialize(process.env.ORACLE_ADDRESS);
+
+	console.log('\n------------------------------------------');
+	console.log('DEPLOYING OPENQ DEPOSIT MANAGER');
+	console.log('------------------------------------------');
+
+	console.log('Deploying Deposit Manager Implementation...');
+	const DepositManager = await ethers.getContractFactory('DepositManager');
+	let depositManager = await DepositManager.deploy();
+	const depositManagerConfirmation = await depositManager.deployed();
+	const deployBlockNumber_depositManager = 1;
+	await optionalSleep(10000);
+	console.log(`Deposit Manager Implementation Deployed to ${depositManager.address} in block number ${deployBlockNumber_depositManager}\n`);
+
+	console.log('Deploying Deposit Manager Proxy...');
+	const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
+	let depositManagerProxy = await DepositManagerProxy.deploy(depositManager.address, []);
+	const depositManagerProxyConfirmation = await depositManagerProxy.deployed();
+	const deployBlockNumber_depositManagerProxy = 1;
+	await optionalSleep(10000);
+	console.log(`Deposit Manager Proxy Deployed to ${depositManagerProxy.address} in block number ${deployBlockNumber_depositManagerProxy}\n`);
+
+	// Attach the DepositManager ABI to the DepositManager proxy address to send method calls to the delegatecall
+	depositManagerProxy = await DepositManager.attach(depositManagerProxy.address);
+
+	await depositManagerProxy.initialize();
 
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(1);
+	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5);
 	await openQTokenWhitelist.deployed();
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
 
-	console.log('Deploying BountyV0...');
-	const BountyV0 = await ethers.getContractFactory('BountyV0');
-	const bountyV0 = await BountyV0.deploy();
-	await bountyV0.deployed();
+	console.log('\nConfiguring DepositManager with OpenQTokenWhitelist...');
+	console.log(`Setting OpenQTokenWhitelist on DepositManager to ${openQTokenWhitelist.address}...`);
+	await depositManagerProxy.setTokenWhitelist(openQTokenWhitelist.address);
 	await optionalSleep(10000);
-	console.log(`BountyV0 Deployed to ${bountyV0.address}\n`);
+	console.log(`OpenQTokenWhitelist successfully set on DepositManager to ${openQTokenWhitelist.address}`);
 
 	console.log('Deploying BountyV1...');
 	const BountyV1 = await ethers.getContractFactory('BountyV1');
@@ -82,7 +129,7 @@ async function deployContracts() {
 
 	console.log('Deploying BountyBeacon...');
 	const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
-	const bountyBeacon = await BountyBeacon.deploy(bountyV0.address);
+	const bountyBeacon = await BountyBeacon.deploy(bountyV1.address);
 	await bountyBeacon.deployed();
 	await optionalSleep(10000);
 	console.log(`BountyBeacon Deployed to ${bountyBeacon.address}\n`);
@@ -95,12 +142,10 @@ async function deployContracts() {
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
 
 	console.log('OPENQ ADDRESSES');
-	console.log(`OpenQV0 (Proxy) deployed to: ${openQProxy.address}`);
-	console.log(`OpenQV0 (Implementation) deployed to: ${openQImplementation.address}`);
+	console.log(`OpenQV1 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV1.address}`);
 
 	console.log('\nBOUNTY ADDRESSES');
-	console.log(`BountyV0 (Implementation) deployed to ${bountyV0.address}`);
 	console.log(`BountyV1 (Implementation) deployed to ${bountyV1.address}\n`);
 	console.log(`BountyBeacon deployed to ${bountyBeacon.address}`);
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
@@ -111,17 +156,23 @@ async function deployContracts() {
 		console.log(`MockDai (BlackListed) deployed to: ${mockDaiBlacklisted.address}`);
 	}
 
-	console.log('\nConfiguring OpenQV0 with BountyFactory...');
-	console.log(`Setting BountyFactory on OpenQV0 to ${bountyFactory.address}...`);
+	console.log('\nConfiguring OpenQV1 with BountyFactory...');
+	console.log(`Setting BountyFactory on OpenQV1 to ${bountyFactory.address}...`);
 	await openQProxy.setBountyFactory(bountyFactory.address);
 	await optionalSleep(10000);
-	console.log(`BountyFactory successfully set on OpenQV0 to ${bountyFactory.address}`);
+	console.log(`BountyFactory successfully set on OpenQV1 to ${bountyFactory.address}`);
 
-	console.log('\nConfiguring OpenQV0 with OpenQTokenWhitelist...');
-	console.log(`Setting OpenQTokenWhitelist on OpenQV0 to ${openQTokenWhitelist.address}...`);
-	await openQProxy.setTokenWhitelist(openQTokenWhitelist.address);
+	console.log('\nConfiguring OpenQV1 with DepositManager...');
+	console.log(`Setting BountyFactory on OpenQV1 to ${depositManagerProxy.address}...`);
+	await openQProxy.setDepositManager(depositManagerProxy.address);
 	await optionalSleep(10000);
-	console.log(`OpenQTokenWhitelist successfully set on OpenQV0 to ${openQTokenWhitelist.address}`);
+	console.log(`DepositManager successfully set on OpenQV1 to ${depositManagerProxy.address}`);
+
+	console.log('\nConfiguring OpenQV1 with ClaimManager...');
+	console.log(`Setting BountyFactory on OpenQV1 to ${claimManagerProxy.address}...`);
+	await openQProxy.setClaimManager(claimManagerProxy.address);
+	await optionalSleep(10000);
+	console.log(`ClaimManager successfully set on OpenQV1 to ${claimManagerProxy.address}`);
 
 	console.log('\nContracts deployed and configured successfully!');
 
@@ -131,31 +182,35 @@ async function deployContracts() {
 	*/
 	let addresses;
 	if (network.name === 'docker' || network.name === 'localhost') {
-		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
-OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
-BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV0.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_V1_ADDRESS="${bountyV1.address}"
-OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
-OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
-MOCK_LINK_TOKEN_ADDRESS="${mockLink.address}"
-MOCK_DAI_TOKEN_ADDRESS="${mockDai.address}"
-MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS="${mockDaiBlacklisted.address}"
+		addresses = `OPENQ_PROXY_ADDRESS=${openQProxy.address}
+OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV1.address}
+CLAIM_MANAGER_PROXY_ADDRESS=${claimManagerProxy.address}
+CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManager.address}
+DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
+DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
+OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
+BOUNTY_BEACON_ADDRESS=${bountyBeacon.address}
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS=${bountyV1.address}
+OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
+OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
+MOCK_LINK_TOKEN_ADDRESS=${mockLink.address}
+MOCK_DAI_TOKEN_ADDRESS=${mockDai.address}
+MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS=${mockDaiBlacklisted.address}
 `;
 	} else {
-		addresses = `OPENQ_PROXY_ADDRESS="${openQProxy.address}"
-OPENQ_IMPLEMENTATION_ADDRESS="${openQImplementation.address}"
-OPENQ_IMPLEMENTATION_ADDRESS_V1="${openQImplementationV1.address}"
-OPENQ_BOUNTY_FACTORY_ADDRESS="${bountyFactory.address}"
-BOUNTY_BEACON_ADDRESS="${bountyBeacon.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS="${bountyV0.address}"
-OPENQ_BOUNTY_IMPLEMENTATION_V1_ADDRESS="${bountyV1.address}"
-OPENQ_TOKEN_WHITELIST_ADDRESS="${openQTokenWhitelist.address}"
-OPENQ_DEPLOY_BLOCK_NUMBER="${deployBlockNumber}"
-MOCK_LINK_TOKEN_ADDRESS="0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
-MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"
-MOCK_DAI_TOKEN_ADDRESS="0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1"
+		addresses = `OPENQ_PROXY_ADDRESS=${openQProxy.address}
+OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV1.address}
+CLAIM_MANAGER_PROXY_ADDRESS=${claimManagerProxy.address}
+CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManager.address}
+DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
+DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
+OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
+BOUNTY_BEACON_ADDRESS=${bountyBeacon.address}
+OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS=${bountyV1.address}
+OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
+OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
+MOCK_LINK_TOKEN_ADDRESS=0x326C977E6efc84E512bB9C30f76E30c160eD06FB
+MOCK_DAI_TOKEN_ADDRESS=0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1
 `;
 	}
 

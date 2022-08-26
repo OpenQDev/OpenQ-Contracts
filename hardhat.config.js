@@ -1,5 +1,6 @@
 require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-etherscan');
+require('@nomiclabs/hardhat-web3');
 require('hardhat-contract-sizer');
 require('hardhat-gas-reporter');
 require('solidity-docgen');
@@ -25,7 +26,7 @@ module.exports = (function () {
 					},
 				},
 				{
-					version: '0.8.13',
+					version: '0.8.16',
 					settings: {
 						optimizer: {
 							enabled: true,

@@ -36,11 +36,20 @@ export interface OraclizeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "oracle", data: BytesLike): Result;
 
   events: {
+    "Initialized(uint8)": EventFragment;
     "OracleTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OracleTransferredEventObject {
   previousOracle: string;
@@ -91,6 +100,9 @@ export interface Oraclize extends BaseContract {
   };
 
   filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OracleTransferred(address,address)"(
       previousOracle?: PromiseOrValue<string> | null,
       newOracle?: PromiseOrValue<string> | null

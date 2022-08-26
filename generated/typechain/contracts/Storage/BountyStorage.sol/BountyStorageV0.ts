@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -28,8 +32,10 @@ export interface BountyStorageV0Interface extends utils.Interface {
     "bountyClosedTime()": FunctionFragment;
     "bountyCreatedTime()": FunctionFragment;
     "bountyId()": FunctionFragment;
+    "claimManager()": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
+    "depositManager()": FunctionFragment;
     "depositTime(bytes32)": FunctionFragment;
     "deposits(uint256)": FunctionFragment;
     "expiration(bytes32)": FunctionFragment;
@@ -44,6 +50,7 @@ export interface BountyStorageV0Interface extends utils.Interface {
     "payoutAddress(bytes32)": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
     "status()": FunctionFragment;
+    "tier(bytes32)": FunctionFragment;
     "tokenAddress(bytes32)": FunctionFragment;
     "tokenId(bytes32)": FunctionFragment;
     "volume(bytes32)": FunctionFragment;
@@ -54,8 +61,10 @@ export interface BountyStorageV0Interface extends utils.Interface {
       | "bountyClosedTime"
       | "bountyCreatedTime"
       | "bountyId"
+      | "claimManager"
       | "closer"
       | "closerData"
+      | "depositManager"
       | "depositTime"
       | "deposits"
       | "expiration"
@@ -70,6 +79,7 @@ export interface BountyStorageV0Interface extends utils.Interface {
       | "payoutAddress"
       | "refunded"
       | "status"
+      | "tier"
       | "tokenAddress"
       | "tokenId"
       | "volume"
@@ -84,9 +94,17 @@ export interface BountyStorageV0Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "bountyId", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "claimManager",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "closer", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "closerData",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositManager",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -142,6 +160,10 @@ export interface BountyStorageV0Interface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "tier",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenAddress",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -163,8 +185,16 @@ export interface BountyStorageV0Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "bountyId", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "claimManager",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "closer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closerData", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "depositManager",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "depositTime",
     data: BytesLike
@@ -197,6 +227,7 @@ export interface BountyStorageV0Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "refunded", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "status", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tier", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenAddress",
     data: BytesLike
@@ -204,8 +235,19 @@ export interface BountyStorageV0Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "tokenId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "volume", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "Initialized(uint8)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface BountyStorageV0 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -240,9 +282,13 @@ export interface BountyStorageV0 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<[string]>;
 
+    claimManager(overrides?: CallOverrides): Promise<[string]>;
+
     closer(overrides?: CallOverrides): Promise<[string]>;
 
     closerData(overrides?: CallOverrides): Promise<[string]>;
+
+    depositManager(overrides?: CallOverrides): Promise<[string]>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -279,10 +325,10 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<[string]>;
 
     onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -301,6 +347,11 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<[boolean]>;
 
     status(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     tokenAddress(
       arg0: PromiseOrValue<BytesLike>,
@@ -324,9 +375,13 @@ export interface BountyStorageV0 extends BaseContract {
 
   bountyId(overrides?: CallOverrides): Promise<string>;
 
+  claimManager(overrides?: CallOverrides): Promise<string>;
+
   closer(overrides?: CallOverrides): Promise<string>;
 
   closerData(overrides?: CallOverrides): Promise<string>;
+
+  depositManager(overrides?: CallOverrides): Promise<string>;
 
   depositTime(
     arg0: PromiseOrValue<BytesLike>,
@@ -363,10 +418,10 @@ export interface BountyStorageV0 extends BaseContract {
   ): Promise<string>;
 
   onERC721Received(
-    operator: PromiseOrValue<string>,
-    from: PromiseOrValue<string>,
-    tokenId: PromiseOrValue<BigNumberish>,
-    data: PromiseOrValue<BytesLike>,
+    arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<BigNumberish>,
+    arg3: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -385,6 +440,11 @@ export interface BountyStorageV0 extends BaseContract {
   ): Promise<boolean>;
 
   status(overrides?: CallOverrides): Promise<BigNumber>;
+
+  tier(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   tokenAddress(
     arg0: PromiseOrValue<BytesLike>,
@@ -408,9 +468,13 @@ export interface BountyStorageV0 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<string>;
 
+    claimManager(overrides?: CallOverrides): Promise<string>;
+
     closer(overrides?: CallOverrides): Promise<string>;
 
     closerData(overrides?: CallOverrides): Promise<string>;
+
+    depositManager(overrides?: CallOverrides): Promise<string>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -447,10 +511,10 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<string>;
 
     onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -470,6 +534,11 @@ export interface BountyStorageV0 extends BaseContract {
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
 
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tokenAddress(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -486,7 +555,10 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<BigNumber>;
   };
 
-  filters: {};
+  filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+  };
 
   estimateGas: {
     bountyClosedTime(overrides?: CallOverrides): Promise<BigNumber>;
@@ -495,9 +567,13 @@ export interface BountyStorageV0 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<BigNumber>;
 
+    claimManager(overrides?: CallOverrides): Promise<BigNumber>;
+
     closer(overrides?: CallOverrides): Promise<BigNumber>;
 
     closerData(overrides?: CallOverrides): Promise<BigNumber>;
+
+    depositManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -534,10 +610,10 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<BigNumber>;
 
     onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -556,6 +632,11 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<BigNumber>;
 
     status(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     tokenAddress(
       arg0: PromiseOrValue<BytesLike>,
@@ -580,9 +661,13 @@ export interface BountyStorageV0 extends BaseContract {
 
     bountyId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    claimManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     closer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     closerData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    depositManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     depositTime(
       arg0: PromiseOrValue<BytesLike>,
@@ -619,10 +704,10 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -641,6 +726,11 @@ export interface BountyStorageV0 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     status(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tier(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     tokenAddress(
       arg0: PromiseOrValue<BytesLike>,

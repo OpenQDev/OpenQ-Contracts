@@ -16,20 +16,30 @@ export interface IOpenQInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "BountyClosed(string,address,string,address,uint256,string)": EventFragment;
-    "BountyCreated(string,string,address,address,uint256)": EventFragment;
-    "DepositExtended(bytes32,uint256)": EventFragment;
-    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)": EventFragment;
-    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)": EventFragment;
-    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256)": EventFragment;
-    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)": EventFragment;
+    "BountyClosed(string,address,string,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "BountyCreated(string,string,address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "ClaimSuccess(uint256,uint256,bytes,uint256)": EventFragment;
+    "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
+    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
+    "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
+    "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BountyClosed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BountyCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ClaimSuccess"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
 }
@@ -40,10 +50,12 @@ export interface BountyClosedEventObject {
   organization: string;
   closer: string;
   bountyClosedTime: BigNumber;
-  closerData: string;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
 }
 export type BountyClosedEvent = TypedEvent<
-  [string, string, string, string, BigNumber, string],
+  [string, string, string, string, BigNumber, BigNumber, string, BigNumber],
   BountyClosedEventObject
 >;
 
@@ -55,20 +67,39 @@ export interface BountyCreatedEventObject {
   issuerAddress: string;
   bountyAddress: string;
   bountyMintTime: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
 }
 export type BountyCreatedEvent = TypedEvent<
-  [string, string, string, string, BigNumber],
+  [string, string, string, string, BigNumber, BigNumber, string, BigNumber],
   BountyCreatedEventObject
 >;
 
 export type BountyCreatedEventFilter = TypedEventFilter<BountyCreatedEvent>;
 
+export interface ClaimSuccessEventObject {
+  claimTime: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type ClaimSuccessEvent = TypedEvent<
+  [BigNumber, BigNumber, string, BigNumber],
+  ClaimSuccessEventObject
+>;
+
+export type ClaimSuccessEventFilter = TypedEventFilter<ClaimSuccessEvent>;
+
 export interface DepositExtendedEventObject {
   depositId: string;
   newExpiration: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
 }
 export type DepositExtendedEvent = TypedEvent<
-  [string, BigNumber],
+  [string, BigNumber, BigNumber, string, BigNumber],
   DepositExtendedEventObject
 >;
 
@@ -82,13 +113,72 @@ export interface DepositRefundedEventObject {
   refundTime: BigNumber;
   tokenAddress: string;
   volume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
 }
 export type DepositRefundedEvent = TypedEvent<
-  [string, string, string, string, BigNumber, string, BigNumber],
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    BigNumber
+  ],
   DepositRefundedEventObject
 >;
 
 export type DepositRefundedEventFilter = TypedEventFilter<DepositRefundedEvent>;
+
+export interface FundingGoalSetEventObject {
+  bountyAddress: string;
+  fundingGoalTokenAddress: string;
+  fundingGoalVolume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type FundingGoalSetEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, string, BigNumber],
+  FundingGoalSetEventObject
+>;
+
+export type FundingGoalSetEventFilter = TypedEventFilter<FundingGoalSetEvent>;
+
+export interface NFTClaimedEventObject {
+  bountyId: string;
+  bountyAddress: string;
+  organization: string;
+  closer: string;
+  payoutTime: BigNumber;
+  tokenAddress: string;
+  tokenId: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type NFTClaimedEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    BigNumber
+  ],
+  NFTClaimedEventObject
+>;
+
+export type NFTClaimedEventFilter = TypedEventFilter<NFTClaimedEvent>;
 
 export interface NFTDepositReceivedEventObject {
   depositId: string;
@@ -100,6 +190,9 @@ export interface NFTDepositReceivedEventObject {
   sender: string;
   expiration: BigNumber;
   tokenId: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
 }
 export type NFTDepositReceivedEvent = TypedEvent<
   [
@@ -111,6 +204,9 @@ export type NFTDepositReceivedEvent = TypedEvent<
     BigNumber,
     string,
     BigNumber,
+    BigNumber,
+    BigNumber,
+    string,
     BigNumber
   ],
   NFTDepositReceivedEventObject
@@ -118,6 +214,37 @@ export type NFTDepositReceivedEvent = TypedEvent<
 
 export type NFTDepositReceivedEventFilter =
   TypedEventFilter<NFTDepositReceivedEvent>;
+
+export interface PayoutScheduleSetEventObject {
+  bountyAddress: string;
+  payoutTokenAddress: string;
+  payoutSchedule: BigNumber[];
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type PayoutScheduleSetEvent = TypedEvent<
+  [string, string, BigNumber[], BigNumber, string, BigNumber],
+  PayoutScheduleSetEventObject
+>;
+
+export type PayoutScheduleSetEventFilter =
+  TypedEventFilter<PayoutScheduleSetEvent>;
+
+export interface PayoutSetEventObject {
+  bountyAddress: string;
+  payoutTokenAddress: string;
+  payoutTokenVolume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
+}
+export type PayoutSetEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, string, BigNumber],
+  PayoutSetEventObject
+>;
+
+export type PayoutSetEventFilter = TypedEventFilter<PayoutSetEvent>;
 
 export interface TokenBalanceClaimedEventObject {
   bountyId: string;
@@ -127,9 +254,23 @@ export interface TokenBalanceClaimedEventObject {
   payoutTime: BigNumber;
   tokenAddress: string;
   volume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
 }
 export type TokenBalanceClaimedEvent = TypedEvent<
-  [string, string, string, string, BigNumber, string, BigNumber],
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    BigNumber
+  ],
   TokenBalanceClaimedEventObject
 >;
 
@@ -146,6 +287,9 @@ export interface TokenDepositReceivedEventObject {
   sender: string;
   expiration: BigNumber;
   volume: BigNumber;
+  bountyType: BigNumber;
+  data: string;
+  version: BigNumber;
 }
 export type TokenDepositReceivedEvent = TypedEvent<
   [
@@ -157,6 +301,9 @@ export type TokenDepositReceivedEvent = TypedEvent<
     BigNumber,
     string,
     BigNumber,
+    BigNumber,
+    BigNumber,
+    string,
     BigNumber
   ],
   TokenDepositReceivedEventObject
@@ -196,129 +343,258 @@ export interface IOpenQ extends BaseContract {
   callStatic: {};
 
   filters: {
-    "BountyClosed(string,address,string,address,uint256,string)"(
+    "BountyClosed(string,address,string,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
-      closerData?: null
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): BountyClosedEventFilter;
     BountyClosed(
       bountyId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       organization?: null,
       closer?: null,
       bountyClosedTime?: null,
-      closerData?: null
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): BountyClosedEventFilter;
 
-    "BountyCreated(string,string,address,address,uint256)"(
+    "BountyCreated(string,string,address,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,
       organization?: null,
       issuerAddress?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
-      bountyMintTime?: null
+      bountyAddress?: null,
+      bountyMintTime?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): BountyCreatedEventFilter;
     BountyCreated(
       bountyId?: null,
       organization?: null,
       issuerAddress?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
-      bountyMintTime?: null
+      bountyAddress?: null,
+      bountyMintTime?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): BountyCreatedEventFilter;
 
-    "DepositExtended(bytes32,uint256)"(
+    "ClaimSuccess(uint256,uint256,bytes,uint256)"(
+      claimTime?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): ClaimSuccessEventFilter;
+    ClaimSuccess(
+      claimTime?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): ClaimSuccessEventFilter;
+
+    "DepositExtended(bytes32,uint256,uint256,bytes,uint256)"(
       depositId?: null,
-      newExpiration?: null
+      newExpiration?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): DepositExtendedEventFilter;
     DepositExtended(
       depositId?: null,
-      newExpiration?: null
+      newExpiration?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): DepositExtendedEventFilter;
 
-    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256)"(
+    "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)"(
       depositId?: null,
       bountyId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       organization?: null,
       refundTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): DepositRefundedEventFilter;
     DepositRefunded(
       depositId?: null,
       bountyId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       organization?: null,
       refundTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): DepositRefundedEventFilter;
 
-    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)"(
+    "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): FundingGoalSetEventFilter;
+    FundingGoalSet(
+      bountyAddress?: null,
+      fundingGoalTokenAddress?: null,
+      fundingGoalVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): FundingGoalSetEventFilter;
+
+    "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
+      bountyId?: null,
+      bountyAddress?: null,
+      organization?: null,
+      closer?: null,
+      payoutTime?: null,
+      tokenAddress?: null,
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): NFTClaimedEventFilter;
+    NFTClaimed(
+      bountyId?: null,
+      bountyAddress?: null,
+      organization?: null,
+      closer?: null,
+      payoutTime?: null,
+      tokenAddress?: null,
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): NFTClaimedEventFilter;
+
+    "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)"(
       depositId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       bountyId?: null,
       organization?: null,
       tokenAddress?: null,
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      tokenId?: null
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): NFTDepositReceivedEventFilter;
     NFTDepositReceived(
       depositId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       bountyId?: null,
       organization?: null,
       tokenAddress?: null,
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      tokenId?: null
+      tokenId?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): NFTDepositReceivedEventFilter;
 
-    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256)"(
+    "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutSchedule?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutScheduleSetEventFilter;
+    PayoutScheduleSet(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutSchedule?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutScheduleSetEventFilter;
+
+    "PayoutSet(address,address,uint256,uint256,bytes,uint256)"(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutTokenVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutSetEventFilter;
+    PayoutSet(
+      bountyAddress?: null,
+      payoutTokenAddress?: null,
+      payoutTokenVolume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
+    ): PayoutSetEventFilter;
+
+    "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       organization?: null,
       closer?: null,
       payoutTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): TokenBalanceClaimedEventFilter;
     TokenBalanceClaimed(
       bountyId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       organization?: null,
       closer?: null,
       payoutTime?: null,
       tokenAddress?: null,
-      volume?: null
+      volume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): TokenBalanceClaimedEventFilter;
 
-    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256)"(
+    "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)"(
       depositId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       bountyId?: null,
       organization?: null,
       tokenAddress?: null,
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      volume?: null
+      volume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): TokenDepositReceivedEventFilter;
     TokenDepositReceived(
       depositId?: null,
-      bountyAddress?: PromiseOrValue<string> | null,
+      bountyAddress?: null,
       bountyId?: null,
       organization?: null,
       tokenAddress?: null,
       receiveTime?: null,
       sender?: null,
       expiration?: null,
-      volume?: null
+      volume?: null,
+      bountyType?: null,
+      data?: null,
+      version?: null
     ): TokenDepositReceivedEventFilter;
   };
 

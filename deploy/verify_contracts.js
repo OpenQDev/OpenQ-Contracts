@@ -23,7 +23,7 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('\nVerifying OpenQV0');
+		console.log('\nVerifying OpenQV1');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_IMPLEMENTATION_ADDRESS,
 		});
@@ -32,16 +32,7 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('\nVerifying OpenQV1');
-		await hre.run('verify:verify', {
-			address: process.env.OPENQ_IMPLEMENTATION_ADDRESS_V1,
-		});
-	} catch (error) {
-		console.log(error);
-	}
-
-	try {
-		console.log('\nVerifying BountyV0');
+		console.log('\nVerifying BountyV1');
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS,
 		});
@@ -50,9 +41,18 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('\nVerifying BountyV1');
+		console.log('\nVerifying DepositManager');
 		await hre.run('verify:verify', {
-			address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_V1_ADDRESS,
+			address: process.env.DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS,
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying ClaimManager');
+		await hre.run('verify:verify', {
+			address: process.env.CLAIM_MANAGER_IMPLEMENTATION_ADDRESS,
 		});
 	} catch (error) {
 		console.log(error);

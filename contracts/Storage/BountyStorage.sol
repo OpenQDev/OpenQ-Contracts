@@ -1,22 +1,25 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 /**
  * @dev Third party imports inherited by BountyV0
  */
 import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol';
 
 /**
  * @dev Custom imports inherited by BountyV0
  */
 import '../OnlyOpenQ/OnlyOpenQ.sol';
+import '../ClaimManager/ClaimManagerOwnable.sol';
+import '../DepositManager/DepositManagerOwnable.sol';
+import '../Library/OpenQDefinitions.sol';
+import '../Library/Errors.sol';
 
 /**
  * @title BountyStorageV0
@@ -24,8 +27,10 @@ import '../OnlyOpenQ/OnlyOpenQ.sol';
  */
 abstract contract BountyStorageV0 is
     ReentrancyGuardUpgradeable,
-    IERC721ReceiverUpgradeable,
-    OnlyOpenQ
+    ERC721HolderUpgradeable,
+    OnlyOpenQ,
+    ClaimManagerOwnable,
+    DepositManagerOwnable
 {
     /**
      * @dev Bounty data
@@ -51,6 +56,7 @@ abstract contract BountyStorageV0 is
     mapping(bytes32 => uint256) public tokenId;
     mapping(bytes32 => uint256) public expiration;
     mapping(bytes32 => bool) public isNFT;
+    mapping(bytes32 => uint256) public tier;
 
     /**
      * @dev Array of depositIds
@@ -66,13 +72,35 @@ abstract contract BountyStorageV0 is
     /**
      * @dev Data related to the closer of this bounty
      */
-    string public closerData;
+    bytes public closerData;
 }
 
-/**
- * UPGRADE DUMMIES
- */
-
 abstract contract BountyStorageV1 is BountyStorageV0 {
-    uint256 public newFoo;
+    /**
+    The class/type of bounty (Single, Ongoing, or Tiered)
+    type is a reserved word in Solidity
+		 */
+    uint256 public bountyType;
+
+    /** 
+      Ongoing Bounties pay out the same amount set by the minter for each submission.
+      Only closed once minter explicitly closes
+    */
+    address public payoutTokenAddress;
+    uint256 public payoutVolume;
+
+    // keccak256 hash of the claimant ID (GitHub ID) with the claimant asset ID (GitHub PR ID)
+    mapping(bytes32 => bool) public claimantId;
+
+    /**
+     * @dev Integers in payoutSchedule must add up to 100
+     * @dev [0] is 1st place, [1] is 2nd, etc.
+     */
+    uint256[] public payoutSchedule;
+    mapping(address => uint256) public fundingTotals;
+    mapping(uint256 => bool) public tierClaimed;
+
+    bool public hasFundingGoal;
+    address public fundingToken;
+    uint256 public fundingGoal;
 }

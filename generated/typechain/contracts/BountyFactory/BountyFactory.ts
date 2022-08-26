@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -12,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -22,10 +27,22 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
+export declare namespace OpenQDefinitions {
+  export type InitOperationStruct = {
+    operationType: PromiseOrValue<BigNumberish>;
+    data: PromiseOrValue<BytesLike>;
+  };
+
+  export type InitOperationStructOutput = [number, string] & {
+    operationType: number;
+    data: string;
+  };
+}
+
 export interface BountyFactoryInterface extends utils.Interface {
   functions: {
     "getBeacon()": FunctionFragment;
-    "mintBounty(string,address,string)": FunctionFragment;
+    "mintBounty(string,address,string,address,address,(uint32,bytes))": FunctionFragment;
     "openQ()": FunctionFragment;
   };
 
@@ -39,7 +56,10 @@ export interface BountyFactoryInterface extends utils.Interface {
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      OpenQDefinitions.InitOperationStruct
     ]
   ): string;
   encodeFunctionData(functionFragment: "openQ", values?: undefined): string;
@@ -48,8 +68,19 @@ export interface BountyFactoryInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "mintBounty", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "openQ", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "Initialized(uint8)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface BountyFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -84,6 +115,9 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
+      operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -96,6 +130,9 @@ export interface BountyFactory extends BaseContract {
     _id: PromiseOrValue<string>,
     _issuer: PromiseOrValue<string>,
     _organization: PromiseOrValue<string>,
+    _claimManager: PromiseOrValue<string>,
+    _depositManager: PromiseOrValue<string>,
+    operation: OpenQDefinitions.InitOperationStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -108,13 +145,19 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
+      operation: OpenQDefinitions.InitOperationStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
     openQ(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+  };
 
   estimateGas: {
     getBeacon(overrides?: CallOverrides): Promise<BigNumber>;
@@ -123,6 +166,9 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
+      operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -136,6 +182,9 @@ export interface BountyFactory extends BaseContract {
       _id: PromiseOrValue<string>,
       _issuer: PromiseOrValue<string>,
       _organization: PromiseOrValue<string>,
+      _claimManager: PromiseOrValue<string>,
+      _depositManager: PromiseOrValue<string>,
+      operation: OpenQDefinitions.InitOperationStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

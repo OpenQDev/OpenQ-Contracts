@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 /**
  * @dev Third party imports
@@ -10,6 +10,7 @@ import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
  * @dev Custom imports
  */
 import '../OnlyOpenQ/OnlyOpenQ.sol';
+import '../Library/OpenQDefinitions.sol';
 
 /**
  * @title BountyFactory
@@ -50,16 +51,22 @@ contract BountyFactory is OnlyOpenQ {
     function mintBounty(
         string memory _id,
         address _issuer,
-        string memory _organization
+        string memory _organization,
+        address _claimManager,
+        address _depositManager,
+        OpenQDefinitions.InitOperation memory operation
     ) external onlyOpenQ returns (address) {
         BeaconProxy bounty = new BeaconProxy(
             beacon,
             abi.encodeWithSignature(
-                'initialize(string,address,string,address)',
+                'initialize(string,address,string,address,address,address,(uint32,bytes))',
                 _id,
                 _issuer,
                 _organization,
-                openQ()
+                openQ(),
+                _claimManager,
+                _depositManager,
+                operation
             )
         );
 
