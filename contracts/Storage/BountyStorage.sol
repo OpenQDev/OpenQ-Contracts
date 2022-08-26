@@ -6,8 +6,6 @@ pragma solidity 0.8.16;
  */
 import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
@@ -21,6 +19,7 @@ import '../OnlyOpenQ/OnlyOpenQ.sol';
 import '../ClaimManager/ClaimManagerOwnable.sol';
 import '../DepositManager/DepositManagerOwnable.sol';
 import '../Library/OpenQDefinitions.sol';
+import '../Library/Errors.sol';
 
 /**
  * @title BountyStorageV0
@@ -76,10 +75,6 @@ abstract contract BountyStorageV0 is
     bytes public closerData;
 }
 
-/**
- * UPGRADE DUMMIES
- */
-
 abstract contract BountyStorageV1 is BountyStorageV0 {
     /**
     The class/type of bounty (Single, Ongoing, or Tiered)
@@ -98,18 +93,13 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     mapping(bytes32 => bool) public claimantId;
 
     /**
-    Competition bounties
+     * @dev Integers in payoutSchedule must add up to 100
+     * @dev [0] is 1st place, [1] is 2nd, etc.
      */
-
-    // [0] is 1st place, [1] is 2nd, etc.
-    // @dev must add up to 100
     uint256[] public payoutSchedule;
     mapping(address => uint256) public fundingTotals;
     mapping(uint256 => bool) public tierClaimed;
 
-    /**
-    Funding goal
-     */
     bool public hasFundingGoal;
     address public fundingToken;
     uint256 public fundingGoal;

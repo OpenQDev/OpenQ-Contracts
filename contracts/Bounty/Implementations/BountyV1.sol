@@ -5,9 +5,6 @@ pragma solidity 0.8.16;
  * @dev Custom imports
  */
 import '../../Storage/BountyStorage.sol';
-import '../../Library/OpenQDefinitions.sol';
-import '../../Library/Errors.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title BountyV1
@@ -26,10 +23,12 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Initializes a bounty proxy with initial state
-     * @param _bountyId The unique bountyId
+     * @param _bountyId The unique bounty identifier
      * @param _issuer The sender of the mint bounty transaction
-     * @param _organization The organization that owns the bounty
+     * @param _organization The organization associated with the bounty
      * @param _openQ The OpenQProxy address
+     * @param _claimManager The Claim Manager address
+     * @param _depositManager The Deposit Manager address
      */
     function initialize(
         string memory _bountyId,
@@ -59,8 +58,8 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Initializes a bounty with initial state
-     * @param _operation ABI encoded data determining the type of bounty being initialized
+     * @dev Initializes a bounty based on its type
+     * @param _operation ABI-encoded data determining the type of bounty being initialized and associated data
      */
     function _initByType(OpenQDefinitions.InitOperation memory _operation)
         internal
@@ -119,10 +118,10 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Initializes a bounty proxy with initial state
+     * @dev Initializes an atomic contract with initial state
+     * @param _hasFundingGoal If a funding goal has been set
      * @param _fundingToken The token address to be used for funding
      * @param _fundingGoal The funding token volume
-     * @param _hasFundingGoal If a funding goal has been set
      */
     function _initAtomic(
         bool _hasFundingGoal,
@@ -136,9 +135,12 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Initializes a bounty proxy with initial state
-     * @param _payoutTokenAddress The token address to be used for funding
+     * @dev Initializes an ongoing bounty proxy with initial state
+     * @param _payoutTokenAddress The token address for ongoing payouts
      * @param _payoutVolume The volume of token to payout for each successful claim
+     * @param _hasFundingGoal If a funding goal has been set
+     * @param _fundingToken The token address to be used for funding
+     * @param _fundingGoal The funding token volume
      */
     function _initOngoingBounty(
         address _payoutTokenAddress,
@@ -159,7 +161,9 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Initializes a bounty proxy with initial state
      * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
-     * @dev _payoutSchedule must add up to 100
+     * @param _hasFundingGoal If a funding goal has been set
+     * @param _fundingToken The token address to be used for funding
+     * @param _fundingGoal The funding token volume
      */
     function _initTiered(
         uint256[] memory _payoutSchedule,
@@ -181,9 +185,9 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Initializes a bounty proxy with initial state
+     * @dev Initializes a fixed tiered bounty proxy with initial state
      * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
-     * @dev _payoutSchedule must add up to 100
+     * @param _payoutTokenAddress Fixed token address for funding
      */
     function _initTieredFixed(
         uint256[] memory _payoutSchedule,
@@ -250,6 +254,7 @@ contract BountyV1 is BountyStorageV1 {
      * @param _tokenAddress The ERC721 token address of the NFT
      * @param _tokenId The tokenId of the NFT to transfer
      * @param _expiration The duration until the deposit becomes refundable
+     * @param _tier (optional) The tier associated with the bounty (only relevant if bounty type is tiered)
      * @return depositId
      */
     function receiveNft(
@@ -344,7 +349,7 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
      * @param _tokenAddress ERC20 token address or Zero Address for protocol token
-     * @param _payoutAddress The destination address for the fund
+     * @param _payoutAddress The destination address for the funds
      */
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
@@ -358,9 +363,9 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
-     * @param _payoutAddress The destination address for the fund
-     * @param _closerData ABI-encoded data of the spec (address bountyAddress, )
+     * @dev Transfers a payout amount of an ongoing bounty to claimant for claimant asset
+     * @param _payoutAddress The destination address for the funds
+     * @param _closerData ABI-encoded data of the claimant and claimant asset
      */
     function claimOngoingPayout(
         address _payoutAddress,
@@ -380,7 +385,7 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
+     * @dev Transfers the tiered percentage of the token balance of _tokenAddress from bounty to _payoutAddress
      * @param _payoutAddress The destination address for the fund
      * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
      * @param _tokenAddress The token address being claimed
@@ -405,7 +410,7 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Transfers the volume for the given tier
+     * @dev Transfers the fixed amount of balance associated with the tier
      * @param _payoutAddress The destination address for the fund
      * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
      */
@@ -448,6 +453,7 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSED)
      * @param _payoutAddress The closer of the bounty
+     * @param _closerData ABI-encoded data about the claimant and claimant asset
      */
     function close(address _payoutAddress, bytes calldata _closerData)
         external
@@ -463,6 +469,7 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
+     * @param _closer Address of the closer
      */
     function closeCompetition(address _closer) external onlyOpenQ {
         require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
@@ -478,7 +485,8 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Similar to close() for single priced bounties. closeOngoing()
+     * @dev Similar to close() for single priced bounties. Stops all withdrawls.
+     * @param _closer Address of the closer
      */
     function closeOngoing(address _closer) external onlyOpenQ {
         require(
@@ -615,10 +623,19 @@ contract BountyV1 is BountyStorageV1 {
      * SETTERS
      */
 
+    /**
+     * @dev Sets tierClaimed to true for the given tier
+     * @param _tier The tier being claimed
+     */
     function setTierClaimed(uint256 _tier) external onlyClaimManager {
         tierClaimed[_tier] = true;
     }
 
+    /**
+     * @dev Sets the funding goal
+     * @param _fundingToken Token address for funding goal
+     * @param _fundingGoal Token volume for funding goal
+     */
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
         external
         onlyOpenQ
@@ -628,6 +645,11 @@ contract BountyV1 is BountyStorageV1 {
         hasFundingGoal = true;
     }
 
+    /**
+     * @dev Sets the funding goal
+     * @param _payoutTokenAddress Sets payout token address
+     * @param _payoutVolume Sets payout token volume
+     */
     function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
         external
         onlyOpenQ
@@ -636,6 +658,10 @@ contract BountyV1 is BountyStorageV1 {
         payoutVolume = _payoutVolume;
     }
 
+    /**
+     * @dev Sets the payout schedule
+     * @param _payoutSchedule Array of payout schedule
+     */
     function setPayoutSchedule(uint256[] calldata _payoutSchedule)
         external
         onlyOpenQ
@@ -650,6 +676,11 @@ contract BountyV1 is BountyStorageV1 {
         payoutSchedule = _payoutSchedule;
     }
 
+    /**
+     * @dev Sets the payout schedule
+     * @param _payoutSchedule Array of payout schedule
+     * @param _payoutTokenAddress Token address to be used for payouts
+     */
     function setPayoutScheduleFixed(
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
