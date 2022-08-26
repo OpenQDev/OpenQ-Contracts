@@ -48,7 +48,7 @@ async function deployContracts() {
 	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 	let openQProxy = await OpenQProxy.deploy(openQImplementationV1.address, []);
 	const confirmation = await openQProxy.deployed();
-	const deployBlockNumber = parseInt(confirmation.provider._fastBlockNumber);
+	const deployBlockNumber = 1;
 	await optionalSleep(10000);
 	console.log(`OpenQV1 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}\n`);
 
@@ -65,7 +65,7 @@ async function deployContracts() {
 	const ClaimManager = await ethers.getContractFactory('ClaimManager');
 	let claimManager = await ClaimManager.deploy();
 	const claimManagerConfirmation = await claimManager.deployed();
-	const deployBlockNumber_claimManager = parseInt(claimManagerConfirmation.provider._fastBlockNumber);
+	const deployBlockNumber_claimManager = 1;
 	await optionalSleep(10000);
 	console.log(`Claim Manager Implementation Deployed to ${claimManager.address} in block number ${deployBlockNumber_claimManager}\n`);
 
@@ -73,7 +73,7 @@ async function deployContracts() {
 	const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
 	let claimManagerProxy = await ClaimManagerProxy.deploy(claimManager.address, []);
 	const claimManagerProxyConfirmation = await claimManagerProxy.deployed();
-	const deployBlockNumber_claimManagerProxy = parseInt(claimManagerProxyConfirmation.provider._fastBlockNumber);
+	const deployBlockNumber_claimManagerProxy = 1;
 	await optionalSleep(10000);
 	console.log(`Claim Manager Proxy Deployed to ${claimManagerProxy.address} in block number ${deployBlockNumber_claimManagerProxy}\n`);
 
@@ -90,7 +90,7 @@ async function deployContracts() {
 	const DepositManager = await ethers.getContractFactory('DepositManager');
 	let depositManager = await DepositManager.deploy();
 	const depositManagerConfirmation = await depositManager.deployed();
-	const deployBlockNumber_depositManager = parseInt(depositManagerConfirmation.provider._fastBlockNumber);
+	const deployBlockNumber_depositManager = 1;
 	await optionalSleep(10000);
 	console.log(`Deposit Manager Implementation Deployed to ${depositManager.address} in block number ${deployBlockNumber_depositManager}\n`);
 
@@ -98,7 +98,7 @@ async function deployContracts() {
 	const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
 	let depositManagerProxy = await DepositManagerProxy.deploy(depositManager.address, []);
 	const depositManagerProxyConfirmation = await depositManagerProxy.deployed();
-	const deployBlockNumber_depositManagerProxy = parseInt(depositManagerProxyConfirmation.provider._fastBlockNumber);
+	const deployBlockNumber_depositManagerProxy = 1;
 	await optionalSleep(10000);
 	console.log(`Deposit Manager Proxy Deployed to ${depositManagerProxy.address} in block number ${deployBlockNumber_depositManagerProxy}\n`);
 

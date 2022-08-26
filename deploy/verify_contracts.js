@@ -8,19 +8,19 @@ async function verifyContracts() {
 	console.log(`VERIFYING OPENQ CONTRACTS on ${hre.network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
 
-	// try {
-	// 	console.log('Verifying OpenQProxy');
-	// 	await hre.run('verify:verify', {
-	// 		address: process.env.OPENQ_PROXY_ADDRESS,
-	// 		constructorArguments: [
-	// 			process.env.OPENQ_IMPLEMENTATION_ADDRESS,
-	// 			[]
-	// 		],
-	// 		contract: 'contracts/OpenQ/Proxy/OpenQProxy.sol:OpenQProxy'
-	// 	});
-	// } catch (error) {
-	// 	console.log(error);
-	// }
+	try {
+		console.log('Verifying OpenQProxy');
+		await hre.run('verify:verify', {
+			address: process.env.OPENQ_PROXY_ADDRESS,
+			constructorArguments: [
+				process.env.OPENQ_IMPLEMENTATION_ADDRESS,
+				[]
+			],
+			contract: 'contracts/OpenQ/Proxy/OpenQProxy.sol:OpenQProxy'
+		});
+	} catch (error) {
+		console.log(error);
+	}
 
 	try {
 		console.log('\nVerifying OpenQV1');
