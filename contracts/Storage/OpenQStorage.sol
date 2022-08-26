@@ -13,12 +13,16 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
  */
 import '../BountyFactory/BountyFactory.sol';
 import '../Bounty/Implementations/BountyV1.sol';
+import '../Library/OpenQDefinitions.sol';
+import '../Library/Errors.sol';
+import '../OpenQ/IOpenQ.sol';
 
 /**
  * @title OpenQStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by OpenQ implementations
  */
 abstract contract OpenQStorageV1 is
+    IOpenQ,
     OwnableUpgradeable,
     UUPSUpgradeable,
     ReentrancyGuardUpgradeable

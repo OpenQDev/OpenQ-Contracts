@@ -7,13 +7,12 @@ library OpenQDefinitions {
         bytes data;
     }
 
-    // BOUNTY CLASSES
+    // Bounty Types
     uint32 internal constant ATOMIC = 0;
     uint32 internal constant ONGOING = 1;
     uint32 internal constant TIERED = 2;
     uint32 internal constant TIERED_FIXED = 3;
 
-    // STATUS
     uint32 internal constant OPEN = 0;
     uint32 internal constant CLOSED = 1;
 }

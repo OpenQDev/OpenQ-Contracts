@@ -4,17 +4,13 @@ pragma solidity 0.8.16;
 /**
  * @dev Custom imports
  */
-import '../IOpenQ.sol';
 import '../../Storage/OpenQStorage.sol';
-import 'hardhat/console.sol';
-import '../../Library/OpenQDefinitions.sol';
-import '../../Library/Errors.sol';
 
 /**
  * @title OpenQV1
  * @dev Main administrative contract for all bounty operations
  */
-contract OpenQV1 is OpenQStorageV1, IOpenQ {
+contract OpenQV1 is OpenQStorageV1 {
     /**
      * INITIALIZATION
      */
