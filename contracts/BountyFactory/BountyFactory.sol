@@ -10,7 +10,6 @@ import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
  * @dev Custom imports
  */
 import '../OnlyOpenQ/OnlyOpenQ.sol';
-import '../Bounty/Implementations/BountyV1.sol';
 import '../Library/OpenQDefinitions.sol';
 
 /**
