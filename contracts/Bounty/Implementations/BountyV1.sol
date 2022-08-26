@@ -59,7 +59,7 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Initializes a bounty proxy with initial state
+     * @dev Initializes a bounty with initial state
      * @param _operation ABI encoded data determining the type of bounty being initialized
      */
     function _initByType(OpenQDefinitions.InitOperation memory _operation)

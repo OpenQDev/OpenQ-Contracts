@@ -488,7 +488,7 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
-	describe.only('solvent', () => {
+	describe('solvent', () => {
 		it('should return TRUE for solvent ongoing contracts', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
