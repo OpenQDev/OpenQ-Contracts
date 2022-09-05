@@ -574,34 +574,36 @@ describe('DepositManager.sol', () => {
 				.withArgs(depositId, 1001, 0, [], 1);
 		});
 
-		describe('requires and reverts', () => {
-			/* it('should revert if new deadline earlier than deposit lock deadline', async () => {
-				// Mint Bounty
-				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
-				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-				const Bounty = await ethers.getContractFactory('BountyV1');
-				const bounty = await Bounty.attach(bountyAddress);
+		it('should have a new expiration greater than previous expiration', async () => {
+			// Mint Bounty & be the funder
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
 
-				await mockLink.approve(bountyAddress, 10000000);
-				await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1);
+			await mockLink.approve(bountyAddress, 10000000);
 
-				const depositId = generateDepositId(bountyId, 0);
+			// Make deposit with expiration 10 days and get the deposit ID
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 864000);
+			const depositId = generateDepositId(bountyId, 0);
 
-				// ACT / ASSERT
-				await expect(depositManager.extendDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
-			}); */
+			// ACT / ASSERT
+			// deposit extension of 0 days 
+			await depositManager.extendDeposit(bountyAddress, depositId, 0);
+			const escrowPeriod = await bounty.expiration(depositId);
+			expect(escrowPeriod).to.be.at.least(864000);
+		});
 
-			it('should revert if not funder', async () => {
-				// ARRANGE
-				// Mint Bounty & generate Deposit
-				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
-				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-				const depositId = generateDepositId(bountyId, 0);
+		it('should revert if not funder', async () => {
+			// ARRANGE
+			// Mint Bounty & generate Deposit
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const depositId = generateDepositId(bountyId, 0);
 
-				// ACT / ASSERT 
-				// random deposit extension of 10 days 
-				await expect(depositManager.extendDeposit(bountyAddress, depositId, 864000)).to.be.revertedWith('CALLER_NOT_FUNDER');
-			});
+			// ACT / ASSERT 
+			// deposit extension of 10 days 
+			await expect(depositManager.extendDeposit(bountyAddress, depositId, 864000)).to.be.revertedWith('CALLER_NOT_FUNDER');
 		});
 
 	});
