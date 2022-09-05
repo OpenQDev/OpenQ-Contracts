@@ -593,17 +593,10 @@ describe('DepositManager.sol', () => {
 
 			it('should revert if not funder', async () => {
 				// ARRANGE
-				// Mint Bounty
+				// Mint Bounty & generate Deposit
 				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-
-				// Get Escrow Period
-				bounty = await BountyV1.attach(bountyAddress);
-
-				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(bountyId, 0); // ? 
-
-				const escrowPeriod = await bounty.expiration(depositId);// ?
+				const depositId = generateDepositId(bountyId, 0);
 
 				// ADVANCE TIME
 				const thirtyTwoDays = 2765000;
