@@ -587,10 +587,15 @@ describe('DepositManager.sol', () => {
 			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 864000);
 			const depositId = generateDepositId(bountyId, 0);
 
+			// ADVANCE TIME
+			const thirtyTwoDays = 2765000;
+			ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+
 			// ACT / ASSERT
 			// deposit extension of 0 days 
-			await depositManager.extendDeposit(bountyAddress, depositId, 0);
+			await depositManager.extendDeposit(bountyAddress, depositId, 1);
 			const escrowPeriod = await bounty.expiration(depositId);
+			console.log(escrowPeriod);
 			expect(escrowPeriod).to.be.at.least(864000);
 		});
 

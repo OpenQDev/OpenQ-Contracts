@@ -340,8 +340,13 @@ contract BountyV1 is BountyStorageV1 {
         require(status == 0, Errors.CONTRACT_IS_CLOSED);
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
-
-        expiration[_depositId] = expiration[_depositId] + _seconds;
+        
+        if(block.timestamp > depositTime[_depositId] + expiration[_depositId]) {
+            expiration[_depositId] = block.timestamp - depositTime[_depositId] + _seconds;
+        } else {
+            expiration[_depositId] = expiration[_depositId] + _seconds;
+        }
+        
 
         return expiration[_depositId];
     }
