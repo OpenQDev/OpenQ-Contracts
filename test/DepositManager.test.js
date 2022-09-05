@@ -593,24 +593,14 @@ describe('DepositManager.sol', () => {
 
 			it('should revert if not funder', async () => {
 				// ARRANGE
-				// Mint Bounty
+				// Mint Bounty & generate Deposit
 				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const depositId = generateDepositId(bountyId, 0);
 
-				// Get Escrow Period
-				bounty = await BountyV1.attach(bountyAddress);
-
-				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(bountyId, 0); // ? 
-
-				const escrowPeriod = await bounty.expiration(depositId);// ?
-
-				// ADVANCE TIME
-				const thirtyTwoDays = 2765000;
-				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
-
-				// ACT / ASSERT
-				await expect(depositManager.extendDeposit(bountyAddress, depositId, thirtyTwoDays)).to.be.revertedWith('CALLER_NOT_FUNDER');
+				// ACT / ASSERT 
+				// random deposit extension of 10 days 
+				await expect(depositManager.extendDeposit(bountyAddress, depositId, 864000)).to.be.revertedWith('CALLER_NOT_FUNDER');
 			});
 		});
 
