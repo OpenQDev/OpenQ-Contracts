@@ -573,6 +573,47 @@ describe('DepositManager.sol', () => {
 				.to.emit(depositManager, 'DepositExtended')
 				.withArgs(depositId, 1001, 0, [], 1);
 		});
+
+		describe('requires and reverts', () => {
+			/* it('should revert if new deadline earlier than deposit lock deadline', async () => {
+				// Mint Bounty
+				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const Bounty = await ethers.getContractFactory('BountyV1');
+				const bounty = await Bounty.attach(bountyAddress);
+
+				await mockLink.approve(bountyAddress, 10000000);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1);
+
+				const depositId = generateDepositId(bountyId, 0);
+
+				// ACT / ASSERT
+				await expect(depositManager.extendDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+			}); */
+
+			it('should revert if not funder', async () => {
+				// ARRANGE
+				// Mint Bounty
+				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+				// Get Escrow Period
+				bounty = await BountyV1.attach(bountyAddress);
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+				const depositId = generateDepositId(bountyId, 0); // ? 
+
+				const escrowPeriod = await bounty.expiration(depositId);// ?
+
+				// ADVANCE TIME
+				const thirtyTwoDays = 2765000;
+				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+
+				// ACT / ASSERT
+				await expect(depositManager.extendDeposit(bountyAddress, depositId, thirtyTwoDays)).to.be.revertedWith('CALLER_NOT_FUNDER');
+			});
+		});
+
 	});
 
 });
