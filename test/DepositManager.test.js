@@ -574,7 +574,7 @@ describe('DepositManager.sol', () => {
 				.withArgs(depositId, 1001, 0, [], 1);
 		});
 
-		it('should have a new expiration greater than previous expiration', async () => {
+		it('should extend past expiration period if not yet expired', async () => {
 			// Mint Bounty & be the funder
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -584,19 +584,41 @@ describe('DepositManager.sol', () => {
 			await mockLink.approve(bountyAddress, 10000000);
 
 			// Make deposit with expiration 10 days and get the deposit ID
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 864000);
+			const firstLockPeriod = 864000;
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod);
 			const depositId = generateDepositId(bountyId, 0);
 
-			// ADVANCE TIME
-			const thirtyTwoDays = 2765000;
-			ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+			// ACT / ASSERT
+			const secondLockPeriod = 2000;
+			await depositManager.extendDeposit(bountyAddress, depositId, secondLockPeriod);
+			const escrowPeriod = await bounty.expiration(depositId);
+			expect(escrowPeriod).to.equal(firstLockPeriod + secondLockPeriod);
+		});
+
+		it('should start from current time for expiration if expired', async () => {
+			// Mint Bounty & be the funder
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// Make deposit and get the deposit ID
+			const firstLockPeriod = 1000;
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod);
+			const depositId = generateDepositId(bountyId, 0);
+
+			// ADVANCE TIME (past expiration period)
+			const timePastSinceLock = 2000;
+			await ethers.provider.send("evm_increaseTime", [timePastSinceLock]);
 
 			// ACT / ASSERT
-			// deposit extension of 0 days 
-			await depositManager.extendDeposit(bountyAddress, depositId, 1);
+			const secondLockPeriod = 4000;
+			
+			await depositManager.extendDeposit(bountyAddress, depositId, secondLockPeriod);
 			const escrowPeriod = await bounty.expiration(depositId);
-			console.log(escrowPeriod);
-			expect(escrowPeriod).to.be.at.least(864000);
+			expect(escrowPeriod).to.equal(timePastSinceLock + secondLockPeriod);
 		});
 
 		it('should revert if not funder', async () => {
