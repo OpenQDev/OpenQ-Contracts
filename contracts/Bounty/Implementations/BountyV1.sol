@@ -526,6 +526,32 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
+     * @dev Returns the amount of available tokens (of a specific token) on a bounty address, not locked in deposits and available for refund
+     * @param _bountyAddress Address of bounty
+     * @param _depToken The depositId that determines which token is being looked at
+     * @return uint256
+     */
+    function getAvailableFunds(address _bountyAddress, address _depToken)
+        public
+        view
+        returns (uint256)
+    {
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+
+        uint256 lockedFunds;
+        bytes32[] memory depList = bounty.getDeposits();
+        for (uint256 i = 0; i < depList.length; i++) {
+            if(block.timestamp <
+                bounty.depositTime(depList[i]) + bounty.expiration(depList[i])
+                && bounty.tokenAddress(depList[i]) == _depToken
+                )
+            { lockedFunds += bounty.volume(depList[i]); }   
+        }
+
+        return lockedFunds;
+    }
+
+    /**
      * @dev Transfers _volume of both ERC20 or protocol token to _payoutAddress
      * @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
      * @param _volume Volume to transfer

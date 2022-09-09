@@ -152,7 +152,7 @@ contract DepositManager is DepositManagerStorageV1 {
     /**
      * @dev Refunds an individual deposit from bountyAddress to sender if expiration time has passed
      * @param _bountyAddress Bounty address
-     * @param _depositId The depositId assocaited with the deposit being refunded
+     * @param _depositId The depositId associated with the deposit being refunded
      */
     function refundDeposit(address _bountyAddress, bytes32 _depositId)
         external
@@ -172,17 +172,8 @@ contract DepositManager is DepositManagerStorageV1 {
         );
         
         address depToken = bounty.tokenAddress(_depositId);
-        uint256 lockedFunds;
-        bytes32[] memory depList = bounty.getDeposits();
-        for (uint256 i = 0; i < depList.length; i++) {
-            if(block.timestamp <
-                bounty.depositTime(depList[i]) + bounty.expiration(depList[i])
-                && bounty.tokenAddress(depList[i]) == depToken
-                )
-            { lockedFunds += bounty.volume(depList[i]); }   
-        }
 
-        uint256 availableFunds = bounty.getTokenBalance(depToken) - lockedFunds;
+        uint256 availableFunds = bounty.getTokenBalance(depToken) - bounty.getAvailableFunds(_bountyAddress, depToken);
         
         uint256 volume;
         if (bounty.volume(_depositId) <= availableFunds ) {
