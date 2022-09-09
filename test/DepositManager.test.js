@@ -725,6 +725,60 @@ describe('DepositManager.sol', () => {
 
 	});
 
+	describe('getLockedFunds helper', () => {
+		it('should return total locked funds on bounty for a specific token (funds only available for claims)', async () => {
+			// ARRANGE
+				// Testing scenario: 
+				// 1 refundable deposit of 100 and one locked deposit of 100 => locked funds = 100
+				// Claimant gets 50 => locked funds = 100
+				// 1 new locked deposit of 100 => locked funds of 200 
+
+				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const Bounty = await ethers.getContractFactory('BountyV1');
+				const bounty = await Bounty.attach(bountyAddress);
+
+				await mockLink.approve(bountyAddress, 10000000);
+				const volume = 100;
+
+				// 1 refundable deposit of 100 and 1 locked of 100 
+				const linkDepositId = generateDepositId(bountyId, 0);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+				const linkDepositId2 = generateDepositId(bountyId, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 3000000);
+
+				// ASSUME
+				const thirtyTwoDays = 2765000;
+				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+				
+				const bountyMockTokenBalance = (await bounty.getLockedFunds(bountyAddress, mockLink.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('100');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+				
+				// Claim of 50
+				// ACT
+				await claimManager.connect(oracle).claimBounty(bountyAddress, claimant.address, abiEncodedOngoingCloserData);
+
+				// ASSERT
+				const bountyMockTokenBalance2 = (await bounty.getLockedFunds(bountyAddress, mockLink.address)).toString();
+				expect(bountyMockTokenBalance2).to.equal('100');
+
+				// Additional locked deposit of 100
+				// ACT
+				const linkDepositId3 = generateDepositId(bountyId, 2);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 3000000);
+				
+				// ASSERT
+				const bountyMockTokenBalance3 = (await bounty.getLockedFunds(bountyAddress, mockLink.address)).toString();
+				expect(bountyMockTokenBalance3).to.equal('200');
+
+		})
+	});
+
 });
 
 async function setNextBlockTimestamp(timestamp = 10) {

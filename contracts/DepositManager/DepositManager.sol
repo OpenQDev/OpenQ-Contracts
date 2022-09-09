@@ -173,7 +173,7 @@ contract DepositManager is DepositManagerStorageV1 {
         
         address depToken = bounty.tokenAddress(_depositId);
 
-        uint256 availableFunds = bounty.getTokenBalance(depToken) - bounty.getAvailableFunds(_bountyAddress, depToken);
+        uint256 availableFunds = bounty.getTokenBalance(depToken) - bounty.getLockedFunds(_bountyAddress, depToken);
         
         uint256 volume;
         if (bounty.volume(_depositId) <= availableFunds ) {

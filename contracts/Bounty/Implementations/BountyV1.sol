@@ -526,12 +526,12 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
-     * @dev Returns the amount of available tokens (of a specific token) on a bounty address, not locked in deposits and available for refund
+     * @dev Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
      * @param _bountyAddress Address of bounty
      * @param _depToken The depositId that determines which token is being looked at
      * @return uint256
      */
-    function getAvailableFunds(address _bountyAddress, address _depToken)
+    function getLockedFunds(address _bountyAddress, address _depToken)
         public
         view
         returns (uint256)
