@@ -170,8 +170,28 @@ contract DepositManager is DepositManagerStorageV1 {
                 bounty.depositTime(_depositId) + bounty.expiration(_depositId),
             Errors.PREMATURE_REFUND_REQUEST
         );
+        
+        address depToken = bounty.tokenAddress(_depositId);
+        uint256 lockedFunds;
+        bytes32[] memory depList = bounty.getDeposits();
+        for (uint256 i = 0; i < depList.length; i++) {
+            if(block.timestamp <
+                bounty.depositTime(depList[i]) + bounty.expiration(depList[i])
+                && bounty.tokenAddress(depList[i]) == depToken
+                )
+            { lockedFunds += bounty.volume(depList[i]); }   
+        }
 
-        bounty.refundDeposit(_depositId, msg.sender);
+        uint256 availableFunds = bounty.getTokenBalance(depToken) - lockedFunds;
+        
+        uint256 volume;
+        if (bounty.volume(_depositId) <= availableFunds ) {
+            volume = bounty.volume(_depositId);
+        } else {
+            volume = availableFunds;
+        }
+
+        bounty.refundDeposit(_depositId, msg.sender, volume);
 
         emit DepositRefunded(
             _depositId,
@@ -180,7 +200,7 @@ contract DepositManager is DepositManagerStorageV1 {
             bounty.organization(),
             block.timestamp,
             bounty.tokenAddress(_depositId),
-            bounty.volume(_depositId),
+            volume,
             0,
             new bytes(0),
             VERSION_1

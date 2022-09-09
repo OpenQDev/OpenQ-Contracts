@@ -291,8 +291,9 @@ contract BountyV1 is BountyStorageV1 {
      * @dev Transfers volume of deposit or NFT of deposit from bounty to funder
      * @param _depositId The deposit to refund
      * @param _funder The initial funder of the deposit
+     * @param _volume The volume to be refunded
      */
-    function refundDeposit(bytes32 _depositId, address _funder)
+    function refundDeposit(bytes32 _depositId, address _funder, uint256 _volume)
         external
         onlyDepositManager
         nonReentrant
@@ -310,7 +311,7 @@ contract BountyV1 is BountyStorageV1 {
 
         // Interactions
         if (tokenAddress[_depositId] == address(0)) {
-            _transferProtocolToken(funder[_depositId], volume[_depositId]);
+            _transferProtocolToken(funder[_depositId], _volume);
         } else if (isNFT[_depositId]) {
             _transferNft(
                 tokenAddress[_depositId],
@@ -321,7 +322,7 @@ contract BountyV1 is BountyStorageV1 {
             _transferERC20(
                 tokenAddress[_depositId],
                 funder[_depositId],
-                volume[_depositId]
+                _volume
             );
         }
     }
