@@ -293,11 +293,11 @@ contract BountyV1 is BountyStorageV1 {
      * @param _funder The initial funder of the deposit
      * @param _volume The volume to be refunded
      */
-    function refundDeposit(bytes32 _depositId, address _funder, uint256 _volume)
-        external
-        onlyDepositManager
-        nonReentrant
-    {
+    function refundDeposit(
+        bytes32 _depositId,
+        address _funder,
+        uint256 _volume
+    ) external onlyDepositManager nonReentrant {
         // Check
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
@@ -341,13 +341,17 @@ contract BountyV1 is BountyStorageV1 {
         require(status == 0, Errors.CONTRACT_IS_CLOSED);
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
-        
-        if(block.timestamp > depositTime[_depositId] + expiration[_depositId]) {
-            expiration[_depositId] = block.timestamp - depositTime[_depositId] + _seconds;
+
+        if (
+            block.timestamp > depositTime[_depositId] + expiration[_depositId]
+        ) {
+            expiration[_depositId] =
+                block.timestamp -
+                depositTime[_depositId] +
+                _seconds;
         } else {
             expiration[_depositId] = expiration[_depositId] + _seconds;
         }
-        
 
         return expiration[_depositId];
     }
@@ -528,10 +532,10 @@ contract BountyV1 is BountyStorageV1 {
     /**
      * @dev Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
      * @param _bountyAddress Address of bounty
-     * @param _depToken The depositId that determines which token is being looked at
+     * @param _depositId The depositId that determines which token is being looked at
      * @return uint256
      */
-    function getLockedFunds(address _bountyAddress, address _depToken)
+    function getLockedFunds(address _bountyAddress, address _depositId)
         public
         view
         returns (uint256)
@@ -541,11 +545,14 @@ contract BountyV1 is BountyStorageV1 {
         uint256 lockedFunds;
         bytes32[] memory depList = bounty.getDeposits();
         for (uint256 i = 0; i < depList.length; i++) {
-            if(block.timestamp <
-                bounty.depositTime(depList[i]) + bounty.expiration(depList[i])
-                && bounty.tokenAddress(depList[i]) == _depToken
-                )
-            { lockedFunds += bounty.volume(depList[i]); }   
+            if (
+                block.timestamp <
+                bounty.depositTime(depList[i]) +
+                    bounty.expiration(depList[i]) &&
+                bounty.tokenAddress(depList[i]) == _depositId
+            ) {
+                lockedFunds += bounty.volume(depList[i]);
+            }
         }
 
         return lockedFunds;
