@@ -291,8 +291,9 @@ contract BountyV1 is BountyStorageV1 {
      * @dev Transfers volume of deposit or NFT of deposit from bounty to funder
      * @param _depositId The deposit to refund
      * @param _funder The initial funder of the deposit
+     * @param _volume The volume to be refunded
      */
-    function refundDeposit(bytes32 _depositId, address _funder)
+    function refundDeposit(bytes32 _depositId, address _funder, uint256 _volume)
         external
         onlyDepositManager
         nonReentrant
@@ -310,7 +311,7 @@ contract BountyV1 is BountyStorageV1 {
 
         // Interactions
         if (tokenAddress[_depositId] == address(0)) {
-            _transferProtocolToken(funder[_depositId], volume[_depositId]);
+            _transferProtocolToken(funder[_depositId], _volume);
         } else if (isNFT[_depositId]) {
             _transferNft(
                 tokenAddress[_depositId],
@@ -321,7 +322,7 @@ contract BountyV1 is BountyStorageV1 {
             _transferERC20(
                 tokenAddress[_depositId],
                 funder[_depositId],
-                volume[_depositId]
+                _volume
             );
         }
     }
@@ -340,8 +341,13 @@ contract BountyV1 is BountyStorageV1 {
         require(status == 0, Errors.CONTRACT_IS_CLOSED);
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
-
-        expiration[_depositId] = expiration[_depositId] + _seconds;
+        
+        if(block.timestamp > depositTime[_depositId] + expiration[_depositId]) {
+            expiration[_depositId] = block.timestamp - depositTime[_depositId] + _seconds;
+        } else {
+            expiration[_depositId] = expiration[_depositId] + _seconds;
+        }
+        
 
         return expiration[_depositId];
     }
@@ -517,6 +523,32 @@ contract BountyV1 is BountyStorageV1 {
         } else {
             return getERC20Balance(_tokenAddress);
         }
+    }
+
+    /**
+     * @dev Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
+     * @param _bountyAddress Address of bounty
+     * @param _depToken The depositId that determines which token is being looked at
+     * @return uint256
+     */
+    function getLockedFunds(address _bountyAddress, address _depToken)
+        public
+        view
+        returns (uint256)
+    {
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+
+        uint256 lockedFunds;
+        bytes32[] memory depList = bounty.getDeposits();
+        for (uint256 i = 0; i < depList.length; i++) {
+            if(block.timestamp <
+                bounty.depositTime(depList[i]) + bounty.expiration(depList[i])
+                && bounty.tokenAddress(depList[i]) == _depToken
+                )
+            { lockedFunds += bounty.volume(depList[i]); }   
+        }
+
+        return lockedFunds;
     }
 
     /**

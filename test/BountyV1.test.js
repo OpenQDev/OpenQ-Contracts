@@ -514,7 +514,7 @@ describe('BountyV1.sol', () => {
 				const mockDepositId = generateDepositId(owner.address, mockLink.address, 123);
 
 				// ASSERT
-				await expect(issueWithNonOwnerAccount.refundDeposit(mockDepositId, owner.address)).to.be.revertedWith('DepositManagerOwnable: caller is not the current OpenQ Deposit Manager');
+				await expect(issueWithNonOwnerAccount.refundDeposit(mockDepositId, owner.address, 100)).to.be.revertedWith('DepositManagerOwnable: caller is not the current OpenQ Deposit Manager');
 			});
 
 			it('should revert if called before expiration', async () => {
@@ -526,7 +526,7 @@ describe('BountyV1.sol', () => {
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 10000);
 
 				// ACT
-				await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+				await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address, volume)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 			});
 		});
 
@@ -549,9 +549,9 @@ describe('BountyV1.sol', () => {
 				expect(await atomicContract.refunded(protocolDepositId)).to.equal(false);
 
 				// ACT
-				await atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address);
-				await atomicContract.connect(depositManager).refundDeposit(daiDepositId, owner.address);
-				await atomicContract.connect(depositManager).refundDeposit(protocolDepositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address, volume);
+				await atomicContract.connect(depositManager).refundDeposit(daiDepositId, owner.address, volume);
+				await atomicContract.connect(depositManager).refundDeposit(protocolDepositId, owner.address, volume);
 
 				// ASSERT
 				expect(await atomicContract.refunded(linkDepositId)).to.equal(true);
@@ -589,8 +589,8 @@ describe('BountyV1.sol', () => {
 				expect(funderFakeTokenBalance).to.equal('9999999999999999999900');
 
 				// // // ACT
-				await atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address);
-				await atomicContract.connect(depositManager).refundDeposit(daiDepositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address, volume);
+				await atomicContract.connect(depositManager).refundDeposit(daiDepositId, owner.address, volume);
 
 				// // // // ASSERT
 				const newBountyMockLinkBalance = (await mockLink.balanceOf(atomicContract.address)).toString();
@@ -616,7 +616,7 @@ describe('BountyV1.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(atomicContract.address);
 
 				// ACT
-				await atomicContract.connect(depositManager).refundDeposit(depositId, owner.address);
+				await atomicContract.connect(depositManager).refundDeposit(depositId, owner.address, 0);
 
 				// ASSERT
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -638,7 +638,7 @@ describe('BountyV1.sol', () => {
 
 			// ASSERT
 			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
-			await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
+			await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address, volume)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
 		});
 	});
 

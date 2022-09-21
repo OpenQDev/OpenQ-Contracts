@@ -134,8 +134,8 @@ describe('DepositManager.sol', () => {
 		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 1000]);
 		atomicBountyInitOperation = [0, atomicBountyAbiEncodedParams];
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [mockLink.address, '100', true, mockLink.address, 1000]);
-		ongoingBountyInitOperation = [1, abiEncodedParams];
+		const ongoingAbiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [mockLink.address, '50', true, mockLink.address, 1000]);
+		ongoingBountyInitOperation = [1, ongoingAbiEncodedParams];
 
 		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[60, 30, 10], true, mockLink.address, 1000]);
 		tieredBountyInitOperation = [2, tieredAbiEncodedParams];
@@ -508,6 +508,96 @@ describe('DepositManager.sol', () => {
 				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
 			});
 
+			it('should transfer rest tokens when part claimed (ongoing)', async () => {
+
+				// ARRANGE
+				// Testing scenario: 
+				// 2 refundable deposits of 100 each and one locked deposit of 100
+				// Claimant gets 50
+				// 1 total refund and one refund of 50 are possible
+				// cannot refund the locked deposit of 100 - which can only be tapped into for claims until expiration
+
+				// ??? should all token types be added to the test like above??
+
+				// is initiating with mocklink address
+				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const Bounty = await ethers.getContractFactory('BountyV1');
+				const bounty = await Bounty.attach(bountyAddress);
+
+				await mockLink.approve(bountyAddress, 10000000);
+				const volume = 100;
+
+				// 2 refundable of 100 and 1 locked of 100 => claim 50 => refund possible 150
+				const linkDepositId = generateDepositId(bountyId, 0);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+				const linkDepositId2 = generateDepositId(bountyId, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+				const linkDepositId3 = generateDepositId(bountyId, 2);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 3000000);
+
+				// await ??? 
+				const thirtyTwoDays = 2765000;
+				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+
+				// ASSUME
+				const bountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(bountyMockTokenBalance).to.equal('300');
+
+				const funderMockTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
+				expect(funderMockTokenBalance).to.equal('9999999999999999999700');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+				
+				// Claim of 50 made by someone else
+				// ACT
+				await claimManager.connect(oracle).claimBounty(bountyAddress, claimant.address, abiEncodedOngoingCloserData);
+
+				// ASSERT
+				const bountyMockTokenBalance2 = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(bountyMockTokenBalance2).to.equal('250');
+
+				const funderMockTokenBalance2 = (await mockLink.balanceOf(owner.address)).toString();
+				expect(funderMockTokenBalance2).to.equal('9999999999999999999700');
+
+				// 1st refund - 100 allowed
+				// ACT
+				await depositManager.refundDeposit(bountyAddress, linkDepositId);
+				
+				// ASSERT
+				const bountyMockTokenBalance3 = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(bountyMockTokenBalance3).to.equal('150');
+
+				const funderMockTokenBalance3 = (await mockLink.balanceOf(owner.address)).toString();
+				expect(funderMockTokenBalance3).to.equal('9999999999999999999800');
+
+				// 2nd refund - 50 allowed
+				// ACT
+				await depositManager.refundDeposit(bountyAddress, linkDepositId2);
+
+				// ASSERT
+				const bountyMockTokenBalance4 = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(bountyMockTokenBalance4).to.equal('100');
+
+				const funderMockTokenBalance4 = (await mockLink.balanceOf(owner.address)).toString();
+				expect(funderMockTokenBalance4).to.equal('9999999999999999999850');
+
+				// 2nd claim of 50 possible on the remaining locked funds
+				// ACT
+				await claimManager.connect(oracle).claimBounty(bountyAddress, claimant.address, abiEncodedOngoingCloserData);
+
+				// ASSERT
+				const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(newBountyMockTokenBalance).to.equal('50');
+
+				const newFunderMockTokenBalance = (await mockLink.balanceOf(owner.address)).toString();
+				expect(newFunderMockTokenBalance).to.equal('9999999999999999999850');
+
+			});
+
 			it('should transfer NFT from bounty contract to funder', async () => {
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
@@ -573,6 +663,120 @@ describe('DepositManager.sol', () => {
 				.to.emit(depositManager, 'DepositExtended')
 				.withArgs(depositId, 1001, 0, [], 1);
 		});
+
+		it('should extend past expiration period if not yet expired', async () => {
+			// Mint Bounty & be the funder
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// Make deposit with expiration 10 days and get the deposit ID
+			const firstLockPeriod = 864000;
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod);
+			const depositId = generateDepositId(bountyId, 0);
+
+			// ACT / ASSERT
+			const secondLockPeriod = 2000;
+			await depositManager.extendDeposit(bountyAddress, depositId, secondLockPeriod);
+			const escrowPeriod = await bounty.expiration(depositId);
+			expect(escrowPeriod).to.equal(firstLockPeriod + secondLockPeriod);
+		});
+
+		it('should start from current time for expiration if expired', async () => {
+			// Mint Bounty & be the funder
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV1');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			await mockLink.approve(bountyAddress, 10000000);
+
+			// Make deposit and get the deposit ID
+			const firstLockPeriod = 1000;
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod);
+			const depositId = generateDepositId(bountyId, 0);
+
+			// ADVANCE TIME (past expiration period)
+			const timePastSinceLock = 2000;
+			await ethers.provider.send("evm_increaseTime", [timePastSinceLock]);
+
+			// ACT / ASSERT
+			const secondLockPeriod = 4000;
+			
+			await depositManager.extendDeposit(bountyAddress, depositId, secondLockPeriod);
+			const escrowPeriod = await bounty.expiration(depositId);
+			expect(escrowPeriod).to.equal(timePastSinceLock + secondLockPeriod);
+		});
+
+		it('should revert if not funder', async () => {
+			// ARRANGE
+			// Mint Bounty & generate Deposit
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const depositId = generateDepositId(bountyId, 0);
+
+			// ACT / ASSERT 
+			// deposit extension of 10 days 
+			await expect(depositManager.extendDeposit(bountyAddress, depositId, 864000)).to.be.revertedWith('CALLER_NOT_FUNDER');
+		});
+
+	});
+
+	describe('getLockedFunds helper', () => {
+		it('should return total locked funds on bounty for a specific token (funds only available for claims)', async () => {
+			// ARRANGE
+				// Testing scenario: 
+				// 1 refundable deposit of 100 and one locked deposit of 100 => locked funds = 100
+				// Claimant gets 50 => locked funds = 100
+				// 1 new locked deposit of 100 => locked funds of 200 
+
+				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+
+				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const Bounty = await ethers.getContractFactory('BountyV1');
+				const bounty = await Bounty.attach(bountyAddress);
+
+				await mockLink.approve(bountyAddress, 10000000);
+				const volume = 100;
+
+				// 1 refundable deposit of 100 and 1 locked of 100 
+				const linkDepositId = generateDepositId(bountyId, 0);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+				const linkDepositId2 = generateDepositId(bountyId, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 3000000);
+
+				// ASSUME
+				const thirtyTwoDays = 2765000;
+				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
+				
+				const bountyMockTokenBalance = (await bounty.getLockedFunds(bountyAddress, mockLink.address)).toString();
+				expect(bountyMockTokenBalance).to.equal('100');
+
+				const newBounty = await Bounty.attach(
+					bountyAddress
+				);
+				
+				// Claim of 50
+				// ACT
+				await claimManager.connect(oracle).claimBounty(bountyAddress, claimant.address, abiEncodedOngoingCloserData);
+
+				// ASSERT
+				const bountyMockTokenBalance2 = (await bounty.getLockedFunds(bountyAddress, mockLink.address)).toString();
+				expect(bountyMockTokenBalance2).to.equal('100');
+
+				// Additional locked deposit of 100
+				// ACT
+				const linkDepositId3 = generateDepositId(bountyId, 2);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 3000000);
+				
+				// ASSERT
+				const bountyMockTokenBalance3 = (await bounty.getLockedFunds(bountyAddress, mockLink.address)).toString();
+				expect(bountyMockTokenBalance3).to.equal('200');
+
+		})
 	});
 
 });
