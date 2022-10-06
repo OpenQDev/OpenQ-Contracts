@@ -181,14 +181,88 @@ We do not want to allow users to maliciously or accidentally call the OpenQV1.so
 
 ## Hardhat Console Commands
 
-Load the provider
-`provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545')`
+## Hardhat Console
 
-Load the artifact
-`artifact = require('artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json')`
+## 
 
-Load the contract
-`openQ = new ethers.Contract('0xAddress', artifact.abi, provider)`
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());abiCoder = new ethers.utils.AbiCoder;abiEncodedParams = abiCoder.encode(["address", "uint256"], ['0x5FbDB2315678afecb367f032d93F642f64180aa3', '100']);ongoingBountyInitOperation = [1, abiEncodedParams];txn = await openQ.mintBounty((Math.random(1)*100).toString(), 'abc', ongoingBountyInitOperation);receipt = await txn.wait();console.log(receipt);receipt.events.forEach(event => {console.log(event.eventSignature);console.log(event.args);});
 
-Mint a new bounty
-`openQ.mintBounty('123', 'abc')`
+
+## Hardhat Console
+
+Need to quickly test transactions and emit events?
+
+Rather than booting the OpenQ-Fullstack and going through the frontend, you can directly send transactions to the contracts with the [Hardhat Console](https://hardhat.org/hardhat-runner/docs/guides/hardhat-console).
+
+### Connect Hardhat Console to Hardhat Network
+
+In the root of `OpenQ-Contracts` run:
+
+```bash
+npx hardhat console --network localhost
+```
+
+### Deploy Contracts
+
+#### All Contract Setup
+
+This one-liner deploys:
+- OpenQ
+- DepositManager
+- ClaimManager
+
+```javascript
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManager.sol/DepositManager.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());artifactClaimManager = require('./artifacts/contracts/ClaimManager/ClaimManager.sol/ClaimManager.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
+```
+
+#### OpenQ
+
+```javascript
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());
+```
+
+#### Claim Manager
+
+```javascript
+artifactClaimManager = require('./artifacts/contracts/ClaimManager/ClaimManager.sol/ClaimManager.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
+```
+
+#### Deposit Manager
+
+```javascript
+artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManager.sol/DepositManager.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());
+```
+
+### Mint Bounty
+
+#### ATOMIC WITH FUNDING GOAL
+
+```javascript
+abiCoder = new ethers.utils.AbiCoder;abiEncodedParams = abiCoder.encode(["bool", "address", "uint256"], [true, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", '100']);bountyInitOperation = [0, abiEncodedParams];txn = await openQ.mintBounty(id = (Math.random(1)*100).toString(), 'abc', bountyInitOperation);receipt = await txn.wait();receipt.events.forEach(event => {console.log(event.eventSignature);console.log(event.args);});console.log(id);bountyCreatedEvent = receipt.events.find(eventObj => eventObj.event === 'BountyCreated');bountyAddress = bountyCreatedEvent.args.bountyAddress;console.log('Bounty Address:', bountyAddress.toLowerCase());
+```
+
+### Fund Bounty
+
+```javascript
+txn = await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, 1000000, 1, { value: ethers.BigNumber.from('1000000000000000000') });depositId = (await txn.wait()).events[0].args.depositId;
+```
+
+### Refund Deposit
+
+```javascript
+txn = await depositManager.refundDeposit(bountyAddress, depositId);
+```
+
+### Claim
+
+```javascript
+abiCoder = new ethers.utils.AbiCoder;closerParams=abiCoder.encode(['address','string','address','string'], [bountyAddress, "FlacoJones", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);txn = await claimManager.claimBounty(bountyAddress, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", closerParams);receipt = await txn.wait();receipt.events.forEach(event => {console.log(event.eventSignature);console.log(event.args);});claimEvent = receipt.events.find(eventObj => eventObj.event === 'ClaimSuccess');
+```
+
+### One Liner Claim
+
+This does everything from deploying contracts, to minting, to funding.
+
+```javascript
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());artifactClaimManager = require('./artifacts/contracts/ClaimManager/ClaimManager.sol/ClaimManager.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManager.sol/DepositManager.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());abiCoder = new ethers.utils.AbiCoder;abiEncodedParams = abiCoder.encode(["address", "uint256"], [ethers.constants.AddressZero, '100']);ongoingBountyInitOperation = [1, abiEncodedParams];txn = await openQ.mintBounty(id = (Math.random(1)*100).toString(), 'abc', ongoingBountyInitOperation);receipt = await txn.wait();receipt.events.forEach(event => {console.log(event.eventSignature);console.log(event.args);});console.log(id);bountyCreatedEvent = receipt.events.find(eventObj => eventObj.event === 'BountyCreated');bountyAddress = bountyCreatedEvent.args.bountyAddress;console.log('Bounty Address:', bountyAddress.toLowerCase());txn = await depositManager.fundBountyToken(id, ethers.constants.AddressZero, 1000000, 1, { value: ethers.BigNumber.from('1000000000000000000') });depositId = (await txn.wait()).events[0].args.depositId;abiCoder = new ethers.utils.AbiCoder;closerParams=abiCoder.encode(["tuple(address,string,address,string)"], [[bountyAddress, "FlacoJones", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]]);txn = await claimManager.claimBounty(id, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", closerParams);receipt = await txn.wait();receipt.events.forEach(event => {console.log(event.eventSignature);console.log(event.args);});claimEvent = receipt.events.find(eventObj => eventObj.event === 'ClaimSuccess');
+```
