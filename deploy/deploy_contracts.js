@@ -10,6 +10,7 @@ async function deployContracts() {
 
 	let mockLink;
 	let mockDai;
+	let mockNFT;
 	let mockDaiBlacklisted;
 	if (network.name === 'docker' || network.name === 'localhost') {
 		console.log('Deploying MockLink...');
@@ -18,6 +19,13 @@ async function deployContracts() {
 		await mockLink.deployed();
 		await optionalSleep(10000);
 		console.log(`MockLink Deployed to ${mockLink.address}\n`);
+
+		console.log('Deploying MockNFT...');
+		const MockNFT = await ethers.getContractFactory('MockNft');
+		mockNFT = await MockNFT.deploy();
+		await mockNFT.deployed();
+		await optionalSleep(10000);
+		console.log(`MockNFT Deployed to ${mockNFT.address}\n`);
 
 		console.log('Deploying MockDai...');
 		const MockDai = await ethers.getContractFactory('MockDai');
@@ -153,6 +161,7 @@ async function deployContracts() {
 	if (network.name === 'docker' || network.name === 'localhost') {
 		console.log(`MockLink deployed to: ${mockLink.address}`);
 		console.log(`MockDai deployed to: ${mockDai.address}`);
+		console.log(`MockNFT deployed to: ${mockNFT.address}`);
 		console.log(`MockDai (BlackListed) deployed to: ${mockDaiBlacklisted.address}`);
 	}
 
@@ -195,6 +204,7 @@ OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
 OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
 MOCK_LINK_TOKEN_ADDRESS=${mockLink.address}
 MOCK_DAI_TOKEN_ADDRESS=${mockDai.address}
+MOCK_NFT_TOKEN_ADDRESS=${mockNFT.address}
 MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS=${mockDaiBlacklisted.address}
 `;
 	} else {
@@ -211,6 +221,7 @@ OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
 OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
 MOCK_LINK_TOKEN_ADDRESS=0x326C977E6efc84E512bB9C30f76E30c160eD06FB
 MOCK_DAI_TOKEN_ADDRESS=0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1
+MOCK_NFT_TOKEN_ADDRESS=0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1
 `;
 	}
 
