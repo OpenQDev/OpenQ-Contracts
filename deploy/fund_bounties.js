@@ -106,8 +106,6 @@ async function fundBounties() {
 	await mockDai.transfer(contributor.address, two);
 	await mockLink.transfer(contributor.address, two);
 	console.log('Transfer to Client 2 succeeded');
-	console.log(JSON.stringify(contributor));
-	console.log(contributor.address);
 	await mockNFT.safeMint(contributor.address);
 	await mockNFT.safeMint(contributor.address);
 	await mockNFT.safeMint(contributor.address);
