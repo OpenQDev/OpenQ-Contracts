@@ -1,11 +1,4 @@
-[{
-		"name": "NFT",
-"address": "0x51A1ceB83B83F1985a81C295d1fF28Afef186E02",
-		"symbol": "mNFT",
-		"decimals": 1,
-		"chainId": 80001,
-		"path": "/crypto-logos/MATIC.svg"
-},
+[
 	{
 		"name": "Matic",
 		"address": "0x0000000000000000000000000000000000000000",
