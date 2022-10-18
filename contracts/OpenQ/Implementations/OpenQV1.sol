@@ -229,7 +229,7 @@ contract OpenQV1 is OpenQStorageV1 {
         BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.closeCompetition(msg.sender);
+        bounty.closeCompetition();
 
         emit BountyClosed(
             _bountyId,

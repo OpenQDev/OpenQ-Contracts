@@ -54,7 +54,7 @@ export interface BountyV1Interface extends utils.Interface {
     "claimTieredFixed(address,uint256)": FunctionFragment;
     "claimantId(bytes32)": FunctionFragment;
     "close(address,bytes)": FunctionFragment;
-    "closeCompetition(address)": FunctionFragment;
+    "closeCompetition()": FunctionFragment;
     "closeOngoing(address)": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
@@ -221,7 +221,7 @@ export interface BountyV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "closeCompetition",
-    values: [PromiseOrValue<string>]
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "closeOngoing",
@@ -712,7 +712,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     closeCompetition(
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -980,7 +979,6 @@ export interface BountyV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   closeCompetition(
-    _closer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1247,10 +1245,7 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    closeCompetition(
-      _closer: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    closeCompetition(overrides?: CallOverrides): Promise<void>;
 
     closeOngoing(
       _closer: PromiseOrValue<string>,
@@ -1522,7 +1517,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     closeCompetition(
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1791,7 +1785,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     closeCompetition(
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

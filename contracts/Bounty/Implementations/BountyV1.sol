@@ -479,11 +479,12 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
-     * @param _closer Address of the closer
      */
-    function closeCompetition(address _closer) external onlyOpenQ {
-        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
-        require(_closer == issuer, Errors.CALLER_NOT_ISSUER);
+    function closeCompetition() external onlyClaimManager {
+        require(
+            status == OpenQDefinitions.OPEN,
+            Errors.CONTRACT_ALREADY_CLOSED
+        );
 
         status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;

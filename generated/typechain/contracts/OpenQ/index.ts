@@ -3,6 +3,6 @@
 /* eslint-disable */
 import type * as implementations from "./Implementations";
 export type { implementations };
-import type * as proxy from "./proxy";
+import type * as proxy from "./Proxy";
 export type { proxy };
 export type { IOpenQ } from "./IOpenQ";

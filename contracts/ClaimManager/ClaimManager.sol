@@ -152,6 +152,20 @@ contract ClaimManager is ClaimManagerStorageV1 {
         );
 
         require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
+        if (bounty.status() == 0) {
+            bounty.closeCompetition();
+
+            emit BountyClosed(
+                bounty.bountyId(),
+                address(bounty),
+                bounty.organization(),
+                address(0),
+                block.timestamp,
+                bounty.bountyType(),
+                new bytes(0),
+                VERSION_1
+            );
+        }
 
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimTiered(
@@ -270,13 +284,8 @@ contract ClaimManager is ClaimManagerStorageV1 {
             _bountyType == OpenQDefinitions.ONGOING
         ) {
             return status == 0;
-        } else if (
-            _bountyType == OpenQDefinitions.TIERED ||
-            _bountyType == OpenQDefinitions.TIERED_FIXED
-        ) {
-            return status == 1;
         } else {
-            revert('UNKNOWN_BOUNTY_STATUS');
+            return status == 0;
         }
     }
 
