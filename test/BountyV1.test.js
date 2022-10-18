@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe('BountyV1.sol', () => {
+describe.only('BountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV1;
 
@@ -302,11 +302,11 @@ describe('BountyV1.sol', () => {
 				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
 			});
 
-			it('should revert if bounty is closed', async () => {
+			it.only('should revert if bounty is closed', async () => {
 				// ARRANGE
 				const volume = 1000;
 				await atomicContract.connect(claimManager).close(owner.address, []);
-				await tieredContract.closeCompetition(owner.address);
+				await tieredContract.connect(claimManager).closeCompetition();
 				await ongoingContract.closeOngoing(owner.address);
 
 				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('CONTRACT_IS_CLOSED');

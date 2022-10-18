@@ -584,7 +584,7 @@ describe('ClaimManager.sol', () => {
 			});
 
 			describe('BOUNTY UPDATES', () => {
-				it.only('should close competition if it is the first claimant', async () => {
+				it('should close competition if it is the first claimant', async () => {
 					// ARRANGE
 					await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);

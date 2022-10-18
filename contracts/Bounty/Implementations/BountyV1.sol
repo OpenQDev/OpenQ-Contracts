@@ -224,7 +224,7 @@ contract BountyV1 is BountyStorageV1 {
     {
         require(_volume != 0, Errors.ZERO_VOLUME_SENT);
         require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
-        require(status == 0, Errors.CONTRACT_IS_CLOSED);
+        require(status == OpenQDefinitions.OPEN, Errors.CONTRACT_IS_CLOSED);
 
         bytes32 depositId = _generateDepositId();
 
@@ -338,7 +338,7 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _seconds,
         address _funder
     ) external onlyDepositManager nonReentrant returns (uint256) {
-        require(status == 0, Errors.CONTRACT_IS_CLOSED);
+        require(status == OpenQDefinitions.OPEN, Errors.CONTRACT_IS_CLOSED);
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
 
@@ -469,9 +469,12 @@ contract BountyV1 is BountyStorageV1 {
         external
         onlyClaimManager
     {
-        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
+        require(
+            status == OpenQDefinitions.OPEN,
+            Errors.CONTRACT_ALREADY_CLOSED
+        );
         require(_payoutAddress != address(0), Errors.NO_ZERO_ADDRESS);
-        status = 1;
+        status = OpenQDefinitions.CLOSED;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
         closerData = _closerData;
