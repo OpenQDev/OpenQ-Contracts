@@ -35,15 +35,14 @@ contract ClaimManager is ClaimManagerStorageV1 {
         address _closer,
         bytes calldata _closerData
     ) external onlyOracle onlyProxy {
-        require(
-            bountyIsClaimable(_bountyAddress),
-            Errors.CONTRACT_IS_NOT_CLAIMABLE
-        );
-
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
 
         if (_bountyType == OpenQDefinitions.ATOMIC) {
+            require(
+                bounty.status() == OpenQDefinitions.OPEN,
+                Errors.CONTRACT_IS_NOT_CLAIMABLE
+            );
             _claimSingle(bounty, _closer, _closerData);
             bounty.close(_closer, _closerData);
 
@@ -58,6 +57,10 @@ contract ClaimManager is ClaimManagerStorageV1 {
                 VERSION_1
             );
         } else if (_bountyType == OpenQDefinitions.ONGOING) {
+            require(
+                bounty.status() == OpenQDefinitions.OPEN,
+                Errors.CONTRACT_IS_NOT_CLAIMABLE
+            );
             _claimOngoing(bounty, _closer, _closerData);
         } else if (_bountyType == OpenQDefinitions.TIERED) {
             _claimTiered(bounty, _closer, _closerData);
@@ -224,6 +227,21 @@ contract ClaimManager is ClaimManagerStorageV1 {
 
         require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
 
+        if (bounty.status() == 0) {
+            bounty.closeCompetition();
+
+            emit BountyClosed(
+                bounty.bountyId(),
+                address(bounty),
+                bounty.organization(),
+                address(0),
+                block.timestamp,
+                bounty.bountyType(),
+                new bytes(0),
+                VERSION_1
+            );
+        }
+
         uint256 volume = bounty.claimTieredFixed(_closer, _tier);
 
         emit TokenBalanceClaimed(
@@ -282,11 +300,13 @@ contract ClaimManager is ClaimManagerStorageV1 {
 
         if (
             _bountyType == OpenQDefinitions.ATOMIC ||
-            _bountyType == OpenQDefinitions.ONGOING
+            _bountyType == OpenQDefinitions.ONGOING ||
+            _bountyType == OpenQDefinitions.TIERED ||
+            _bountyType == OpenQDefinitions.TIERED_FIXED
         ) {
             return status == 0;
         } else {
-            return status == 0;
+            return status == 1;
         }
     }
 

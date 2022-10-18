@@ -218,31 +218,6 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    function closeCompetition(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
-        require(
-            bountyType(_bountyId) == OpenQDefinitions.TIERED ||
-                bountyType(_bountyId) == OpenQDefinitions.TIERED_FIXED,
-            Errors.NOT_A_COMPETITION_CONTRACT
-        );
-
-        BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-
-        bounty.closeCompetition();
-
-        emit BountyClosed(
-            _bountyId,
-            bountyIdToAddress[_bountyId],
-            bounty.organization(),
-            address(0),
-            block.timestamp,
-            bounty.bountyType(),
-            new bytes(0),
-            VERSION_1
-        );
-    }
-
     function closeOngoing(string calldata _bountyId) external {
         require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
         require(
