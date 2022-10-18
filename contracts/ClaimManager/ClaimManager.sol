@@ -152,6 +152,7 @@ contract ClaimManager is ClaimManagerStorageV1 {
         );
 
         require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
+
         if (bounty.status() == 0) {
             bounty.closeCompetition();
 
