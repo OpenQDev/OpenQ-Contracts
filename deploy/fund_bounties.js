@@ -6,7 +6,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') })
 
 async function fundBounties() {
 	console.log('\n------------------------------------------');
-	console.log('FUNDING BOUNTIES with MOCK LINK and DUMMY ERC20');
+	console.log('FUNDING BOUNTIES with MOCK LINK and DUMMY ERC20 AND FUNDING ACCOUNTS WITH NFTS');
 	console.log('------------------------------------------');
 
 	// PREPARE ASSETS
@@ -15,6 +15,9 @@ async function fundBounties() {
 
 	const MockDai = await ethers.getContractFactory('MockDai');
 	const mockDai = await MockDai.attach(process.env.MOCK_DAI_TOKEN_ADDRESS);
+
+	const MockNFT = await ethers.getContractFactory('MockNft');
+	const mockNFT = await MockNFT.attach(process.env.MOCK_NFT_TOKEN_ADDRESS);
 
 	const OpenQ = await ethers.getContractFactory('OpenQV1');
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
@@ -103,6 +106,12 @@ async function fundBounties() {
 	await mockDai.transfer(contributor.address, two);
 	await mockLink.transfer(contributor.address, two);
 	console.log('Transfer to Client 2 succeeded');
+	await mockNFT.safeMint(contributor.address);
+	await mockNFT.safeMint(contributor.address);
+	await mockNFT.safeMint(contributor.address);
+	await mockNFT.safeMint(contributor.address);
+	await mockNFT.safeMint(contributor.address);
+	await mockNFT.safeMint(contributor.address);
 
 	console.log('Approving funds for Client 2...');
 	await mockLink.connect(contributor).approve(openQBounty1Address, one);
