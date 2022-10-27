@@ -15,20 +15,20 @@ async function configureWhitelist() {
 
 	let tokenMetadata;
 	switch (network.name) {
-		case 'docker':
-			tokenMetadata = localTokens;
-			break;
-		case 'localhost':
-			tokenMetadata = localTokens;
-			break;
-		case 'mumbai':
-			tokenMetadata = mumbaiTokens;
-			break;
-		case 'polygon':
-			tokenMetadata = polygonMainnetTokens;
-			break;
-		default:
-			throw Error('NO CORRECT NETWORK');
+	case 'docker':
+		tokenMetadata = localTokens;
+		break;
+	case 'localhost':
+		tokenMetadata = localTokens;
+		break;
+	case 'mumbai':
+		tokenMetadata = mumbaiTokens;
+		break;
+	case 'polygon':
+		tokenMetadata = polygonMainnetTokens;
+		break;
+	default:
+		throw Error('NO CORRECT NETWORK');
 	}
 
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
@@ -40,6 +40,8 @@ async function configureWhitelist() {
 		console.log(`Adding ${token.name} at address ${token.address}`);
 		await openQTokenWhitelist.addToken(token.address);
 	}
+
+	await openQTokenWhitelist.addToken(process.env.MOCK_NFT_TOKEN_ADDRESS);
 
 	console.log('OpenQTokenWhitelist successfully configured with default tokens');
 }

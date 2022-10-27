@@ -54,7 +54,7 @@ export interface BountyV1Interface extends utils.Interface {
     "claimTieredFixed(address,uint256)": FunctionFragment;
     "claimantId(bytes32)": FunctionFragment;
     "close(address,bytes)": FunctionFragment;
-    "closeCompetition(address)": FunctionFragment;
+    "closeCompetition()": FunctionFragment;
     "closeOngoing(address)": FunctionFragment;
     "closer()": FunctionFragment;
     "closerData()": FunctionFragment;
@@ -69,6 +69,7 @@ export interface BountyV1Interface extends utils.Interface {
     "fundingTotals(address)": FunctionFragment;
     "getDeposits()": FunctionFragment;
     "getERC20Balance(address)": FunctionFragment;
+    "getLockedFunds(address,address)": FunctionFragment;
     "getNftDeposits()": FunctionFragment;
     "getPayoutSchedule()": FunctionFragment;
     "getTokenAddresses()": FunctionFragment;
@@ -89,7 +90,7 @@ export interface BountyV1Interface extends utils.Interface {
     "payoutVolume()": FunctionFragment;
     "receiveFunds(address,address,uint256,uint256)": FunctionFragment;
     "receiveNft(address,address,uint256,uint256,uint256)": FunctionFragment;
-    "refundDeposit(bytes32,address)": FunctionFragment;
+    "refundDeposit(bytes32,address,uint256)": FunctionFragment;
     "refunded(bytes32)": FunctionFragment;
     "setFundingGoal(address,uint256)": FunctionFragment;
     "setPayout(address,uint256)": FunctionFragment;
@@ -133,6 +134,7 @@ export interface BountyV1Interface extends utils.Interface {
       | "fundingTotals"
       | "getDeposits"
       | "getERC20Balance"
+      | "getLockedFunds"
       | "getNftDeposits"
       | "getPayoutSchedule"
       | "getTokenAddresses"
@@ -219,7 +221,7 @@ export interface BountyV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "closeCompetition",
-    values: [PromiseOrValue<string>]
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "closeOngoing",
@@ -277,6 +279,10 @@ export interface BountyV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getERC20Balance",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLockedFunds",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getNftDeposits",
@@ -378,7 +384,11 @@ export interface BountyV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "refundDeposit",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "refunded",
@@ -502,6 +512,10 @@ export interface BountyV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getERC20Balance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLockedFunds",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -698,7 +712,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     closeCompetition(
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -755,6 +768,12 @@ export interface BountyV1 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { balance: BigNumber }>;
+
+    getLockedFunds(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     getNftDeposits(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -842,6 +861,7 @@ export interface BountyV1 extends BaseContract {
     refundDeposit(
       _depositId: PromiseOrValue<BytesLike>,
       _funder: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -959,7 +979,6 @@ export interface BountyV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   closeCompetition(
-    _closer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1014,6 +1033,12 @@ export interface BountyV1 extends BaseContract {
 
   getERC20Balance(
     _tokenAddress: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getLockedFunds(
+    _bountyAddress: PromiseOrValue<string>,
+    _depositId: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -1103,6 +1128,7 @@ export interface BountyV1 extends BaseContract {
   refundDeposit(
     _depositId: PromiseOrValue<BytesLike>,
     _funder: PromiseOrValue<string>,
+    _volume: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1219,10 +1245,7 @@ export interface BountyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    closeCompetition(
-      _closer: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    closeCompetition(overrides?: CallOverrides): Promise<void>;
 
     closeOngoing(
       _closer: PromiseOrValue<string>,
@@ -1275,6 +1298,12 @@ export interface BountyV1 extends BaseContract {
 
     getERC20Balance(
       _tokenAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getLockedFunds(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1364,6 +1393,7 @@ export interface BountyV1 extends BaseContract {
     refundDeposit(
       _depositId: PromiseOrValue<BytesLike>,
       _funder: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1487,7 +1517,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     closeCompetition(
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1542,6 +1571,12 @@ export interface BountyV1 extends BaseContract {
 
     getERC20Balance(
       _tokenAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getLockedFunds(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1631,6 +1666,7 @@ export interface BountyV1 extends BaseContract {
     refundDeposit(
       _depositId: PromiseOrValue<BytesLike>,
       _funder: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1749,7 +1785,6 @@ export interface BountyV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     closeCompetition(
-      _closer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1804,6 +1839,12 @@ export interface BountyV1 extends BaseContract {
 
     getERC20Balance(
       _tokenAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLockedFunds(
+      _bountyAddress: PromiseOrValue<string>,
+      _depositId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1897,6 +1938,7 @@ export interface BountyV1 extends BaseContract {
     refundDeposit(
       _depositId: PromiseOrValue<BytesLike>,
       _funder: PromiseOrValue<string>,
+      _volume: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

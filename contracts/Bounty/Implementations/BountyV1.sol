@@ -224,7 +224,7 @@ contract BountyV1 is BountyStorageV1 {
     {
         require(_volume != 0, Errors.ZERO_VOLUME_SENT);
         require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
-        require(status == 0, Errors.CONTRACT_IS_CLOSED);
+        require(status == OpenQDefinitions.OPEN, Errors.CONTRACT_IS_CLOSED);
 
         bytes32 depositId = _generateDepositId();
 
@@ -291,12 +291,13 @@ contract BountyV1 is BountyStorageV1 {
      * @dev Transfers volume of deposit or NFT of deposit from bounty to funder
      * @param _depositId The deposit to refund
      * @param _funder The initial funder of the deposit
+     * @param _volume The volume to be refunded
      */
-    function refundDeposit(bytes32 _depositId, address _funder)
-        external
-        onlyDepositManager
-        nonReentrant
-    {
+    function refundDeposit(
+        bytes32 _depositId,
+        address _funder,
+        uint256 _volume
+    ) external onlyDepositManager nonReentrant {
         // Check
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
@@ -310,7 +311,7 @@ contract BountyV1 is BountyStorageV1 {
 
         // Interactions
         if (tokenAddress[_depositId] == address(0)) {
-            _transferProtocolToken(funder[_depositId], volume[_depositId]);
+            _transferProtocolToken(funder[_depositId], _volume);
         } else if (isNFT[_depositId]) {
             _transferNft(
                 tokenAddress[_depositId],
@@ -321,7 +322,7 @@ contract BountyV1 is BountyStorageV1 {
             _transferERC20(
                 tokenAddress[_depositId],
                 funder[_depositId],
-                volume[_depositId]
+                _volume
             );
         }
     }
@@ -337,11 +338,20 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _seconds,
         address _funder
     ) external onlyDepositManager nonReentrant returns (uint256) {
-        require(status == 0, Errors.CONTRACT_IS_CLOSED);
+        require(status == OpenQDefinitions.OPEN, Errors.CONTRACT_IS_CLOSED);
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
 
-        expiration[_depositId] = expiration[_depositId] + _seconds;
+        if (
+            block.timestamp > depositTime[_depositId] + expiration[_depositId]
+        ) {
+            expiration[_depositId] =
+                block.timestamp -
+                depositTime[_depositId] +
+                _seconds;
+        } else {
+            expiration[_depositId] = expiration[_depositId] + _seconds;
+        }
 
         return expiration[_depositId];
     }
@@ -395,7 +405,6 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _tier,
         address _tokenAddress
     ) external onlyClaimManager nonReentrant returns (uint256) {
-        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
         require(
             bountyType == OpenQDefinitions.TIERED,
             Errors.NOT_A_TIERED_BOUNTY
@@ -420,7 +429,6 @@ contract BountyV1 is BountyStorageV1 {
         nonReentrant
         returns (uint256)
     {
-        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
         require(
             bountyType == OpenQDefinitions.TIERED_FIXED,
             Errors.NOT_A_TIERED_FIXED_BOUNTY
@@ -459,9 +467,12 @@ contract BountyV1 is BountyStorageV1 {
         external
         onlyClaimManager
     {
-        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
+        require(
+            status == OpenQDefinitions.OPEN,
+            Errors.CONTRACT_ALREADY_CLOSED
+        );
         require(_payoutAddress != address(0), Errors.NO_ZERO_ADDRESS);
-        status = 1;
+        status = OpenQDefinitions.CLOSED;
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
         closerData = _closerData;
@@ -469,11 +480,12 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
-     * @param _closer Address of the closer
      */
-    function closeCompetition(address _closer) external onlyOpenQ {
-        require(status == 0, Errors.CONTRACT_ALREADY_CLOSED);
-        require(_closer == issuer, Errors.CALLER_NOT_ISSUER);
+    function closeCompetition() external onlyClaimManager {
+        require(
+            status == OpenQDefinitions.OPEN,
+            Errors.CONTRACT_ALREADY_CLOSED
+        );
 
         status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
@@ -517,6 +529,35 @@ contract BountyV1 is BountyStorageV1 {
         } else {
             return getERC20Balance(_tokenAddress);
         }
+    }
+
+    /**
+     * @dev Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
+     * @param _bountyAddress Address of bounty
+     * @param _depositId The depositId that determines which token is being looked at
+     * @return uint256
+     */
+    function getLockedFunds(address _bountyAddress, address _depositId)
+        public
+        view
+        returns (uint256)
+    {
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+
+        uint256 lockedFunds;
+        bytes32[] memory depList = bounty.getDeposits();
+        for (uint256 i = 0; i < depList.length; i++) {
+            if (
+                block.timestamp <
+                bounty.depositTime(depList[i]) +
+                    bounty.expiration(depList[i]) &&
+                bounty.tokenAddress(depList[i]) == _depositId
+            ) {
+                lockedFunds += bounty.volume(depList[i]);
+            }
+        }
+
+        return lockedFunds;
     }
 
     /**
