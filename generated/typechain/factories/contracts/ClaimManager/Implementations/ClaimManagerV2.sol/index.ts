@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { ClaimManager__factory } from "./ClaimManager__factory";
+export { ClaimManagerV2__factory } from "./ClaimManagerV2__factory";

@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('ClaimManager.sol', () => {
+describe.only('ClaimManagerV2.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -54,14 +54,14 @@ describe('ClaimManager.sol', () => {
 	let BountyV1;
 
 	beforeEach(async () => {
-		const OpenQImplementation = await ethers.getContractFactory('OpenQV1');
+		const OpenQImplementation = await ethers.getContractFactory('OpenQV2');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 		const DepositManager = await ethers.getContractFactory('DepositManager');
-		const ClaimManager = await ethers.getContractFactory('ClaimManager');
+		const ClaimManager = await ethers.getContractFactory('ClaimManagerV2');
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
@@ -873,6 +873,21 @@ describe('ClaimManager.sol', () => {
 			// // ASSERT
 			ongoingClaimed = await bounty.claimantId(claimantId);
 			expect(ongoingClaimed).to.equal(true);
+		});
+	});
+
+	describe('setOpenQ', () => {
+		it.only('should correctly set OpenQ address', async () => {
+			// ASSUME
+			const noOpenQAddress = await claimManager.openQ();
+			expect(noOpenQAddress).to.equal(ethers.constants.AddressZero);
+
+			// ACT
+			await claimManager.setOpenQ(openQProxy.address);
+
+			// ASSERT
+			const setOpenQAddress = await claimManager.openQ();
+			expect(setOpenQAddress).to.equal(openQProxy.address);
 		});
 	});
 

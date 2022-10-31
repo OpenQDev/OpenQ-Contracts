@@ -7,7 +7,7 @@ import '../ClaimManagerStorage.sol';
  * @title ClaimManager
  * @dev Contract with claim abilities on work contracts
  */
-contract ClaimManager is ClaimManagerStorageV2 {
+contract ClaimManagerV2 is ClaimManagerStorageV2 {
     /**
      * INITIALIZATION
      */

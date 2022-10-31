@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe.only('OpenQ.sol', () => {
+describe('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -740,7 +740,7 @@ describe.only('OpenQ.sol', () => {
 		});
 	});
 
-	describe.only('associateExternalIdToAddress', () => {
+	describe('associateExternalIdToAddress', () => {
 		it('should associate external id to address, and address to external id', async () => {
 			const exampleGithubId = 'exampleGithubId';
 
@@ -762,7 +762,7 @@ describe.only('OpenQ.sol', () => {
 			expect(associatedExternalUserId).to.equal(exampleGithubId);
 		});
 
-		it.only('should emit an event with the correct external user id and assocaited address', async () => {
+		it('should emit an event with the correct external user id and assocaited address', async () => {
 			// ARRANGE
 			const exampleGithubId = 'exampleGithubId';
 

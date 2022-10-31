@@ -169,6 +169,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ClaimManager__factory>;
     getContractFactory(
+      name: "ClaimManagerV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClaimManagerV2__factory>;
+    getContractFactory(
       name: "DepositManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DepositManager__factory>;
@@ -444,6 +448,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ClaimManager>;
+    getContractAt(
+      name: "ClaimManagerV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClaimManagerV2>;
     getContractAt(
       name: "DepositManager",
       address: string,
