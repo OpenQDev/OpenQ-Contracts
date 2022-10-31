@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.16;
 
-import '../ClaimManagerStorage.sol';
+import './ClaimManagerStorage.sol';
 
 /**
  * @title ClaimManager
@@ -38,12 +38,23 @@ contract ClaimManager is ClaimManagerStorageV1 {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        require(address(0) != address(0), Errors.NO_ASSOCIATED_ADDRESS);
+        require(
+            externalUserIdToAddress[_externalUserId] != address(0),
+            Errors.NO_ASSOCIATED_ADDRESS
+        );
 
         if (bounty.bountyType == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(_bountyAddress, address(0), _closerData);
+            _claimTieredFixed(
+                _bountyAddress,
+                externalUserIdToAddress[_externalUserId],
+                _closerData
+            );
         } else if (bounty.bountyType == OpenQDefinitions.TIERED) {
-            _claimTiered(_bountyAddress, address(0), _closerData);
+            _claimTiered(
+                _bountyAddress,
+                externalUserIdToAddress[_externalUserId],
+                _closerData
+            );
         } else {
             revert(Errors.CALLER_NOT_ISSUER);
         }

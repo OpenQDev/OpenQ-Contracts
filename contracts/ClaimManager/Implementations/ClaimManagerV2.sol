@@ -42,12 +42,12 @@ contract ClaimManager is ClaimManagerStorageV2 {
             _externalUserId
         );
 
-        require(address(0) != address(0), Errors.NO_ASSOCIATED_ADDRESS);
+        require(closer != address(0), Errors.NO_ASSOCIATED_ADDRESS);
 
         if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(bounty, address(0), _closerData);
+            _claimTieredFixed(bounty, closer, _closerData);
         } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, address(0), _closerData);
+            _claimTiered(bounty, closer, _closerData);
         } else {
             revert(Errors.CALLER_NOT_ISSUER);
         }
