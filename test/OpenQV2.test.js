@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV1.sol', () => {
+describe('OpenQV2.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -48,7 +48,7 @@ describe('OpenQV1.sol', () => {
 	let BountyV1;
 
 	beforeEach(async () => {
-		const OpenQImplementation = await ethers.getContractFactory('OpenQV1');
+		const OpenQImplementation = await ethers.getContractFactory('OpenQV2');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
@@ -69,7 +69,7 @@ describe('OpenQV1.sol', () => {
 		openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
 		await openQProxy.deployed();
 
-		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
+		// Attach the OpenQV2 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		await openQProxy.initialize();

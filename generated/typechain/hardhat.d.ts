@@ -153,10 +153,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BountyFactory__factory>;
     getContractFactory(
-      name: "ClaimManager",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ClaimManager__factory>;
-    getContractFactory(
       name: "ClaimManagerOwnable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ClaimManagerOwnable__factory>;
@@ -164,6 +160,14 @@ declare module "hardhat/types/runtime" {
       name: "ClaimManagerStorageV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ClaimManagerStorageV1__factory>;
+    getContractFactory(
+      name: "ClaimManagerStorageV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClaimManagerStorageV2__factory>;
+    getContractFactory(
+      name: "ClaimManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClaimManager__factory>;
     getContractFactory(
       name: "DepositManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -185,9 +189,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQV1__factory>;
     getContractFactory(
+      name: "OpenQV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OpenQV2__factory>;
+    getContractFactory(
       name: "IOpenQ",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IOpenQ__factory>;
+    getContractFactory(
+      name: "IOpenQV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOpenQV2__factory>;
     getContractFactory(
       name: "OpenQProxy",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -208,6 +220,10 @@ declare module "hardhat/types/runtime" {
       name: "OpenQStorageV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQStorageV1__factory>;
+    getContractFactory(
+      name: "OpenQStorageV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OpenQStorageV2__factory>;
     getContractFactory(
       name: "MockDai",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -413,11 +429,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BountyFactory>;
     getContractAt(
-      name: "ClaimManager",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ClaimManager>;
-    getContractAt(
       name: "ClaimManagerOwnable",
       address: string,
       signer?: ethers.Signer
@@ -427,6 +438,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ClaimManagerStorageV1>;
+    getContractAt(
+      name: "ClaimManagerStorageV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClaimManagerStorageV2>;
+    getContractAt(
+      name: "ClaimManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClaimManager>;
     getContractAt(
       name: "DepositManager",
       address: string,
@@ -453,10 +474,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.OpenQV1>;
     getContractAt(
+      name: "OpenQV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OpenQV2>;
+    getContractAt(
       name: "IOpenQ",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IOpenQ>;
+    getContractAt(
+      name: "IOpenQV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOpenQV2>;
     getContractAt(
       name: "OpenQProxy",
       address: string,
@@ -482,6 +513,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OpenQStorageV1>;
+    getContractAt(
+      name: "OpenQStorageV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OpenQStorageV2>;
     getContractAt(
       name: "MockDai",
       address: string,

@@ -341,11 +341,11 @@ contract OpenQV2 is OpenQStorageV2 {
     }
 
     // VERSION 2
-
     function associateExternalIdToAddress(
         string calldata _externalUserId,
         address _associatedAddress
     ) external onlyOracle {
         externalUserIdToAddress[_externalUserId] = _associatedAddress;
+        addresstoExternalUserId[_associatedAddress] = _externalUserId;
     }
 }

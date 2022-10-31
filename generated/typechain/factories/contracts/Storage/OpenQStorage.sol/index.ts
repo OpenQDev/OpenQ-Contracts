@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { OpenQStorageV1__factory } from "./OpenQStorageV1__factory";
+export { OpenQStorageV2__factory } from "./OpenQStorageV2__factory";

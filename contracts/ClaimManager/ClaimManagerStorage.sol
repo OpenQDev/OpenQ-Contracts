@@ -15,6 +15,7 @@ import '../Library/OpenQDefinitions.sol';
 import '../Oracle/Oraclize.sol';
 import '../Bounty/Implementations/BountyV1.sol';
 import '../Library/Errors.sol';
+import '../OpenQ/IOpenQV2.sol';
 
 /**
  * @title ClaimManagerStorageV1
@@ -27,4 +28,13 @@ abstract contract ClaimManagerStorageV1 is
     UUPSUpgradeable
 {
     uint256 public constant VERSION_1 = 1;
+}
+
+/**
+ * @title ClaimManagerStorageV2
+ * @dev Backwards compatible, append-only chain of storage contracts inherited by ClaimManager implementations
+ */
+abstract contract ClaimManagerStorageV2 is ClaimManagerStorageV1 {
+    uint256 public constant VERSION_2 = 2;
+    address public openQ;
 }

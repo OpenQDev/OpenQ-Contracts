@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OpenQStorageV1 } from "./OpenQStorageV1";
+export type { OpenQStorageV2 } from "./OpenQStorageV2";

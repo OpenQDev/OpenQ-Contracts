@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as claimManagerStorageSol from "./ClaimManagerStorage.sol";
-export { ClaimManager__factory } from "./ClaimManager__factory";
+export * as implementations from "./Implementations";
 export { ClaimManagerOwnable__factory } from "./ClaimManagerOwnable__factory";

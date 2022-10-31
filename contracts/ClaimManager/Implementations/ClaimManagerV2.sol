@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.16;
 
-import './ClaimManagerStorage.sol';
+import '../ClaimManagerStorage.sol';
 
 /**
  * @title ClaimManager
  * @dev Contract with claim abilities on work contracts
  */
-contract ClaimManager is ClaimManagerStorageV1 {
+contract ClaimManager is ClaimManagerStorageV2 {
     /**
      * INITIALIZATION
      */
@@ -27,18 +27,30 @@ contract ClaimManager is ClaimManagerStorageV1 {
     /**
      * @dev Useful for competition minter to directly award a tier's prize to closer
      * @param _bountyAddress The payout address of the bounty
-     * @param _closer The payout address of the claimant. Can be retrieved from user registration mapping
+     * @param _externalUserId The Github ID of the winner
      * @param _closerData ABI Encoded data associated with this claim
      */
     function directClaimTieredBounty(
         address _bountyAddress,
-        address _closer,
+        string calldata _externalUserId,
         bytes calldata _closerData
     ) external {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
-        require(msg.sender == bounty.issuer(), 'Caller must be issuer');
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        _claimTieredFixed(bounty, _closer, _closerData);
+        address closer = IOpenQV2(openQ).externalUserIdToAddress(
+            _externalUserId
+        );
+
+        require(address(0) != address(0), Errors.NO_ASSOCIATED_ADDRESS);
+
+        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
+            _claimTieredFixed(bounty, address(0), _closerData);
+        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
+            _claimTiered(bounty, address(0), _closerData);
+        } else {
+            revert(Errors.CALLER_NOT_ISSUER);
+        }
 
         emit ClaimSuccess(
             block.timestamp,
@@ -350,5 +362,10 @@ contract ClaimManager is ClaimManagerStorageV1 {
     function transferOracle(address _newOracle) external onlyProxy onlyOwner {
         require(_newOracle != address(0), Errors.NO_ZERO_ADDRESS);
         _transferOracle(_newOracle);
+    }
+
+    // VERSION 2
+    function setOpenQ(address _openQ) external onlyOwner {
+        openQ = _openQ;
     }
 }
