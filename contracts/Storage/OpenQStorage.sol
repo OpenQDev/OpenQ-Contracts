@@ -16,6 +16,7 @@ import '../Bounty/Implementations/BountyV1.sol';
 import '../Library/OpenQDefinitions.sol';
 import '../Library/Errors.sol';
 import '../OpenQ/IOpenQ.sol';
+import '../Oracle/Oraclize.sol';
 
 /**
  * @title OpenQStorageV1
@@ -32,4 +33,8 @@ abstract contract OpenQStorageV1 is
     address public claimManager;
     address public depositManager;
     mapping(string => address) public bountyIdToAddress;
+}
+
+abstract contract OpenQStorageV2 is OpenQStorageV1, Oraclize {
+    mapping(string => address) public externalUserIdToAddress;
 }

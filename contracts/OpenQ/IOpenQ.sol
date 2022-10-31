@@ -6,6 +6,13 @@ pragma solidity 0.8.16;
  * @dev Interface declaring all OpenQ Events
  */
 interface IOpenQ {
+    event TierClaimed(
+        address bountyAddress,
+        address claimant,
+        bytes data,
+        uint256 version
+    );
+
     event BountyCreated(
         string bountyId,
         string organization,

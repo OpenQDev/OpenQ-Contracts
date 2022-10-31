@@ -10,7 +10,7 @@ import '../../Storage/OpenQStorage.sol';
  * @title OpenQV1
  * @dev Main administrative contract for all bounty operations
  */
-contract OpenQV1 is OpenQStorageV1 {
+contract OpenQV2 is OpenQStorageV2 {
     /**
      * INITIALIZATION
      */
@@ -338,5 +338,14 @@ contract OpenQV1 is OpenQStorageV1 {
      */
     function getImplementation() external view returns (address) {
         return _getImplementation();
+    }
+
+    // VERSION 2
+
+    function associateExternalIdToAddress(
+        string calldata _externalUserId,
+        address _associatedAddress
+    ) external onlyOracle {
+        externalUserIdToAddress[_externalUserId] = _associatedAddress;
     }
 }

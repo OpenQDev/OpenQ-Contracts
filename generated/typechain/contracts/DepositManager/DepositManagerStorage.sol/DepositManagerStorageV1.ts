@@ -117,6 +117,7 @@ export interface DepositManagerStorageV1Interface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "TierClaimed(address,address,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "Upgraded(address)": EventFragment;
@@ -136,6 +137,7 @@ export interface DepositManagerStorageV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TierClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
@@ -382,6 +384,19 @@ export type PayoutSetEvent = TypedEvent<
 >;
 
 export type PayoutSetEventFilter = TypedEventFilter<PayoutSetEvent>;
+
+export interface TierClaimedEventObject {
+  bountyAddress: string;
+  claimant: string;
+  data: string;
+  version: BigNumber;
+}
+export type TierClaimedEvent = TypedEvent<
+  [string, string, string, BigNumber],
+  TierClaimedEventObject
+>;
+
+export type TierClaimedEventFilter = TypedEventFilter<TierClaimedEvent>;
 
 export interface TokenBalanceClaimedEventObject {
   bountyId: string;
@@ -796,6 +811,19 @@ export interface DepositManagerStorageV1 extends BaseContract {
       data?: null,
       version?: null
     ): PayoutSetEventFilter;
+
+    "TierClaimed(address,address,bytes,uint256)"(
+      bountyAddress?: null,
+      claimant?: null,
+      data?: null,
+      version?: null
+    ): TierClaimedEventFilter;
+    TierClaimed(
+      bountyAddress?: null,
+      claimant?: null,
+      data?: null,
+      version?: null
+    ): TierClaimedEventFilter;
 
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,
