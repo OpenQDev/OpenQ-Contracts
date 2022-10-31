@@ -893,7 +893,7 @@ describe.only('ClaimManagerV2.sol', () => {
 		});
 	});
 
-	describe('directClaimTieredBounty', () => {
+	describe.only('directClaimTieredBounty', () => {
 		it('should revert if caller is not issuer', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
@@ -910,7 +910,7 @@ describe.only('ClaimManagerV2.sol', () => {
 			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUserId', abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
 		});
 
-		it.only('should transfer tier to closer - TIERED', async () => {
+		it('should transfer tier to closer - TIERED', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
@@ -955,7 +955,7 @@ describe.only('ClaimManagerV2.sol', () => {
 			const newBountyProtocolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();
 			expect(newBountyMockTokenBalance).to.equal('40');
 			expect(newBountyFakeTokenBalance).to.equal('40');
-			// expect(newBountyProtocolTokenBalance).to.equal('40');
+			expect(newBountyProtocolTokenBalance).to.equal('40');
 
 			const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimant.address)).toString();
 			const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimant.address)).toString();
@@ -963,12 +963,14 @@ describe.only('ClaimManagerV2.sol', () => {
 			expect(newClaimerFakeTokenBalance).to.equal('60');
 		});
 
-		it('should emit a Claim event with correct parameters', async () => {
+		it('should transfer tier to closer - TIERED FIXED', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredFixedBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 			const expectedTimestamp = await setNextBlockTimestamp();
-			await openQProxy.connect(oracle).associateExternalIdToAddress('githubUser', owner.address);
+			const githubUser = 'githubUser';
+			await openQProxy.connect(oracle).associateExternalIdToAddress(githubUser, claimant.address);
+			const volume = 100;
 
 			const Bounty = await ethers.getContractFactory('BountyV1');
 
@@ -977,10 +979,47 @@ describe.only('ClaimManagerV2.sol', () => {
 			);
 
 			// ACT
+			await mockLink.approve(bountyAddress, 10000000);
+			await mockDai.approve(bountyAddress, 10000000);
+
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+
+			// ASSUME
+			const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+			expect(bountyMockLinkTokenBalance).to.equal('100');
+
+			const claimantMockTokenBalance = (await mockLink.balanceOf(claimant.address)).toString();
+			expect(claimantMockTokenBalance).to.equal('0');
+
+			// ACT
+			await claimManager.directClaimTieredBounty(bountyAddress, githubUser, abiEncodedTieredFixedCloserData);
+
+			// ASSERT
+			const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+			expect(newBountyMockTokenBalance).to.equal('50');
+
+			const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimant.address)).toString();
+			expect(newClaimerMockTokenBalance).to.equal('50');
+		});
+
+		it('should emit a Claim event with correct parameters', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.connect(oracle).associateExternalIdToAddress('githubUser', owner.address);
+
+			const Bounty = await ethers.getContractFactory('BountyV1');
+
+			const bounty = await Bounty.attach(
+				bountyAddress
+			);
+
+			const expectedTimestamp = await setNextBlockTimestamp();
+			// ACT
 			// ASSERT
 			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUser', abiEncodedTieredCloserDataFirstPlace))
 				.to.emit(claimManager, 'ClaimSuccess')
-				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 1);
+				.withArgs(expectedTimestamp, 3, abiEncodedTieredCloserDataFirstPlace, 1);
 		});
 	});
 
