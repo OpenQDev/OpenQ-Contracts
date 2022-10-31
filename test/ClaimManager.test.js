@@ -129,6 +129,7 @@ describe.only('ClaimManagerV2.sol', () => {
 		await claimManagerProxy.deployed();
 		claimManager = await ClaimManager.attach(claimManagerProxy.address);
 		await claimManager.initialize(oracle.address);
+		await claimManager.setOpenQ(openQProxy.address);
 
 		await openQProxy.setBountyFactory(bountyFactory.address);
 		await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
@@ -877,17 +878,35 @@ describe.only('ClaimManagerV2.sol', () => {
 	});
 
 	describe('setOpenQ', () => {
-		it.only('should correctly set OpenQ address', async () => {
+		it('should correctly set OpenQ address', async () => {
 			// ASSUME
-			const noOpenQAddress = await claimManager.openQ();
-			expect(noOpenQAddress).to.equal(ethers.constants.AddressZero);
+			const initialAddress = await claimManager.openQ();
+			expect(initialAddress).to.equal(openQProxy.address);
 
 			// ACT
-			await claimManager.setOpenQ(openQProxy.address);
+			await claimManager.setOpenQ(oracle.address);
 
 			// ASSERT
 			const setOpenQAddress = await claimManager.openQ();
-			expect(setOpenQAddress).to.equal(openQProxy.address);
+			expect(setOpenQAddress).to.equal(oracle.address);
+		});
+	});
+
+	describe('directClaimTieredBounty', () => {
+		it('should revert if caller is not issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await expect(claimManager.connect(oracle).directClaimTieredBounty(bountyAddress, 'githubUserId', abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+
+		it.only('should revert if there is not address associated with external id', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUserId', abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
 		});
 	});
 

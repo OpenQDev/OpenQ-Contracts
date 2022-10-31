@@ -25,42 +25,6 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
     }
 
     /**
-     * @dev Useful for competition minter to directly award a tier's prize to closer
-     * @param _bountyAddress The payout address of the bounty
-     * @param _externalUserId The Github ID of the winner
-     * @param _closerData ABI Encoded data associated with this claim
-     */
-    function directClaimTieredBounty(
-        address _bountyAddress,
-        string calldata _externalUserId,
-        bytes calldata _closerData
-    ) external {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-
-        address closer = IOpenQV2(openQ).externalUserIdToAddress(
-            _externalUserId
-        );
-
-        require(closer != address(0), Errors.NO_ASSOCIATED_ADDRESS);
-
-        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(bounty, closer, _closerData);
-        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, closer, _closerData);
-        } else {
-            revert(Errors.CALLER_NOT_ISSUER);
-        }
-
-        emit ClaimSuccess(
-            block.timestamp,
-            OpenQDefinitions.TIERED_FIXED,
-            _closerData,
-            VERSION_1
-        );
-    }
-
-    /**
      * @dev Calls appropriate claim method based on bounty type
      * @param _bountyAddress The payout address of the bounty
      * @param _closer The payout address of the claimant
@@ -367,5 +331,41 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
     // VERSION 2
     function setOpenQ(address _openQ) external onlyOwner {
         openQ = _openQ;
+    }
+
+    /**
+     * @dev Useful for competition minter to directly award a tier's prize to closer
+     * @param _bountyAddress The payout address of the bounty
+     * @param _externalUserId The Github ID of the winner
+     * @param _closerData ABI Encoded data associated with this claim
+     */
+    function directClaimTieredBounty(
+        address _bountyAddress,
+        string calldata _externalUserId,
+        bytes calldata _closerData
+    ) external {
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+
+        address closer = IOpenQV2(openQ).externalUserIdToAddress(
+            _externalUserId
+        );
+
+        require(closer != address(0), Errors.NO_ASSOCIATED_ADDRESS);
+
+        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
+            _claimTieredFixed(bounty, closer, _closerData);
+        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
+            _claimTiered(bounty, closer, _closerData);
+        } else {
+            revert(Errors.CALLER_NOT_ISSUER);
+        }
+
+        emit ClaimSuccess(
+            block.timestamp,
+            OpenQDefinitions.TIERED_FIXED,
+            _closerData,
+            VERSION_1
+        );
     }
 }

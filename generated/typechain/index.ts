@@ -82,10 +82,8 @@ export type { ClaimManagerStorageV1 } from "./contracts/ClaimManager/ClaimManage
 export { ClaimManagerStorageV1__factory } from "./factories/contracts/ClaimManager/ClaimManagerStorage.sol/ClaimManagerStorageV1__factory";
 export type { ClaimManagerStorageV2 } from "./contracts/ClaimManager/ClaimManagerStorage.sol/ClaimManagerStorageV2";
 export { ClaimManagerStorageV2__factory } from "./factories/contracts/ClaimManager/ClaimManagerStorage.sol/ClaimManagerStorageV2__factory";
-export type { ClaimManager } from "./contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManager";
-export { ClaimManager__factory } from "./factories/contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManager__factory";
-export type { ClaimManagerV2 } from "./contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManagerV2";
-export { ClaimManagerV2__factory } from "./factories/contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManagerV2__factory";
+export type { ClaimManagerV2 } from "./contracts/ClaimManager/Implementations/ClaimManagerV2";
+export { ClaimManagerV2__factory } from "./factories/contracts/ClaimManager/Implementations/ClaimManagerV2__factory";
 export type { DepositManager } from "./contracts/DepositManager/DepositManager";
 export { DepositManager__factory } from "./factories/contracts/DepositManager/DepositManager__factory";
 export type { DepositManagerOwnable } from "./contracts/DepositManager/DepositManagerOwnable";
