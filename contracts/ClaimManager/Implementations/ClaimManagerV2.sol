@@ -2,6 +2,7 @@
 pragma solidity 0.8.16;
 
 import '../ClaimManagerStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title ClaimManager
@@ -358,7 +359,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
         } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
             _claimTiered(bounty, closer, _closerData);
         } else {
-            revert(Errors.CALLER_NOT_ISSUER);
+            revert(Errors.NOT_A_COMPETITION_CONTRACT);
         }
 
         emit ClaimSuccess(

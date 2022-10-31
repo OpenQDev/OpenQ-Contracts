@@ -79,6 +79,7 @@ describe.only('ClaimManagerV2.sol', () => {
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		await openQProxy.initialize();
+		await openQProxy.transferOracle(oracle.address);
 
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
@@ -901,12 +902,85 @@ describe.only('ClaimManagerV2.sol', () => {
 			await expect(claimManager.connect(oracle).directClaimTieredBounty(bountyAddress, 'githubUserId', abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('CALLER_NOT_ISSUER');
 		});
 
-		it.only('should revert if there is not address associated with external id', async () => {
+		it('should revert if there is not address associated with external id', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUserId', abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
+		});
+
+		it.only('should transfer tier to closer - TIERED', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const expectedTimestamp = await setNextBlockTimestamp();
+			const githubUser = 'githubUser';
+			await openQProxy.connect(oracle).associateExternalIdToAddress(githubUser, claimant.address);
+			const volume = 100;
+
+			const Bounty = await ethers.getContractFactory('BountyV1');
+
+			const bounty = await Bounty.attach(
+				bountyAddress
+			);
+
+			// ACT
+			await mockLink.approve(bountyAddress, 10000000);
+			await mockDai.approve(bountyAddress, 10000000);
+
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
+			await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+
+			// ASSUME
+			const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+			const bountyDaiTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
+			const bountyProtcolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();
+			expect(bountyMockLinkTokenBalance).to.equal('100');
+			expect(bountyDaiTokenBalance).to.equal('100');
+			expect(bountyProtcolTokenBalance).to.equal('100');
+
+			const claimantMockTokenBalance = (await mockLink.balanceOf(claimant.address)).toString();
+			const claimantFakeTokenBalance = (await mockDai.balanceOf(claimant.address)).toString();
+			expect(claimantMockTokenBalance).to.equal('0');
+			expect(claimantFakeTokenBalance).to.equal('0');
+
+			// ACT
+			await claimManager.directClaimTieredBounty(bountyAddress, githubUser, abiEncodedTieredCloserDataFirstPlace);
+
+			// ASSERT
+			const newBountyMockTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+			const newBountyFakeTokenBalance = (await mockDai.balanceOf(bountyAddress)).toString();
+			const newBountyProtocolTokenBalance = (await ethers.provider.getBalance(bountyAddress)).toString();
+			expect(newBountyMockTokenBalance).to.equal('40');
+			expect(newBountyFakeTokenBalance).to.equal('40');
+			// expect(newBountyProtocolTokenBalance).to.equal('40');
+
+			const newClaimerMockTokenBalance = (await mockLink.balanceOf(claimant.address)).toString();
+			const newClaimerFakeTokenBalance = (await mockDai.balanceOf(claimant.address)).toString();
+			expect(newClaimerMockTokenBalance).to.equal('60');
+			expect(newClaimerFakeTokenBalance).to.equal('60');
+		});
+
+		it('should emit a Claim event with correct parameters', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const expectedTimestamp = await setNextBlockTimestamp();
+			await openQProxy.connect(oracle).associateExternalIdToAddress('githubUser', owner.address);
+
+			const Bounty = await ethers.getContractFactory('BountyV1');
+
+			const bounty = await Bounty.attach(
+				bountyAddress
+			);
+
+			// ACT
+			// ASSERT
+			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUser', abiEncodedTieredCloserDataFirstPlace))
+				.to.emit(claimManager, 'ClaimSuccess')
+				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 1);
 		});
 	});
 
