@@ -761,6 +761,16 @@ describe.only('OpenQ.sol', () => {
 			expect(assocaitedAddress).to.equal(owner.address);
 			expect(associatedExternalUserId).to.equal(exampleGithubId);
 		});
+
+		it.only('should emit an event with the correct external user id and assocaited address', async () => {
+			// ARRANGE
+			const exampleGithubId = 'exampleGithubId';
+
+			// ACT
+			await expect(openQProxy.connect(oracle).associateExternalIdToAddress(exampleGithubId, owner.address))
+				.to.emit(openQProxy, 'ExternalUserIdAssociatedWithAddress')
+				.withArgs(exampleGithubId, owner.address, [], 2);
+		});
 	});
 
 });
