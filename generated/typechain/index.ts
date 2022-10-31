@@ -92,8 +92,6 @@ export type { DepositManagerStorageV1 } from "./contracts/DepositManager/Deposit
 export { DepositManagerStorageV1__factory } from "./factories/contracts/DepositManager/DepositManagerStorage.sol/DepositManagerStorageV1__factory";
 export type { OnlyOpenQ } from "./contracts/OnlyOpenQ/OnlyOpenQ";
 export { OnlyOpenQ__factory } from "./factories/contracts/OnlyOpenQ/OnlyOpenQ__factory";
-export type { OpenQV1 } from "./contracts/OpenQ/Implementations/OpenQV1";
-export { OpenQV1__factory } from "./factories/contracts/OpenQ/Implementations/OpenQV1__factory";
 export type { OpenQV2 } from "./contracts/OpenQ/Implementations/OpenQV2";
 export { OpenQV2__factory } from "./factories/contracts/OpenQ/Implementations/OpenQV2__factory";
 export type { IOpenQ } from "./contracts/OpenQ/IOpenQ";

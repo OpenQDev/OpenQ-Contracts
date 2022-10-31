@@ -868,7 +868,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "addresstoExternalUserId",
+    name: "addressToExternalUserId",
     outputs: [
       {
         internalType: "string",

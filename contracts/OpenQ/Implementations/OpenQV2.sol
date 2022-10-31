@@ -341,12 +341,21 @@ contract OpenQV2 is OpenQStorageV2 {
     }
 
     // VERSION 2
+    /**
+     * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
+     * @param _newOracle The new oracle address
+     */
+    function transferOracle(address _newOracle) external onlyProxy onlyOwner {
+        require(_newOracle != address(0), Errors.NO_ZERO_ADDRESS);
+        _transferOracle(_newOracle);
+    }
+
     function associateExternalIdToAddress(
         string calldata _externalUserId,
         address _associatedAddress
     ) external onlyOracle {
         externalUserIdToAddress[_externalUserId] = _associatedAddress;
-        addresstoExternalUserId[_associatedAddress] = _externalUserId;
+        addressToExternalUserId[_associatedAddress] = _externalUserId;
         emit ExternalUserIdAssociatedWithAddress(
             _externalUserId,
             _associatedAddress,

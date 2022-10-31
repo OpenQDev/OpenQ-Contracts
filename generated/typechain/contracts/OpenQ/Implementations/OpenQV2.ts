@@ -44,7 +44,7 @@ export interface OpenQV2Interface extends utils.Interface {
   functions: {
     "VERSION_1()": FunctionFragment;
     "VERSION_2()": FunctionFragment;
-    "addresstoExternalUserId(address)": FunctionFragment;
+    "addressToExternalUserId(address)": FunctionFragment;
     "associateExternalIdToAddress(string,address)": FunctionFragment;
     "bountyAddressToBountyId(address)": FunctionFragment;
     "bountyFactory()": FunctionFragment;
@@ -72,6 +72,7 @@ export interface OpenQV2Interface extends utils.Interface {
     "setPayoutScheduleFixed(string,uint256[],address)": FunctionFragment;
     "solvent(string)": FunctionFragment;
     "tierClaimed(string,uint256)": FunctionFragment;
+    "transferOracle(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
@@ -81,7 +82,7 @@ export interface OpenQV2Interface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "VERSION_1"
       | "VERSION_2"
-      | "addresstoExternalUserId"
+      | "addressToExternalUserId"
       | "associateExternalIdToAddress"
       | "bountyAddressToBountyId"
       | "bountyFactory"
@@ -109,6 +110,7 @@ export interface OpenQV2Interface extends utils.Interface {
       | "setPayoutScheduleFixed"
       | "solvent"
       | "tierClaimed"
+      | "transferOracle"
       | "transferOwnership"
       | "upgradeTo"
       | "upgradeToAndCall"
@@ -117,7 +119,7 @@ export interface OpenQV2Interface extends utils.Interface {
   encodeFunctionData(functionFragment: "VERSION_1", values?: undefined): string;
   encodeFunctionData(functionFragment: "VERSION_2", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "addresstoExternalUserId",
+    functionFragment: "addressToExternalUserId",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -243,6 +245,10 @@ export interface OpenQV2Interface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "transferOracle",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
   ): string;
@@ -258,7 +264,7 @@ export interface OpenQV2Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "VERSION_1", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "VERSION_2", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addresstoExternalUserId",
+    functionFragment: "addressToExternalUserId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -346,6 +352,10 @@ export interface OpenQV2Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "solvent", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tierClaimed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOracle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -790,7 +800,7 @@ export interface OpenQV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
@@ -920,6 +930,11 @@ export interface OpenQV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    transferOracle(
+      _newOracle: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -941,7 +956,7 @@ export interface OpenQV2 extends BaseContract {
 
   VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-  addresstoExternalUserId(
+  addressToExternalUserId(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
@@ -1071,6 +1086,11 @@ export interface OpenQV2 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  transferOracle(
+    _newOracle: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1092,7 +1112,7 @@ export interface OpenQV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -1217,6 +1237,11 @@ export interface OpenQV2 extends BaseContract {
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    transferOracle(
+      _newOracle: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -1566,7 +1591,7 @@ export interface OpenQV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1696,6 +1721,11 @@ export interface OpenQV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    transferOracle(
+      _newOracle: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1718,7 +1748,7 @@ export interface OpenQV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1846,6 +1876,11 @@ export interface OpenQV2 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    transferOracle(
+      _newOracle: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(

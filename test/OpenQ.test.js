@@ -125,6 +125,7 @@ describe.only('OpenQ.sol', () => {
 		await bountyFactory.deployed();
 
 		await openQProxy.setBountyFactory(bountyFactory.address);
+		await openQProxy.transferOracle(oracle.address);
 		await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
 		await openQProxy.setDepositManager(depositManager.address);
 		await openQProxy.setClaimManager(claimManager.address);
@@ -736,6 +737,29 @@ describe.only('OpenQ.sol', () => {
 			await expect(openQProxy.setPayoutScheduleFixed(bountyId, [70, 20, 10], mockDai.address))
 				.to.emit(openQProxy, 'PayoutScheduleSet')
 				.withArgs(bountyAddress, mockDai.address, [70, 20, 10], 3, [], 1);
+		});
+	});
+
+	describe.only('associateExternalIdToAddress', () => {
+		it('should associate external id to address, and address to external id', async () => {
+			const exampleGithubId = 'exampleGithubId';
+
+			// ASSUME
+			const zeroAddress = await openQProxy.externalUserIdToAddress(exampleGithubId);
+			const emptyString = await openQProxy.addressToExternalUserId(owner.address);
+
+			expect(zeroAddress).to.equal(ethers.constants.AddressZero);
+			expect(emptyString).to.equal('');
+
+			// ACT
+			await openQProxy.connect(oracle).associateExternalIdToAddress(exampleGithubId, owner.address);
+
+			// ASSERT
+			const assocaitedAddress = await openQProxy.externalUserIdToAddress(exampleGithubId);
+			const associatedExternalUserId = await openQProxy.addressToExternalUserId(owner.address);
+
+			expect(assocaitedAddress).to.equal(owner.address);
+			expect(associatedExternalUserId).to.equal(exampleGithubId);
 		});
 	});
 

@@ -31,7 +31,7 @@ export interface OpenQStorageV2Interface extends utils.Interface {
   functions: {
     "VERSION_1()": FunctionFragment;
     "VERSION_2()": FunctionFragment;
-    "addresstoExternalUserId(address)": FunctionFragment;
+    "addressToExternalUserId(address)": FunctionFragment;
     "bountyFactory()": FunctionFragment;
     "bountyIdToAddress(string)": FunctionFragment;
     "claimManager()": FunctionFragment;
@@ -50,7 +50,7 @@ export interface OpenQStorageV2Interface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "VERSION_1"
       | "VERSION_2"
-      | "addresstoExternalUserId"
+      | "addressToExternalUserId"
       | "bountyFactory"
       | "bountyIdToAddress"
       | "claimManager"
@@ -68,7 +68,7 @@ export interface OpenQStorageV2Interface extends utils.Interface {
   encodeFunctionData(functionFragment: "VERSION_1", values?: undefined): string;
   encodeFunctionData(functionFragment: "VERSION_2", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "addresstoExternalUserId",
+    functionFragment: "addressToExternalUserId",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -117,7 +117,7 @@ export interface OpenQStorageV2Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "VERSION_1", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "VERSION_2", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addresstoExternalUserId",
+    functionFragment: "addressToExternalUserId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -592,7 +592,7 @@ export interface OpenQStorageV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
@@ -644,7 +644,7 @@ export interface OpenQStorageV2 extends BaseContract {
 
   VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-  addresstoExternalUserId(
+  addressToExternalUserId(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
@@ -696,7 +696,7 @@ export interface OpenQStorageV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -1073,7 +1073,7 @@ export interface OpenQStorageV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1126,7 +1126,7 @@ export interface OpenQStorageV2 extends BaseContract {
 
     VERSION_2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    addresstoExternalUserId(
+    addressToExternalUserId(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
