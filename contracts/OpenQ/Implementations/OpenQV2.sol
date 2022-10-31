@@ -347,5 +347,11 @@ contract OpenQV2 is OpenQStorageV2 {
     ) external onlyOracle {
         externalUserIdToAddress[_externalUserId] = _associatedAddress;
         addresstoExternalUserId[_associatedAddress] = _externalUserId;
+        emit ExternalUserIdAssociatedWithAddress(
+            _externalUserId,
+            _associatedAddress,
+            new bytes(0),
+            VERSION_2
+        );
     }
 }

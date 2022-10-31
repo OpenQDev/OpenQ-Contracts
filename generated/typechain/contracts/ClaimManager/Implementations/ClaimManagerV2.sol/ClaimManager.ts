@@ -174,6 +174,7 @@ export interface ClaimManagerInterface extends utils.Interface {
     "ClaimSuccess(uint256,uint256,bytes,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
@@ -195,6 +196,9 @@ export interface ClaimManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ClaimSuccess"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ExternalUserIdAssociatedWithAddress"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
@@ -320,6 +324,20 @@ export type DepositRefundedEvent = TypedEvent<
 >;
 
 export type DepositRefundedEventFilter = TypedEventFilter<DepositRefundedEvent>;
+
+export interface ExternalUserIdAssociatedWithAddressEventObject {
+  externalUserId: string;
+  newAddress: string;
+  data: string;
+  version: BigNumber;
+}
+export type ExternalUserIdAssociatedWithAddressEvent = TypedEvent<
+  [string, string, string, BigNumber],
+  ExternalUserIdAssociatedWithAddressEventObject
+>;
+
+export type ExternalUserIdAssociatedWithAddressEventFilter =
+  TypedEventFilter<ExternalUserIdAssociatedWithAddressEvent>;
 
 export interface FundingGoalSetEventObject {
   bountyAddress: string;
@@ -886,6 +904,19 @@ export interface ClaimManager extends BaseContract {
       data?: null,
       version?: null
     ): DepositRefundedEventFilter;
+
+    "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)"(
+      externalUserId?: null,
+      newAddress?: null,
+      data?: null,
+      version?: null
+    ): ExternalUserIdAssociatedWithAddressEventFilter;
+    ExternalUserIdAssociatedWithAddress(
+      externalUserId?: null,
+      newAddress?: null,
+      data?: null,
+      version?: null
+    ): ExternalUserIdAssociatedWithAddressEventFilter;
 
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)"(
       bountyAddress?: null,

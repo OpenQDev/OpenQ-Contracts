@@ -292,6 +292,37 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "string",
+        name: "externalUserId",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "newAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "version",
+        type: "uint256",
+      },
+    ],
+    name: "ExternalUserIdAssociatedWithAddress",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "bountyAddress",
         type: "address",
@@ -806,6 +837,19 @@ const _abi = [
   {
     inputs: [],
     name: "VERSION_1",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "VERSION_2",
     outputs: [
       {
         internalType: "uint256",

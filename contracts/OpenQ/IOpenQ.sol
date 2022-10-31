@@ -151,4 +151,11 @@ interface IOpenQ {
         bytes data,
         uint256 version
     );
+
+    event ExternalUserIdAssociatedWithAddress(
+        string externalUserId,
+        address newAddress,
+        bytes data,
+        uint256 version
+    );
 }
