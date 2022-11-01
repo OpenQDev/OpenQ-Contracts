@@ -19,7 +19,7 @@ async function fundBounties() {
 	const MockNFT = await ethers.getContractFactory('MockNft');
 	const mockNFT = await MockNFT.attach(process.env.MOCK_NFT_TOKEN_ADDRESS);
 
-	const OpenQ = await ethers.getContractFactory('OpenQV1');
+	const OpenQ = await ethers.getContractFactory('OpenQV2');
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
 	const DepositManager = await ethers.getContractFactory('DepositManager');
