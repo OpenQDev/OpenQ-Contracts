@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe.only('ClaimManagerV2.sol', () => {
+describe('ClaimManagerV2.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -893,10 +893,10 @@ describe.only('ClaimManagerV2.sol', () => {
 		});
 	});
 
-	describe.only('directClaimTieredBounty', () => {
+	describe('directClaimTieredBounty', () => {
 		it('should revert if caller is not issuer', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 			await expect(claimManager.connect(oracle).directClaimTieredBounty(bountyAddress, 'githubUserId', abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('CALLER_NOT_ISSUER');
@@ -904,7 +904,7 @@ describe.only('ClaimManagerV2.sol', () => {
 
 		it('should revert if there is not address associated with external id', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUserId', abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
