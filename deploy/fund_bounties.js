@@ -64,6 +64,9 @@ async function fundBounties() {
 	await mockDai.approve(openQBounty2Address, eight);
 	await optionalSleep(5000);
 
+	await mockDai.approve(openQBounty6Address, eight);
+	await optionalSleep(5000);
+
 	await mockLink.approve(openQBounty3Address, eight);
 	await optionalSleep(5000);
 
@@ -89,6 +92,7 @@ async function fundBounties() {
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
+	await depositManager.fundBountyToken(openQBounty6Address, mockDai.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtyDays);
 	await depositManager.fundBountyToken(openQBounty1Address, mockDai.address, two, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty2Address, mockLink.address, one, fifteenDays);
