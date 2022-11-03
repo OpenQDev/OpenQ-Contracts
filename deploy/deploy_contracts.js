@@ -46,22 +46,22 @@ async function deployContracts() {
 	console.log('DEPLOYING OPENQ MAIN CONTRACT');
 	console.log('------------------------------------------');
 
-	console.log('Deploying OpenQV1 (Implementation)...');
-	const OpenQImplementationV1 = await ethers.getContractFactory('OpenQV1');
-	const openQImplementationV1 = await OpenQImplementationV1.deploy();
-	await openQImplementationV1.deployed();
-	console.log(`OpenQV1 (Implementation) Deployed to ${openQImplementationV1.address}\n`);
+	console.log('Deploying OpenQV2 (Implementation)...');
+	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV2');
+	const openQImplementationV2 = await OpenQImplementationV2.deploy();
+	await openQImplementationV2.deployed();
+	console.log(`OpenQV1 (Implementation) Deployed to ${openQImplementationV2.address}\n`);
 
 	console.log('Deploying OpenQProxy...');
 	const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
-	let openQProxy = await OpenQProxy.deploy(openQImplementationV1.address, []);
+	let openQProxy = await OpenQProxy.deploy(openQImplementationV2.address, []);
 	const confirmation = await openQProxy.deployed();
 	const deployBlockNumber = 1;
 	await optionalSleep(10000);
 	console.log(`OpenQV1 (Proxy) Deployed to ${openQProxy.address} in block number ${deployBlockNumber}\n`);
 
 	// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
-	openQProxy = await OpenQImplementationV1.attach(openQProxy.address);
+	openQProxy = await OpenQImplementationV2.attach(openQProxy.address);
 
 	await openQProxy.initialize();
 
@@ -70,23 +70,23 @@ async function deployContracts() {
 	console.log('------------------------------------------');
 
 	console.log('Deploying Claim Manager Implementation...');
-	const ClaimManager = await ethers.getContractFactory('ClaimManager');
-	let claimManager = await ClaimManager.deploy();
-	const claimManagerConfirmation = await claimManager.deployed();
+	const ClaimManagerV2 = await ethers.getContractFactory('ClaimManagerV2');
+	let claimManagerV2 = await ClaimManagerV2.deploy();
+	const claimManagerConfirmation = await claimManagerV2.deployed();
 	const deployBlockNumber_claimManager = 1;
 	await optionalSleep(10000);
-	console.log(`Claim Manager Implementation Deployed to ${claimManager.address} in block number ${deployBlockNumber_claimManager}\n`);
+	console.log(`Claim Manager Implementation Deployed to ${claimManagerV2.address} in block number ${deployBlockNumber_claimManager}\n`);
 
 	console.log('Deploying Claim Manager Proxy...');
 	const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
-	let claimManagerProxy = await ClaimManagerProxy.deploy(claimManager.address, []);
+	let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerV2.address, []);
 	const claimManagerProxyConfirmation = await claimManagerProxy.deployed();
 	const deployBlockNumber_claimManagerProxy = 1;
 	await optionalSleep(10000);
 	console.log(`Claim Manager Proxy Deployed to ${claimManagerProxy.address} in block number ${deployBlockNumber_claimManagerProxy}\n`);
 
 	// Attach the DepositManager ABI to the OpenQProxy address to send method calls to the delegatecall
-	claimManagerProxy = await ClaimManager.attach(claimManagerProxy.address);
+	claimManagerProxy = await ClaimManagerV2.attach(claimManagerProxy.address);
 
 	await claimManagerProxy.initialize(process.env.ORACLE_ADDRESS);
 
@@ -151,7 +151,7 @@ async function deployContracts() {
 
 	console.log('OPENQ ADDRESSES');
 	console.log(`OpenQV1 (Proxy) deployed to: ${openQProxy.address}`);
-	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV1.address}`);
+	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV2.address}`);
 
 	console.log('\nBOUNTY ADDRESSES');
 	console.log(`BountyV1 (Implementation) deployed to ${bountyV1.address}\n`);
@@ -192,9 +192,9 @@ async function deployContracts() {
 	let addresses;
 	if (network.name === 'docker' || network.name === 'localhost') {
 		addresses = `OPENQ_PROXY_ADDRESS=${openQProxy.address}
-OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV1.address}
+OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV2.address}
 CLAIM_MANAGER_PROXY_ADDRESS=${claimManagerProxy.address}
-CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManager.address}
+CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManagerV2.address}
 DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
 DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
 OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
@@ -209,9 +209,9 @@ MOCK_DAI_BLACKLISTED_TOKEN_ADDRESS=${mockDaiBlacklisted.address}
 `;
 	} else {
 		addresses = `OPENQ_PROXY_ADDRESS=${openQProxy.address}
-OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV1.address}
+OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV2.address}
 CLAIM_MANAGER_PROXY_ADDRESS=${claimManagerProxy.address}
-CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManager.address}
+CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManagerV2.address}
 DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
 DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
 OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
