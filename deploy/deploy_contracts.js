@@ -168,6 +168,7 @@ async function deployContracts() {
 	console.log('\nConfiguring OpenQV1 with BountyFactory...');
 	console.log(`Setting BountyFactory on OpenQV1 to ${bountyFactory.address}...`);
 	await openQProxy.setBountyFactory(bountyFactory.address);
+	await openQProxy.transferOracle(process.env.ORACLE_ADDRESS);
 	await optionalSleep(10000);
 	console.log(`BountyFactory successfully set on OpenQV1 to ${bountyFactory.address}`);
 
