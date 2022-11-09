@@ -4,3 +4,4 @@
 export * as implementations from "./Implementations";
 export * as proxy from "./Proxy";
 export { IOpenQ__factory } from "./IOpenQ__factory";
+export { IOpenQV2__factory } from "./IOpenQV2__factory";

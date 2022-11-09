@@ -25,18 +25,22 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../common";
+} from "../../../../common";
 
 export interface ClaimManagerInterface extends utils.Interface {
   functions: {
     "VERSION_1()": FunctionFragment;
+    "VERSION_2()": FunctionFragment;
     "bountyIsClaimable(address)": FunctionFragment;
     "claimBounty(address,address,bytes)": FunctionFragment;
+    "directClaimTieredBounty(address,string,bytes)": FunctionFragment;
     "initialize(address)": FunctionFragment;
+    "openQ()": FunctionFragment;
     "oracle()": FunctionFragment;
     "owner()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "setOpenQ(address)": FunctionFragment;
     "transferOracle(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
@@ -46,13 +50,17 @@ export interface ClaimManagerInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "VERSION_1"
+      | "VERSION_2"
       | "bountyIsClaimable"
       | "claimBounty"
+      | "directClaimTieredBounty"
       | "initialize"
+      | "openQ"
       | "oracle"
       | "owner"
       | "proxiableUUID"
       | "renounceOwnership"
+      | "setOpenQ"
       | "transferOracle"
       | "transferOwnership"
       | "upgradeTo"
@@ -60,6 +68,7 @@ export interface ClaimManagerInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "VERSION_1", values?: undefined): string;
+  encodeFunctionData(functionFragment: "VERSION_2", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "bountyIsClaimable",
     values: [PromiseOrValue<string>]
@@ -73,9 +82,18 @@ export interface ClaimManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "directClaimTieredBounty",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "initialize",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "openQ", values?: undefined): string;
   encodeFunctionData(functionFragment: "oracle", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -85,6 +103,10 @@ export interface ClaimManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setOpenQ",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOracle",
@@ -104,6 +126,7 @@ export interface ClaimManagerInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "VERSION_1", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "VERSION_2", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "bountyIsClaimable",
     data: BytesLike
@@ -112,7 +135,12 @@ export interface ClaimManagerInterface extends utils.Interface {
     functionFragment: "claimBounty",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "directClaimTieredBounty",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "openQ", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "oracle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -123,6 +151,7 @@ export interface ClaimManagerInterface extends utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setOpenQ", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOracle",
     data: BytesLike
@@ -145,6 +174,7 @@ export interface ClaimManagerInterface extends utils.Interface {
     "ClaimSuccess(uint256,uint256,bytes,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
@@ -153,6 +183,7 @@ export interface ClaimManagerInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "TierClaimed(address,address,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "Upgraded(address)": EventFragment;
@@ -165,6 +196,9 @@ export interface ClaimManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ClaimSuccess"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ExternalUserIdAssociatedWithAddress"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
@@ -173,6 +207,7 @@ export interface ClaimManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TierClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
@@ -289,6 +324,20 @@ export type DepositRefundedEvent = TypedEvent<
 >;
 
 export type DepositRefundedEventFilter = TypedEventFilter<DepositRefundedEvent>;
+
+export interface ExternalUserIdAssociatedWithAddressEventObject {
+  externalUserId: string;
+  newAddress: string;
+  data: string;
+  version: BigNumber;
+}
+export type ExternalUserIdAssociatedWithAddressEvent = TypedEvent<
+  [string, string, string, BigNumber],
+  ExternalUserIdAssociatedWithAddressEventObject
+>;
+
+export type ExternalUserIdAssociatedWithAddressEventFilter =
+  TypedEventFilter<ExternalUserIdAssociatedWithAddressEvent>;
 
 export interface FundingGoalSetEventObject {
   bountyAddress: string;
@@ -432,6 +481,19 @@ export type PayoutSetEvent = TypedEvent<
 
 export type PayoutSetEventFilter = TypedEventFilter<PayoutSetEvent>;
 
+export interface TierClaimedEventObject {
+  bountyAddress: string;
+  claimant: string;
+  data: string;
+  version: BigNumber;
+}
+export type TierClaimedEvent = TypedEvent<
+  [string, string, string, BigNumber],
+  TierClaimedEventObject
+>;
+
+export type TierClaimedEventFilter = TypedEventFilter<TierClaimedEvent>;
+
 export interface TokenBalanceClaimedEventObject {
   bountyId: string;
   bountyAddress: string;
@@ -534,6 +596,8 @@ export interface ClaimManager extends BaseContract {
   functions: {
     VERSION_1(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    VERSION_2(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     bountyIsClaimable(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -546,10 +610,19 @@ export interface ClaimManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    directClaimTieredBounty(
+      _bountyAddress: PromiseOrValue<string>,
+      _externalUserId: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     initialize(
       oracle: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    openQ(overrides?: CallOverrides): Promise<[string]>;
 
     oracle(overrides?: CallOverrides): Promise<[string]>;
 
@@ -558,6 +631,11 @@ export interface ClaimManager extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setOpenQ(
+      _openQ: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -585,6 +663,8 @@ export interface ClaimManager extends BaseContract {
 
   VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
+  VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
+
   bountyIsClaimable(
     _bountyAddress: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -597,10 +677,19 @@ export interface ClaimManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  directClaimTieredBounty(
+    _bountyAddress: PromiseOrValue<string>,
+    _externalUserId: PromiseOrValue<string>,
+    _closerData: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   initialize(
     oracle: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  openQ(overrides?: CallOverrides): Promise<string>;
 
   oracle(overrides?: CallOverrides): Promise<string>;
 
@@ -609,6 +698,11 @@ export interface ClaimManager extends BaseContract {
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setOpenQ(
+    _openQ: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -636,6 +730,8 @@ export interface ClaimManager extends BaseContract {
   callStatic: {
     VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
+    VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
+
     bountyIsClaimable(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -648,10 +744,19 @@ export interface ClaimManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    directClaimTieredBounty(
+      _bountyAddress: PromiseOrValue<string>,
+      _externalUserId: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     initialize(
       oracle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    openQ(overrides?: CallOverrides): Promise<string>;
 
     oracle(overrides?: CallOverrides): Promise<string>;
 
@@ -660,6 +765,11 @@ export interface ClaimManager extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    setOpenQ(
+      _openQ: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     transferOracle(
       _newOracle: PromiseOrValue<string>,
@@ -795,6 +905,19 @@ export interface ClaimManager extends BaseContract {
       version?: null
     ): DepositRefundedEventFilter;
 
+    "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)"(
+      externalUserId?: null,
+      newAddress?: null,
+      data?: null,
+      version?: null
+    ): ExternalUserIdAssociatedWithAddressEventFilter;
+    ExternalUserIdAssociatedWithAddress(
+      externalUserId?: null,
+      newAddress?: null,
+      data?: null,
+      version?: null
+    ): ExternalUserIdAssociatedWithAddressEventFilter;
+
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)"(
       bountyAddress?: null,
       fundingGoalTokenAddress?: null,
@@ -921,6 +1044,19 @@ export interface ClaimManager extends BaseContract {
       version?: null
     ): PayoutSetEventFilter;
 
+    "TierClaimed(address,address,bytes,uint256)"(
+      bountyAddress?: null,
+      claimant?: null,
+      data?: null,
+      version?: null
+    ): TierClaimedEventFilter;
+    TierClaimed(
+      bountyAddress?: null,
+      claimant?: null,
+      data?: null,
+      version?: null
+    ): TierClaimedEventFilter;
+
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,
       bountyAddress?: null,
@@ -986,6 +1122,8 @@ export interface ClaimManager extends BaseContract {
   estimateGas: {
     VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
+    VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
+
     bountyIsClaimable(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -998,10 +1136,19 @@ export interface ClaimManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    directClaimTieredBounty(
+      _bountyAddress: PromiseOrValue<string>,
+      _externalUserId: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     initialize(
       oracle: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    openQ(overrides?: CallOverrides): Promise<BigNumber>;
 
     oracle(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1010,6 +1157,11 @@ export interface ClaimManager extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setOpenQ(
+      _openQ: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1038,6 +1190,8 @@ export interface ClaimManager extends BaseContract {
   populateTransaction: {
     VERSION_1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    VERSION_2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     bountyIsClaimable(
       _bountyAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1050,10 +1204,19 @@ export interface ClaimManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    directClaimTieredBounty(
+      _bountyAddress: PromiseOrValue<string>,
+      _externalUserId: PromiseOrValue<string>,
+      _closerData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     initialize(
       oracle: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    openQ(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     oracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1062,6 +1225,11 @@ export interface ClaimManager extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setOpenQ(
+      _openQ: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

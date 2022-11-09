@@ -213,6 +213,7 @@ export interface DepositManagerInterface extends utils.Interface {
     "ClaimSuccess(uint256,uint256,bytes,uint256)": EventFragment;
     "DepositExtended(bytes32,uint256,uint256,bytes,uint256)": EventFragment;
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
@@ -220,6 +221,7 @@ export interface DepositManagerInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "TierClaimed(address,address,bytes,uint256)": EventFragment;
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "TokenDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "Upgraded(address)": EventFragment;
@@ -232,6 +234,9 @@ export interface DepositManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ClaimSuccess"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositExtended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DepositRefunded"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ExternalUserIdAssociatedWithAddress"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
@@ -239,6 +244,7 @@ export interface DepositManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TierClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBalanceClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
@@ -355,6 +361,20 @@ export type DepositRefundedEvent = TypedEvent<
 >;
 
 export type DepositRefundedEventFilter = TypedEventFilter<DepositRefundedEvent>;
+
+export interface ExternalUserIdAssociatedWithAddressEventObject {
+  externalUserId: string;
+  newAddress: string;
+  data: string;
+  version: BigNumber;
+}
+export type ExternalUserIdAssociatedWithAddressEvent = TypedEvent<
+  [string, string, string, BigNumber],
+  ExternalUserIdAssociatedWithAddressEventObject
+>;
+
+export type ExternalUserIdAssociatedWithAddressEventFilter =
+  TypedEventFilter<ExternalUserIdAssociatedWithAddressEvent>;
 
 export interface FundingGoalSetEventObject {
   bountyAddress: string;
@@ -485,6 +505,19 @@ export type PayoutSetEvent = TypedEvent<
 >;
 
 export type PayoutSetEventFilter = TypedEventFilter<PayoutSetEvent>;
+
+export interface TierClaimedEventObject {
+  bountyAddress: string;
+  claimant: string;
+  data: string;
+  version: BigNumber;
+}
+export type TierClaimedEvent = TypedEvent<
+  [string, string, string, BigNumber],
+  TierClaimedEventObject
+>;
+
+export type TierClaimedEventFilter = TypedEventFilter<TierClaimedEvent>;
 
 export interface TokenBalanceClaimedEventObject {
   bountyId: string;
@@ -943,6 +976,19 @@ export interface DepositManager extends BaseContract {
       version?: null
     ): DepositRefundedEventFilter;
 
+    "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)"(
+      externalUserId?: null,
+      newAddress?: null,
+      data?: null,
+      version?: null
+    ): ExternalUserIdAssociatedWithAddressEventFilter;
+    ExternalUserIdAssociatedWithAddress(
+      externalUserId?: null,
+      newAddress?: null,
+      data?: null,
+      version?: null
+    ): ExternalUserIdAssociatedWithAddressEventFilter;
+
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)"(
       bountyAddress?: null,
       fundingGoalTokenAddress?: null,
@@ -1059,6 +1105,19 @@ export interface DepositManager extends BaseContract {
       data?: null,
       version?: null
     ): PayoutSetEventFilter;
+
+    "TierClaimed(address,address,bytes,uint256)"(
+      bountyAddress?: null,
+      claimant?: null,
+      data?: null,
+      version?: null
+    ): TierClaimedEventFilter;
+    TierClaimed(
+      bountyAddress?: null,
+      claimant?: null,
+      data?: null,
+      version?: null
+    ): TierClaimedEventFilter;
 
     "TokenBalanceClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,

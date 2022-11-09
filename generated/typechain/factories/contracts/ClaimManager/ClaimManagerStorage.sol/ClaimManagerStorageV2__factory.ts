@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  DepositManagerStorageV1,
-  DepositManagerStorageV1Interface,
-} from "../../../../contracts/DepositManager/DepositManagerStorage.sol/DepositManagerStorageV1";
+  ClaimManagerStorageV2,
+  ClaimManagerStorageV2Interface,
+} from "../../../../contracts/ClaimManager/ClaimManagerStorage.sol/ClaimManagerStorageV2";
 
 const _abi = [
   {
@@ -526,6 +526,25 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "previousOracle",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOracle",
+        type: "address",
+      },
+    ],
+    name: "OracleTransferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "previousOwner",
         type: "address",
       },
@@ -830,10 +849,36 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "openQTokenWhitelist",
+    name: "VERSION_2",
     outputs: [
       {
-        internalType: "contract OpenQTokenWhitelist",
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "openQ",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "oracle",
+    outputs: [
+      {
+        internalType: "address",
         name: "",
         type: "address",
       },
@@ -920,19 +965,19 @@ const _abi = [
   },
 ];
 
-export class DepositManagerStorageV1__factory {
+export class ClaimManagerStorageV2__factory {
   static readonly abi = _abi;
-  static createInterface(): DepositManagerStorageV1Interface {
-    return new utils.Interface(_abi) as DepositManagerStorageV1Interface;
+  static createInterface(): ClaimManagerStorageV2Interface {
+    return new utils.Interface(_abi) as ClaimManagerStorageV2Interface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): DepositManagerStorageV1 {
+  ): ClaimManagerStorageV2 {
     return new Contract(
       address,
       _abi,
       signerOrProvider
-    ) as DepositManagerStorageV1;
+    ) as ClaimManagerStorageV2;
   }
 }

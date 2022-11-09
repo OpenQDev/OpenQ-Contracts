@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { ClaimManager } from "./ClaimManager";
+export type { ClaimManagerV2 } from "./ClaimManagerV2";

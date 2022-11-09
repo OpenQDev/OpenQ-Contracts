@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe.only('BountyV1.sol', () => {
+describe('BountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV1;
 
@@ -819,11 +819,6 @@ describe.only('BountyV1.sol', () => {
 				// expect(secondPlaceMockTokenBalance).to.equal('200');
 			});
 
-			it('should revert if competition is not closed', async () => {
-				// ACT/ASSERT
-				await expect(tieredContract.connect(claimManager).claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('CONTRACT_NOT_CLOSED');
-			});
-
 			it('should revert if not called by claim manager', async () => {
 				// ACT/ASSERT
 				await expect(tieredContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
@@ -866,11 +861,6 @@ describe.only('BountyV1.sol', () => {
 				// // ASSERT
 				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
 				expect(secondPlaceMockTokenBalance).to.equal('50');
-			});
-
-			it('should revert if competition is not closed', async () => {
-				// ACT/ASSERT
-				await expect(tieredFixedContract.connect(claimManager).claimTieredFixed(owner.address, 0)).to.be.revertedWith('CONTRACT_NOT_CLOSED');
 			});
 
 			it('should revert if not called by claim manager', async () => {

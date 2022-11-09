@@ -405,7 +405,6 @@ contract BountyV1 is BountyStorageV1 {
         uint256 _tier,
         address _tokenAddress
     ) external onlyClaimManager nonReentrant returns (uint256) {
-        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
         require(
             bountyType == OpenQDefinitions.TIERED,
             Errors.NOT_A_TIERED_BOUNTY
@@ -430,7 +429,6 @@ contract BountyV1 is BountyStorageV1 {
         nonReentrant
         returns (uint256)
     {
-        require(status == OpenQDefinitions.CLOSED, Errors.CONTRACT_NOT_CLOSED);
         require(
             bountyType == OpenQDefinitions.TIERED_FIXED,
             Errors.NOT_A_TIERED_FIXED_BOUNTY

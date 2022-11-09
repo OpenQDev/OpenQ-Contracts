@@ -27,13 +27,12 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
-export interface OpenQStorageV1Interface extends utils.Interface {
+export interface ClaimManagerStorageV2Interface extends utils.Interface {
   functions: {
     "VERSION_1()": FunctionFragment;
-    "bountyFactory()": FunctionFragment;
-    "bountyIdToAddress(string)": FunctionFragment;
-    "claimManager()": FunctionFragment;
-    "depositManager()": FunctionFragment;
+    "VERSION_2()": FunctionFragment;
+    "openQ()": FunctionFragment;
+    "oracle()": FunctionFragment;
     "owner()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -45,10 +44,9 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "VERSION_1"
-      | "bountyFactory"
-      | "bountyIdToAddress"
-      | "claimManager"
-      | "depositManager"
+      | "VERSION_2"
+      | "openQ"
+      | "oracle"
       | "owner"
       | "proxiableUUID"
       | "renounceOwnership"
@@ -58,22 +56,9 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "VERSION_1", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "bountyFactory",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "bountyIdToAddress",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimManager",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "depositManager",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "VERSION_2", values?: undefined): string;
+  encodeFunctionData(functionFragment: "openQ", values?: undefined): string;
+  encodeFunctionData(functionFragment: "oracle", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proxiableUUID",
@@ -97,22 +82,9 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "VERSION_1", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "bountyFactory",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "bountyIdToAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "claimManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "depositManager",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "VERSION_2", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "openQ", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "oracle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
@@ -145,6 +117,7 @@ export interface OpenQStorageV1Interface extends utils.Interface {
     "Initialized(uint8)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
+    "OracleTransferred(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
     "PayoutSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
@@ -168,6 +141,7 @@ export interface OpenQStorageV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutSet"): EventFragment;
@@ -390,6 +364,18 @@ export type NFTDepositReceivedEvent = TypedEvent<
 export type NFTDepositReceivedEventFilter =
   TypedEventFilter<NFTDepositReceivedEvent>;
 
+export interface OracleTransferredEventObject {
+  previousOracle: string;
+  newOracle: string;
+}
+export type OracleTransferredEvent = TypedEvent<
+  [string, string],
+  OracleTransferredEventObject
+>;
+
+export type OracleTransferredEventFilter =
+  TypedEventFilter<OracleTransferredEvent>;
+
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
@@ -519,12 +505,12 @@ export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
 
 export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
-export interface OpenQStorageV1 extends BaseContract {
+export interface ClaimManagerStorageV2 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: OpenQStorageV1Interface;
+  interface: ClaimManagerStorageV2Interface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -548,16 +534,11 @@ export interface OpenQStorageV1 extends BaseContract {
   functions: {
     VERSION_1(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    bountyFactory(overrides?: CallOverrides): Promise<[string]>;
+    VERSION_2(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    openQ(overrides?: CallOverrides): Promise<[string]>;
 
-    claimManager(overrides?: CallOverrides): Promise<[string]>;
-
-    depositManager(overrides?: CallOverrides): Promise<[string]>;
+    oracle(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -586,16 +567,11 @@ export interface OpenQStorageV1 extends BaseContract {
 
   VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
-  bountyFactory(overrides?: CallOverrides): Promise<string>;
+  VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-  bountyIdToAddress(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  openQ(overrides?: CallOverrides): Promise<string>;
 
-  claimManager(overrides?: CallOverrides): Promise<string>;
-
-  depositManager(overrides?: CallOverrides): Promise<string>;
+  oracle(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -624,16 +600,11 @@ export interface OpenQStorageV1 extends BaseContract {
   callStatic: {
     VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bountyFactory(overrides?: CallOverrides): Promise<string>;
+    VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    openQ(overrides?: CallOverrides): Promise<string>;
 
-    claimManager(overrides?: CallOverrides): Promise<string>;
-
-    depositManager(overrides?: CallOverrides): Promise<string>;
+    oracle(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -857,6 +828,15 @@ export interface OpenQStorageV1 extends BaseContract {
       version?: null
     ): NFTDepositReceivedEventFilter;
 
+    "OracleTransferred(address,address)"(
+      previousOracle?: PromiseOrValue<string> | null,
+      newOracle?: PromiseOrValue<string> | null
+    ): OracleTransferredEventFilter;
+    OracleTransferred(
+      previousOracle?: PromiseOrValue<string> | null,
+      newOracle?: PromiseOrValue<string> | null
+    ): OracleTransferredEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -978,16 +958,11 @@ export interface OpenQStorageV1 extends BaseContract {
   estimateGas: {
     VERSION_1(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bountyFactory(overrides?: CallOverrides): Promise<BigNumber>;
+    VERSION_2(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    openQ(overrides?: CallOverrides): Promise<BigNumber>;
 
-    claimManager(overrides?: CallOverrides): Promise<BigNumber>;
-
-    depositManager(overrides?: CallOverrides): Promise<BigNumber>;
+    oracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1017,16 +992,11 @@ export interface OpenQStorageV1 extends BaseContract {
   populateTransaction: {
     VERSION_1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    bountyFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    VERSION_2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    bountyIdToAddress(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    openQ(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    claimManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    depositManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    oracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

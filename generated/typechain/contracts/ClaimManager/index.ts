@@ -3,5 +3,6 @@
 /* eslint-disable */
 import type * as claimManagerStorageSol from "./ClaimManagerStorage.sol";
 export type { claimManagerStorageSol };
-export type { ClaimManager } from "./ClaimManager";
+import type * as implementations from "./Implementations";
+export type { implementations };
 export type { ClaimManagerOwnable } from "./ClaimManagerOwnable";

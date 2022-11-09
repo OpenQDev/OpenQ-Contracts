@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { ClaimManagerStorageV1 } from "./ClaimManagerStorageV1";
+export type { ClaimManagerStorageV2 } from "./ClaimManagerStorageV2";

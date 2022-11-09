@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQV1.sol', () => {
+describe('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -48,7 +48,7 @@ describe('OpenQV1.sol', () => {
 	let BountyV1;
 
 	beforeEach(async () => {
-		const OpenQImplementation = await ethers.getContractFactory('OpenQV1');
+		const OpenQImplementation = await ethers.getContractFactory('OpenQV2');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
@@ -69,7 +69,7 @@ describe('OpenQV1.sol', () => {
 		openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
 		await openQProxy.deployed();
 
-		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
+		// Attach the OpenQV2 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		await openQProxy.initialize();
@@ -125,6 +125,7 @@ describe('OpenQV1.sol', () => {
 		await bountyFactory.deployed();
 
 		await openQProxy.setBountyFactory(bountyFactory.address);
+		await openQProxy.transferOracle(oracle.address);
 		await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
 		await openQProxy.setDepositManager(depositManager.address);
 		await openQProxy.setClaimManager(claimManager.address);
@@ -403,91 +404,6 @@ describe('OpenQV1.sol', () => {
 		});
 	});
 
-	describe('closeCompetition', () => {
-		it('should close competition', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
-			const bounty = await Bounty.attach(bountyAddress);
-
-			// ASSUME
-			let status = await bounty.status();
-			expect(status).to.equal(0);
-
-			// ACT
-			await openQProxy.closeCompetition(bountyId);
-
-			// ASSERT
-			status = await bounty.status();
-			expect(status).to.equal(1);
-		});
-
-		it('should revert if not compeititon', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
-			const bounty = await Bounty.attach(bountyAddress);
-
-			// ASSUME
-			let status = await bounty.status();
-			expect(status).to.equal(0);
-
-			// ASSERT
-			await expect(openQProxy.closeCompetition(bountyId)).to.be.revertedWith('NOT_A_COMPETITION_CONTRACT');
-		});
-
-		it('should revert if already closed', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
-			const bounty = await Bounty.attach(bountyAddress);
-
-			// ASSUME
-			let status = await bounty.status();
-			expect(status).to.equal(0);
-
-			// ASSERT
-			await openQProxy.closeCompetition(bountyId);
-			await expect(openQProxy.closeCompetition(bountyId)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
-		});
-
-		it('should revert if caller not issuer', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
-			const bounty = await Bounty.attach(bountyAddress);
-
-			// ASSUME
-			let status = await bounty.status();
-			expect(status).to.equal(0);
-
-			// ASSERT
-			await expect(openQProxy.connect(notIssuer).closeCompetition(bountyId)).to.be.revertedWith('CALLER_NOT_ISSUER');
-		});
-
-		it('should emit BountyClosed', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
-			const bounty = await Bounty.attach(bountyAddress);
-
-			// ASSUME
-			let status = await bounty.status();
-			expect(status).to.equal(0);
-
-			const expectedTimestamp = await setNextBlockTimestamp();
-			// ACT
-			await expect(openQProxy.closeCompetition(bountyId))
-				.to.emit(openQProxy, 'BountyClosed')
-				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 2, [], 1);
-		});
-	});
-
 	describe('solvent', () => {
 		it('should return TRUE for solvent ongoing contracts', async () => {
 			// ARRANGE
@@ -610,8 +526,6 @@ describe('OpenQV1.sol', () => {
 
 			await mockLink.approve(bountyAddress, 10000000);
 			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
-
-			await openQProxy.closeCompetition(bountyId);
 
 			// ASSUME
 			let tierClaimed = await openQProxy.tierClaimed(bountyId, 1);
@@ -823,6 +737,39 @@ describe('OpenQV1.sol', () => {
 			await expect(openQProxy.setPayoutScheduleFixed(bountyId, [70, 20, 10], mockDai.address))
 				.to.emit(openQProxy, 'PayoutScheduleSet')
 				.withArgs(bountyAddress, mockDai.address, [70, 20, 10], 3, [], 1);
+		});
+	});
+
+	describe('associateExternalIdToAddress', () => {
+		it('should associate external id to address, and address to external id', async () => {
+			const exampleGithubId = 'exampleGithubId';
+
+			// ASSUME
+			const zeroAddress = await openQProxy.externalUserIdToAddress(exampleGithubId);
+			const emptyString = await openQProxy.addressToExternalUserId(owner.address);
+
+			expect(zeroAddress).to.equal(ethers.constants.AddressZero);
+			expect(emptyString).to.equal('');
+
+			// ACT
+			await openQProxy.connect(oracle).associateExternalIdToAddress(exampleGithubId, owner.address);
+
+			// ASSERT
+			const assocaitedAddress = await openQProxy.externalUserIdToAddress(exampleGithubId);
+			const associatedExternalUserId = await openQProxy.addressToExternalUserId(owner.address);
+
+			expect(assocaitedAddress).to.equal(owner.address);
+			expect(associatedExternalUserId).to.equal(exampleGithubId);
+		});
+
+		it('should emit an event with the correct external user id and assocaited address', async () => {
+			// ARRANGE
+			const exampleGithubId = 'exampleGithubId';
+
+			// ACT
+			await expect(openQProxy.connect(oracle).associateExternalIdToAddress(exampleGithubId, owner.address))
+				.to.emit(openQProxy, 'ExternalUserIdAssociatedWithAddress')
+				.withArgs(exampleGithubId, owner.address, [], 2);
 		});
 	});
 
