@@ -1019,7 +1019,7 @@ describe('ClaimManagerV2.sol', () => {
 			// ASSERT
 			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUser', abiEncodedTieredCloserDataFirstPlace))
 				.to.emit(claimManager, 'ClaimSuccess')
-				.withArgs(expectedTimestamp, 3, abiEncodedTieredCloserDataFirstPlace, 1);
+				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 1);
 		});
 	});
 
