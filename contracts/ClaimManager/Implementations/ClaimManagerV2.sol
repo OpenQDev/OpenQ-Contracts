@@ -364,7 +364,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
 
         emit ClaimSuccess(
             block.timestamp,
-            OpenQDefinitions.TIERED_FIXED,
+            bounty.bountyType(),
             _closerData,
             VERSION_1
         );
