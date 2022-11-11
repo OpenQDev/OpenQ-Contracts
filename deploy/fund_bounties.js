@@ -19,7 +19,7 @@ async function fundBounties() {
 	const MockNFT = await ethers.getContractFactory('MockNft');
 	const mockNFT = await MockNFT.attach(process.env.MOCK_NFT_TOKEN_ADDRESS);
 
-	const OpenQ = await ethers.getContractFactory('OpenQV1');
+	const OpenQ = await ethers.getContractFactory('OpenQV2');
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
 	const DepositManager = await ethers.getContractFactory('DepositManager');
@@ -55,10 +55,16 @@ async function fundBounties() {
 	await mockDai.approve(openQBounty1Address, eight);
 	await optionalSleep(5000);
 
+	await mockDai.approve(openQBounty5Address, eight);
+	await optionalSleep(5000);
+
 	await mockLink.approve(openQBounty2Address, eight);
 	await optionalSleep(5000);
 
 	await mockDai.approve(openQBounty2Address, eight);
+	await optionalSleep(5000);
+
+	await mockDai.approve(openQBounty6Address, eight);
 	await optionalSleep(5000);
 
 	await mockLink.approve(openQBounty3Address, eight);
@@ -86,10 +92,12 @@ async function fundBounties() {
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
+	await depositManager.fundBountyToken(openQBounty6Address, mockDai.address, one, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtyDays);
 	await depositManager.fundBountyToken(openQBounty1Address, mockDai.address, two, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty2Address, mockLink.address, one, fifteenDays);
 	await depositManager.fundBountyToken(openQBounty2Address, mockDai.address, two, thirtySeconds);
+	await depositManager.fundBountyToken(openQBounty5Address, mockDai.address, two, thirtySeconds);
 	await depositManager.fundBountyToken(openQBounty2Address, ethers.constants.AddressZero, one, fifteenDays, { value: one });
 	await depositManager.fundBountyToken(openQBounty3Address, ethers.constants.AddressZero, one, thirtySeconds, { value: one });
 	await depositManager.fundBountyToken(openQBounty3Address, ethers.constants.AddressZero, one, thirtySeconds, { value: one });

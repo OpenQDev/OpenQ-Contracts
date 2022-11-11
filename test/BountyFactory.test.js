@@ -29,7 +29,7 @@ describe('BountyFactory', () => {
 	let initOperation;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV2');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');

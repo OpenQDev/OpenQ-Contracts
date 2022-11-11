@@ -46,14 +46,14 @@ describe('DepositManager.sol', () => {
 	let BountyV1;
 
 	beforeEach(async () => {
-		const OpenQImplementation = await ethers.getContractFactory('OpenQV1');
+		const OpenQImplementation = await ethers.getContractFactory('OpenQV2');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 		const DepositManager = await ethers.getContractFactory('DepositManager');
-		const ClaimManager = await ethers.getContractFactory('ClaimManager');
+		const ClaimManager = await ethers.getContractFactory('ClaimManagerV2');
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');

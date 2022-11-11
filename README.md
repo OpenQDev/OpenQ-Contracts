@@ -218,19 +218,25 @@ provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifac
 #### OpenQ
 
 ```javascript
-provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV2.sol/OpenQV2.json');openQ = new ethers.Contract('0x5FC8d32690cc91D4c39d9d3abcBD16989F875707', artifact.abi, provider.getSigner());
 ```
 
 #### Claim Manager
 
 ```javascript
-artifactClaimManager = require('./artifacts/contracts/ClaimManager/ClaimManager.sol/ClaimManager.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
+artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManagerV2.json');claimManager = new ethers.Contract('0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6', artifactClaimManager.abi, provider.getSigner());
 ```
 
 #### Deposit Manager
 
 ```javascript
 artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManager.sol/DepositManager.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());
+```
+
+#### Bounty
+
+```javascript
+artifactClaimManager = require('./artifacts/contracts/Bounty/Implementations/BountyV1.sol/BountyV1.json');bountyV1 = new ethers.Contract('0x001192fa1ea7a2816445ec2efd5843c1a60562aa', artifactClaimManager.abi, provider.getSigner());
 ```
 
 ### Mint Bounty

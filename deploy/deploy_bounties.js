@@ -8,9 +8,9 @@ async function deployBounties() {
 	console.log('\n------------------------------------------');
 	console.log(`DEPLOYING BOUNTIES to ${network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
-	const OpenQ = await ethers.getContractFactory('OpenQV1');
+	const OpenQ = await ethers.getContractFactory('OpenQV2');
 
-	// We fetch the contract factory for the implementation contract (OpenQV1) but attach it to the address of OpenQProxy
+	// We fetch the contract factory for the implementation contract (OpenQV2) but attach it to the address of OpenQProxy
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
 	// PREPARE INITIALIZATION DATA
