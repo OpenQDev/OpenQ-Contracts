@@ -344,7 +344,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
         address _bountyAddress,
         string calldata _externalUserId,
         bytes calldata _closerData
-    ) external {
+    ) external onlyProxy {
         BountyV1 bounty = BountyV1(payable(_bountyAddress));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
