@@ -19,7 +19,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
      * @dev Initializes the ClaimManager storage with necessary storage variables like oracle and owner
      * @param oracle The oracle address to be used for onlyOracle methods (e.g. claimBounty)
      */
-    function initialize(address oracle) external initializer {
+    function initialize(address oracle) external initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Oraclize_init(oracle);
@@ -55,7 +55,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 block.timestamp,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_1
+                VERSION_2
             );
         } else if (_bountyType == OpenQDefinitions.ONGOING) {
             require(
@@ -71,7 +71,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             revert();
         }
 
-        emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_1);
+        emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_2);
     }
 
     /**
@@ -99,7 +99,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_1
+                VERSION_2
             );
         }
 
@@ -116,7 +116,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 bounty.tokenId(bounty.nftDeposits(i)),
                 bounty.bountyType(),
                 _closerData,
-                VERSION_1
+                VERSION_2
             );
         }
     }
@@ -141,7 +141,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             volume,
             bounty.bountyType(),
             _closerData,
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -168,7 +168,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 block.timestamp,
                 bounty.bountyType(),
                 new bytes(0),
-                VERSION_1
+                VERSION_2
             );
         }
 
@@ -189,7 +189,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_1
+                VERSION_2
             );
         }
 
@@ -208,7 +208,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                     bounty.tokenId(_depositId),
                     bounty.bountyType(),
                     _closerData,
-                    VERSION_1
+                    VERSION_2
                 );
             }
         }
@@ -239,7 +239,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 block.timestamp,
                 bounty.bountyType(),
                 new bytes(0),
-                VERSION_1
+                VERSION_2
             );
         }
 
@@ -255,7 +255,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             volume,
             bounty.bountyType(),
             _closerData,
-            VERSION_1
+            VERSION_2
         );
 
         for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
@@ -273,7 +273,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                     bounty.tokenId(_depositId),
                     bounty.bountyType(),
                     _closerData,
-                    VERSION_1
+                    VERSION_2
                 );
             }
         }
@@ -330,7 +330,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
     }
 
     // VERSION 2
-    function setOpenQ(address _openQ) external onlyOwner {
+    function setOpenQ(address _openQ) external onlyProxy onlyOwner {
         openQ = _openQ;
     }
 
@@ -366,7 +366,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             block.timestamp,
             bounty.bountyType(),
             _closerData,
-            VERSION_1
+            VERSION_2
         );
     }
 }
