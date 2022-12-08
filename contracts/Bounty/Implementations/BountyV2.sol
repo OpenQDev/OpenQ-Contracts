@@ -77,7 +77,6 @@ contract BountyV2 is BountyStorageV2 {
                     _operation.data,
                     (bool, address, uint256, bool, bool)
                 );
-
             _initAtomic(
                 _hasFundingGoal,
                 _fundingToken,
@@ -112,23 +111,34 @@ contract BountyV2 is BountyStorageV2 {
                 uint256[] memory _payoutSchedule,
                 bool _hasFundingGoal,
                 address _fundingGoalToken,
-                uint256 _fundingGoal
+                uint256 _fundingGoal,
+                bool _invoiceable,
+                bool _kycRequired
             ) = abi.decode(
                     _operation.data,
-                    (uint256[], bool, address, uint256)
+                    (uint256[], bool, address, uint256, bool, bool)
                 );
             _initTiered(
                 _payoutSchedule,
                 _hasFundingGoal,
                 _fundingGoalToken,
-                _fundingGoal
+                _fundingGoal,
+                _invoiceable,
+                _kycRequired
             );
         } else if (operationType == OpenQDefinitions.TIERED_FIXED) {
             (
                 uint256[] memory _payoutSchedule,
-                address _payoutTokenAddress
-            ) = abi.decode(_operation.data, (uint256[], address));
-            _initTieredFixed(_payoutSchedule, _payoutTokenAddress);
+                address _payoutTokenAddress,
+                bool _invoiceable,
+                bool _kycRequired
+            ) = abi.decode(_operation.data, (uint256[], address, bool, bool));
+            _initTieredFixed(
+                _payoutSchedule,
+                _payoutTokenAddress,
+                _invoiceable,
+                _kycRequired
+            );
         } else {
             revert('OQ: unknown init operation type');
         }
@@ -194,7 +204,9 @@ contract BountyV2 is BountyStorageV2 {
         uint256[] memory _payoutSchedule,
         bool _hasFundingGoal,
         address _fundingToken,
-        uint256 _fundingGoal
+        uint256 _fundingGoal,
+        bool _invoiceable,
+        bool _kycRequired
     ) internal {
         bountyType = OpenQDefinitions.TIERED;
         uint256 sum;
@@ -207,6 +219,8 @@ contract BountyV2 is BountyStorageV2 {
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
+        invoiceable = _invoiceable;
+        kycRequired = _kycRequired;
     }
 
     /**
@@ -216,11 +230,15 @@ contract BountyV2 is BountyStorageV2 {
      */
     function _initTieredFixed(
         uint256[] memory _payoutSchedule,
-        address _payoutTokenAddress
+        address _payoutTokenAddress,
+        bool _invoiceable,
+        bool _kycRequired
     ) internal {
         bountyType = OpenQDefinitions.TIERED_FIXED;
         payoutSchedule = _payoutSchedule;
         payoutTokenAddress = _payoutTokenAddress;
+        invoiceable = _invoiceable;
+        kycRequired = _kycRequired;
     }
 
     /**

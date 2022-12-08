@@ -127,7 +127,7 @@ describe.only('BountyV2.sol', () => {
 		tieredContract = await BountyV2.deploy();
 		await tieredContract.deployed();
 
-		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[80, 20], true, mockLink.address, '100']);
+		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool"], [[80, 20], true, mockLink.address, '100', true, true]);
 
 		tieredBountyInitOperation = [TIERED_CONTRACT, abiEncodedParamsTieredBounty];
 
@@ -142,7 +142,7 @@ describe.only('BountyV2.sol', () => {
 		tieredFixedContract = await BountyV2.deploy();
 		await tieredFixedContract.deployed();
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address"], [[100, 50], mockLink.address]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address", "bool", "bool"], [[100, 50], mockLink.address, true, true]);
 
 		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
@@ -191,6 +191,8 @@ describe.only('BountyV2.sol', () => {
 				await expect(await ongoingContract.fundingGoal()).equals(100);
 				await expect(await ongoingContract.payoutTokenAddress()).equals(mockLink.address);
 				await expect(await ongoingContract.payoutVolume()).equals(100);
+				await expect(await ongoingContract.invoiceable()).equals(true);
+				await expect(await ongoingContract.kycRequired()).equals(true);
 			});
 		});
 
@@ -214,6 +216,8 @@ describe.only('BountyV2.sol', () => {
 				await expect(await tieredContract.fundingGoal()).equals(100);
 				await expect(payoutToString[0]).equals("80");
 				await expect(payoutToString[1]).equals("20");
+				await expect(await tieredContract.invoiceable()).equals(true);
+				await expect(await tieredContract.kycRequired()).equals(true);
 			});
 
 			it('should revert if payoutSchedule values do not add up to 100', async () => {
@@ -221,7 +225,7 @@ describe.only('BountyV2.sol', () => {
 				tieredContract = await BountyV2.deploy();
 				await tieredContract.deployed();
 
-				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[1, 2], true, mockLink.address, 100]);
+				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool"], [[1, 2], true, mockLink.address, 100, true, true]);
 
 				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
 
@@ -247,6 +251,8 @@ describe.only('BountyV2.sol', () => {
 				await expect(await tieredFixedContract.hasFundingGoal()).equals(false);
 				await expect(payoutToString[0]).equals("100");
 				await expect(payoutToString[1]).equals("50");
+				await expect(await tieredFixedContract.invoiceable()).equals(true);
+				await expect(await tieredFixedContract.kycRequired()).equals(true);
 			});
 		});
 
