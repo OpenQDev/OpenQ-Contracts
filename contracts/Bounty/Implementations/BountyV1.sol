@@ -687,6 +687,22 @@ contract BountyV1 is BountyStorageV1 {
     }
 
     /**
+     * @dev Whether or not the Bounty is invoiceable
+     * @param _invoiceable Whether or not the Bounty is invoiceable
+     */
+    function setInvoiceable(bool _invoiceable) external onlyOpenQ {
+        invoiceable = _invoiceable;
+    }
+
+    /**
+     * @dev Whether or not KYC is required to fund and claim the bounty
+     * @param _invoiceable Whether or not KYC is required to fund and claim the bounty
+     */
+    function setKycRequired(bool _kycRequired) external onlyOpenQ {
+        kycRequired = _kycRequired;
+    }
+
+    /**
      * @dev Sets the funding goal
      * @param _payoutTokenAddress Sets payout token address
      * @param _payoutVolume Sets payout token volume

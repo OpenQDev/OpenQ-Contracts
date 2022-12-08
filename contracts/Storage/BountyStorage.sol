@@ -104,3 +104,8 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     address public fundingToken;
     uint256 public fundingGoal;
 }
+
+abstract contract BountyStorageV2 is BountyStorageV1 {
+	bool public invoiceable;
+	bool public kycRequired;
+}
