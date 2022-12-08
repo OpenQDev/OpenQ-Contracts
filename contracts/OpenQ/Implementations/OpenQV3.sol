@@ -140,7 +140,7 @@ contract OpenQV3 is OpenQStorageV3 {
      * @dev Sets kycRequired
      * @param _kycRequired Whether or not KYC is required
      */
-    function setKycRequired(bool _kycRequired, string calldata _bountyId)
+    function setKycRequired(string calldata _bountyId, bool _kycRequired)
         external
         onlyProxy
     {
@@ -163,7 +163,7 @@ contract OpenQV3 is OpenQStorageV3 {
      * @dev Sets invoiceable
      * @param _invoiceable Whether or not the bounty is invoiceable
      */
-    function setInvoiceable(bool _invoiceable, string calldata _bountyId)
+    function setInvoiceable(string calldata _bountyId, bool _invoiceable)
         external
         onlyProxy
     {

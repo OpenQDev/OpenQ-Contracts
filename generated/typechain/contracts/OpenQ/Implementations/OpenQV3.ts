@@ -68,8 +68,8 @@ export interface OpenQV3Interface extends utils.Interface {
     "setClaimManager(address)": FunctionFragment;
     "setDepositManager(address)": FunctionFragment;
     "setFundingGoal(string,address,uint256)": FunctionFragment;
-    "setInvoiceable(bool,string)": FunctionFragment;
-    "setKycRequired(bool,string)": FunctionFragment;
+    "setInvoiceable(string,bool)": FunctionFragment;
+    "setKycRequired(string,bool)": FunctionFragment;
     "setPayout(string,address,uint256)": FunctionFragment;
     "setPayoutSchedule(string,uint256[])": FunctionFragment;
     "setPayoutScheduleFixed(string,uint256[],address)": FunctionFragment;
@@ -225,11 +225,11 @@ export interface OpenQV3Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setInvoiceable",
-    values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setKycRequired",
-    values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setPayout",
@@ -956,14 +956,14 @@ export interface OpenQV3 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setInvoiceable(
-      _invoiceable: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _invoiceable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setKycRequired(
-      _kycRequired: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _kycRequired: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1126,14 +1126,14 @@ export interface OpenQV3 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setInvoiceable(
-    _invoiceable: PromiseOrValue<boolean>,
     _bountyId: PromiseOrValue<string>,
+    _invoiceable: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setKycRequired(
-    _kycRequired: PromiseOrValue<boolean>,
     _bountyId: PromiseOrValue<string>,
+    _kycRequired: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1292,14 +1292,14 @@ export interface OpenQV3 extends BaseContract {
     ): Promise<void>;
 
     setInvoiceable(
-      _invoiceable: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _invoiceable: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setKycRequired(
-      _kycRequired: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _kycRequired: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1815,14 +1815,14 @@ export interface OpenQV3 extends BaseContract {
     ): Promise<BigNumber>;
 
     setInvoiceable(
-      _invoiceable: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _invoiceable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setKycRequired(
-      _kycRequired: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _kycRequired: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1986,14 +1986,14 @@ export interface OpenQV3 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setInvoiceable(
-      _invoiceable: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _invoiceable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setKycRequired(
-      _kycRequired: PromiseOrValue<boolean>,
       _bountyId: PromiseOrValue<string>,
+      _kycRequired: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

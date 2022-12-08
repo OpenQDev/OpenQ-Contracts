@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQ.sol', () => {
+describe.only('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -132,19 +132,19 @@ describe('OpenQ.sol', () => {
 
 		abiCoder = new ethers.utils.AbiCoder;
 
-		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 1000]);
+		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool"], [true, mockLink.address, 1000, true, true]);
 		atomicBountyInitOperation = [0, atomicBountyAbiEncodedParams];
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [mockLink.address, '100', true, mockLink.address, 1000]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool"], [mockLink.address, '100', true, mockLink.address, 1000, true, true]);
 		ongoingBountyInitOperation = [1, abiEncodedParams];
 
-		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[60, 30, 10], true, mockLink.address, 1000]);
+		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool"], [[60, 30, 10], true, mockLink.address, 1000, true, true]);
 		tieredBountyInitOperation = [2, tieredAbiEncodedParams];
 
-		const tieredAbiEncodedParamsNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256"], [[60, 30, 10, 90], true, mockLink.address, 1000]);
+		const tieredAbiEncodedParamsNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool"], [[60, 30, 10, 90], true, mockLink.address, 1000, true, true]);
 		tieredBountyInitOperationNot100 = [2, tieredAbiEncodedParamsNot100];
 
-		const tieredFixedAbiEncodedParams = abiCoder.encode(["uint256[]", "address"], [[60, 30, 10], mockLink.address]);
+		const tieredFixedAbiEncodedParams = abiCoder.encode(["uint256[]", "address", "bool", "bool"], [[60, 30, 10], mockLink.address, true, true]);
 		tieredFixedBountyInitOperation = [3, tieredFixedAbiEncodedParams];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -608,6 +608,88 @@ describe('OpenQ.sol', () => {
 
 			// ACT/ASSERT
 			await expect(notOwnerContract.setFundingGoal(bountyId, mockDai.address, 1000)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
+	describe('setInvoiceable', () => {
+		it('should set invoiceable', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV2');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			expect(await bounty.invoiceable()).to.equal(true);
+
+			// ACT
+			await openQProxy.setInvoiceable(bountyId, false);
+
+			// ASSERT
+			expect(await bounty.invoiceable()).to.equal(false);
+		});
+
+		it('should emit an InvoiceableSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV2');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT/ASSERT
+			await expect(await openQProxy.setInvoiceable(bountyId, false))
+				.to.emit(openQProxy, 'InvoiceableSet')
+				.withArgs(bountyAddress, false, [], 3);
+		});
+
+		it('should revert if not called by issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const notOwnerContract = openQProxy.connect(oracle);
+
+			// ACT/ASSERT
+			await expect(notOwnerContract.setInvoiceable(bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
+	describe('setKycRequired', () => {
+		it('should set kycRequired', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV2');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			expect(await bounty.kycRequired()).to.equal(true);
+
+			// ACT
+			await openQProxy.setKycRequired(bountyId, false);
+
+			// ASSERT
+			expect(await bounty.kycRequired()).to.equal(false);
+		});
+
+		it('should emit an KYCRequiredSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV2');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT/ASSERT
+			await expect(await openQProxy.setKycRequired(bountyId, false))
+				.to.emit(openQProxy, 'KYCRequiredSet')
+				.withArgs(bountyAddress, false, [], 3);
+		});
+
+		it.only('should revert if not called by issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const notOwnerContract = openQProxy.connect(oracle);
+
+			// ACT/ASSERT
+			await expect(notOwnerContract.setKycRequired(bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
 		});
 	});
 

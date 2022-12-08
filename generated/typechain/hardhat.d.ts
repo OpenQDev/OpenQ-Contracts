@@ -189,10 +189,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OnlyOpenQ__factory>;
     getContractFactory(
-      name: "OpenQV2",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OpenQV2__factory>;
-    getContractFactory(
       name: "OpenQV3",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQV3__factory>;
@@ -485,11 +481,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OnlyOpenQ>;
-    getContractAt(
-      name: "OpenQV2",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OpenQV2>;
     getContractAt(
       name: "OpenQV3",
       address: string,
