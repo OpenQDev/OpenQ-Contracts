@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -52,7 +52,7 @@ describe('DepositManager.sol', () => {
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-		const DepositManager = await ethers.getContractFactory('DepositManager');
+		const DepositManager = await ethers.getContractFactory('DepositManagerV2');
 		const ClaimManager = await ethers.getContractFactory('ClaimManagerV2');
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
@@ -168,7 +168,7 @@ describe('DepositManager.sol', () => {
 
 		it('should set OpenQTokenWhitelist', async () => {
 			// ASSUME
-			const DepositManager = await ethers.getContractFactory('DepositManager');
+			const DepositManager = await ethers.getContractFactory('DepositManagerV2');
 			let freshDepositManager = await DepositManager.deploy();
 			await freshDepositManager.deployed();
 			await freshDepositManager.initialize();
@@ -339,7 +339,7 @@ describe('DepositManager.sol', () => {
 			// ACT/ASSERT
 			await expect(depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0))
 				.to.emit(depositManager, 'NFTDepositReceived')
-				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockNft.address, expectedTimestamp, owner.address, 1, 1, 0, [], 1);
+				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockNft.address, expectedTimestamp, owner.address, 1, 1, 0, [], 2);
 		});
 
 		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, depositId, tokenStandard, tokenId, bountyType and data', async () => {
@@ -363,7 +363,7 @@ describe('DepositManager.sol', () => {
 			// ASSERT
 			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1))
 				.to.emit(depositManager, 'TokenDepositReceived')
-				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, [], 1);
+				.withArgs(depositId, bountyAddress, bountyId, mockOrg, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, [], 2);
 		});
 	});
 
@@ -393,13 +393,13 @@ describe('DepositManager.sol', () => {
 				// ASSERT
 				await expect(depositManager.refundDeposit(bountyAddress, protocolDepositId))
 					.to.emit(depositManager, 'DepositRefunded')
-					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], 1);
+					.withArgs(protocolDepositId, bountyId, bountyAddress, mockOrg, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], 2);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
 				await expect(depositManager.refundDeposit(bountyAddress, tokenDepositId))
 					.to.emit(depositManager, 'DepositRefunded')
-					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, [], 1);
+					.withArgs(tokenDepositId, bountyId, bountyAddress, mockOrg, secondExpectedTimestamp, mockLink.address, volume, 0, [], 2);
 			});
 		});
 
@@ -659,7 +659,7 @@ describe('DepositManager.sol', () => {
 			// ACT
 			await expect(depositManager.extendDeposit(bountyAddress, depositId, 1000))
 				.to.emit(depositManager, 'DepositExtended')
-				.withArgs(depositId, 1001, 0, [], 1);
+				.withArgs(depositId, 1001, 0, [], 2);
 		});
 
 		it('should extend past expiration period if not yet expired', async () => {

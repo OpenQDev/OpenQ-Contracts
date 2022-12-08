@@ -92,6 +92,10 @@ export type { DepositManagerOwnable } from "./contracts/DepositManager/DepositMa
 export { DepositManagerOwnable__factory } from "./factories/contracts/DepositManager/DepositManagerOwnable__factory";
 export type { DepositManagerStorageV1 } from "./contracts/DepositManager/DepositManagerStorage.sol/DepositManagerStorageV1";
 export { DepositManagerStorageV1__factory } from "./factories/contracts/DepositManager/DepositManagerStorage.sol/DepositManagerStorageV1__factory";
+export type { DepositManagerStorageV2 } from "./contracts/DepositManager/DepositManagerStorage.sol/DepositManagerStorageV2";
+export { DepositManagerStorageV2__factory } from "./factories/contracts/DepositManager/DepositManagerStorage.sol/DepositManagerStorageV2__factory";
+export type { DepositManagerV2 } from "./contracts/DepositManager/DepositManagerV2";
+export { DepositManagerV2__factory } from "./factories/contracts/DepositManager/DepositManagerV2__factory";
 export type { OnlyOpenQ } from "./contracts/OnlyOpenQ/OnlyOpenQ";
 export { OnlyOpenQ__factory } from "./factories/contracts/OnlyOpenQ/OnlyOpenQ__factory";
 export type { OpenQV3 } from "./contracts/OpenQ/Implementations/OpenQV3";

@@ -22,7 +22,7 @@ async function fundBounties() {
 	const OpenQ = await ethers.getContractFactory('OpenQV3');
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
-	const DepositManager = await ethers.getContractFactory('DepositManager');
+	const DepositManager = await ethers.getContractFactory('DepositManagerV2');
 	const depositManager = await DepositManager.attach(process.env.DEPOSIT_MANAGER_PROXY_ADDRESS);
 
 	const one = ethers.BigNumber.from('1000000000000000000');

@@ -60,7 +60,7 @@ describe('ClaimManagerV2.sol', () => {
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-		const DepositManager = await ethers.getContractFactory('DepositManager');
+		const DepositManager = await ethers.getContractFactory('DepositManagerV2');
 		const ClaimManager = await ethers.getContractFactory('ClaimManagerV2');
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');

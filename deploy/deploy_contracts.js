@@ -95,7 +95,7 @@ async function deployContracts() {
 	console.log('------------------------------------------');
 
 	console.log('Deploying Deposit Manager Implementation...');
-	const DepositManager = await ethers.getContractFactory('DepositManager');
+	const DepositManager = await ethers.getContractFactory('DepositManagerV2');
 	let depositManager = await DepositManager.deploy();
 	const depositManagerConfirmation = await depositManager.deployed();
 	const deployBlockNumber_depositManager = 1;

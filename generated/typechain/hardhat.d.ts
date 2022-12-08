@@ -185,6 +185,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DepositManagerStorageV1__factory>;
     getContractFactory(
+      name: "DepositManagerStorageV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DepositManagerStorageV2__factory>;
+    getContractFactory(
+      name: "DepositManagerV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DepositManagerV2__factory>;
+    getContractFactory(
       name: "OnlyOpenQ",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OnlyOpenQ__factory>;
@@ -476,6 +484,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DepositManagerStorageV1>;
+    getContractAt(
+      name: "DepositManagerStorageV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DepositManagerStorageV2>;
+    getContractAt(
+      name: "DepositManagerV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DepositManagerV2>;
     getContractAt(
       name: "OnlyOpenQ",
       address: string,

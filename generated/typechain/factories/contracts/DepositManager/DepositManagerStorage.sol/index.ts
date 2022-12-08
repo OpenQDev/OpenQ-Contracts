@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { DepositManagerStorageV1__factory } from "./DepositManagerStorageV1__factory";
+export { DepositManagerStorageV2__factory } from "./DepositManagerStorageV2__factory";
