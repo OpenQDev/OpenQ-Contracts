@@ -8,9 +8,9 @@ import '../../Storage/BountyStorage.sol';
 
 /**
  * @title BountyV1
- * @dev Bounty Implementation Version 1
+ * @dev Bounty Implementation Version 2
  */
-contract BountyV1 is BountyStorageV1 {
+contract BountyV2 is BountyStorageV2 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
