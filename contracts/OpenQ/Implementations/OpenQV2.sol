@@ -120,7 +120,7 @@ contract OpenQV2 is OpenQStorageV2 {
         uint256 _fundingGoalVolume
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -131,6 +131,46 @@ contract OpenQV2 is OpenQStorageV2 {
             _fundingGoalToken,
             _fundingGoalVolume,
             bounty.bountyType(),
+            new bytes(0),
+            VERSION_1
+        );
+    }
+
+    /**
+     * @dev Sets kycRequired
+     * @param _kycRequired Whether or not KYC is required
+     */
+    function setKycRequired(bool _kycRequired) external onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
+
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+
+        bounty.setKycRequired(_kycRequired);
+
+        emit KYCRequiredSet(
+            bountyAddress,
+            _kycRequired,
+            new bytes(0),
+            VERSION_1
+        );
+    }
+
+    /**
+     * @dev Sets invoiceable
+     * @param _invoiceable Whether or not the bounty is invoiceable
+     */
+    function setInvoiceable(bool _invoiceable) external onlyProxy {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
+
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+
+        bounty.setKycRequired(_invoiceable);
+
+        emit setInvoiceable(
+            bountyAddress,
+            _invoiceable,
             new bytes(0),
             VERSION_1
         );
@@ -148,7 +188,7 @@ contract OpenQV2 is OpenQStorageV2 {
         uint256 _payoutVolume
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -174,7 +214,7 @@ contract OpenQV2 is OpenQStorageV2 {
         uint256[] calldata _payoutSchedule
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -202,7 +242,7 @@ contract OpenQV2 is OpenQStorageV2 {
         address _payoutTokenAddress
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -225,7 +265,7 @@ contract OpenQV2 is OpenQStorageV2 {
             Errors.NOT_AN_ONGOING_CONTRACT
         );
 
-        BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
+        BountyV2 bounty = BountyV2(payable(bountyIdToAddress[_bountyId]));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.closeOngoing(msg.sender);
@@ -257,7 +297,7 @@ contract OpenQV2 is OpenQStorageV2 {
         returns (bool)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }
@@ -273,7 +313,7 @@ contract OpenQV2 is OpenQStorageV2 {
         returns (uint256)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
         uint256 _bountyType = bounty.bountyType();
         return _bountyType;
     }
@@ -288,7 +328,7 @@ contract OpenQV2 is OpenQStorageV2 {
         view
         returns (string memory)
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
         return bounty.bountyId();
     }
 
@@ -298,14 +338,14 @@ contract OpenQV2 is OpenQStorageV2 {
         returns (bool)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
     }
 
     function solvent(string calldata _bountyId) external view returns (bool) {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
 
         uint256 balance = bounty.getTokenBalance(bounty.payoutTokenAddress());
         return balance >= bounty.payoutVolume();
@@ -317,7 +357,7 @@ contract OpenQV2 is OpenQStorageV2 {
         string calldata claimantAsset
     ) external view returns (bool) {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        BountyV2 bounty = BountyV2(payable(bountyAddress));
         bytes32 claimantId = keccak256(abi.encode(claimant, claimantAsset));
         bool _ongoingClaimed = bounty.claimantId(claimantId);
         return _ongoingClaimed;

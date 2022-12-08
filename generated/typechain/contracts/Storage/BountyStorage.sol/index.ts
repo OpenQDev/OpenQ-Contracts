@@ -3,3 +3,4 @@
 /* eslint-disable */
 export type { BountyStorageV0 } from "./BountyStorageV0";
 export type { BountyStorageV1 } from "./BountyStorageV1";
+export type { BountyStorageV2 } from "./BountyStorageV2";

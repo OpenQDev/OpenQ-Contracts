@@ -36,7 +36,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
         address _closer,
         bytes calldata _closerData
     ) external onlyOracle onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
 
         if (_bountyType == OpenQDefinitions.ATOMIC) {
@@ -79,7 +79,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
      */
 
     function _claimSingle(
-        BountyV1 bounty,
+        BountyV2 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -122,7 +122,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
     }
 
     function _claimOngoing(
-        BountyV1 bounty,
+        BountyV2 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -146,7 +146,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
     }
 
     function _claimTiered(
-        BountyV1 bounty,
+        BountyV2 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -217,7 +217,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
     }
 
     function _claimTieredFixed(
-        BountyV1 bounty,
+        BountyV2 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -294,7 +294,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
         view
         returns (bool)
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
         uint256 status = bounty.status();
         uint256 _bountyType = bounty.bountyType();
@@ -345,7 +345,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
         string calldata _externalUserId,
         bytes calldata _closerData
     ) external onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         address closer = IOpenQV2(openQ).externalUserIdToAddress(

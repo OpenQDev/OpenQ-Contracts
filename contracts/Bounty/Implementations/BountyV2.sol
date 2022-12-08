@@ -5,6 +5,7 @@ pragma solidity 0.8.16;
  * @dev Custom imports
  */
 import '../../Storage/BountyStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title BountyV1
@@ -65,13 +66,25 @@ contract BountyV2 is BountyStorageV2 {
         internal
     {
         uint32 operationType = _operation.operationType;
+        console.logBytes(_operation.data);
         if (operationType == OpenQDefinitions.ATOMIC) {
             (
                 bool _hasFundingGoal,
                 address _fundingToken,
-                uint256 _fundingGoal
-            ) = abi.decode(_operation.data, (bool, address, uint256));
-            _initAtomic(_hasFundingGoal, _fundingToken, _fundingGoal);
+                uint256 _fundingGoal,
+                bool _invoiceable,
+                bool _kycRequired
+            ) = abi.decode(
+                    _operation.data,
+                    (bool, address, uint256, bool, bool)
+                );
+            _initAtomic(
+                _hasFundingGoal,
+                _fundingToken,
+                _fundingGoal,
+                _invoiceable,
+                _kycRequired
+            );
         } else if (operationType == OpenQDefinitions.ONGOING) {
             (
                 address _payoutTokenAddress,
@@ -126,12 +139,16 @@ contract BountyV2 is BountyStorageV2 {
     function _initAtomic(
         bool _hasFundingGoal,
         address _fundingToken,
-        uint256 _fundingGoal
+        uint256 _fundingGoal,
+        bool _invoiceable,
+        bool _kycRequired
     ) internal {
         bountyType = OpenQDefinitions.ATOMIC;
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
+        invoiceable = _invoiceable;
+        kycRequired = _kycRequired;
     }
 
     /**
@@ -542,7 +559,7 @@ contract BountyV2 is BountyStorageV2 {
         view
         returns (uint256)
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
         uint256 lockedFunds;
         bytes32[] memory depList = bounty.getDeposits();
@@ -696,7 +713,7 @@ contract BountyV2 is BountyStorageV2 {
 
     /**
      * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _invoiceable Whether or not KYC is required to fund and claim the bounty
+     * @param _kycRequired Whether or not KYC is required to fund and claim the bounty
      */
     function setKycRequired(bool _kycRequired) external onlyOpenQ {
         kycRequired = _kycRequired;

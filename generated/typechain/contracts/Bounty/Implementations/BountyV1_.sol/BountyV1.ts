@@ -26,7 +26,7 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../../../common";
 
 export declare namespace OpenQDefinitions {
   export type InitOperationStruct = {

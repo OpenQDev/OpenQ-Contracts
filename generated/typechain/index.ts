@@ -70,8 +70,10 @@ export type { ERC165 } from "./@openzeppelin/contracts/utils/introspection/ERC16
 export { ERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/ERC165__factory";
 export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC165";
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
-export type { BountyV1 } from "./contracts/Bounty/Implementations/BountyV1";
-export { BountyV1__factory } from "./factories/contracts/Bounty/Implementations/BountyV1__factory";
+export type { BountyV1 } from "./contracts/Bounty/Implementations/BountyV1_.sol/BountyV1";
+export { BountyV1__factory } from "./factories/contracts/Bounty/Implementations/BountyV1_.sol/BountyV1__factory";
+export type { BountyV2 } from "./contracts/Bounty/Implementations/BountyV2";
+export { BountyV2__factory } from "./factories/contracts/Bounty/Implementations/BountyV2__factory";
 export type { BountyBeacon } from "./contracts/Bounty/Proxy/BountyBeacon";
 export { BountyBeacon__factory } from "./factories/contracts/Bounty/Proxy/BountyBeacon__factory";
 export type { BountyFactory } from "./contracts/BountyFactory/BountyFactory";
@@ -106,6 +108,8 @@ export type { BountyStorageV0 } from "./contracts/Storage/BountyStorage.sol/Boun
 export { BountyStorageV0__factory } from "./factories/contracts/Storage/BountyStorage.sol/BountyStorageV0__factory";
 export type { BountyStorageV1 } from "./contracts/Storage/BountyStorage.sol/BountyStorageV1";
 export { BountyStorageV1__factory } from "./factories/contracts/Storage/BountyStorage.sol/BountyStorageV1__factory";
+export type { BountyStorageV2 } from "./contracts/Storage/BountyStorage.sol/BountyStorageV2";
+export { BountyStorageV2__factory } from "./factories/contracts/Storage/BountyStorage.sol/BountyStorageV2__factory";
 export type { OpenQStorageV1 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV1";
 export { OpenQStorageV1__factory } from "./factories/contracts/Storage/OpenQStorage.sol/OpenQStorageV1__factory";
 export type { OpenQStorageV2 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV2";

@@ -12,7 +12,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
  * @dev Custom imports inherited by OpenQV1
  */
 import '../BountyFactory/BountyFactory.sol';
-import '../Bounty/Implementations/BountyV1.sol';
+import '../Bounty/Implementations/BountyV2.sol';
 import '../Library/OpenQDefinitions.sol';
 import '../Library/Errors.sol';
 import '../OpenQ/IOpenQ.sol';

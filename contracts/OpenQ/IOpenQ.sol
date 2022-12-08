@@ -152,6 +152,29 @@ interface IOpenQ {
         uint256 version
     );
 
+    event KYCRequiredSet(
+        address bountyAddress,
+        bool kycRequired,
+        bytes data,
+        uint256 version
+    );
+
+    event InvoiceableSet(
+        address bountyAddress,
+        bool invoiceable,
+        bytes data,
+        uint256 version
+    );
+
+    event PayoutScheduleSet(
+        address bountyAddress,
+        address payoutTokenAddress,
+        uint256[] payoutSchedule,
+        uint256 bountyType,
+        bytes data,
+        uint256 version
+    );
+
     event ExternalUserIdAssociatedWithAddress(
         string externalUserId,
         address newAddress,

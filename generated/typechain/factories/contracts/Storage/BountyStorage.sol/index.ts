@@ -3,3 +3,4 @@
 /* eslint-disable */
 export { BountyStorageV0__factory } from "./BountyStorageV0__factory";
 export { BountyStorageV1__factory } from "./BountyStorageV1__factory";
+export { BountyStorageV2__factory } from "./BountyStorageV2__factory";
