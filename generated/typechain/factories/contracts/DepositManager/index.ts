@@ -2,6 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as depositManagerStorageSol from "./DepositManagerStorage.sol";
-export { DepositManager__factory } from "./DepositManager__factory";
 export { DepositManagerOwnable__factory } from "./DepositManagerOwnable__factory";
 export { DepositManagerV2__factory } from "./DepositManagerV2__factory";

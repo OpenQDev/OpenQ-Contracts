@@ -3,6 +3,5 @@
 /* eslint-disable */
 import type * as depositManagerStorageSol from "./DepositManagerStorage.sol";
 export type { depositManagerStorageSol };
-export type { DepositManager } from "./DepositManager";
 export type { DepositManagerOwnable } from "./DepositManagerOwnable";
 export type { DepositManagerV2 } from "./DepositManagerV2";

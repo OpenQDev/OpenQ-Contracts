@@ -35,7 +35,7 @@ export interface DepositManagerV2Interface extends utils.Interface {
     "bountyIsOpen(address)": FunctionFragment;
     "extendDeposit(address,bytes32,uint256)": FunctionFragment;
     "fundBountyNFT(address,address,uint256,uint256,uint256)": FunctionFragment;
-    "fundBountyToken(address,address,uint256,uint256)": FunctionFragment;
+    "fundBountyToken(address,address,uint256,uint256,string)": FunctionFragment;
     "initialize()": FunctionFragment;
     "isWhitelisted(address)": FunctionFragment;
     "openQTokenWhitelist()": FunctionFragment;
@@ -102,7 +102,8 @@ export interface DepositManagerV2Interface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -683,6 +684,7 @@ export interface DepositManagerV2 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _volume: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      funderUuid: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -768,6 +770,7 @@ export interface DepositManagerV2 extends BaseContract {
     _tokenAddress: PromiseOrValue<string>,
     _volume: PromiseOrValue<BigNumberish>,
     _expiration: PromiseOrValue<BigNumberish>,
+    funderUuid: PromiseOrValue<string>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -853,6 +856,7 @@ export interface DepositManagerV2 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _volume: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      funderUuid: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1278,6 +1282,7 @@ export interface DepositManagerV2 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _volume: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      funderUuid: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1364,6 +1369,7 @@ export interface DepositManagerV2 extends BaseContract {
       _tokenAddress: PromiseOrValue<string>,
       _volume: PromiseOrValue<BigNumberish>,
       _expiration: PromiseOrValue<BigNumberish>,
+      funderUuid: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

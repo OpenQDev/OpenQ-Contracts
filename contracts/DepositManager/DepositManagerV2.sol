@@ -41,7 +41,8 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         address _bountyAddress,
         address _tokenAddress,
         uint256 _volume,
-        uint256 _expiration
+        uint256 _expiration,
+        string memory funderUuid
     ) external payable onlyProxy {
         BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
@@ -58,6 +59,8 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
             value: msg.value
         }(msg.sender, _tokenAddress, _volume, _expiration);
 
+        bytes memory funderUuidBytes = abi.encode(funderUuid);
+
         emit TokenDepositReceived(
             depositId,
             _bountyAddress,
@@ -69,7 +72,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
             _expiration,
             volumeReceived,
             0,
-            new bytes(0),
+            funderUuidBytes,
             VERSION_2
         );
     }

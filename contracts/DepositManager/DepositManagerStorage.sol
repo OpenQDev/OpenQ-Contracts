@@ -29,7 +29,7 @@ abstract contract DepositManagerStorageV1 is
 }
 
 /**
- * @title DepositManagerStorageV1
+ * @title DepositManagerStorageV2
  * @dev Backwards compatible, append-only chain of storage contracts inherited by DepositManager implementations
  */
 abstract contract DepositManagerStorageV2 is DepositManagerStorageV1 {
