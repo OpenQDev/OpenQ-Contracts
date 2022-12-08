@@ -46,7 +46,7 @@ describe('DepositManager.sol', () => {
 	let BountyV1;
 
 	beforeEach(async () => {
-		const OpenQImplementation = await ethers.getContractFactory('OpenQV2');
+		const OpenQImplementation = await ethers.getContractFactory('OpenQV3');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
@@ -57,7 +57,7 @@ describe('DepositManager.sol', () => {
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
-		BountyV1 = await ethers.getContractFactory('BountyV1');
+		BountyV1 = await ethers.getContractFactory('BountyV2');
 
 		[owner, claimant, oracle, claimantSecondPlace, claimManager] = await ethers.getSigners();
 
@@ -256,7 +256,7 @@ describe('DepositManager.sol', () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			// ACT
@@ -273,7 +273,7 @@ describe('DepositManager.sol', () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			// ASSUME
@@ -350,7 +350,7 @@ describe('DepositManager.sol', () => {
 
 			await mockLink.approve(bountyAddress, 10000000);
 
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 
 			const bounty = await Bounty.attach(
 				bountyAddress
@@ -374,7 +374,7 @@ describe('DepositManager.sol', () => {
 				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-				const Bounty = await ethers.getContractFactory('BountyV1');
+				const Bounty = await ethers.getContractFactory('BountyV2');
 				const bounty = await Bounty.attach(bountyAddress);
 
 				await mockLink.approve(bountyAddress, 10000000);
@@ -451,7 +451,7 @@ describe('DepositManager.sol', () => {
 				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-				const Bounty = await ethers.getContractFactory('BountyV1');
+				const Bounty = await ethers.getContractFactory('BountyV2');
 				const bounty = await Bounty.attach(bountyAddress);
 
 				await mockLink.approve(bountyAddress, 10000000);
@@ -521,7 +521,7 @@ describe('DepositManager.sol', () => {
 				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
 
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-				const Bounty = await ethers.getContractFactory('BountyV1');
+				const Bounty = await ethers.getContractFactory('BountyV2');
 				const bounty = await Bounty.attach(bountyAddress);
 
 				await mockLink.approve(bountyAddress, 10000000);
@@ -603,7 +603,7 @@ describe('DepositManager.sol', () => {
 				// ARRANGE
 				await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-				const Bounty = await ethers.getContractFactory('BountyV1');
+				const Bounty = await ethers.getContractFactory('BountyV2');
 				const bounty = await Bounty.attach(bountyAddress);
 
 				await mockNft.approve(bountyAddress, 1);
@@ -628,7 +628,7 @@ describe('DepositManager.sol', () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
@@ -648,7 +648,7 @@ describe('DepositManager.sol', () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
@@ -666,7 +666,7 @@ describe('DepositManager.sol', () => {
 			// Mint Bounty & be the funder
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
@@ -687,7 +687,7 @@ describe('DepositManager.sol', () => {
 			// Mint Bounty & be the funder
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
@@ -734,7 +734,7 @@ describe('DepositManager.sol', () => {
 			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
 
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);

@@ -47,7 +47,7 @@ async function deployContracts() {
 	console.log('------------------------------------------');
 
 	console.log('Deploying OpenQV2 (Implementation)...');
-	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV2');
+	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV3');
 	const openQImplementationV2 = await OpenQImplementationV2.deploy();
 	await openQImplementationV2.deployed();
 	console.log(`OpenQV1 (Implementation) Deployed to ${openQImplementationV2.address}\n`);
@@ -129,7 +129,7 @@ async function deployContracts() {
 	console.log(`OpenQTokenWhitelist successfully set on DepositManager to ${openQTokenWhitelist.address}`);
 
 	console.log('Deploying BountyV1...');
-	const BountyV1 = await ethers.getContractFactory('BountyV1');
+	const BountyV1 = await ethers.getContractFactory('BountyV2');
 	const bountyV1 = await BountyV1.deploy();
 	await bountyV1.deployed();
 	await optionalSleep(10000);

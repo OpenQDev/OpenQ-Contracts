@@ -54,7 +54,7 @@ describe('ClaimManagerV2.sol', () => {
 	let BountyV1;
 
 	beforeEach(async () => {
-		const OpenQImplementation = await ethers.getContractFactory('OpenQV2');
+		const OpenQImplementation = await ethers.getContractFactory('OpenQV3');
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
@@ -65,7 +65,7 @@ describe('ClaimManagerV2.sol', () => {
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
-		BountyV1 = await ethers.getContractFactory('BountyV1');
+		BountyV1 = await ethers.getContractFactory('BountyV2');
 
 		[owner, claimant, oracle, claimantSecondPlace, claimantThirdPlace, notOwner] = await ethers.getSigners();
 
@@ -280,7 +280,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
-					const Bounty = await ethers.getContractFactory('BountyV1');
+					const Bounty = await ethers.getContractFactory('BountyV2');
 
 					const newBounty = await Bounty.attach(
 						bountyAddress
@@ -304,7 +304,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
-					const Bounty = await ethers.getContractFactory('BountyV1');
+					const Bounty = await ethers.getContractFactory('BountyV2');
 
 					const newBounty = await Bounty.attach(
 						bountyAddress
@@ -476,7 +476,7 @@ describe('ClaimManagerV2.sol', () => {
 					const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
-					const Bounty = await ethers.getContractFactory('BountyV1');
+					const Bounty = await ethers.getContractFactory('BountyV2');
 
 					const newBounty = await Bounty.attach(
 						bountyAddress
@@ -831,7 +831,7 @@ describe('ClaimManagerV2.sol', () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
@@ -856,7 +856,7 @@ describe('ClaimManagerV2.sol', () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
@@ -919,7 +919,7 @@ describe('ClaimManagerV2.sol', () => {
 			await openQProxy.connect(oracle).associateExternalIdToAddress(githubUser, claimant.address);
 			const volume = 100;
 
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 
 			const bounty = await Bounty.attach(
 				bountyAddress
@@ -972,7 +972,7 @@ describe('ClaimManagerV2.sol', () => {
 			await openQProxy.connect(oracle).associateExternalIdToAddress(githubUser, claimant.address);
 			const volume = 100;
 
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 
 			const bounty = await Bounty.attach(
 				bountyAddress
@@ -1008,7 +1008,7 @@ describe('ClaimManagerV2.sol', () => {
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 			await openQProxy.connect(oracle).associateExternalIdToAddress('githubUser', owner.address);
 
-			const Bounty = await ethers.getContractFactory('BountyV1');
+			const Bounty = await ethers.getContractFactory('BountyV2');
 
 			const bounty = await Bounty.attach(
 				bountyAddress

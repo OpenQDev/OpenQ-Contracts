@@ -29,11 +29,11 @@ describe('BountyFactory', () => {
 	let initOperation;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV2');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV3');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');
-		BountyV1 = await hre.ethers.getContractFactory('BountyV1');
+		BountyV1 = await hre.ethers.getContractFactory('BountyV2');
 
 		[owner, oracle, notOpenQ, claimManager, depositManager] = await ethers.getSigners();
 
@@ -65,7 +65,7 @@ describe('BountyFactory', () => {
 		bountyInitOperation = [0, []];
 
 		const abiCoder = new ethers.utils.AbiCoder;
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [notOpenQ.address, 100, true, notOpenQ.address, 100]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool"], [notOpenQ.address, 100, true, notOpenQ.address, 100, true, true]);
 
 		initOperation = [1, abiEncodedParams];
 	});
@@ -84,7 +84,7 @@ describe('BountyFactory', () => {
 	});
 
 	describe('mintBounty', () => {
-		it('should mint a bounty with expected data', async () => {
+		it.only('should mint a bounty with expected data', async () => {
 			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
 			let newBountyFactory = await BountyFactory.deploy(owner.address, bountyBeacon.address);
 			await newBountyFactory.deployed();
@@ -102,25 +102,14 @@ describe('BountyFactory', () => {
 
 			const newBounty = await BountyV1.attach(receipt.events[0].address);
 
-			const bountyId = await newBounty.bountyId();
-			const organization = await newBounty.organization();
-			const openQAddress = await newBounty.openQ();
-			const claimManagerAddress = await newBounty.claimManager();
-			const depositManagerAddress = await newBounty.depositManager();
-			const bountyType = await newBounty.bountyType();
-			const payoutVolume = await newBounty.payoutVolume();
-			const payoutTokenAddress = await newBounty.payoutTokenAddress();
-
-			expect(bountyId).to.equal('mock-id');
-			expect(organization).to.equal('mock-organization');
-			expect(openQAddress).to.equal(owner.address);
-			expect(bountyType).to.equal(1);
-			expect(payoutVolume).to.equal('100');
-			expect(payoutTokenAddress).to.equal(notOpenQ.address);
-			expect(payoutTokenAddress).to.equal(notOpenQ.address);
-			expect(payoutTokenAddress).to.equal(notOpenQ.address);
-			expect(claimManagerAddress).to.equal(claimManager.address);
-			expect(depositManagerAddress).to.equal(depositManager.address);
+			expect(await newBounty.bountyId()).to.equal('mock-id');
+			expect(await newBounty.bountyType()).to.equal(1);
+			expect(await newBounty.organization()).to.equal('mock-organization');
+			expect(await newBounty.openQ()).to.equal(owner.address);
+			expect(await newBounty.payoutTokenAddress()).to.equal(notOpenQ.address);
+			expect(await newBounty.payoutVolume()).to.equal(100);
+			expect(await newBounty.claimManager()).to.equal(claimManager.address);
+			expect(await newBounty.depositManager()).to.equal(depositManager.address);
 
 			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, bountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
