@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe('BountyV2.sol', () => {
+describe.only('BountyV2.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV2;
 
@@ -112,7 +112,7 @@ describe('BountyV2.sol', () => {
 		ongoingContract = await BountyV2.deploy();
 		await ongoingContract.deployed();
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [mockLink.address, '100', true, mockLink.address, '100']);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool"], [mockLink.address, '100', true, mockLink.address, '100', true, true]);
 
 		ongoingBountyInitOperation = [ONGOING_CONTRACT, abiEncodedParams];
 

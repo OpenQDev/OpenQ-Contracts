@@ -91,17 +91,21 @@ contract BountyV2 is BountyStorageV2 {
                 uint256 _payoutVolume,
                 bool _hasFundingGoal,
                 address _fundingGoalToken,
-                uint256 _fundingGoal
+                uint256 _fundingGoal,
+                bool _invoiceable,
+                bool _kycRequired
             ) = abi.decode(
                     _operation.data,
-                    (address, uint256, bool, address, uint256)
+                    (address, uint256, bool, address, uint256, bool, bool)
                 );
             _initOngoingBounty(
                 _payoutTokenAddress,
                 _payoutVolume,
                 _hasFundingGoal,
                 _fundingGoalToken,
-                _fundingGoal
+                _fundingGoal,
+                _invoiceable,
+                _kycRequired
             );
         } else if (operationType == OpenQDefinitions.TIERED) {
             (
@@ -164,7 +168,9 @@ contract BountyV2 is BountyStorageV2 {
         uint256 _payoutVolume,
         bool _hasFundingGoal,
         address _fundingToken,
-        uint256 _fundingGoal
+        uint256 _fundingGoal,
+        bool _invoiceable,
+        bool _kycRequired
     ) internal {
         bountyType = OpenQDefinitions.ONGOING;
         payoutTokenAddress = _payoutTokenAddress;
@@ -173,6 +179,8 @@ contract BountyV2 is BountyStorageV2 {
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
+        invoiceable = _invoiceable;
+        kycRequired = _kycRequired;
     }
 
     /**
