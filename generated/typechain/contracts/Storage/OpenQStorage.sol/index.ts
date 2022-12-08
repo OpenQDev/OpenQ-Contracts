@@ -3,3 +3,4 @@
 /* eslint-disable */
 export type { OpenQStorageV1 } from "./OpenQStorageV1";
 export type { OpenQStorageV2 } from "./OpenQStorageV2";
+export type { OpenQStorageV3 } from "./OpenQStorageV3";

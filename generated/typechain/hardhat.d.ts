@@ -193,6 +193,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQV2__factory>;
     getContractFactory(
+      name: "OpenQV3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OpenQV3__factory>;
+    getContractFactory(
       name: "IOpenQ",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IOpenQ__factory>;
@@ -228,6 +232,10 @@ declare module "hardhat/types/runtime" {
       name: "OpenQStorageV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OpenQStorageV2__factory>;
+    getContractFactory(
+      name: "OpenQStorageV3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OpenQStorageV3__factory>;
     getContractFactory(
       name: "MockDai",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -483,6 +491,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.OpenQV2>;
     getContractAt(
+      name: "OpenQV3",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OpenQV3>;
+    getContractAt(
       name: "IOpenQ",
       address: string,
       signer?: ethers.Signer
@@ -527,6 +540,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OpenQStorageV2>;
+    getContractAt(
+      name: "OpenQStorageV3",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OpenQStorageV3>;
     getContractAt(
       name: "MockDai",
       address: string,

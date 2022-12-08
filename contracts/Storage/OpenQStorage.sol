@@ -43,6 +43,4 @@ abstract contract OpenQStorageV2 is OpenQStorageV1, Oraclize {
 
 abstract contract OpenQStorageV3 is OpenQStorageV2 {
     uint256 public constant VERSION_3 = 3;
-    mapping(string => address) public externalUserIdToAddress;
-    mapping(address => string) public addressToExternalUserId;
 }

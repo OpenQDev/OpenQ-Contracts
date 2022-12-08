@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { OpenQV2__factory } from "./OpenQV2__factory";
+export { OpenQV3__factory } from "./OpenQV3__factory";

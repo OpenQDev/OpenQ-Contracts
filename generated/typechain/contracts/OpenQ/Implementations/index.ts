@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OpenQV2 } from "./OpenQV2";
+export type { OpenQV3 } from "./OpenQV3";

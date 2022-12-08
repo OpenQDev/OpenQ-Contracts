@@ -96,6 +96,8 @@ export type { OnlyOpenQ } from "./contracts/OnlyOpenQ/OnlyOpenQ";
 export { OnlyOpenQ__factory } from "./factories/contracts/OnlyOpenQ/OnlyOpenQ__factory";
 export type { OpenQV2 } from "./contracts/OpenQ/Implementations/OpenQV2";
 export { OpenQV2__factory } from "./factories/contracts/OpenQ/Implementations/OpenQV2__factory";
+export type { OpenQV3 } from "./contracts/OpenQ/Implementations/OpenQV3";
+export { OpenQV3__factory } from "./factories/contracts/OpenQ/Implementations/OpenQV3__factory";
 export type { IOpenQ } from "./contracts/OpenQ/IOpenQ";
 export { IOpenQ__factory } from "./factories/contracts/OpenQ/IOpenQ__factory";
 export type { IOpenQV2 } from "./contracts/OpenQ/IOpenQV2";
@@ -114,6 +116,8 @@ export type { OpenQStorageV1 } from "./contracts/Storage/OpenQStorage.sol/OpenQS
 export { OpenQStorageV1__factory } from "./factories/contracts/Storage/OpenQStorage.sol/OpenQStorageV1__factory";
 export type { OpenQStorageV2 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV2";
 export { OpenQStorageV2__factory } from "./factories/contracts/Storage/OpenQStorage.sol/OpenQStorageV2__factory";
+export type { OpenQStorageV3 } from "./contracts/Storage/OpenQStorage.sol/OpenQStorageV3";
+export { OpenQStorageV3__factory } from "./factories/contracts/Storage/OpenQStorage.sol/OpenQStorageV3__factory";
 export type { MockDai } from "./contracts/Tokens/MockDai";
 export { MockDai__factory } from "./factories/contracts/Tokens/MockDai__factory";
 export type { MockLink } from "./contracts/Tokens/MockLink";
