@@ -27,3 +27,11 @@ abstract contract DepositManagerStorageV1 is
     uint256 public constant VERSION_1 = 1;
     OpenQTokenWhitelist public openQTokenWhitelist;
 }
+
+/**
+ * @title DepositManagerStorageV1
+ * @dev Backwards compatible, append-only chain of storage contracts inherited by DepositManager implementations
+ */
+abstract contract DepositManagerStorageV2 is DepositManagerStorageV1 {
+    uint256 public constant VERSION_2 = 2;
+}
