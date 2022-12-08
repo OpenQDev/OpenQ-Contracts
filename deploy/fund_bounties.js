@@ -87,24 +87,26 @@ async function fundBounties() {
 
 	await optionalSleep(5000);
 
+	const funderUuid = 'mock-funder-uuid';
+
 	console.log('Funding contracts for Client 1...');
-	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty6Address, mockDai.address, one, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtyDays);
-	await depositManager.fundBountyToken(openQBounty1Address, mockDai.address, two, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty2Address, mockLink.address, one, fifteenDays);
-	await depositManager.fundBountyToken(openQBounty2Address, mockDai.address, two, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty5Address, mockDai.address, two, thirtySeconds);
-	await depositManager.fundBountyToken(openQBounty2Address, ethers.constants.AddressZero, one, fifteenDays, { value: one });
-	await depositManager.fundBountyToken(openQBounty3Address, ethers.constants.AddressZero, one, thirtySeconds, { value: one });
-	await depositManager.fundBountyToken(openQBounty3Address, ethers.constants.AddressZero, one, thirtySeconds, { value: one });
-	await depositManager.fundBountyToken(openQBounty3Address, mockDai.address, two, fifteenDays);
-	await depositManager.fundBountyToken(openQBounty3Address, mockLink.address, two, thirtySeconds);
-	await depositManager.fundBountyToken(otherOrgBounty3Address, mockDai.address, two, fifteenDays);
-	await depositManager.fundBountyToken(otherOrgBounty3Address, mockLink.address, two, thirtySeconds);
+	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty6Address, mockDai.address, one, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty1Address, mockLink.address, one, thirtyDays, funderUuid);
+	await depositManager.fundBountyToken(openQBounty1Address, mockDai.address, two, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty2Address, mockLink.address, one, fifteenDays, funderUuid);
+	await depositManager.fundBountyToken(openQBounty2Address, mockDai.address, two, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty5Address, mockDai.address, two, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(openQBounty2Address, ethers.constants.AddressZero, one, fifteenDays, funderUuid, { value: one });
+	await depositManager.fundBountyToken(openQBounty3Address, ethers.constants.AddressZero, one, thirtySeconds, funderUuid, { value: one });
+	await depositManager.fundBountyToken(openQBounty3Address, ethers.constants.AddressZero, one, thirtySeconds, funderUuid, { value: one });
+	await depositManager.fundBountyToken(openQBounty3Address, mockDai.address, two, fifteenDays, funderUuid);
+	await depositManager.fundBountyToken(openQBounty3Address, mockLink.address, two, thirtySeconds, funderUuid);
+	await depositManager.fundBountyToken(otherOrgBounty3Address, mockDai.address, two, fifteenDays, funderUuid);
+	await depositManager.fundBountyToken(otherOrgBounty3Address, mockLink.address, two, thirtySeconds, funderUuid);
 	console.log('Funding succeeded for Client 1!');
 
 	// FUND WITH CLIENT 2
@@ -129,10 +131,10 @@ async function fundBounties() {
 	console.log('Funding approved for Client 2!');
 
 	console.log('Funding contracts for Client 2...');
-	await depositManager.connect(contributor).fundBountyToken(openQBounty1Address, mockLink.address, one, thirtyDays);
-	await depositManager.connect(contributor).fundBountyToken(openQBounty1Address, mockDai.address, one, thirtySeconds);
-	await depositManager.connect(contributor).fundBountyToken(otherOrgBounty2Address, mockLink.address, one, fifteenDays);
-	await depositManager.connect(contributor).fundBountyToken(otherOrgBounty2Address, mockDai.address, one, thirtyDays);
+	await depositManager.connect(contributor).fundBountyToken(openQBounty1Address, mockLink.address, one, thirtyDays, funderUuid);
+	await depositManager.connect(contributor).fundBountyToken(openQBounty1Address, mockDai.address, one, thirtySeconds, funderUuid);
+	await depositManager.connect(contributor).fundBountyToken(otherOrgBounty2Address, mockLink.address, one, fifteenDays, funderUuid);
+	await depositManager.connect(contributor).fundBountyToken(otherOrgBounty2Address, mockDai.address, one, thirtyDays, funderUuid);
 	console.log('Funding succeeded for Client 2!');
 
 	console.log('\nBounties funded successfully!\n');
