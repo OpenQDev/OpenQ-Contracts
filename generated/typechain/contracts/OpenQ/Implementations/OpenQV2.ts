@@ -67,6 +67,8 @@ export interface OpenQV2Interface extends utils.Interface {
     "setClaimManager(address)": FunctionFragment;
     "setDepositManager(address)": FunctionFragment;
     "setFundingGoal(string,address,uint256)": FunctionFragment;
+    "setInvoiceable(bool,string)": FunctionFragment;
+    "setKycRequired(bool,string)": FunctionFragment;
     "setPayout(string,address,uint256)": FunctionFragment;
     "setPayoutSchedule(string,uint256[])": FunctionFragment;
     "setPayoutScheduleFixed(string,uint256[],address)": FunctionFragment;
@@ -105,6 +107,8 @@ export interface OpenQV2Interface extends utils.Interface {
       | "setClaimManager"
       | "setDepositManager"
       | "setFundingGoal"
+      | "setInvoiceable"
+      | "setKycRequired"
       | "setPayout"
       | "setPayoutSchedule"
       | "setPayoutScheduleFixed"
@@ -215,6 +219,14 @@ export interface OpenQV2Interface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setInvoiceable",
+    values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setKycRequired",
+    values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setPayout",
@@ -340,6 +352,14 @@ export interface OpenQV2Interface extends utils.Interface {
     functionFragment: "setFundingGoal",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setInvoiceable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setKycRequired",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setPayout", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setPayoutSchedule",
@@ -379,6 +399,8 @@ export interface OpenQV2Interface extends utils.Interface {
     "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
+    "InvoiceableSet(address,bool,bytes,uint256)": EventFragment;
+    "KYCRequiredSet(address,bool,bytes,uint256)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "OracleTransferred(address,address)": EventFragment;
@@ -403,6 +425,8 @@ export interface OpenQV2Interface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "InvoiceableSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "KYCRequiredSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
@@ -562,6 +586,32 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface InvoiceableSetEventObject {
+  bountyAddress: string;
+  invoiceable: boolean;
+  data: string;
+  version: BigNumber;
+}
+export type InvoiceableSetEvent = TypedEvent<
+  [string, boolean, string, BigNumber],
+  InvoiceableSetEventObject
+>;
+
+export type InvoiceableSetEventFilter = TypedEventFilter<InvoiceableSetEvent>;
+
+export interface KYCRequiredSetEventObject {
+  bountyAddress: string;
+  kycRequired: boolean;
+  data: string;
+  version: BigNumber;
+}
+export type KYCRequiredSetEvent = TypedEvent<
+  [string, boolean, string, BigNumber],
+  KYCRequiredSetEventObject
+>;
+
+export type KYCRequiredSetEventFilter = TypedEventFilter<KYCRequiredSetEvent>;
 
 export interface NFTClaimedEventObject {
   bountyId: string;
@@ -899,6 +949,18 @@ export interface OpenQV2 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setInvoiceable(
+      _invoiceable: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setKycRequired(
+      _kycRequired: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setPayout(
       _bountyId: PromiseOrValue<string>,
       _payoutToken: PromiseOrValue<string>,
@@ -1055,6 +1117,18 @@ export interface OpenQV2 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setInvoiceable(
+    _invoiceable: PromiseOrValue<boolean>,
+    _bountyId: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setKycRequired(
+    _kycRequired: PromiseOrValue<boolean>,
+    _bountyId: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setPayout(
     _bountyId: PromiseOrValue<string>,
     _payoutToken: PromiseOrValue<string>,
@@ -1204,6 +1278,18 @@ export interface OpenQV2 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _fundingGoalToken: PromiseOrValue<string>,
       _fundingGoalVolume: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setInvoiceable(
+      _invoiceable: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setKycRequired(
+      _kycRequired: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1404,6 +1490,32 @@ export interface OpenQV2 extends BaseContract {
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "InvoiceableSet(address,bool,bytes,uint256)"(
+      bountyAddress?: null,
+      invoiceable?: null,
+      data?: null,
+      version?: null
+    ): InvoiceableSetEventFilter;
+    InvoiceableSet(
+      bountyAddress?: null,
+      invoiceable?: null,
+      data?: null,
+      version?: null
+    ): InvoiceableSetEventFilter;
+
+    "KYCRequiredSet(address,bool,bytes,uint256)"(
+      bountyAddress?: null,
+      kycRequired?: null,
+      data?: null,
+      version?: null
+    ): KYCRequiredSetEventFilter;
+    KYCRequiredSet(
+      bountyAddress?: null,
+      kycRequired?: null,
+      data?: null,
+      version?: null
+    ): KYCRequiredSetEventFilter;
 
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,
@@ -1690,6 +1802,18 @@ export interface OpenQV2 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setInvoiceable(
+      _invoiceable: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setKycRequired(
+      _kycRequired: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setPayout(
       _bountyId: PromiseOrValue<string>,
       _payoutToken: PromiseOrValue<string>,
@@ -1844,6 +1968,18 @@ export interface OpenQV2 extends BaseContract {
       _bountyId: PromiseOrValue<string>,
       _fundingGoalToken: PromiseOrValue<string>,
       _fundingGoalVolume: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setInvoiceable(
+      _invoiceable: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setKycRequired(
+      _kycRequired: PromiseOrValue<boolean>,
+      _bountyId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

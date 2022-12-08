@@ -103,7 +103,7 @@ describe('BountyV2.sol', () => {
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
 		atomicContract_noFundingGoal = await BountyV2.deploy();
 		await atomicContract_noFundingGoal.deployed();
-		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256"], [false, ethers.constants.AddressZero, 0]);
+		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool"], [false, ethers.constants.AddressZero, 0, true, true]);
 		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
 		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
@@ -156,7 +156,7 @@ describe('BountyV2.sol', () => {
 
 	describe('initializer', () => {
 		describe('ATOMIC', () => {
-			it.only(`should initialize bounty with correct metadata`, async () => {
+			it(`should initialize bounty with correct metadata`, async () => {
 				// ARRANGE/ASSERT
 				await expect(await atomicContract.bountyId()).equals(mockId);
 				await expect(await atomicContract.issuer()).equals(owner.address);

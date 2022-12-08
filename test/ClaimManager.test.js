@@ -139,7 +139,7 @@ describe('ClaimManagerV2.sol', () => {
 
 		abiCoder = new ethers.utils.AbiCoder;
 
-		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256"], [true, mockLink.address, 1000]);
+		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool"], [true, mockLink.address, 1000, true, true]);
 		atomicBountyInitOperation = [0, atomicBountyAbiEncodedParams];
 
 		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256"], [mockLink.address, '100', true, mockLink.address, 1000]);
@@ -410,9 +410,9 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 						.to.emit(claimManager, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData, 1)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, 1)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData, 2)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, 2)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 2);
 				});
 
 				it('should emit an NftClaimed event with correct parameters', async () => {
@@ -432,7 +432,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 0, abiEncodedSingleCloserData, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 0, abiEncodedSingleCloserData, 2);
 				});
 
 				it('should emit a BountyClosed event with correct parameters', async () => {
@@ -446,7 +446,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 						.to.emit(claimManager, 'BountyClosed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, 0, abiEncodedSingleCloserData, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, 0, abiEncodedSingleCloserData, 2);
 				});
 			});
 		});
@@ -518,7 +518,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedOngoingCloserData))
 						.to.emit(claimManager, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData, 2);
 				});
 			});
 		});
@@ -641,13 +641,13 @@ describe('ClaimManagerV2.sol', () => {
 					// ACT
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, claimant.address, abiEncodedTieredCloserDataFirstPlace))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, claimant.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, claimant.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 2);
 
 
 					expectedTimestamp = await setNextBlockTimestamp();
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, claimantSecondPlace.address, abiEncodedTieredCloserDataSecondPlace))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, claimantSecondPlace.address, expectedTimestamp, mockNft.address, 2, 2, abiEncodedTieredCloserDataSecondPlace, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, claimantSecondPlace.address, expectedTimestamp, mockNft.address, 2, 2, abiEncodedTieredCloserDataSecondPlace, 2);
 
 					// ASSERT
 					expect(await mockNft.ownerOf(FIRST_PLACE_NFT)).to.equal(claimant.address);
@@ -678,7 +678,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData))
 						.to.emit(claimManager, 'BountyClosed')
-						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 2, '0x', 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 2, '0x', 2);
 				});
 
 				it('should emit a TokenBalanceClaimed event with correct parameters', async () => {
@@ -703,8 +703,8 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData))
 						.to.emit(claimManager, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData, 1)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData, 2)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 2);
 				});
 
 				it('should emit an NftClaimed event with correct parameters', async () => {
@@ -721,7 +721,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserDataFirstPlace))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 2);
 				});
 			});
 		});
@@ -804,7 +804,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData))
 						.to.emit(claimManager, 'BountyClosed')
-						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 3, '0x', 1);
+						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 3, '0x', 2);
 				});
 			});
 		});
@@ -821,7 +821,7 @@ describe('ClaimManagerV2.sol', () => {
 
 				await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 					.to.emit(claimManager, 'ClaimSuccess')
-					.withArgs(expectedTimestamp, 0, abiEncodedSingleCloserData, 1);
+					.withArgs(expectedTimestamp, 0, abiEncodedSingleCloserData, 2);
 			});
 		});
 	});
@@ -1019,7 +1019,7 @@ describe('ClaimManagerV2.sol', () => {
 			// ASSERT
 			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUser', abiEncodedTieredCloserDataFirstPlace))
 				.to.emit(claimManager, 'ClaimSuccess')
-				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 1);
+				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 2);
 		});
 	});
 

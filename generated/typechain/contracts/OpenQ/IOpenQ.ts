@@ -23,6 +23,8 @@ export interface IOpenQInterface extends utils.Interface {
     "DepositRefunded(bytes32,string,address,string,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
+    "InvoiceableSet(address,bool,bytes,uint256)": EventFragment;
+    "KYCRequiredSet(address,bool,bytes,uint256)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "PayoutScheduleSet(address,address,uint256[],uint256,bytes,uint256)": EventFragment;
@@ -41,6 +43,8 @@ export interface IOpenQInterface extends utils.Interface {
     nameOrSignatureOrTopic: "ExternalUserIdAssociatedWithAddress"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "InvoiceableSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "KYCRequiredSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayoutScheduleSet"): EventFragment;
@@ -169,6 +173,32 @@ export type FundingGoalSetEvent = TypedEvent<
 >;
 
 export type FundingGoalSetEventFilter = TypedEventFilter<FundingGoalSetEvent>;
+
+export interface InvoiceableSetEventObject {
+  bountyAddress: string;
+  invoiceable: boolean;
+  data: string;
+  version: BigNumber;
+}
+export type InvoiceableSetEvent = TypedEvent<
+  [string, boolean, string, BigNumber],
+  InvoiceableSetEventObject
+>;
+
+export type InvoiceableSetEventFilter = TypedEventFilter<InvoiceableSetEvent>;
+
+export interface KYCRequiredSetEventObject {
+  bountyAddress: string;
+  kycRequired: boolean;
+  data: string;
+  version: BigNumber;
+}
+export type KYCRequiredSetEvent = TypedEvent<
+  [string, boolean, string, BigNumber],
+  KYCRequiredSetEventObject
+>;
+
+export type KYCRequiredSetEventFilter = TypedEventFilter<KYCRequiredSetEvent>;
 
 export interface NFTClaimedEventObject {
   bountyId: string;
@@ -500,6 +530,32 @@ export interface IOpenQ extends BaseContract {
       data?: null,
       version?: null
     ): FundingGoalSetEventFilter;
+
+    "InvoiceableSet(address,bool,bytes,uint256)"(
+      bountyAddress?: null,
+      invoiceable?: null,
+      data?: null,
+      version?: null
+    ): InvoiceableSetEventFilter;
+    InvoiceableSet(
+      bountyAddress?: null,
+      invoiceable?: null,
+      data?: null,
+      version?: null
+    ): InvoiceableSetEventFilter;
+
+    "KYCRequiredSet(address,bool,bytes,uint256)"(
+      bountyAddress?: null,
+      kycRequired?: null,
+      data?: null,
+      version?: null
+    ): KYCRequiredSetEventFilter;
+    KYCRequiredSet(
+      bountyAddress?: null,
+      kycRequired?: null,
+      data?: null,
+      version?: null
+    ): KYCRequiredSetEventFilter;
 
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,

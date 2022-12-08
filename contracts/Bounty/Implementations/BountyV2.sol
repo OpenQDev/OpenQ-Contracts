@@ -66,7 +66,6 @@ contract BountyV2 is BountyStorageV2 {
         internal
     {
         uint32 operationType = _operation.operationType;
-        console.logBytes(_operation.data);
         if (operationType == OpenQDefinitions.ATOMIC) {
             (
                 bool _hasFundingGoal,
@@ -78,6 +77,7 @@ contract BountyV2 is BountyStorageV2 {
                     _operation.data,
                     (bool, address, uint256, bool, bool)
                 );
+
             _initAtomic(
                 _hasFundingGoal,
                 _fundingToken,

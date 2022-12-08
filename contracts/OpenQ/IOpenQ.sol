@@ -166,15 +166,6 @@ interface IOpenQ {
         uint256 version
     );
 
-    event PayoutScheduleSet(
-        address bountyAddress,
-        address payoutTokenAddress,
-        uint256[] payoutSchedule,
-        uint256 bountyType,
-        bytes data,
-        uint256 version
-    );
-
     event ExternalUserIdAssociatedWithAddress(
         string externalUserId,
         address newAddress,

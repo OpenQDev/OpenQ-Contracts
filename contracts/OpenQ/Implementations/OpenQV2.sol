@@ -140,7 +140,10 @@ contract OpenQV2 is OpenQStorageV2 {
      * @dev Sets kycRequired
      * @param _kycRequired Whether or not KYC is required
      */
-    function setKycRequired(bool _kycRequired) external onlyProxy {
+    function setKycRequired(bool _kycRequired, string calldata _bountyId)
+        external
+        onlyProxy
+    {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV2 bounty = BountyV2(payable(bountyAddress));
 
@@ -160,15 +163,18 @@ contract OpenQV2 is OpenQStorageV2 {
      * @dev Sets invoiceable
      * @param _invoiceable Whether or not the bounty is invoiceable
      */
-    function setInvoiceable(bool _invoiceable) external onlyProxy {
+    function setInvoiceable(bool _invoiceable, string calldata _bountyId)
+        external
+        onlyProxy
+    {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV2 bounty = BountyV2(payable(bountyAddress));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.setKycRequired(_invoiceable);
+        bounty.setInvoiceable(_invoiceable);
 
-        emit setInvoiceable(
+        emit InvoiceableSet(
             bountyAddress,
             _invoiceable,
             new bytes(0),

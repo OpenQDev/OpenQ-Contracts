@@ -331,6 +331,68 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "address",
+        name: "bountyAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "invoiceable",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "version",
+        type: "uint256",
+      },
+    ],
+    name: "InvoiceableSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "bountyAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "kycRequired",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "version",
+        type: "uint256",
+      },
+    ],
+    name: "KYCRequiredSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "string",
         name: "bountyId",
         type: "string",

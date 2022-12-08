@@ -177,6 +177,8 @@ export interface ClaimManagerV2Interface extends utils.Interface {
     "ExternalUserIdAssociatedWithAddress(string,address,bytes,uint256)": EventFragment;
     "FundingGoalSet(address,address,uint256,uint256,bytes,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
+    "InvoiceableSet(address,bool,bytes,uint256)": EventFragment;
+    "KYCRequiredSet(address,bool,bytes,uint256)": EventFragment;
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)": EventFragment;
     "NFTDepositReceived(bytes32,address,string,string,address,uint256,address,uint256,uint256,uint256,bytes,uint256)": EventFragment;
     "OracleTransferred(address,address)": EventFragment;
@@ -201,6 +203,8 @@ export interface ClaimManagerV2Interface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundingGoalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "InvoiceableSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "KYCRequiredSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTDepositReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OracleTransferred"): EventFragment;
@@ -360,6 +364,32 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface InvoiceableSetEventObject {
+  bountyAddress: string;
+  invoiceable: boolean;
+  data: string;
+  version: BigNumber;
+}
+export type InvoiceableSetEvent = TypedEvent<
+  [string, boolean, string, BigNumber],
+  InvoiceableSetEventObject
+>;
+
+export type InvoiceableSetEventFilter = TypedEventFilter<InvoiceableSetEvent>;
+
+export interface KYCRequiredSetEventObject {
+  bountyAddress: string;
+  kycRequired: boolean;
+  data: string;
+  version: BigNumber;
+}
+export type KYCRequiredSetEvent = TypedEvent<
+  [string, boolean, string, BigNumber],
+  KYCRequiredSetEventObject
+>;
+
+export type KYCRequiredSetEventFilter = TypedEventFilter<KYCRequiredSetEvent>;
 
 export interface NFTClaimedEventObject {
   bountyId: string;
@@ -937,6 +967,32 @@ export interface ClaimManagerV2 extends BaseContract {
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "InvoiceableSet(address,bool,bytes,uint256)"(
+      bountyAddress?: null,
+      invoiceable?: null,
+      data?: null,
+      version?: null
+    ): InvoiceableSetEventFilter;
+    InvoiceableSet(
+      bountyAddress?: null,
+      invoiceable?: null,
+      data?: null,
+      version?: null
+    ): InvoiceableSetEventFilter;
+
+    "KYCRequiredSet(address,bool,bytes,uint256)"(
+      bountyAddress?: null,
+      kycRequired?: null,
+      data?: null,
+      version?: null
+    ): KYCRequiredSetEventFilter;
+    KYCRequiredSet(
+      bountyAddress?: null,
+      kycRequired?: null,
+      data?: null,
+      version?: null
+    ): KYCRequiredSetEventFilter;
 
     "NFTClaimed(string,address,string,address,uint256,address,uint256,uint256,bytes,uint256)"(
       bountyId?: null,
