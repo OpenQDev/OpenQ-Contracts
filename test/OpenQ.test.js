@@ -252,7 +252,7 @@ describe.only('OpenQ.sol', () => {
 				let txnSingle;
 				await expect(txnSingle = await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation))
 					.to.emit(openQProxy, 'BountyCreated')
-					.withArgs(bountyId, mockOrg, owner.address, anyValue, expectedTimestamp, 0, [], 1);
+					.withArgs(bountyId, mockOrg, owner.address, anyValue, expectedTimestamp, 0, [], 3);
 				txnReceipt = await txnSingle.wait(); // 0ms, as tx is already confirmed
 				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
 				[bountyAddress] = event.args;
@@ -263,7 +263,7 @@ describe.only('OpenQ.sol', () => {
 				expectedTimestamp = await setNextBlockTimestamp();
 				await expect(txnOngoing = await openQProxy.mintBounty('ongoingBountyId', mockOrg, ongoingBountyInitOperation))
 					.to.emit(openQProxy, 'BountyCreated')
-					.withArgs('ongoingBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 1, [], 1);
+					.withArgs('ongoingBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 1, [], 3);
 				txnReceipt = await txnOngoing.wait(); // 0ms, as tx is already confirmed
 				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
 				[bountyAddress] = event.args;
@@ -274,7 +274,7 @@ describe.only('OpenQ.sol', () => {
 				expectedTimestamp = await setNextBlockTimestamp();
 				await expect(txnTiered = await openQProxy.mintBounty('tieredBountyId', mockOrg, tieredBountyInitOperation))
 					.to.emit(openQProxy, 'BountyCreated')
-					.withArgs('tieredBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 2, [], 1);
+					.withArgs('tieredBountyId', mockOrg, owner.address, anyValue, expectedTimestamp, 2, [], 3);
 				txnReceipt = await txnTiered.wait(); // 0ms, as tx is already confirmed
 				event = txnReceipt.events.find(event => event.event === 'BountyCreated');
 				[bountyAddress] = event.args;
@@ -512,7 +512,7 @@ describe.only('OpenQ.sol', () => {
 			// ACT
 			await expect(openQProxy.closeOngoing(bountyId))
 				.to.emit(openQProxy, 'BountyClosed')
-				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 1, [], 1);
+				.withArgs(bountyId, anyValue, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 1, [], 3);
 		});
 	});
 
@@ -598,7 +598,7 @@ describe.only('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setFundingGoal(bountyId, mockDai.address, 1000))
 				.to.emit(openQProxy, 'FundingGoalSet')
-				.withArgs(bountyAddress, mockDai.address, 1000, 0, [], 1);
+				.withArgs(bountyAddress, mockDai.address, 1000, 0, [], 3);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -683,7 +683,7 @@ describe.only('OpenQ.sol', () => {
 				.withArgs(bountyAddress, false, [], 3);
 		});
 
-		it.only('should revert if not called by issuer', async () => {
+		it('should revert if not called by issuer', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
 			const notOwnerContract = openQProxy.connect(oracle);
@@ -722,7 +722,7 @@ describe.only('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setPayout(bountyId, mockDai.address, 1000))
 				.to.emit(openQProxy, 'PayoutSet')
-				.withArgs(bountyAddress, mockDai.address, 1000, 0, [], 1);
+				.withArgs(bountyAddress, mockDai.address, 1000, 0, [], 3);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -777,7 +777,7 @@ describe.only('OpenQ.sol', () => {
 
 			await expect(openQProxy.setPayoutSchedule(bountyId, [70, 20, 10]))
 				.to.emit(openQProxy, 'PayoutScheduleSet')
-				.withArgs(bountyAddress, ethers.constants.AddressZero, [70, 20, 10], 2, [], 1);
+				.withArgs(bountyAddress, ethers.constants.AddressZero, [70, 20, 10], 2, [], 3);
 		});
 	});
 
@@ -818,7 +818,7 @@ describe.only('OpenQ.sol', () => {
 
 			await expect(openQProxy.setPayoutScheduleFixed(bountyId, [70, 20, 10], mockDai.address))
 				.to.emit(openQProxy, 'PayoutScheduleSet')
-				.withArgs(bountyAddress, mockDai.address, [70, 20, 10], 3, [], 1);
+				.withArgs(bountyAddress, mockDai.address, [70, 20, 10], 3, [], 3);
 		});
 	});
 
@@ -851,7 +851,7 @@ describe.only('OpenQ.sol', () => {
 			// ACT
 			await expect(openQProxy.connect(oracle).associateExternalIdToAddress(exampleGithubId, owner.address))
 				.to.emit(openQProxy, 'ExternalUserIdAssociatedWithAddress')
-				.withArgs(exampleGithubId, owner.address, [], 2);
+				.withArgs(exampleGithubId, owner.address, [], 3);
 		});
 	});
 

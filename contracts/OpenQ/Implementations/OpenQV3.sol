@@ -406,7 +406,7 @@ contract OpenQV3 is OpenQStorageV3 {
             _externalUserId,
             _associatedAddress,
             new bytes(0),
-            VERSION_2
+            VERSION_3
         );
     }
 }
