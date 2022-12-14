@@ -212,13 +212,13 @@ This one-liner deploys:
 - ClaimManager
 
 ```javascript
-provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManager.sol/DepositManager.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());artifactClaimManager = require('./artifacts/contracts/ClaimManager/ClaimManager.sol/ClaimManager.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV3.sol/OpenQV3.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManagerV2.sol/DepositManagerV2.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManagerV2.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
 ```
 
 #### OpenQ
 
 ```javascript
-provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV2.sol/OpenQV2.json');openQ = new ethers.Contract('0x5FC8d32690cc91D4c39d9d3abcBD16989F875707', artifact.abi, provider.getSigner());
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV3.sol/OpenQV3.json');openQ = new ethers.Contract('0x5FC8d32690cc91D4c39d9d3abcBD16989F875707', artifact.abi, provider.getSigner());
 ```
 
 #### Claim Manager
@@ -230,13 +230,13 @@ artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementatio
 #### Deposit Manager
 
 ```javascript
-artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManager.sol/DepositManager.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());
+artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManagerV2.sol/DepositManagerV2.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());
 ```
 
 #### Bounty
 
 ```javascript
-artifactClaimManager = require('./artifacts/contracts/Bounty/Implementations/BountyV1.sol/BountyV1.json');bountyV1 = new ethers.Contract('0x001192fa1ea7a2816445ec2efd5843c1a60562aa', artifactClaimManager.abi, provider.getSigner());
+artifactClaimManager = require('./artifacts/contracts/Bounty/Implementations/BountyV2.sol/BountyV2.json');bountyV1 = new ethers.Contract('0x001192fa1ea7a2816445ec2efd5843c1a60562aa', artifactClaimManager.abi, provider.getSigner());
 ```
 
 ### Mint Bounty
@@ -244,7 +244,7 @@ artifactClaimManager = require('./artifacts/contracts/Bounty/Implementations/Bou
 #### ATOMIC WITH FUNDING GOAL
 
 ```javascript
-abiCoder = new ethers.utils.AbiCoder;abiEncodedParams = abiCoder.encode(["bool", "address", "uint256"], [true, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", '100']);bountyInitOperation = [0, abiEncodedParams];txn = await openQ.mintBounty(id = (Math.random(1)*100).toString(), 'abc', bountyInitOperation);receipt = await txn.wait();receipt.events.forEach(event => {console.log(event.eventSignature);console.log(event.args);});console.log(id);bountyCreatedEvent = receipt.events.find(eventObj => eventObj.event === 'BountyCreated');bountyAddress = bountyCreatedEvent.args.bountyAddress;console.log('Bounty Address:', bountyAddress.toLowerCase());
+abiCoder = new ethers.utils.AbiCoder;abiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool"], [true, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", '100', true, true]);bountyInitOperation = [0, abiEncodedParams];txn = await openQ.mintBounty(id = (Math.random(1)*100).toString(), 'abc', bountyInitOperation);receipt = await txn.wait();receipt.events.forEach(event => {console.log(event.eventSignature);console.log(event.args);});console.log(id);bountyCreatedEvent = receipt.events.find(eventObj => eventObj.event === 'BountyCreated');bountyAddress = bountyCreatedEvent.args.bountyAddress;console.log('Bounty Address:', bountyAddress.toLowerCase());
 ```
 
 ### Fund Bounty
