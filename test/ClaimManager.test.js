@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('ClaimManagerV2.sol', () => {
+describe.only('ClaimManagerV2.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -33,6 +33,7 @@ describe('ClaimManagerV2.sol', () => {
 	// CONSTANTS
 	let bountyId = 'mockIssueId';
 	let mockOrg = 'mock-org';
+	let mockFunderUuid = 'mock-funder-uuid';
 
 	// INIT OPERATIONS
 	let atomicBountyInitOperation;
@@ -339,9 +340,9 @@ describe('ClaimManagerV2.sol', () => {
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
 
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, mockFunderUuid, { value: volume });
 
 					// ASSUME
 					const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -401,8 +402,8 @@ describe('ClaimManagerV2.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, mockFunderUuid, { value: volume });
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
@@ -484,7 +485,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
 
 					// ACT
 
@@ -510,7 +511,7 @@ describe('ClaimManagerV2.sol', () => {
 					const payoutVolume = await bounty.payoutVolume();
 
 					await mockLink.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
@@ -568,9 +569,9 @@ describe('ClaimManagerV2.sol', () => {
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
 
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, mockFunderUuid, { value: volume });
 
 					// ASSUME
 					const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -669,8 +670,8 @@ describe('ClaimManagerV2.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, mockFunderUuid);
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
@@ -694,8 +695,8 @@ describe('ClaimManagerV2.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, mockFunderUuid);
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
@@ -734,7 +735,7 @@ describe('ClaimManagerV2.sol', () => {
 					const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 					await mockLink.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, mockFunderUuid);
 
 					claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData);
 
@@ -795,8 +796,8 @@ describe('ClaimManagerV2.sol', () => {
 
 					await mockLink.approve(bountyAddress, 10000000);
 					await mockDai.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
+					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
+					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, mockFunderUuid);
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
@@ -835,7 +836,7 @@ describe('ClaimManagerV2.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, mockFunderUuid);
 
 			// ASSUME
 			let tierClaimed = await openQProxy.tierClaimed(bountyId, 1);
@@ -860,7 +861,7 @@ describe('ClaimManagerV2.sol', () => {
 			const bounty = await Bounty.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, mockFunderUuid);
 
 			let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
 
@@ -929,9 +930,9 @@ describe('ClaimManagerV2.sol', () => {
 			await mockLink.approve(bountyAddress, 10000000);
 			await mockDai.approve(bountyAddress, 10000000);
 
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
-			await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1);
-			await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, { value: volume });
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
+			await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, mockFunderUuid);
+			await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, mockFunderUuid, { value: volume });
 
 			// ASSUME
 			const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
@@ -982,7 +983,7 @@ describe('ClaimManagerV2.sol', () => {
 			await mockLink.approve(bountyAddress, 10000000);
 			await mockDai.approve(bountyAddress, 10000000);
 
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, mockFunderUuid);
 
 			// ASSUME
 			const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
