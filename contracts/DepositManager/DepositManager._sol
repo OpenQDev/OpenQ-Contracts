@@ -43,7 +43,7 @@ contract DepositManager is DepositManagerStorageV1 {
         uint256 _volume,
         uint256 _expiration
     ) external payable onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
         if (!isWhitelisted(_tokenAddress)) {
             require(
@@ -85,7 +85,7 @@ contract DepositManager is DepositManagerStorageV1 {
         bytes32 _depositId,
         uint256 _seconds
     ) external onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -120,7 +120,7 @@ contract DepositManager is DepositManagerStorageV1 {
         uint256 _expiration,
         uint256 _tier
     ) external onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
         require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
@@ -158,7 +158,7 @@ contract DepositManager is DepositManagerStorageV1 {
         external
         onlyProxy
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -170,13 +170,14 @@ contract DepositManager is DepositManagerStorageV1 {
                 bounty.depositTime(_depositId) + bounty.expiration(_depositId),
             Errors.PREMATURE_REFUND_REQUEST
         );
-        
+
         address depToken = bounty.tokenAddress(_depositId);
 
-        uint256 availableFunds = bounty.getTokenBalance(depToken) - bounty.getLockedFunds(_bountyAddress, depToken);
-        
+        uint256 availableFunds = bounty.getTokenBalance(depToken) -
+            bounty.getLockedFunds(_bountyAddress, depToken);
+
         uint256 volume;
-        if (bounty.volume(_depositId) <= availableFunds ) {
+        if (bounty.volume(_depositId) <= availableFunds) {
             volume = bounty.volume(_depositId);
         } else {
             volume = availableFunds;
@@ -217,7 +218,7 @@ contract DepositManager is DepositManagerStorageV1 {
         view
         returns (bool)
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
 
         return
             bounty.getTokenAddressesCount() >=
@@ -230,7 +231,7 @@ contract DepositManager is DepositManagerStorageV1 {
      * @return bool True if _bountyId is associated with an open bounty
      */
     function bountyIsOpen(address _bountyAddress) public view returns (bool) {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }

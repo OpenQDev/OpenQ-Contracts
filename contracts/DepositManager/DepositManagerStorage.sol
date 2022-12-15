@@ -12,7 +12,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
  */
 import '../OpenQ/IOpenQ.sol';
 import '../Tokens/OpenQTokenWhitelist.sol';
-import '../Bounty/Implementations/BountyV1.sol';
+import '../Bounty/Implementations/BountyV2.sol';
 import '../Library/Errors.sol';
 
 /**
@@ -26,4 +26,12 @@ abstract contract DepositManagerStorageV1 is
 {
     uint256 public constant VERSION_1 = 1;
     OpenQTokenWhitelist public openQTokenWhitelist;
+}
+
+/**
+ * @title DepositManagerStorageV2
+ * @dev Backwards compatible, append-only chain of storage contracts inherited by DepositManager implementations
+ */
+abstract contract DepositManagerStorageV2 is DepositManagerStorageV1 {
+    uint256 public constant VERSION_2 = 2;
 }

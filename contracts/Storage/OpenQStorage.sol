@@ -12,7 +12,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
  * @dev Custom imports inherited by OpenQV1
  */
 import '../BountyFactory/BountyFactory.sol';
-import '../Bounty/Implementations/BountyV1.sol';
+import '../Bounty/Implementations/BountyV2.sol';
 import '../Library/OpenQDefinitions.sol';
 import '../Library/Errors.sol';
 import '../OpenQ/IOpenQ.sol';
@@ -39,4 +39,8 @@ abstract contract OpenQStorageV2 is OpenQStorageV1, Oraclize {
     uint256 public constant VERSION_2 = 2;
     mapping(string => address) public externalUserIdToAddress;
     mapping(address => string) public addressToExternalUserId;
+}
+
+abstract contract OpenQStorageV3 is OpenQStorageV2 {
+    uint256 public constant VERSION_3 = 3;
 }
