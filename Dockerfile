@@ -1,4 +1,5 @@
-FROM node:lts-alpine
+# hardat requires node 16
+FROM node:16-alpine
 WORKDIR /app
 RUN apk update && apk upgrade && \
 	apk add --no-cache bash git curl
