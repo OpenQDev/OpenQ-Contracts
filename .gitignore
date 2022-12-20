@@ -11,6 +11,8 @@ nohup.out
 
 mcore*/
 
+generated/
+
 **/artifacts
 **/.deps
 .env
