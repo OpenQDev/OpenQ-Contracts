@@ -40,7 +40,7 @@
 		"@superfluid-finance/sdk-core": "0.4.4",
 		"chai": "4.3.7",
 		"dotenv": "16.0.0",
-		"ethereum-waffle": "3.4.0",
+		"ethereum-waffle": "3.4.4",
 		"ethers": "5.6.4",
 		"fs": "0.0.1-security",
 		"graphql": "16.5.0",
