@@ -1121,7 +1121,7 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
-] as const;
+];
 
 export class OpenQStorageV3__factory {
   static readonly abi = _abi;

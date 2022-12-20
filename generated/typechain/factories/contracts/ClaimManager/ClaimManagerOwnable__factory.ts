@@ -36,7 +36,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class ClaimManagerOwnable__factory {
   static readonly abi = _abi;

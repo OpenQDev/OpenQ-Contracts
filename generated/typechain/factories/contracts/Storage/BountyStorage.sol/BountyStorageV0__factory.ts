@@ -441,7 +441,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class BountyStorageV0__factory {
   static readonly abi = _abi;

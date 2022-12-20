@@ -165,7 +165,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class TokenWhitelist__factory {
   static readonly abi = _abi;

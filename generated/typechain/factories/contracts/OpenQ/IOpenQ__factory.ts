@@ -797,7 +797,7 @@ const _abi = [
     name: "TokenDepositReceived",
     type: "event",
   },
-] as const;
+];
 
 export class IOpenQ__factory {
   static readonly abi = _abi;
