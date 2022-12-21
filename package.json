@@ -37,7 +37,7 @@
 		"@openzeppelin/contracts": "4.7.3",
 		"@openzeppelin/contracts-upgradeable": "4.7.3",
 		"@superfluid-finance/ethereum-contracts": "1.3.0",
-		"@superfluid-finance/sdk-core": "0.4.4",
+		"@superfluid-finance/sdk-core": "0.6.1",
 		"chai": "4.3.7",
 		"dotenv": "16.0.0",
 		"ethereum-waffle": "3.4.0",
