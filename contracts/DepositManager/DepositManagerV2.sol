@@ -36,6 +36,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
      * @param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
      * @param _volume The volume of token transferred
      * @param _expiration The duration until the deposit becomes refundable
+     * @param funderUuid The external user id of the funder
      */
     function fundBountyToken(
         address _bountyAddress,
@@ -112,9 +113,11 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
 
     /**
      * @dev Transfers NFT from msg.sender to bounty address
+     * @param _bountyAddress The address of the bounty to fund
      * @param _tokenAddress The ERC721 token address of the NFT
      * @param _tokenId The tokenId of the NFT to transfer
      * @param _expiration The duration until the deposit becomes refundable
+     * @param _tier The tier of the NFT (not relevant for non-tiered bounties)
      */
     function fundBountyNFT(
         address _bountyAddress,
@@ -154,7 +157,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
 
     /**
      * @dev Refunds an individual deposit from bountyAddress to sender if expiration time has passed
-     * @param _bountyAddress Bounty address
+     * @param _bountyAddress The address of the bounty that has the deposit to refund
      * @param _depositId The depositId associated with the deposit being refunded
      */
     function refundDeposit(address _bountyAddress, bytes32 _depositId)
@@ -205,7 +208,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
     /**
      * @dev Checks if _tokenAddress is whitelisted
      * @param _tokenAddress The token address in question
-     * @return bool True if _tokenAddress is whitelisted
+     * @return True if _tokenAddress is whitelisted, false otherwise
      */
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
@@ -214,7 +217,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
     /**
      * @dev Returns true if the total number of unique tokens deposited on then bounty is greater than the OpenQWhitelist TOKEN_ADDRESS_LIMIT
      * @param _bountyAddress Address of bounty
-     * @return bool
+     * @return True if the token address limit has been reached
      */
     function tokenAddressLimitReached(address _bountyAddress)
         public

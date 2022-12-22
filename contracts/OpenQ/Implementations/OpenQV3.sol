@@ -2,12 +2,12 @@
 pragma solidity 0.8.16;
 
 /**
- * @dev Custom imports
+ * @dev Custom imports - all transitive imports live in OpenQStorage
  */
 import '../../Storage/OpenQStorage.sol';
 
 /**
- * @title OpenQV1
+ * @title OpenQV3
  * @dev Main administrative contract for all bounty operations
  */
 contract OpenQV3 is OpenQStorageV3 {
@@ -34,7 +34,7 @@ contract OpenQV3 is OpenQStorageV3 {
      * @dev Mints a new bounty BeaconProxy using BountyFactory
      * @param _bountyId A unique string to identify a bounty
      * @param _organization The ID of the organization which owns the bounty
-     * @param _initOperation Array of ABI encoded method calls passed to the bounty initializer
+     * @param _initOperation The ABI encoded data determining the type of bounty being initialized and associated data
      * @return bountyAddress The address of the bounty minted
      */
     function mintBounty(
@@ -85,7 +85,7 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets bountyFactory address
+     * @dev Sets ClaimManager proxy address
      * @param _claimManager The ClaimManager address
      */
     function setClaimManager(address _claimManager)
@@ -97,7 +97,7 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets bountyFactory address
+     * @dev Sets DepositManager proxy address
      * @param _depositManager The DepositManager address
      */
     function setDepositManager(address _depositManager)
@@ -109,10 +109,10 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets fundingGoal
+     * @dev Sets fundingGoal for bounty with id _bountyId
      * @param _bountyId The id to update
-     * @param _fundingGoalToken The id to update
-     * @param _fundingGoalVolume The id to update
+     * @param _fundingGoalToken The token address to be used for the funding goal
+     * @param _fundingGoalVolume The volume of token to be used for the funding goal
      */
     function setFundingGoal(
         string calldata _bountyId,
@@ -137,8 +137,8 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets kycRequired
-     * @param _kycRequired Whether or not KYC is required
+     * @dev Sets kycRequired on bounty with id _bountyId
+     * @param _kycRequired Whether or not KYC is required for a bounty
      */
     function setKycRequired(string calldata _bountyId, bool _kycRequired)
         external
@@ -160,7 +160,7 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets invoiceable
+     * @dev Sets invoiceable on bounty with id _bountyId
      * @param _invoiceable Whether or not the bounty is invoiceable
      */
     function setInvoiceable(string calldata _bountyId, bool _invoiceable)
@@ -183,10 +183,10 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets payout token address and volume
+     * @dev Sets payout token address and volume on bounty with id _bountyId
      * @param _bountyId The id to update
-     * @param _payoutToken The token address
-     * @param _payoutVolume The token volume
+     * @param _payoutToken The token address to be used for the payout
+     * @param _payoutVolume The volume of token to be used for the payout
      */
     function setPayout(
         string calldata _bountyId,
@@ -211,9 +211,10 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets payout token address and volume
-     * @param _bountyId The id to update
-     * @param _payoutSchedule The token address
+     * @dev Sets payout volume array on percentage tiered bounty with id _bountyId
+     * @dev There is no tokenAddress needed here - payouts on percentage tiered bounties is a percentage of whatever is deposited on the contract
+     * @param _bountyId The bounty to update
+     * @param _payoutSchedule An array of payout volumes for each tier
      */
     function setPayoutSchedule(
         string calldata _bountyId,
@@ -237,10 +238,10 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Sets payout token address and volume
-     * @param _bountyId The id to update
-     * @param _payoutSchedule The token address
-     * @param _payoutTokenAddress The token volume
+     * @dev Sets payout volume array on fixed tiered bounty with id _bountyId
+     * @param _bountyId The bounty to update
+     * @param _payoutSchedule An array of payout volumes for each tier
+     * @param _payoutTokenAddress The address of the token to be used for the payout
      */
     function setPayoutScheduleFixed(
         string calldata _bountyId,
@@ -264,6 +265,10 @@ contract OpenQV3 is OpenQStorageV3 {
         );
     }
 
+    /**
+     * @dev Closes an ongoing bounty
+     * @param _bountyId The bounty to close
+     */
     function closeOngoing(string calldata _bountyId) external {
         require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
         require(
@@ -294,8 +299,8 @@ contract OpenQV3 is OpenQStorageV3 {
 
     /**
      * @dev Checks if bounty associated with _bountyId is open
-     * @param _bountyId The token address in question
-     * @return bool True if _bountyId is associated with an open bounty
+     * @param _bountyId The bounty id
+     * @return True if _bountyId is associated with an open bounty, false otherwise
      */
     function bountyIsOpen(string calldata _bountyId)
         public
@@ -309,9 +314,9 @@ contract OpenQV3 is OpenQStorageV3 {
     }
 
     /**
-     * @dev Returns the bountyType of the bounty (Single, Ongoing, or Tiered)
-     * @param _bountyId The token address in question
-     * @return uint256 bountyType ()
+     * @dev Returns the bountyType of the bounty (Single(0), Ongoing(1), Tiered(2), or Tiered Fixed(3))
+     * @param _bountyId The bounty id
+     * @return bountyType - See OpenQDefinitions.sol for values
      */
     function bountyType(string calldata _bountyId)
         public
@@ -327,7 +332,7 @@ contract OpenQV3 is OpenQStorageV3 {
     /**
      * @dev Retrieves bountyId from a bounty's address
      * @param _bountyAddress The bounty address
-     * @return string The bounty id associated with _bountyAddress
+     * @return The bounty id associated with _bountyAddress
      */
     function bountyAddressToBountyId(address _bountyAddress)
         external
@@ -338,6 +343,12 @@ contract OpenQV3 is OpenQStorageV3 {
         return bounty.bountyId();
     }
 
+    /**
+     * @dev Determines whether or not a tier is claimed on a percentage tiered or fixed tiered bounty
+     * @param _bountyId The bounty id
+     * @param _tier The tier to check
+     * @return True if claimed, false otherwise
+     */
     function tierClaimed(string calldata _bountyId, uint256 _tier)
         external
         view
@@ -357,14 +368,21 @@ contract OpenQV3 is OpenQStorageV3 {
         return balance >= bounty.payoutVolume();
     }
 
+    /**
+     * @dev Determines whether or not a given submission by claimant has already been used for a claim
+     * @param _bountyId The bounty id
+     * @param _claimant The external user id to check
+     * @param _claimantAsset The external id of the claimant's asset to check
+     * @return True if claimed, false otherwise
+     */
     function ongoingClaimed(
         string calldata _bountyId,
-        string calldata claimant,
-        string calldata claimantAsset
+        string calldata _claimant,
+        string calldata _claimantAsset
     ) external view returns (bool) {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV2 bounty = BountyV2(payable(bountyAddress));
-        bytes32 claimantId = keccak256(abi.encode(claimant, claimantAsset));
+        bytes32 claimantId = keccak256(abi.encode(_claimant, _claimantAsset));
         bool _ongoingClaimed = bounty.claimantId(claimantId);
         return _ongoingClaimed;
     }
@@ -386,7 +404,6 @@ contract OpenQV3 is OpenQStorageV3 {
         return _getImplementation();
     }
 
-    // VERSION 2
     /**
      * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
      * @param _newOracle The new oracle address
@@ -396,6 +413,11 @@ contract OpenQV3 is OpenQStorageV3 {
         _transferOracle(_newOracle);
     }
 
+    /**
+     * @dev Establishes a mapping between an external user id and an address
+     * @param _externalUserId The external user id (e.g. Github user id) to associate
+     * @param _associatedAddress The address to associate to _externalUserId
+     */
     function associateExternalIdToAddress(
         string calldata _externalUserId,
         address _associatedAddress
