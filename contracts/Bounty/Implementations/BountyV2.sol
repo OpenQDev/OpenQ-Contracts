@@ -2,13 +2,12 @@
 pragma solidity 0.8.16;
 
 /**
- * @dev Custom imports
+ * @dev Custom imports - all transitive imports live in BountyStorage
  */
 import '../../Storage/BountyStorage.sol';
-import 'hardhat/console.sol';
 
 /**
- * @title BountyV1
+ * @title BountyV2
  * @dev Bounty Implementation Version 2
  */
 contract BountyV2 is BountyStorageV2 {
@@ -28,8 +27,9 @@ contract BountyV2 is BountyStorageV2 {
      * @param _issuer The sender of the mint bounty transaction
      * @param _organization The organization associated with the bounty
      * @param _openQ The OpenQProxy address
-     * @param _claimManager The Claim Manager address
-     * @param _depositManager The Deposit Manager address
+     * @param _claimManager The Claim Manager proxy address
+     * @param _depositManager The Deposit Manager proxy address
+     * @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
      */
     function initialize(
         string memory _bountyId,
@@ -38,7 +38,7 @@ contract BountyV2 is BountyStorageV2 {
         address _openQ,
         address _claimManager,
         address _depositManager,
-        OpenQDefinitions.InitOperation memory operation
+        OpenQDefinitions.InitOperation memory _operation
     ) external initializer {
         require(bytes(_bountyId).length != 0, Errors.NO_EMPTY_BOUNTY_ID);
         require(bytes(_organization).length != 0, Errors.NO_EMPTY_ORGANIZATION);
@@ -55,12 +55,12 @@ contract BountyV2 is BountyStorageV2 {
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
 
-        _initByType(operation);
+        _initByType(_operation);
     }
 
     /**
      * @dev Initializes a bounty based on its type
-     * @param _operation ABI-encoded data determining the type of bounty being initialized and associated data
+     * @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
      */
     function _initByType(OpenQDefinitions.InitOperation memory _operation)
         internal
@@ -145,10 +145,12 @@ contract BountyV2 is BountyStorageV2 {
     }
 
     /**
-     * @dev Initializes an atomic contract with initial state
+     * @dev Initializes an atomic contract (single contributor, single payout) with initial state
      * @param _hasFundingGoal If a funding goal has been set
      * @param _fundingToken The token address to be used for funding
      * @param _fundingGoal The funding token volume
+     * @param _invoiceable Whether or not invoice is required
+     * @param _kycRequired Whether or not KYC is required
      */
     function _initAtomic(
         bool _hasFundingGoal,
@@ -166,12 +168,14 @@ contract BountyV2 is BountyStorageV2 {
     }
 
     /**
-     * @dev Initializes an ongoing bounty proxy with initial state
+     * @dev Initializes an ongoing bounty (multiple contributors, fixed-price payout per submission) proxy with initial state
      * @param _payoutTokenAddress The token address for ongoing payouts
      * @param _payoutVolume The volume of token to payout for each successful claim
      * @param _hasFundingGoal If a funding goal has been set
      * @param _fundingToken The token address to be used for funding
      * @param _fundingGoal The funding token volume
+     * @param _invoiceable Whether or not invoice is required
+     * @param _kycRequired Whether or not KYC is required
      */
     function _initOngoingBounty(
         address _payoutTokenAddress,
@@ -185,7 +189,6 @@ contract BountyV2 is BountyStorageV2 {
         bountyType = OpenQDefinitions.ONGOING;
         payoutTokenAddress = _payoutTokenAddress;
         payoutVolume = _payoutVolume;
-
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
@@ -194,11 +197,13 @@ contract BountyV2 is BountyStorageV2 {
     }
 
     /**
-     * @dev Initializes a bounty proxy with initial state
+     * @dev Initializes a percentage-based tiered bounty (1st, 2nd, 3rd place etc, payout for each tier percentage of total prize) proxy with initial state
      * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
      * @param _hasFundingGoal If a funding goal has been set
      * @param _fundingToken The token address to be used for funding
      * @param _fundingGoal The funding token volume
+     * @param _invoiceable Whether or not invoice is required
+     * @param _kycRequired Whether or not KYC is required
      */
     function _initTiered(
         uint256[] memory _payoutSchedule,
@@ -209,13 +214,14 @@ contract BountyV2 is BountyStorageV2 {
         bool _kycRequired
     ) internal {
         bountyType = OpenQDefinitions.TIERED;
+
         uint256 sum;
         for (uint256 i = 0; i < _payoutSchedule.length; i++) {
             sum += _payoutSchedule[i];
         }
         require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
-        payoutSchedule = _payoutSchedule;
 
+        payoutSchedule = _payoutSchedule;
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
@@ -224,9 +230,11 @@ contract BountyV2 is BountyStorageV2 {
     }
 
     /**
-     * @dev Initializes a fixed tiered bounty proxy with initial state
+     * @dev Initializes a fixed tiered bounty (1st, 2nd, 3rd place etc, fixed payout for each tier) proxy with initial state
      * @param _payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
      * @param _payoutTokenAddress Fixed token address for funding
+     * @param _invoiceable Whether or not invoice is required
+     * @param _kycRequired Whether or not KYC is required
      */
     function _initTieredFixed(
         uint256[] memory _payoutSchedule,
@@ -246,8 +254,8 @@ contract BountyV2 is BountyStorageV2 {
      */
 
     /**
-     * @dev Creates a deposit and transfers tokens from msg.sender to self
-     * @param _funder The funder address
+     * @dev Creates a deposit and transfers tokens from msg.sender to this contract
+     * @param _funder The funder's address
      * @param _tokenAddress The ERC20 token address (ZeroAddress if funding with protocol token)
      * @param _volume The volume of token to transfer
      * @param _expiration The duration until the deposit becomes refundable
@@ -297,7 +305,7 @@ contract BountyV2 is BountyStorageV2 {
      * @param _tokenAddress The ERC721 token address of the NFT
      * @param _tokenId The tokenId of the NFT to transfer
      * @param _expiration The duration until the deposit becomes refundable
-     * @param _tier (optional) The tier associated with the bounty (only relevant if bounty type is tiered)
+     * @param _tier (optional) The tier associated with the bounty (only relevant if bounty type is tiered, otherwise is zero)
      * @return depositId
      */
     function receiveNft(
@@ -334,14 +342,13 @@ contract BountyV2 is BountyStorageV2 {
      * @dev Transfers volume of deposit or NFT of deposit from bounty to funder
      * @param _depositId The deposit to refund
      * @param _funder The initial funder of the deposit
-     * @param _volume The volume to be refunded
+     * @param _volume The volume to be refunded (only relevant if deposit is not an NFT, otherwise is zero)
      */
     function refundDeposit(
         bytes32 _depositId,
         address _funder,
         uint256 _volume
     ) external onlyDepositManager nonReentrant {
-        // Check
         require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
         require(
@@ -349,10 +356,8 @@ contract BountyV2 is BountyStorageV2 {
             Errors.PREMATURE_REFUND_REQUEST
         );
 
-        // Effects
         refunded[_depositId] = true;
 
-        // Interactions
         if (tokenAddress[_depositId] == address(0)) {
             _transferProtocolToken(funder[_depositId], _volume);
         } else if (isNFT[_depositId]) {
