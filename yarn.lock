@@ -9383,18 +9383,18 @@ solc@^0.6.3:
     semver "^5.5.0"
     tmp "0.0.33"
 
-solidity-ast@^0.4.31:
-  version "0.4.39"
-  resolved "https://registry.yarnpkg.com/solidity-ast/-/solidity-ast-0.4.39.tgz#410b266f47e7a50c07ff589239964e1c39f37d3c"
-  integrity sha512-91d4HMzV9x3ZG1fXRtAFFq2UjJrQXkyWdrmzXqBlueOSGB+v+0+iiLfZIPnTE0apndG2zm23qkZQJf8IbRrf7w==
+solidity-ast@^0.4.38:
+  version "0.4.40"
+  resolved "https://registry.yarnpkg.com/solidity-ast/-/solidity-ast-0.4.40.tgz#182709271b4e55efb34e2da934dfaa96ee0cf40b"
+  integrity sha512-M8uLBT2jgFB7B0iVAC5a2l71J8vim7aEm03AZkaHbDqyrl1pE+i5PriMEw6WlwGfHp3/Ym7cn9BqvVLQgRk+Yw==
 
-solidity-docgen@0.6.0-beta.10:
-  version "0.6.0-beta.10"
-  resolved "https://registry.yarnpkg.com/solidity-docgen/-/solidity-docgen-0.6.0-beta.10.tgz#aa00f6e2f170972261a858874b57489ec708f275"
-  integrity sha512-TrLw0vXffpIopAECveqH96S56mXyGjcQIkYLjYizzlvAXQ361Ach/XwRHqxvrncKCiEcOxosv+pIPWd0MrM2ug==
+solidity-docgen@0.6.0-beta.34:
+  version "0.6.0-beta.34"
+  resolved "https://registry.yarnpkg.com/solidity-docgen/-/solidity-docgen-0.6.0-beta.34.tgz#f1766b13ea864ea71b8e727796d30a69ea90014a"
+  integrity sha512-igdGrkg8gT1jn+B2NwzjEtSf+7NTrSi/jz88zO7MZWgETmcWbXaxgAsQP4BQeC4YFeH0Pie1NsLP7+9qDgvFtA==
   dependencies:
     handlebars "^4.7.7"
-    solidity-ast "^0.4.31"
+    solidity-ast "^0.4.38"
 
 source-map-resolve@^0.5.0:
   version "0.5.3"

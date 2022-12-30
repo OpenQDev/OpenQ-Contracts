@@ -49,7 +49,7 @@
 		"hardhat-gas-reporter": "1.0.9",
 		"hardhat-tracer": "1.2.1",
 		"path": "0.12.7",
-		"solidity-docgen": "0.6.0-beta.10",
+		"solidity-docgen": "0.6.0-beta.34",
 		"truffle-assertions": "0.9.2",
 		"web3": "1.7.4"
 	},
