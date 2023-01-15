@@ -38,7 +38,7 @@ module.exports = (function () {
 		},
 		networks: {
 			localhost: {
-				url: 'http://localhost:8545',
+				url: 'http://ethnode:8545',
 				accounts: [process.env.CLIENT, process.env.CONTRIBUTOR]
 			},
 			docker: {
