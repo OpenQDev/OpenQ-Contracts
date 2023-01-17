@@ -374,4 +374,51 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
     function setKyc(address _kyc) external onlyProxy onlyOwner {
         kyc = IKycValidity(_kyc);
     }
+
+    modifier hasKYC() {
+        require(
+            kyc.hasValidToken(msg.sender),
+            'You must have a valid KYC token to use this contract'
+        );
+        _;
+    }
+
+    /**
+     * @dev Used for claimants who have:
+     * @dev A) Completed KYC with KYC DAOB) Uploaded invoicing information
+     * @dev B) Uploaded invoicing information
+     * @dev C) Uploaded any necessary financial forms
+     * @param _bountyAddress The payout address of the bounty
+     * @param _externalUserId The Github ID of the claimant
+     * @param _closerData ABI Encoded data associated with this claim
+     */
+    function permissionedClaim(
+        address _bountyAddress,
+        string calldata _externalUserId,
+        bytes calldata _closerData
+    ) external onlyProxy hasKYC {
+        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+
+        address closer = IOpenQV2(openQ).externalUserIdToAddress(
+            _externalUserId
+        );
+
+        require(closer != address(0), Errors.NO_ASSOCIATED_ADDRESS);
+
+        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
+            _claimTieredFixed(bounty, closer, _closerData);
+        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
+            _claimTiered(bounty, closer, _closerData);
+        } else {
+            revert(Errors.NOT_A_COMPETITION_CONTRACT);
+        }
+
+        emit ClaimSuccess(
+            block.timestamp,
+            bounty.bountyType(),
+            _closerData,
+            VERSION_3
+        );
+    }
 }
