@@ -392,13 +392,12 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
      * @param _externalUserId The Github ID of the claimant
      * @param _closerData ABI Encoded data associated with this claim
      */
-    function permissionedClaim(
+    function permissionedClaimTier(
         address _bountyAddress,
         string calldata _externalUserId,
         bytes calldata _closerData
     ) external onlyProxy hasKYC {
         BountyV2 bounty = BountyV2(payable(_bountyAddress));
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         address closer = IOpenQV2(openQ).externalUserIdToAddress(
             _externalUserId
