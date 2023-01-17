@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('ClaimManagerV2.sol', () => {
+describe('ClaimManagerV3.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -62,7 +62,7 @@ describe('ClaimManagerV2.sol', () => {
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 		const DepositManager = await ethers.getContractFactory('DepositManagerV2');
-		const ClaimManager = await ethers.getContractFactory('ClaimManagerV2');
+		const ClaimManager = await ethers.getContractFactory('ClaimManagerV3');
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
@@ -411,9 +411,9 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 						.to.emit(claimManager, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData, 2)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, 2)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData, 3)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, 3)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, 3);
 				});
 
 				it('should emit an NftClaimed event with correct parameters', async () => {
@@ -433,7 +433,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 0, abiEncodedSingleCloserData, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 0, abiEncodedSingleCloserData, 3);
 				});
 
 				it('should emit a BountyClosed event with correct parameters', async () => {
@@ -447,7 +447,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 						.to.emit(claimManager, 'BountyClosed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, 0, abiEncodedSingleCloserData, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, 0, abiEncodedSingleCloserData, 3);
 				});
 			});
 		});
@@ -519,7 +519,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedOngoingCloserData))
 						.to.emit(claimManager, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutVolume, 1, abiEncodedOngoingCloserData, 3);
 				});
 			});
 		});
@@ -642,13 +642,13 @@ describe('ClaimManagerV2.sol', () => {
 					// ACT
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, claimant.address, abiEncodedTieredCloserDataFirstPlace))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, claimant.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, claimant.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 3);
 
 
 					expectedTimestamp = await setNextBlockTimestamp();
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, claimantSecondPlace.address, abiEncodedTieredCloserDataSecondPlace))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, claimantSecondPlace.address, expectedTimestamp, mockNft.address, 2, 2, abiEncodedTieredCloserDataSecondPlace, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, claimantSecondPlace.address, expectedTimestamp, mockNft.address, 2, 2, abiEncodedTieredCloserDataSecondPlace, 3);
 
 					// ASSERT
 					expect(await mockNft.ownerOf(FIRST_PLACE_NFT)).to.equal(claimant.address);
@@ -679,7 +679,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData))
 						.to.emit(claimManager, 'BountyClosed')
-						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 2, '0x', 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 2, '0x', 3);
 				});
 
 				it('should emit a TokenBalanceClaimed event with correct parameters', async () => {
@@ -704,8 +704,8 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData))
 						.to.emit(claimManager, 'TokenBalanceClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData, 2)
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockLink.address, payoutAmount, 2, abiEncodedTieredCloserData, 3)
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockDai.address, payoutAmount, 2, abiEncodedTieredCloserData, 3);
 				});
 
 				it('should emit an NftClaimed event with correct parameters', async () => {
@@ -722,7 +722,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserDataFirstPlace))
 						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, owner.address, expectedTimestamp, mockNft.address, 1, 2, abiEncodedTieredCloserDataFirstPlace, 3);
 				});
 			});
 		});
@@ -805,7 +805,7 @@ describe('ClaimManagerV2.sol', () => {
 
 					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData))
 						.to.emit(claimManager, 'BountyClosed')
-						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 3, '0x', 2);
+						.withArgs(bountyId, bountyAddress, mockOrg, ethers.constants.AddressZero, expectedTimestamp, 3, '0x', 3);
 				});
 			});
 		});
@@ -822,7 +822,7 @@ describe('ClaimManagerV2.sol', () => {
 
 				await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
 					.to.emit(claimManager, 'ClaimSuccess')
-					.withArgs(expectedTimestamp, 0, abiEncodedSingleCloserData, 2);
+					.withArgs(expectedTimestamp, 0, abiEncodedSingleCloserData, 3);
 			});
 		});
 	});
@@ -1020,7 +1020,7 @@ describe('ClaimManagerV2.sol', () => {
 			// ASSERT
 			await expect(claimManager.directClaimTieredBounty(bountyAddress, 'githubUser', abiEncodedTieredCloserDataFirstPlace))
 				.to.emit(claimManager, 'ClaimSuccess')
-				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 2);
+				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 3);
 		});
 	});
 

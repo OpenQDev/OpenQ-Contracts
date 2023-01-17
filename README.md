@@ -212,7 +212,7 @@ This one-liner deploys:
 - ClaimManager
 
 ```javascript
-provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV3.sol/OpenQV3.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManagerV2.sol/DepositManagerV2.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManagerV2.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
+provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV3.sol/OpenQV3.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManagerV2.sol/DepositManagerV2.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementations/ClaimManagerV3.sol/ClaimManagerV3.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
 ```
 
 #### OpenQ
@@ -224,7 +224,7 @@ provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifac
 #### Claim Manager
 
 ```javascript
-artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementations/ClaimManagerV2.sol/ClaimManagerV2.json');claimManager = new ethers.Contract('0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6', artifactClaimManager.abi, provider.getSigner());
+artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementations/ClaimManagerV3.sol/ClaimManagerV3.json');claimManager = new ethers.Contract('0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6', artifactClaimManager.abi, provider.getSigner());
 ```
 
 #### Deposit Manager

@@ -56,7 +56,7 @@ describe('OpenQ.sol', () => {
 		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 		const DepositManager = await ethers.getContractFactory('DepositManagerV2');
-		const ClaimManager = await ethers.getContractFactory('ClaimManagerV2');
+		const ClaimManager = await ethers.getContractFactory('ClaimManagerV3');
 
 		const BountyFactory = await ethers.getContractFactory('BountyFactory');
 		const BountyBeacon = await ethers.getContractFactory('BountyBeacon');

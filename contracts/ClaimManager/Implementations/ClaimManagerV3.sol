@@ -8,7 +8,7 @@ import 'hardhat/console.sol';
  * @title ClaimManager
  * @dev Contract with claim abilities on work contracts
  */
-contract ClaimManagerV2 is ClaimManagerStorageV2 {
+contract ClaimManagerV3 is ClaimManagerStorageV3 {
     /**
      * INITIALIZATION
      */
@@ -55,7 +55,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 block.timestamp,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_2
+                VERSION_3
             );
         } else if (_bountyType == OpenQDefinitions.ONGOING) {
             require(
@@ -71,7 +71,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             revert();
         }
 
-        emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_2);
+        emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_3);
     }
 
     /**
@@ -99,7 +99,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_2
+                VERSION_3
             );
         }
 
@@ -116,7 +116,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 bounty.tokenId(bounty.nftDeposits(i)),
                 bounty.bountyType(),
                 _closerData,
-                VERSION_2
+                VERSION_3
             );
         }
     }
@@ -141,7 +141,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             volume,
             bounty.bountyType(),
             _closerData,
-            VERSION_2
+            VERSION_3
         );
     }
 
@@ -168,7 +168,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 block.timestamp,
                 bounty.bountyType(),
                 new bytes(0),
-                VERSION_2
+                VERSION_3
             );
         }
 
@@ -189,7 +189,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_2
+                VERSION_3
             );
         }
 
@@ -208,7 +208,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                     bounty.tokenId(_depositId),
                     bounty.bountyType(),
                     _closerData,
-                    VERSION_2
+                    VERSION_3
                 );
             }
         }
@@ -239,7 +239,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                 block.timestamp,
                 bounty.bountyType(),
                 new bytes(0),
-                VERSION_2
+                VERSION_3
             );
         }
 
@@ -255,7 +255,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             volume,
             bounty.bountyType(),
             _closerData,
-            VERSION_2
+            VERSION_3
         );
 
         for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
@@ -273,7 +273,7 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
                     bounty.tokenId(_depositId),
                     bounty.bountyType(),
                     _closerData,
-                    VERSION_2
+                    VERSION_3
                 );
             }
         }
@@ -366,7 +366,12 @@ contract ClaimManagerV2 is ClaimManagerStorageV2 {
             block.timestamp,
             bounty.bountyType(),
             _closerData,
-            VERSION_2
+            VERSION_3
         );
+    }
+
+    // VERSION 3
+    function setKyc(address _kyc) external onlyProxy onlyOwner {
+        kyc = IKycValidity(_kyc);
     }
 }

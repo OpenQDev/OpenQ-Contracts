@@ -16,6 +16,7 @@ import '../Oracle/Oraclize.sol';
 import '../Bounty/Implementations/BountyV2.sol';
 import '../Library/Errors.sol';
 import '../OpenQ/IOpenQV2.sol';
+import '../KYC/IKycValidity.sol';
 
 /**
  * @title ClaimManagerStorageV1
@@ -37,4 +38,13 @@ abstract contract ClaimManagerStorageV1 is
 abstract contract ClaimManagerStorageV2 is ClaimManagerStorageV1 {
     uint256 public constant VERSION_2 = 2;
     address public openQ;
+}
+
+/**
+ * @title ClaimManagerStorageV2
+ * @dev Backwards compatible, append-only chain of storage contracts inherited by ClaimManager implementations
+ */
+abstract contract ClaimManagerStorageV3 is ClaimManagerStorageV2 {
+    uint256 public constant VERSION_3 = 3;
+    IKycValidity public kyc;
 }
