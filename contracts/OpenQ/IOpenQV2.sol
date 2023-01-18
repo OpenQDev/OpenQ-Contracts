@@ -9,4 +9,6 @@ interface IOpenQV2 {
     function externalUserIdToAddress(string calldata)
         external
         returns (address);
+
+    function addressToExternalUserId(address) external returns (string memory);
 }

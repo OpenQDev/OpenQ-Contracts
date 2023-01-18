@@ -21,7 +21,7 @@ module.exports = (function () {
 					settings: {
 						optimizer: {
 							enabled: true,
-							runs: 200,
+							runs: 100,
 						},
 					},
 				},
@@ -30,7 +30,7 @@ module.exports = (function () {
 					settings: {
 						optimizer: {
 							enabled: true,
-							runs: 200,
+							runs: 100,
 						},
 					},
 				}
@@ -65,7 +65,7 @@ module.exports = (function () {
 		contractSizer: {
 			alphaSort: true,
 			disambiguatePaths: false,
-			runOnCompile: false,
+			runOnCompile: true,
 			strict: true
 		},
 		gasReporter: {
