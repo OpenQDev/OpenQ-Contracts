@@ -111,9 +111,8 @@ abstract contract BountyStorageV2 is BountyStorageV1 {
 }
 
 abstract contract BountyStorageV3 is BountyStorageV2 {
+    string public externalUserId;
     bool public supportingDocuments;
     bool public invoiceComplete;
     bool public supportingDocumentsComplete;
-    string public alternativeLogo;
-    string public alternativeName;
 }
