@@ -19,7 +19,7 @@ describe('OpenQProxy', () => {
 	let BountyFactory;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV3');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV4');
 		OpenQTokenWhitelist = await hre.ethers.getContractFactory('OpenQTokenWhitelist');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
@@ -74,7 +74,7 @@ describe('OpenQProxy', () => {
 			// ASSUME
 			expect(await openQProxy.getImplementation()).equals(openQImplementation.address);
 
-			const OpenQ = await hre.ethers.getContractFactory('OpenQV3');
+			const OpenQ = await hre.ethers.getContractFactory('OpenQV4');
 			newOpenQ = await OpenQ.deploy();
 			await newOpenQ.deployed();
 

@@ -29,11 +29,11 @@ describe('BountyFactory', () => {
 	let initOperation;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV3');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV4');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');
-		BountyV1 = await hre.ethers.getContractFactory('BountyV2');
+		BountyV1 = await hre.ethers.getContractFactory('BountyV3');
 
 		[owner, oracle, notOpenQ, claimManager, depositManager] = await ethers.getSigners();
 
@@ -65,7 +65,7 @@ describe('BountyFactory', () => {
 		bountyInitOperation = [0, []];
 
 		const abiCoder = new ethers.utils.AbiCoder;
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool"], [notOpenQ.address, 100, true, notOpenQ.address, 100, true, true]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [notOpenQ.address, 100, true, notOpenQ.address, 100, true, true, true, "", ""]);
 
 		initOperation = [1, abiEncodedParams];
 	});

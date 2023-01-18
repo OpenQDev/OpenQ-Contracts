@@ -72,17 +72,23 @@ contract BountyV3 is BountyStorageV3 {
                 address _fundingToken,
                 uint256 _fundingGoal,
                 bool _invoiceable,
-                bool _kycRequired
+                bool _kycRequired,
+                bool _supportingDocuments,
+                string memory _alternativeLogo,
+                string memory _alternativeName
             ) = abi.decode(
                     _operation.data,
-                    (bool, address, uint256, bool, bool)
+                    (bool, address, uint256, bool, bool, bool, string, string)
                 );
             _initAtomic(
                 _hasFundingGoal,
                 _fundingToken,
                 _fundingGoal,
                 _invoiceable,
-                _kycRequired
+                _kycRequired,
+                _supportingDocuments,
+                _alternativeLogo,
+                _alternativeName
             );
         } else if (operationType == OpenQDefinitions.ONGOING) {
             (
@@ -92,10 +98,24 @@ contract BountyV3 is BountyStorageV3 {
                 address _fundingGoalToken,
                 uint256 _fundingGoal,
                 bool _invoiceable,
-                bool _kycRequired
+                bool _kycRequired,
+                bool _supportingDocuments,
+                string memory _alternativeLogo,
+                string memory _alternativeName
             ) = abi.decode(
                     _operation.data,
-                    (address, uint256, bool, address, uint256, bool, bool)
+                    (
+                        address,
+                        uint256,
+                        bool,
+                        address,
+                        uint256,
+                        bool,
+                        bool,
+                        bool,
+                        string,
+                        string
+                    )
                 );
             _initOngoingBounty(
                 _payoutTokenAddress,
@@ -104,7 +124,10 @@ contract BountyV3 is BountyStorageV3 {
                 _fundingGoalToken,
                 _fundingGoal,
                 _invoiceable,
-                _kycRequired
+                _kycRequired,
+                _supportingDocuments,
+                _alternativeLogo,
+                _alternativeName
             );
         } else if (operationType == OpenQDefinitions.TIERED) {
             (
@@ -113,10 +136,23 @@ contract BountyV3 is BountyStorageV3 {
                 address _fundingGoalToken,
                 uint256 _fundingGoal,
                 bool _invoiceable,
-                bool _kycRequired
+                bool _kycRequired,
+                bool _supportingDocuments,
+                string memory _alternativeLogo,
+                string memory _alternativeName
             ) = abi.decode(
                     _operation.data,
-                    (uint256[], bool, address, uint256, bool, bool)
+                    (
+                        uint256[],
+                        bool,
+                        address,
+                        uint256,
+                        bool,
+                        bool,
+                        bool,
+                        string,
+                        string
+                    )
                 );
             _initTiered(
                 _payoutSchedule,
@@ -124,20 +160,32 @@ contract BountyV3 is BountyStorageV3 {
                 _fundingGoalToken,
                 _fundingGoal,
                 _invoiceable,
-                _kycRequired
+                _kycRequired,
+                _supportingDocuments,
+                _alternativeLogo,
+                _alternativeName
             );
         } else if (operationType == OpenQDefinitions.TIERED_FIXED) {
             (
                 uint256[] memory _payoutSchedule,
                 address _payoutTokenAddress,
                 bool _invoiceable,
-                bool _kycRequired
-            ) = abi.decode(_operation.data, (uint256[], address, bool, bool));
+                bool _kycRequired,
+                bool _supportingDocuments,
+                string memory _alternativeLogo,
+                string memory _alternativeName
+            ) = abi.decode(
+                    _operation.data,
+                    (uint256[], address, bool, bool, bool, string, string)
+                );
             _initTieredFixed(
                 _payoutSchedule,
                 _payoutTokenAddress,
                 _invoiceable,
-                _kycRequired
+                _kycRequired,
+                _supportingDocuments,
+                _alternativeLogo,
+                _alternativeName
             );
         } else {
             revert('OQ: unknown init operation type');
@@ -157,7 +205,10 @@ contract BountyV3 is BountyStorageV3 {
         address _fundingToken,
         uint256 _fundingGoal,
         bool _invoiceable,
-        bool _kycRequired
+        bool _kycRequired,
+        bool _supportingDocuments,
+        string memory _alternativeLogo,
+        string memory _alternativeName
     ) internal {
         bountyType = OpenQDefinitions.ATOMIC;
         hasFundingGoal = _hasFundingGoal;
@@ -165,6 +216,9 @@ contract BountyV3 is BountyStorageV3 {
         fundingGoal = _fundingGoal;
         invoiceable = _invoiceable;
         kycRequired = _kycRequired;
+        supportingDocuments = _supportingDocuments;
+        alternativeLogo = _alternativeLogo;
+        alternativeName = _alternativeName;
     }
 
     /**
@@ -184,7 +238,10 @@ contract BountyV3 is BountyStorageV3 {
         address _fundingToken,
         uint256 _fundingGoal,
         bool _invoiceable,
-        bool _kycRequired
+        bool _kycRequired,
+        bool _supportingDocuments,
+        string memory _alternativeLogo,
+        string memory _alternativeName
     ) internal {
         bountyType = OpenQDefinitions.ONGOING;
         payoutTokenAddress = _payoutTokenAddress;
@@ -194,6 +251,9 @@ contract BountyV3 is BountyStorageV3 {
         fundingGoal = _fundingGoal;
         invoiceable = _invoiceable;
         kycRequired = _kycRequired;
+        supportingDocuments = _supportingDocuments;
+        alternativeLogo = _alternativeLogo;
+        alternativeName = _alternativeName;
     }
 
     /**
@@ -211,7 +271,10 @@ contract BountyV3 is BountyStorageV3 {
         address _fundingToken,
         uint256 _fundingGoal,
         bool _invoiceable,
-        bool _kycRequired
+        bool _kycRequired,
+        bool _supportingDocuments,
+        string memory _alternativeLogo,
+        string memory _alternativeName
     ) internal {
         bountyType = OpenQDefinitions.TIERED;
 
@@ -227,6 +290,9 @@ contract BountyV3 is BountyStorageV3 {
         fundingGoal = _fundingGoal;
         invoiceable = _invoiceable;
         kycRequired = _kycRequired;
+        supportingDocuments = _supportingDocuments;
+        alternativeLogo = _alternativeLogo;
+        alternativeName = _alternativeName;
     }
 
     /**
@@ -240,13 +306,19 @@ contract BountyV3 is BountyStorageV3 {
         uint256[] memory _payoutSchedule,
         address _payoutTokenAddress,
         bool _invoiceable,
-        bool _kycRequired
+        bool _kycRequired,
+        bool _supportingDocuments,
+        string memory _alternativeLogo,
+        string memory _alternativeName
     ) internal {
         bountyType = OpenQDefinitions.TIERED_FIXED;
         payoutSchedule = _payoutSchedule;
         payoutTokenAddress = _payoutTokenAddress;
         invoiceable = _invoiceable;
         kycRequired = _kycRequired;
+        supportingDocuments = _supportingDocuments;
+        alternativeLogo = _alternativeLogo;
+        alternativeName = _alternativeName;
     }
 
     /**

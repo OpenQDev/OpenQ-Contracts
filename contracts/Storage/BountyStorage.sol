@@ -114,4 +114,6 @@ abstract contract BountyStorageV3 is BountyStorageV2 {
     bool public supportingDocuments;
     bool public invoiceComplete;
     bool public supportingDocumentsComplete;
+    string public alternativeLogo;
+    string public alternativeName;
 }
