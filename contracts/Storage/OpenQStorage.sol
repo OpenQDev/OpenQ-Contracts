@@ -44,3 +44,7 @@ abstract contract OpenQStorageV2 is OpenQStorageV1, Oraclize {
 abstract contract OpenQStorageV3 is OpenQStorageV2 {
     uint256 public constant VERSION_3 = 3;
 }
+
+abstract contract OpenQStorageV4 is OpenQStorageV3 {
+    uint256 public constant VERSION_4 = 4;
+}

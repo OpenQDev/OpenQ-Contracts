@@ -7,10 +7,10 @@ pragma solidity 0.8.16;
 import '../../Storage/OpenQStorage.sol';
 
 /**
- * @title OpenQV3
+ * @title OpenQV4
  * @dev Main administrative contract for all bounty operations
  */
-contract OpenQV3 is OpenQStorageV3 {
+contract OpenQV4 is OpenQStorageV4 {
     /**
      * INITIALIZATION
      */
