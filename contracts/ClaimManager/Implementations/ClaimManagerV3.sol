@@ -370,6 +370,58 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         );
     }
 
+    /**
+     * @dev Useful for competition minter to directly award a tier's prize to closer
+     * @param _bountyAddress The payout address of the bounty
+     * @param _externalUserId The Github ID of the winner
+     * @param _closerData ABI Encoded data associated with this claim
+     */
+    function permissionedClaimTieredBounty(
+        address _bountyAddress,
+        string calldata _externalUserId,
+        bytes calldata _closerData
+    ) external onlyProxy {
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+
+        address closer = IOpenQV2(openQ).externalUserIdToAddress(
+            _externalUserId
+        );
+
+        (, , , , uint256 _tier) = abi.decode(
+            _closerData,
+            (address, string, address, string, uint256)
+        );
+
+        require(
+            closer == bounty.tierWinners(_tier) &&
+                msg.sender == bounty.tierWinners(_tier),
+            Errors.CLAIMANT_NOT_TIER_WINNER
+        );
+
+        require(
+            bounty.supportingDocumentsComplete(),
+            Errors.SUPPORTING_DOCS_NOT_COMPLETE
+        );
+
+        require(bounty.invoiceComplete(), Errors.INVOICE_NOT_COMPLETE);
+
+        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
+            _claimTieredFixed(bounty, closer, _closerData);
+        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
+            _claimTiered(bounty, closer, _closerData);
+        } else {
+            revert(Errors.NOT_A_COMPETITION_CONTRACT);
+        }
+
+        emit ClaimSuccess(
+            block.timestamp,
+            bounty.bountyType(),
+            _closerData,
+            VERSION_3
+        );
+    }
+
     // VERSION 3
     function setKyc(address _kyc) external onlyProxy onlyOwner {
         kyc = IKycValidity(_kyc);
