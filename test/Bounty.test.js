@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe.only('BountyV3.sol', () => {
+describe('BountyV3.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV3;
 
@@ -1243,7 +1243,7 @@ describe.only('BountyV3.sol', () => {
 			await expect(tieredFixedContract.connect(notOwner).setInvoiceComplete(true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it.only('should set invoiceComplete', async () => {
+		it('should set invoiceComplete', async () => {
 			// ASSUME
 			expect(await tieredFixedContract.invoiceComplete()).to.equal(false)
 			
@@ -1264,7 +1264,7 @@ describe.only('BountyV3.sol', () => {
 			await expect(tieredFixedContract.connect(notOwner).setSupportingDocumentsComplete(true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it.only('should set supportingDocumentsComplete', async () => {
+		it('should set supportingDocumentsComplete', async () => {
 			// ASSUME
 			expect(await tieredFixedContract.supportingDocumentsComplete()).to.equal(false)
 			

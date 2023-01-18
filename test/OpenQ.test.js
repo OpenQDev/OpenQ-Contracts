@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('OpenQ.sol', () => {
+describe.only('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -692,6 +692,129 @@ describe('OpenQ.sol', () => {
 
 			// ACT/ASSERT
 			await expect(notOwnerContract.setKycRequired(bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
+	describe('setSupportingDocuments', () => {
+		it('should set setSupportingDocuments', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV3');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			expect(await bounty.supportingDocuments()).to.equal(true);
+
+			// ACT
+			await openQProxy.setSupportingDocuments(bountyId, false);
+
+			// ASSERT
+			expect(await bounty.supportingDocuments()).to.equal(false);
+		});
+
+		it('should emit an SupportingDocumentsSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV3');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT/ASSERT
+			await expect(await openQProxy.setSupportingDocuments(bountyId, false))
+				.to.emit(openQProxy, 'SupportingDocumentsSet')
+				.withArgs(bountyAddress, false, [], 4);
+		});
+
+		it('should revert if not called by issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const notOwnerContract = openQProxy.connect(oracle);
+
+			// ACT/ASSERT
+			await expect(notOwnerContract.setSupportingDocuments(bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
+	describe('setSupportingDocumentsComplete', () => {
+		it('should set setSupportingDocumentsComplete', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV3');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			expect(await bounty.supportingDocumentsComplete()).to.equal(false);
+
+			// ACT
+			await openQProxy.setSupportingDocumentsComplete(bountyId, true);
+
+			// ASSERT
+			expect(await bounty.supportingDocumentsComplete()).to.equal(true);
+		});
+
+		it('should emit an SupportingDocumentsSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV3');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT/ASSERT
+			await expect(await openQProxy.setSupportingDocumentsComplete(bountyId, true))
+				.to.emit(openQProxy, 'SupportDocumentsCompletedSet')
+				.withArgs(bountyAddress, true, [], 4);
+		});
+
+		it('should revert if not called by issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const notOwnerContract = openQProxy.connect(oracle);
+
+			// ACT/ASSERT
+			await expect(notOwnerContract.setSupportingDocumentsComplete(bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
+		});
+	});
+
+	describe('setInvoiceComplete', () => {
+		it('should set setInvoiceComplete', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV3');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ASSUME
+			expect(await bounty.invoiceComplete()).to.equal(false);
+
+			// ACT
+			await openQProxy.setInvoiceComplete(bountyId, true);
+
+			// ASSERT
+			expect(await bounty.invoiceComplete()).to.equal(true);
+		});
+
+		it('should emit an SupportingDocumentsSet event', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const Bounty = await ethers.getContractFactory('BountyV3');
+			const bounty = await Bounty.attach(bountyAddress);
+
+			// ACT/ASSERT
+			await expect(await openQProxy.setInvoiceComplete(bountyId, true))
+				.to.emit(openQProxy, 'InvoiceCompletedSet')
+				.withArgs(bountyAddress, true, [], 4);
+		});
+
+		it('should revert if not called by issuer', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, atomicBountyInitOperation);
+			const notOwnerContract = openQProxy.connect(oracle);
+
+			// ACT/ASSERT
+			await expect(notOwnerContract.setInvoiceComplete(bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
 		});
 	});
 
