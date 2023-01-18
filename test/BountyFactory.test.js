@@ -28,6 +28,8 @@ describe('BountyFactory', () => {
 	let bountyInitOperation;
 	let initOperation;
 
+	const mockOpenQId = "mockOpenQId"
+
 	beforeEach(async () => {
 		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV4');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
@@ -65,7 +67,7 @@ describe('BountyFactory', () => {
 		bountyInitOperation = [0, []];
 
 		const abiCoder = new ethers.utils.AbiCoder;
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [notOpenQ.address, 100, true, notOpenQ.address, 100, true, true, true, "", ""]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [notOpenQ.address, 100, true, notOpenQ.address, 100, true, true, true, mockOpenQId, "", ""]);
 
 		initOperation = [1, abiEncodedParams];
 	});

@@ -35,6 +35,7 @@ describe('ClaimManagerV3.sol', () => {
 	let bountyId = 'mockIssueId';
 	let mockOrg = 'mock-org';
 	let mockFunderUuid = 'mock-funder-uuid';
+	let mockOpenQId = 'mockOpenQId';
 
 	// INIT OPERATIONS
 	let atomicBountyInitOperation;
@@ -146,16 +147,16 @@ describe('ClaimManagerV3.sol', () => {
 
 		abiCoder = new ethers.utils.AbiCoder;
 
-		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [true, mockLink.address, 1000, true, true, true, "", ""]);
+		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
 		atomicBountyInitOperation = [0, atomicBountyAbiEncodedParams];
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, "", ""]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
 		ongoingBountyInitOperation = [1, abiEncodedParams];
 
-		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, "", ""]);
+		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
 		tieredBountyInitOperation = [2, tieredAbiEncodedParams];
 
-		const tieredFixedAbiEncodedParams = abiCoder.encode(["uint256[]", "address", "bool", "bool", "bool", "string", "string"], [[100, 50], mockLink.address, true, true, true, "", ""]);
+		const tieredFixedAbiEncodedParams = abiCoder.encode(["uint256[]", "address", "bool", "bool", "bool", "string", "string", "string"], [[100, 50], mockLink.address, true, true, true, mockOpenQId, "", ""]);
 		tieredFixedBountyInitOperation = [3, tieredFixedAbiEncodedParams];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);

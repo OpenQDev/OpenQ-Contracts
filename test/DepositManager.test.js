@@ -30,6 +30,7 @@ describe('DepositManager.sol', () => {
 	// CONSTANTS
 	let bountyId = 'mockIssueId';
 	let mockOrg = 'mock-org';
+	let mockOpenQId = 'mockOpenQId';
 
 	// INIT OPERATIONS
 	let atomicBountyInitOperation;
@@ -136,13 +137,13 @@ describe('DepositManager.sol', () => {
 		
 		funderUuidEncoded = abiCoder.encode(["string"], [funderUuid]);
 
-		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [true, mockLink.address, 1000, true, true, true, "", ""]);
+		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
 		atomicBountyInitOperation = [0, atomicBountyAbiEncodedParams];
 
-		const ongoingAbiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [mockLink.address, '50', true, mockLink.address, 1000, true, true, true, "", ""]);
+		const ongoingAbiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '50', true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
 		ongoingBountyInitOperation = [1, ongoingAbiEncodedParams];
 
-		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, "", ""]);
+		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
 		tieredBountyInitOperation = [2, tieredAbiEncodedParams];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);

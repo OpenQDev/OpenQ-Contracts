@@ -29,6 +29,7 @@ describe('BountyV3.sol', () => {
 	const thirtyDays = 2765000;
 	const mockId = "mockId";
 	const organization = "mockOrg";
+	const mockOpenQId = "mockOpenQId";
 
 	// BOUNTY TYPES
 	let ATOMIC_CONTRACT = 0;
@@ -84,7 +85,7 @@ describe('BountyV3.sol', () => {
 		// ATOMIC CONTRACT W/ FUNDING GOAL
 		atomicContract = await BountyV3.deploy();
 		await atomicContract.deployed();
-		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [true, mockLink.address, 100, true, true, true, "", ""]);
+		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
 		atomicBountyInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
 		initializationTimestamp = await setNextBlockTimestamp();
 		await atomicContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
@@ -103,7 +104,7 @@ describe('BountyV3.sol', () => {
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
 		atomicContract_noFundingGoal = await BountyV3.deploy();
 		await atomicContract_noFundingGoal.deployed();
-		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [false, ethers.constants.AddressZero, 0, true, true, true, "", ""]);
+		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [false, ethers.constants.AddressZero, 0, true, true, true, mockOpenQId, "", ""]);
 		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
 		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
@@ -112,7 +113,7 @@ describe('BountyV3.sol', () => {
 		ongoingContract = await BountyV3.deploy();
 		await ongoingContract.deployed();
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [mockLink.address, '100', true, mockLink.address, '100', true, true, true, "", ""]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
 
 		ongoingBountyInitOperation = [ONGOING_CONTRACT, abiEncodedParams];
 
@@ -127,7 +128,7 @@ describe('BountyV3.sol', () => {
 		tieredContract = await BountyV3.deploy();
 		await tieredContract.deployed();
 
-		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, "", ""]);
+		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
 
 		tieredBountyInitOperation = [TIERED_CONTRACT, abiEncodedParamsTieredBounty];
 
@@ -142,7 +143,7 @@ describe('BountyV3.sol', () => {
 		tieredFixedContract = await BountyV3.deploy();
 		await tieredFixedContract.deployed();
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address", "bool", "bool", "bool", "string", "string"], [[100, 50], mockLink.address, true, true, true, "", ""]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address", "bool", "bool", "bool", "string", "string", "string"], [[100, 50], mockLink.address, true, true, true, mockOpenQId, "", ""]);
 
 		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
@@ -225,7 +226,7 @@ describe('BountyV3.sol', () => {
 				tieredContract = await BountyV3.deploy();
 				await tieredContract.deployed();
 
-				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string"], [[1, 2], true, mockLink.address, 100, true, true, true, "", ""]);
+				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[1, 2], true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
 
 				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
 
