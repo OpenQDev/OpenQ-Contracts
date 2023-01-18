@@ -166,6 +166,27 @@ interface IOpenQ {
         uint256 version
     );
 
+    event SupportingDocumentsSet(
+        address bountyAddress,
+        bool supportingDocuments,
+        bytes data,
+        uint256 version
+    );
+
+    event InvoiceCompletedSet(
+        address bountyAddress,
+        bool invoiceCompletedSet,
+        bytes data,
+        uint256 version
+    );
+
+    event SupportDocumentsCompletedSet(
+        address bountyAddress,
+        bool supportDocumentsCompleted,
+        bytes data,
+        uint256 version
+    );
+
     event ExternalUserIdAssociatedWithAddress(
         string externalUserId,
         address newAddress,
