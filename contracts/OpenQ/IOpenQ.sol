@@ -193,4 +193,12 @@ interface IOpenQ {
         bytes data,
         uint256 version
     );
+
+    event TierWinnerSelected(
+        address bountyAddress,
+        string winner,
+        uint256 tier,
+        bytes data,
+        uint256 version
+    );
 }

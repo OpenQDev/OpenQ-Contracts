@@ -438,6 +438,25 @@ contract OpenQV4 is OpenQStorageV4 {
         return balance >= bounty.payoutVolume();
     }
 
+    function setTierWinner(
+        string calldata _bountyId,
+        string calldata _winner,
+        uint256 _tier
+    ) external {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+        bounty.setTierWinner(_winner, _tier);
+
+        emit TierWinnerSelected(
+            bountyAddress,
+            _winner,
+            _tier,
+            new bytes(0),
+            VERSION_4
+        );
+    }
+
     /**
      * @dev Determines whether or not a given submission by claimant has already been used for a claim
      * @param _bountyId The bounty id

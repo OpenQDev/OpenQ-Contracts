@@ -917,6 +917,13 @@ contract BountyV3 is BountyStorageV3 {
         payoutTokenAddress = _payoutTokenAddress;
     }
 
+    function setTierWinner(string memory winner, uint256 tier)
+        external
+        onlyOpenQ
+    {
+        tierWinners[tier] = winner;
+    }
+
     /**
      * UTILITY
      */
