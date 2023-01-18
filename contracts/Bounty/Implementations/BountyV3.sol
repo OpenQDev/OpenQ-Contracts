@@ -901,6 +901,7 @@ contract BountyV3 is BountyStorageV3 {
         require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
 
         payoutSchedule = _payoutSchedule;
+        tierWinners = new string[](payoutSchedule.length);
     }
 
     /**

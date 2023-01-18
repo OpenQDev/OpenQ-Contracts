@@ -1203,10 +1203,13 @@ describe.only('BountyV3.sol', () => {
 		it.only('should set tier winner', async () => {
 			// ACT
 			await tieredFixedContract.setTierWinner(mockOpenQId, 0)
+			await tieredFixedContract.setTierWinner(mockOpenQId+"2", 1)
 
 			// ASSERT
 			const winner = await tieredFixedContract.tierWinners(0)
+			const winner2 = await tieredFixedContract.tierWinners(1)
 			expect(winner).to.equal(mockOpenQId)
+			expect(winner2).to.equal(mockOpenQId+"2")
 		})
 	})
 
