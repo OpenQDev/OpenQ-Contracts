@@ -5,6 +5,7 @@ pragma solidity 0.8.16;
  * @dev Custom imports - all transitive imports live in BountyStorage
  */
 import '../../Storage/BountyStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title BountyV3
@@ -308,6 +309,7 @@ contract BountyV3 is BountyStorageV3 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
+        tierWinners = new string[](_payoutSchedule.length);
     }
 
     /**
@@ -332,6 +334,7 @@ contract BountyV3 is BountyStorageV3 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
+        tierWinners = new string[](_payoutSchedule.length);
     }
 
     /**
@@ -917,11 +920,11 @@ contract BountyV3 is BountyStorageV3 {
         payoutTokenAddress = _payoutTokenAddress;
     }
 
-    function setTierWinner(string memory winner, uint256 tier)
+    function setTierWinner(string memory _winner, uint256 _tier)
         external
         onlyOpenQ
     {
-        tierWinners[tier] = winner;
+        tierWinners[_tier] = _winner;
     }
 
     /**

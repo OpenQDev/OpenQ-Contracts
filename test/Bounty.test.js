@@ -155,7 +155,7 @@ describe.only('BountyV3.sol', () => {
 		await mockDai.approve(tieredFixedContract.address, 10000000);
 	});
 
-	describe.only('initializer', () => {
+	describe('initializer', () => {
 		describe('ATOMIC', () => {
 			it(`should initialize bounty with correct metadata`, async () => {
 				// ARRANGE/ASSERT
@@ -1190,6 +1190,25 @@ describe.only('BountyV3.sol', () => {
 			expect(await tieredFixedContract.payoutTokenAddress()).to.equal(mockDai.address);
 		});
 	});
+
+	describe.only('setTierWinner', () => {
+		it('should revert if not called by OpenQ contract', async () => {
+			// ARRANGE
+			const [, notOwner] = await ethers.getSigners();
+
+			// ASSERT
+			await expect(tieredFixedContract.connect(notOwner).setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it.only('should set tier winner', async () => {
+			// ACT
+			await tieredFixedContract.setTierWinner(mockOpenQId, 0)
+
+			// ASSERT
+			const winner = await tieredFixedContract.tierWinners(0)
+			expect(winner).to.equal(mockOpenQId)
+		})
+	})
 
 });
 
