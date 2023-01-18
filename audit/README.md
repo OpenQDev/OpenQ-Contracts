@@ -88,3 +88,11 @@ The BountyV2.sol `initialization` method passes this `InitOperation` to `_initBy
 ### Funding a Bounty
 
 ### Claiming a Bounty
+
+### Potential Exploits (free alpha!)
+
+#### Directly sending tokens to the bounty address
+
+Expect funding via contract
+
+#### Git name spamming on tiered bounties

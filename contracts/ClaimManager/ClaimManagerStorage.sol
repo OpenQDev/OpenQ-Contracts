@@ -13,7 +13,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import '../OpenQ/IOpenQ.sol';
 import '../Library/OpenQDefinitions.sol';
 import '../Oracle/Oraclize.sol';
-import '../Bounty/Implementations/BountyV2.sol';
+import '../Bounty/Implementations/BountyV3.sol';
 import '../Library/Errors.sol';
 import '../OpenQ/IOpenQV2.sol';
 import '../KYC/IKycValidity.sol';

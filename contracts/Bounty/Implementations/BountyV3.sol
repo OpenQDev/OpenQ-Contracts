@@ -7,10 +7,10 @@ pragma solidity 0.8.16;
 import '../../Storage/BountyStorage.sol';
 
 /**
- * @title BountyV2
- * @dev Bounty Implementation Version 2
+ * @title BountyV3
+ * @dev Bounty Implementation Version 3
  */
-contract BountyV2 is BountyStorageV2 {
+contract BountyV3 is BountyStorageV3 {
     /**
      * INITIALIZATION
      */
@@ -590,7 +590,7 @@ contract BountyV2 is BountyStorageV2 {
         view
         returns (uint256)
     {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         uint256 lockedFunds;
         bytes32[] memory depList = bounty.getDeposits();
@@ -748,6 +748,36 @@ contract BountyV2 is BountyStorageV2 {
      */
     function setKycRequired(bool _kycRequired) external onlyOpenQ {
         kycRequired = _kycRequired;
+    }
+
+    /**
+     * @dev Whether or not KYC is required to fund and claim the bounty
+     * @param _supportingDocuments Whether or not KYC is required to fund and claim the bounty
+     */
+    function setSupportingDocuments(bool _supportingDocuments)
+        external
+        onlyOpenQ
+    {
+        supportingDocuments = _supportingDocuments;
+    }
+
+    /**
+     * @dev Whether or not KYC is required to fund and claim the bounty
+     * @param _invoiceComplete Whether or not KYC is required to fund and claim the bounty
+     */
+    function setInvoiceComplete(bool _invoiceComplete) external onlyOpenQ {
+        invoiceComplete = _invoiceComplete;
+    }
+
+    /**
+     * @dev Whether or not KYC is required to fund and claim the bounty
+     * @param _supportingDocumentsComplete Whether or not KYC is required to fund and claim the bounty
+     */
+    function setSupportingDocumentsComplete(bool _supportingDocumentsComplete)
+        external
+        onlyOpenQ
+    {
+        supportingDocumentsComplete = _supportingDocumentsComplete;
     }
 
     /**

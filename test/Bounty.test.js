@@ -7,9 +7,9 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe('BountyV2.sol', () => {
+describe.only('BountyV3.sol', () => {
 	// CONTRACT FACTORIES
-	let BountyV2;
+	let BountyV3;
 
 	// ACCOUNTS
 	let owner;
@@ -57,7 +57,7 @@ describe('BountyV2.sol', () => {
 	let initializationTimestampTieredFixed;
 
 	beforeEach(async () => {
-		BountyV2 = await ethers.getContractFactory('BountyV2');
+		BountyV3 = await ethers.getContractFactory('BountyV3');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
@@ -82,7 +82,7 @@ describe('BountyV2.sol', () => {
 		await mockNft.safeMint(owner.address);
 
 		// ATOMIC CONTRACT W/ FUNDING GOAL
-		atomicContract = await BountyV2.deploy();
+		atomicContract = await BountyV3.deploy();
 		await atomicContract.deployed();
 		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool"], [true, mockLink.address, 100, true, true]);
 		atomicBountyInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
@@ -101,7 +101,7 @@ describe('BountyV2.sol', () => {
 		await mockDai.approve(atomicContract.address, 10000000);
 
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
-		atomicContract_noFundingGoal = await BountyV2.deploy();
+		atomicContract_noFundingGoal = await BountyV3.deploy();
 		await atomicContract_noFundingGoal.deployed();
 		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool"], [false, ethers.constants.AddressZero, 0, true, true]);
 		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
@@ -109,7 +109,7 @@ describe('BountyV2.sol', () => {
 		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
 
 		// ONGOING BOUNTY
-		ongoingContract = await BountyV2.deploy();
+		ongoingContract = await BountyV3.deploy();
 		await ongoingContract.deployed();
 
 		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool"], [mockLink.address, '100', true, mockLink.address, '100', true, true]);
@@ -124,7 +124,7 @@ describe('BountyV2.sol', () => {
 		await mockDai.approve(ongoingContract.address, 10000000);
 
 		// TIERED BOUNTY
-		tieredContract = await BountyV2.deploy();
+		tieredContract = await BountyV3.deploy();
 		await tieredContract.deployed();
 
 		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool"], [[80, 20], true, mockLink.address, '100', true, true]);
@@ -139,7 +139,7 @@ describe('BountyV2.sol', () => {
 		await mockDai.approve(tieredContract.address, 10000000);
 
 		// TIERED FIXED BOUNTY
-		tieredFixedContract = await BountyV2.deploy();
+		tieredFixedContract = await BountyV3.deploy();
 		await tieredFixedContract.deployed();
 
 		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "address", "bool", "bool"], [[100, 50], mockLink.address, true, true]);
@@ -222,7 +222,7 @@ describe('BountyV2.sol', () => {
 
 			it('should revert if payoutSchedule values do not add up to 100', async () => {
 				// ARRANGE
-				tieredContract = await BountyV2.deploy();
+				tieredContract = await BountyV3.deploy();
 				await tieredContract.deployed();
 
 				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool"], [[1, 2], true, mockLink.address, 100, true, true]);
@@ -259,8 +259,8 @@ describe('BountyV2.sol', () => {
 		describe('REVERTS', () => {
 			it('should revert if bountyId is empty', async () => {
 				// ARRANGE
-				const BountyV2 = await ethers.getContractFactory('BountyV2');
-				atomicContract = await BountyV2.deploy();
+				const BountyV3 = await ethers.getContractFactory('BountyV3');
+				atomicContract = await BountyV3.deploy();
 
 				// ASSERT
 				await expect(atomicContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
@@ -268,8 +268,8 @@ describe('BountyV2.sol', () => {
 
 			it('should revert if organization is empty', async () => {
 				// ARRANGE
-				const BountyV2 = await ethers.getContractFactory('BountyV2');
-				atomicContract = await BountyV2.deploy();
+				const BountyV3 = await ethers.getContractFactory('BountyV3');
+				atomicContract = await BountyV3.deploy();
 
 				// ASSERT
 				await expect(atomicContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
@@ -277,8 +277,8 @@ describe('BountyV2.sol', () => {
 
 			it('should revert if given an invalid operaion', async () => {
 				// ARRANGE
-				const BountyV2 = await ethers.getContractFactory('BountyV2');
-				atomicContract = await BountyV2.deploy();
+				const BountyV3 = await ethers.getContractFactory('BountyV3');
+				atomicContract = await BountyV3.deploy();
 
 				// ASSERT
 				await expect(atomicContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, [42, []])).to.be.revertedWith('OQ: unknown init operation type');
@@ -346,7 +346,7 @@ describe('BountyV2.sol', () => {
 				const deposits = await atomicContract.getDeposits();
 				const depositId = deposits[0];
 
-				const newBounty = await BountyV2.deploy();
+				const newBounty = await BountyV3.deploy();
 				await newBounty.deployed();
 				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 

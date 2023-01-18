@@ -36,7 +36,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         address _closer,
         bytes calldata _closerData
     ) external onlyOracle onlyProxy {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
 
         if (_bountyType == OpenQDefinitions.ATOMIC) {
@@ -79,7 +79,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
      */
 
     function _claimSingle(
-        BountyV2 bounty,
+        BountyV3 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -122,7 +122,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
     }
 
     function _claimOngoing(
-        BountyV2 bounty,
+        BountyV3 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -146,7 +146,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
     }
 
     function _claimTiered(
-        BountyV2 bounty,
+        BountyV3 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -217,7 +217,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
     }
 
     function _claimTieredFixed(
-        BountyV2 bounty,
+        BountyV3 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -294,7 +294,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         view
         returns (bool)
     {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         uint256 status = bounty.status();
         uint256 _bountyType = bounty.bountyType();
@@ -345,7 +345,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         string calldata _externalUserId,
         bytes calldata _closerData
     ) external onlyProxy {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         address closer = IOpenQV2(openQ).externalUserIdToAddress(
@@ -397,7 +397,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         string calldata _externalUserId,
         bytes calldata _closerData
     ) external onlyProxy hasKYC {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         address closer = IOpenQV2(openQ).externalUserIdToAddress(
             _externalUserId

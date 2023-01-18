@@ -45,7 +45,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         uint256 _expiration,
         string memory funderUuid
     ) external payable onlyProxy {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         if (!isWhitelisted(_tokenAddress)) {
             require(
@@ -89,7 +89,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         bytes32 _depositId,
         uint256 _seconds
     ) external onlyProxy {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -126,7 +126,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         uint256 _expiration,
         uint256 _tier
     ) external onlyProxy {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
         require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
@@ -164,7 +164,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         external
         onlyProxy
     {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -224,7 +224,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         view
         returns (bool)
     {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
 
         return
             bounty.getTokenAddressesCount() >=
@@ -237,7 +237,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
      * @return bool True if _bountyId is associated with an open bounty
      */
     function bountyIsOpen(address _bountyAddress) public view returns (bool) {
-        BountyV2 bounty = BountyV2(payable(_bountyAddress));
+        BountyV3 bounty = BountyV3(payable(_bountyAddress));
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }

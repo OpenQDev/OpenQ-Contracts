@@ -106,6 +106,12 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
 }
 
 abstract contract BountyStorageV2 is BountyStorageV1 {
-	bool public invoiceable;
-	bool public kycRequired;
+    bool public invoiceable;
+    bool public kycRequired;
+}
+
+abstract contract BountyStorageV3 is BountyStorageV2 {
+    bool public supportingDocuments;
+    bool public invoiceComplete;
+    bool public supportingDocumentsComplete;
 }
