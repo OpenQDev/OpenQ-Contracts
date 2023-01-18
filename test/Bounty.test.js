@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe('BountyV3.sol', () => {
+describe.only('BountyV3.sol', () => {
 	// CONTRACT FACTORIES
 	let BountyV3;
 
@@ -155,7 +155,7 @@ describe('BountyV3.sol', () => {
 		await mockDai.approve(tieredFixedContract.address, 10000000);
 	});
 
-	describe('initializer', () => {
+	describe.only('initializer', () => {
 		describe('ATOMIC', () => {
 			it(`should initialize bounty with correct metadata`, async () => {
 				// ARRANGE/ASSERT
@@ -173,6 +173,10 @@ describe('BountyV3.sol', () => {
 				await expect(await atomicContract.fundingGoal()).equals(100);
 				await expect(await atomicContract.invoiceable()).equals(true);
 				await expect(await atomicContract.kycRequired()).equals(true);
+				await expect(await atomicContract.externalUserId()).equals(mockOpenQId);
+				await expect(await atomicContract.supportingDocuments()).equals(true);
+				await expect(await atomicContract.invoiceComplete()).equals(false);
+				await expect(await atomicContract.supportingDocumentsComplete()).equals(false);
 			});
 		});
 
@@ -194,6 +198,10 @@ describe('BountyV3.sol', () => {
 				await expect(await ongoingContract.payoutVolume()).equals(100);
 				await expect(await ongoingContract.invoiceable()).equals(true);
 				await expect(await ongoingContract.kycRequired()).equals(true);
+				await expect(await ongoingContract.externalUserId()).equals(mockOpenQId);
+				await expect(await ongoingContract.supportingDocuments()).equals(true);
+				await expect(await ongoingContract.invoiceComplete()).equals(false);
+				await expect(await ongoingContract.supportingDocumentsComplete()).equals(false);
 			});
 		});
 
@@ -219,6 +227,10 @@ describe('BountyV3.sol', () => {
 				await expect(payoutToString[1]).equals("20");
 				await expect(await tieredContract.invoiceable()).equals(true);
 				await expect(await tieredContract.kycRequired()).equals(true);
+				await expect(await tieredContract.externalUserId()).equals(mockOpenQId);
+				await expect(await tieredContract.supportingDocuments()).equals(true);
+				await expect(await tieredContract.invoiceComplete()).equals(false);
+				await expect(await tieredContract.supportingDocumentsComplete()).equals(false);
 			});
 
 			it('should revert if payoutSchedule values do not add up to 100', async () => {
@@ -254,6 +266,10 @@ describe('BountyV3.sol', () => {
 				await expect(payoutToString[1]).equals("50");
 				await expect(await tieredFixedContract.invoiceable()).equals(true);
 				await expect(await tieredFixedContract.kycRequired()).equals(true);
+				await expect(await tieredFixedContract.externalUserId()).equals(mockOpenQId);
+				await expect(await tieredFixedContract.supportingDocuments()).equals(true);
+				await expect(await tieredFixedContract.invoiceComplete()).equals(false);
+				await expect(await tieredFixedContract.supportingDocumentsComplete()).equals(false);
 			});
 		});
 
