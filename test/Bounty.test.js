@@ -1191,7 +1191,7 @@ describe.only('BountyV3.sol', () => {
 		});
 	});
 
-	describe.only('setTierWinner', () => {
+	describe('setTierWinner', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
@@ -1200,7 +1200,7 @@ describe.only('BountyV3.sol', () => {
 			await expect(tieredFixedContract.connect(notOwner).setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it.only('should set tier winner', async () => {
+		it('should set tier winner', async () => {
 			// ACT
 			await tieredFixedContract.setTierWinner(mockOpenQId, 0)
 			await tieredFixedContract.setTierWinner(mockOpenQId+"2", 1)
@@ -1210,6 +1210,69 @@ describe.only('BountyV3.sol', () => {
 			const winner2 = await tieredFixedContract.tierWinners(1)
 			expect(winner).to.equal(mockOpenQId)
 			expect(winner2).to.equal(mockOpenQId+"2")
+		})
+	})
+
+	describe('setSupportingDocuments', () => {
+		it('should revert if not called by OpenQ contract', async () => {
+			// ARRANGE
+			const [, notOwner] = await ethers.getSigners();
+
+			// ASSERT
+			await expect(tieredFixedContract.connect(notOwner).setSupportingDocuments(true)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it('should set supportingDocuments', async () => {
+			// ASSUME
+			expect(await tieredFixedContract.supportingDocuments()).to.equal(true)
+			
+			// ACT
+			await tieredFixedContract.setSupportingDocuments(false);
+
+			// ASSERT
+			expect(await tieredFixedContract.supportingDocuments()).to.equal(false)
+		})
+	})
+
+	describe('setInvoiceComplete', () => {
+		it('should revert if not called by OpenQ contract', async () => {
+			// ARRANGE
+			const [, notOwner] = await ethers.getSigners();
+
+			// ASSERT
+			await expect(tieredFixedContract.connect(notOwner).setInvoiceComplete(true)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it.only('should set invoiceComplete', async () => {
+			// ASSUME
+			expect(await tieredFixedContract.invoiceComplete()).to.equal(false)
+			
+			// ACT
+			await tieredFixedContract.setInvoiceComplete(true);
+
+			// ASSERT
+			expect(await tieredFixedContract.invoiceComplete()).to.equal(true)
+		})
+	})
+
+	describe('setSupportingDocumentsComplete', () => {
+		it('should revert if not called by OpenQ contract', async () => {
+			// ARRANGE
+			const [, notOwner] = await ethers.getSigners();
+
+			// ASSERT
+			await expect(tieredFixedContract.connect(notOwner).setSupportingDocumentsComplete(true)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it.only('should set supportingDocumentsComplete', async () => {
+			// ASSUME
+			expect(await tieredFixedContract.supportingDocumentsComplete()).to.equal(false)
+			
+			// ACT
+			await tieredFixedContract.setSupportingDocumentsComplete(true);
+
+			// ASSERT
+			expect(await tieredFixedContract.supportingDocumentsComplete()).to.equal(true)
 		})
 	})
 
