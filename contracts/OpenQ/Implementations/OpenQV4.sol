@@ -119,8 +119,7 @@ contract OpenQV4 is OpenQStorageV4 {
         address _fundingGoalToken,
         uint256 _fundingGoalVolume
     ) external onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -144,8 +143,7 @@ contract OpenQV4 is OpenQStorageV4 {
         external
         onlyProxy
     {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -167,8 +165,7 @@ contract OpenQV4 is OpenQStorageV4 {
         external
         onlyProxy
     {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -190,8 +187,7 @@ contract OpenQV4 is OpenQStorageV4 {
         string calldata _bountyId,
         bool _supportingDocuments
     ) external onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -214,8 +210,7 @@ contract OpenQV4 is OpenQStorageV4 {
         uint256 _tier,
         bool _invoiceComplete
     ) external onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -238,8 +233,7 @@ contract OpenQV4 is OpenQStorageV4 {
         uint256 _tier,
         bool _supportingDocumentsComplete
     ) external onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -267,8 +261,7 @@ contract OpenQV4 is OpenQStorageV4 {
         address _payoutToken,
         uint256 _payoutVolume
     ) external onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -294,8 +287,7 @@ contract OpenQV4 is OpenQStorageV4 {
         string calldata _bountyId,
         uint256[] calldata _payoutSchedule
     ) external onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -322,8 +314,7 @@ contract OpenQV4 is OpenQStorageV4 {
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
     ) external onlyProxy {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -382,8 +373,7 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (bool)
     {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }
@@ -398,8 +388,7 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (uint256)
     {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
         uint256 _bountyType = bounty.bountyType();
         return _bountyType;
     }
@@ -429,15 +418,13 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (bool)
     {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
     }
 
     function solvent(string calldata _bountyId) external view returns (bool) {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
 
         uint256 balance = bounty.getTokenBalance(bounty.payoutTokenAddress());
         return balance >= bounty.payoutVolume();
@@ -445,6 +432,7 @@ contract OpenQV4 is OpenQStorageV4 {
 
     function getBounty(string calldata _bountyId)
         internal
+        view
         returns (BountyV3, address)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
@@ -481,8 +469,7 @@ contract OpenQV4 is OpenQStorageV4 {
         string calldata _claimant,
         string calldata _claimantAsset
     ) external view returns (bool) {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
         bytes32 claimantId = keccak256(abi.encode(_claimant, _claimantAsset));
         bool _ongoingClaimed = bounty.claimantId(claimantId);
         return _ongoingClaimed;
