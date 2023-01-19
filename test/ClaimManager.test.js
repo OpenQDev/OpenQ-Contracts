@@ -8,7 +8,7 @@ const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 
-describe('ClaimManagerV3.sol', () => {
+describe('ClaimManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -1030,6 +1030,65 @@ describe('ClaimManagerV3.sol', () => {
 				.withArgs(expectedTimestamp, 2, abiEncodedTieredCloserDataFirstPlace, 3);
 		});
 	});
+
+	describe('permissionedClaimTieredBounty', () => {
+		it('should revert if caller is lacks KYC', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			// ASSERT
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('You must have a valid KYC token to claim this bounty');
+		});
+
+		it('should revert if caller lacks associated address to their uuid', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await mockKyc.setIsValid(true)
+
+			// ASSERT
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
+		});
+
+		it('should revert if caller lacks associated address to their uuid', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await mockKyc.setIsValid(true)
+			await openQProxy.connect(oracle).associateExternalIdToAddress(mockOpenQId, owner.address)
+
+			// ASSERT
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('CLAIMANT_NOT_TIER_WINNER');
+		});
+
+		it('should revert if caller lacks invoice', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await mockKyc.setIsValid(true)
+			await openQProxy.connect(oracle).associateExternalIdToAddress(mockOpenQId, owner.address)
+			await openQProxy.setTierWinner(bountyId, 0, mockOpenQId)
+
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('INVOICE_NOT_COMPLETE');
+		});
+
+		it.only('should revert if caller lacks supporting documents', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, mockOrg, tieredBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			await mockKyc.setIsValid(true)
+			await openQProxy.connect(oracle).associateExternalIdToAddress(mockOpenQId, owner.address)
+			await openQProxy.setTierWinner(bountyId, 0, mockOpenQId)
+			await openQProxy.setInvoiceComplete(bountyId, 0, true)
+
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('SUPPORTING_DOCS_NOT_COMPLETE');
+		});
+	})
 
 });
 

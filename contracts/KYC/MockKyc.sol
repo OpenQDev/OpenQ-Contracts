@@ -6,6 +6,10 @@ import './IKycValidity.sol';
 contract MockKyc is IKycValidity {
     bool public isValid;
 
+    function setIsValid(bool _isValid) external {
+        isValid = _isValid;
+    }
+
     function hasValidToken(address _addr) external view returns (bool valid) {
         return isValid;
     }

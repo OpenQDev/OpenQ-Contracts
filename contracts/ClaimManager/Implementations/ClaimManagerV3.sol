@@ -376,7 +376,6 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
      * @dev B) Uploaded invoicing information for their tier
      * @dev C) Uploaded any necessary financial forms for their tier
      * @param _bountyAddress The payout address of the bounty
-     * @param _externalUserId The Github ID of the claimant
      * @param _closerData ABI Encoded data associated with this claim
      */
     function permissionedClaimTieredBounty(
@@ -384,7 +383,6 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         bytes calldata _closerData
     ) external onlyProxy hasKYC {
         BountyV3 bounty = BountyV3(payable(_bountyAddress));
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         (, , , , uint256 _tier) = abi.decode(
             _closerData,
@@ -396,17 +394,23 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         );
 
         require(
+            keccak256(abi.encodePacked(closer)) !=
+                keccak256(abi.encodePacked('')),
+            Errors.NO_ASSOCIATED_ADDRESS
+        );
+
+        require(
             keccak256(abi.encode(closer)) ==
                 keccak256(abi.encode(bounty.tierWinners(_tier))),
             Errors.CLAIMANT_NOT_TIER_WINNER
         );
 
+        require(bounty.invoiceComplete(_tier), Errors.INVOICE_NOT_COMPLETE);
+
         require(
             bounty.supportingDocumentsComplete(_tier),
             Errors.SUPPORTING_DOCS_NOT_COMPLETE
         );
-
-        require(bounty.invoiceComplete(_tier), Errors.INVOICE_NOT_COMPLETE);
 
         if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
             _claimTieredFixed(bounty, msg.sender, _closerData);
@@ -432,7 +436,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
     modifier hasKYC() {
         require(
             kyc.hasValidToken(msg.sender),
-            'You must have a valid KYC token to use this contract'
+            'You must have a valid KYC token to claim this bounty'
         );
         _;
     }
