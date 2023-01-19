@@ -309,7 +309,11 @@ contract BountyV3 is BountyStorageV3 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
+
+        // Initialize metadata arrays to same number of tiers
         tierWinners = new string[](_payoutSchedule.length);
+        invoiceComplete = new bool[](_payoutSchedule.length);
+        supportingDocumentsComplete = new bool[](_payoutSchedule.length);
     }
 
     /**
@@ -334,7 +338,11 @@ contract BountyV3 is BountyStorageV3 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
+
+        // Initialize metadata arrays to same number of tiers
         tierWinners = new string[](_payoutSchedule.length);
+        invoiceComplete = new bool[](_payoutSchedule.length);
+        supportingDocumentsComplete = new bool[](_payoutSchedule.length);
     }
 
     /**
@@ -853,19 +861,22 @@ contract BountyV3 is BountyStorageV3 {
      * @dev Whether or not KYC is required to fund and claim the bounty
      * @param _invoiceComplete Whether or not KYC is required to fund and claim the bounty
      */
-    function setInvoiceComplete(bool _invoiceComplete) external onlyOpenQ {
-        invoiceComplete = _invoiceComplete;
+    function setInvoiceComplete(uint256 tier, bool _invoiceComplete)
+        external
+        onlyOpenQ
+    {
+        invoiceComplete[tier] = _invoiceComplete;
     }
 
     /**
      * @dev Whether or not KYC is required to fund and claim the bounty
      * @param _supportingDocumentsComplete Whether or not KYC is required to fund and claim the bounty
      */
-    function setSupportingDocumentsComplete(bool _supportingDocumentsComplete)
-        external
-        onlyOpenQ
-    {
-        supportingDocumentsComplete = _supportingDocumentsComplete;
+    function setSupportingDocumentsComplete(
+        uint256 _tier,
+        bool _supportingDocumentsComplete
+    ) external onlyOpenQ {
+        supportingDocumentsComplete[_tier] = _supportingDocumentsComplete;
     }
 
     /**
@@ -901,7 +912,29 @@ contract BountyV3 is BountyStorageV3 {
         require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
 
         payoutSchedule = _payoutSchedule;
-        tierWinners = new string[](payoutSchedule.length);
+
+        // Resize metadata arrays and copy current members to new array
+        // NOTE: If resizing to fewer tiers than previously, the final indexes will be removed
+        string[] memory newTierWinners = new string[](payoutSchedule.length);
+        bool[] memory newInvoiceComplete = new bool[](payoutSchedule.length);
+        bool[] memory newSupportingDocumentsCompleted = new bool[](
+            payoutSchedule.length
+        );
+
+        for (uint256 i = 0; i < tierWinners.length; i++) {
+            newTierWinners[i] = tierWinners[i];
+        }
+        tierWinners = newTierWinners;
+
+        for (uint256 i = 0; i < invoiceComplete.length; i++) {
+            newInvoiceComplete[i] = invoiceComplete[i];
+        }
+        invoiceComplete = newInvoiceComplete;
+
+        for (uint256 i = 0; i < supportingDocumentsComplete.length; i++) {
+            newSupportingDocumentsCompleted[i] = supportingDocumentsComplete[i];
+        }
+        supportingDocumentsComplete = newSupportingDocumentsCompleted;
     }
 
     /**

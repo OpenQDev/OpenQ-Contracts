@@ -206,46 +206,53 @@ contract OpenQV4 is OpenQStorageV4 {
     }
 
     /**
-     * @dev Sets kycRequired on bounty with id _bountyId
-     * @param _supportingDocumentsComplete Whether or not supporting documents have been completed
+     * @dev Sets invoiceComplete on bounty with id _bountyId
+     * @param _invoiceComplete Whether or not invoice is complete
      */
-    function setSupportingDocumentsComplete(
+    function setInvoiceComplete(
         string calldata _bountyId,
-        bool _supportingDocumentsComplete
+        bool _invoiceComplete,
+        uint256 _tier
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV3 bounty = BountyV3(payable(bountyAddress));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.setSupportingDocumentsComplete(_supportingDocumentsComplete);
+        bounty.setInvoiceComplete(_tier, _invoiceComplete);
 
-        emit SupportDocumentsCompletedSet(
+        emit InvoiceCompletedSet(
             bountyAddress,
-            _supportingDocumentsComplete,
+            _tier,
+            _invoiceComplete,
             new bytes(0),
             VERSION_4
         );
     }
 
     /**
-     * @dev Sets invoiceComplete on bounty with id _bountyId
-     * @param _invoiceComplete Whether or not invoice is complete
+     * @dev Sets kycRequired on bounty with id _bountyId
+     * @param _supportingDocumentsComplete Whether or not supporting documents have been completed
      */
-    function setInvoiceComplete(
+    function setSupportingDocumentsComplete(
         string calldata _bountyId,
-        bool _invoiceComplete
+        bool _supportingDocumentsComplete,
+        uint256 _tier
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV3 bounty = BountyV3(payable(bountyAddress));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.setInvoiceComplete(_invoiceComplete);
+        bounty.setSupportingDocumentsComplete(
+            _tier,
+            _supportingDocumentsComplete
+        );
 
-        emit InvoiceCompletedSet(
+        emit SupportDocumentsCompletedSet(
             bountyAddress,
-            _invoiceComplete,
+            _tier,
+            _supportingDocumentsComplete,
             new bytes(0),
             VERSION_4
         );

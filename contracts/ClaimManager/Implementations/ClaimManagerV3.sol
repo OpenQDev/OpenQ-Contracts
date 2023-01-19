@@ -398,11 +398,11 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         );
 
         require(
-            bounty.supportingDocumentsComplete(),
+            bounty.supportingDocumentsComplete(_tier),
             Errors.SUPPORTING_DOCS_NOT_COMPLETE
         );
 
-        require(bounty.invoiceComplete(), Errors.INVOICE_NOT_COMPLETE);
+        require(bounty.invoiceComplete(_tier), Errors.INVOICE_NOT_COMPLETE);
 
         if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
             _claimTieredFixed(bounty, msg.sender, _closerData);

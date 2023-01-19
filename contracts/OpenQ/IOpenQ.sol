@@ -175,6 +175,7 @@ interface IOpenQ {
 
     event InvoiceCompletedSet(
         address bountyAddress,
+        uint256 tier,
         bool invoiceCompletedSet,
         bytes data,
         uint256 version
@@ -182,6 +183,7 @@ interface IOpenQ {
 
     event SupportDocumentsCompletedSet(
         address bountyAddress,
+        uint256 tier,
         bool supportDocumentsCompleted,
         bytes data,
         uint256 version
