@@ -211,8 +211,8 @@ contract OpenQV4 is OpenQStorageV4 {
      */
     function setInvoiceComplete(
         string calldata _bountyId,
-        bool _invoiceComplete,
-        uint256 _tier
+        uint256 _tier,
+        bool _invoiceComplete
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV3 bounty = BountyV3(payable(bountyAddress));
@@ -236,8 +236,8 @@ contract OpenQV4 is OpenQStorageV4 {
      */
     function setSupportingDocumentsComplete(
         string calldata _bountyId,
-        bool _supportingDocumentsComplete,
-        uint256 _tier
+        uint256 _tier,
+        bool _supportingDocumentsComplete
     ) external onlyProxy {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV3 bounty = BountyV3(payable(bountyAddress));
@@ -447,8 +447,8 @@ contract OpenQV4 is OpenQStorageV4 {
 
     function setTierWinner(
         string calldata _bountyId,
-        string calldata _winner,
-        uint256 _tier
+        uint256 _tier,
+        string calldata _winner
     ) external {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV3 bounty = BountyV3(payable(bountyAddress));

@@ -175,8 +175,6 @@ describe('BountyV3.sol', () => {
 				await expect(await atomicContract.kycRequired()).equals(true);
 				await expect(await atomicContract.externalUserId()).equals(mockOpenQId);
 				await expect(await atomicContract.supportingDocuments()).equals(true);
-				await expect(await atomicContract.invoiceComplete()).equals(false);
-				await expect(await atomicContract.supportingDocumentsComplete()).equals(false);
 			});
 		});
 
@@ -200,8 +198,6 @@ describe('BountyV3.sol', () => {
 				await expect(await ongoingContract.kycRequired()).equals(true);
 				await expect(await ongoingContract.externalUserId()).equals(mockOpenQId);
 				await expect(await ongoingContract.supportingDocuments()).equals(true);
-				await expect(await ongoingContract.invoiceComplete()).equals(false);
-				await expect(await ongoingContract.supportingDocumentsComplete()).equals(false);
 			});
 		});
 
@@ -229,8 +225,9 @@ describe('BountyV3.sol', () => {
 				await expect(await tieredContract.kycRequired()).equals(true);
 				await expect(await tieredContract.externalUserId()).equals(mockOpenQId);
 				await expect(await tieredContract.supportingDocuments()).equals(true);
-				await expect(await tieredContract.invoiceComplete()).equals(false);
-				await expect(await tieredContract.supportingDocumentsComplete()).equals(false);
+				
+				await expect(await tieredContract.invoiceComplete(0)).equals(false);
+				await expect(await tieredContract.supportingDocumentsComplete(0)).equals(false);
 			});
 
 			it('should revert if payoutSchedule values do not add up to 100', async () => {
@@ -268,8 +265,9 @@ describe('BountyV3.sol', () => {
 				await expect(await tieredFixedContract.kycRequired()).equals(true);
 				await expect(await tieredFixedContract.externalUserId()).equals(mockOpenQId);
 				await expect(await tieredFixedContract.supportingDocuments()).equals(true);
-				await expect(await tieredFixedContract.invoiceComplete()).equals(false);
-				await expect(await tieredFixedContract.supportingDocumentsComplete()).equals(false);
+				
+				await expect(await tieredFixedContract.invoiceComplete(0)).equals(false);
+				await expect(await tieredFixedContract.supportingDocumentsComplete(1)).equals(false);
 			});
 		});
 
@@ -1156,7 +1154,6 @@ describe('BountyV3.sol', () => {
 		});
 	});
 
-
 	describe('setPayoutScheduleFixed', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
@@ -1234,7 +1231,7 @@ describe('BountyV3.sol', () => {
 		})
 	})
 
-	describe.only('setInvoiceComplete', () => {
+	describe('setInvoiceComplete', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
@@ -1258,7 +1255,7 @@ describe('BountyV3.sol', () => {
 		})
 	})
 
-	describe.only('setSupportingDocumentsComplete', () => {
+	describe('setSupportingDocumentsComplete', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
