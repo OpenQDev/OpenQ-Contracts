@@ -443,13 +443,21 @@ contract OpenQV4 is OpenQStorageV4 {
         return balance >= bounty.payoutVolume();
     }
 
+    function getBounty(string calldata _bountyId)
+        internal
+        returns (BountyV3, address)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        return (bounty, bountyAddress);
+    }
+
     function setTierWinner(
         string calldata _bountyId,
         uint256 _tier,
         string calldata _winner
     ) external {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV3 bounty = BountyV3(payable(bountyAddress));
+        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
         bounty.setTierWinner(_winner, _tier);
 
