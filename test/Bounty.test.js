@@ -1234,45 +1234,51 @@ describe('BountyV3.sol', () => {
 		})
 	})
 
-	describe('setInvoiceComplete', () => {
+	describe.only('setInvoiceComplete', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setInvoiceComplete(true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredFixedContract.connect(notOwner).setInvoiceComplete(0, true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set invoiceComplete', async () => {
+		it('should set invoiceComplete for given tier', async () => {
 			// ASSUME
-			expect(await tieredFixedContract.invoiceComplete()).to.equal(false)
+			expect(await tieredFixedContract.invoiceComplete(0)).to.equal(false)
+			expect(await tieredFixedContract.invoiceComplete(1)).to.equal(false)
 			
 			// ACT
-			await tieredFixedContract.setInvoiceComplete(true);
+			await tieredFixedContract.setInvoiceComplete(0, true);
+			await tieredFixedContract.setInvoiceComplete(1, true);
 
 			// ASSERT
-			expect(await tieredFixedContract.invoiceComplete()).to.equal(true)
+			expect(await tieredFixedContract.invoiceComplete(0)).to.equal(true)
+			expect(await tieredFixedContract.invoiceComplete(1)).to.equal(true)
 		})
 	})
 
-	describe('setSupportingDocumentsComplete', () => {
+	describe.only('setSupportingDocumentsComplete', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setSupportingDocumentsComplete(true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredFixedContract.connect(notOwner).setSupportingDocumentsComplete(0, true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set supportingDocumentsComplete', async () => {
 			// ASSUME
-			expect(await tieredFixedContract.supportingDocumentsComplete()).to.equal(false)
+			expect(await tieredFixedContract.supportingDocumentsComplete(0)).to.equal(false)
+			expect(await tieredFixedContract.supportingDocumentsComplete(1)).to.equal(false)
 			
 			// ACT
-			await tieredFixedContract.setSupportingDocumentsComplete(true);
+			await tieredFixedContract.setSupportingDocumentsComplete(0, true);
+			await tieredFixedContract.setSupportingDocumentsComplete(1, true);
 
 			// ASSERT
-			expect(await tieredFixedContract.supportingDocumentsComplete()).to.equal(true)
+			expect(await tieredFixedContract.supportingDocumentsComplete(0)).to.equal(true)
+			expect(await tieredFixedContract.supportingDocumentsComplete(1)).to.equal(true)
 		})
 	})
 
