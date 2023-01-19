@@ -8,37 +8,37 @@ async function deployBounties() {
 	console.log('\n------------------------------------------');
 	console.log(`DEPLOYING BOUNTIES to ${network.name.toUpperCase()}`);
 	console.log('------------------------------------------');
-	const OpenQ = await ethers.getContractFactory('OpenQV3');
+	const OpenQ = await ethers.getContractFactory('OpenQV4');
 
-	// We fetch the contract factory for the implementation contract (OpenQV2) but attach it to the address of OpenQProxy
+	// We fetch the contract factory for the implementation contract (OpenQV4) but attach it to the address of OpenQProxy
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
 	// PREPARE INITIALIZATION DATA
 	let abiCoder = new ethers.utils.AbiCoder;
 
 	// ATOMIC CONTRACT
-	const abiEncodedParamsAtomic = abiCoder.encode(['bool', 'address', 'uint256', 'bool', 'bool'], [true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true]);
+	const abiEncodedParamsAtomic = abiCoder.encode(['bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true, true, '', '', '']);
 	let atomicBountyInitOperation = [0, abiEncodedParamsAtomic];
 
-	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(['bool', 'address', 'uint256', 'bool', 'bool'], [false, ethers.constants.AddressZero, 0, true, true]);
+	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(['bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [false, ethers.constants.AddressZero, 0, true, true, true, '', '', '']);
 	let atomicBountyNoFundingGoalInitOperation = [0, abiEncodedParamsAtomicNoFundingGoal];
 
 	// ONGOING
 
-	const abiEncodedParamsOngoing = abiCoder.encode(['address', 'uint256', 'bool', 'address', 'uint256', 'bool', 'bool'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100', true, process.env.MOCK_LINK_TOKEN_ADDRESS, '1000', true, true]);
+	const abiEncodedParamsOngoing = abiCoder.encode(['address', 'uint256', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100', true, process.env.MOCK_LINK_TOKEN_ADDRESS, '1000', true, true, true, '', '', '']);
 	let ongoingBountyInitOperation = [1, abiEncodedParamsOngoing];
 
-	const abiEncodedParamsOngoingNoFundingGoal = abiCoder.encode(['address', 'uint256', 'bool', 'address', 'uint256', 'bool', 'bool'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100', false, ethers.constants.AddressZero, 0, true, true]);
+	const abiEncodedParamsOngoingNoFundingGoal = abiCoder.encode(['address', 'uint256', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100', false, ethers.constants.AddressZero, 0, true, true, true, '', '', '']);
 	let ongoingBountyNoFundingGoalInitOperation = [1, abiEncodedParamsOngoingNoFundingGoal];
 
 	// CONTEST
-	const abiEncodedParamsContestPercentage = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool'], [[70, 20, 10], true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true]);
+	const abiEncodedParamsContestPercentage = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[70, 20, 10], true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true, true, '', '', '']);
 	let contestPercentageInitOperation = [2, abiEncodedParamsContestPercentage];
 
-	const abiEncodedParamsContestPercentageNoFundingGoal = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool'], [[70, 20, 10], false, ethers.constants.AddressZero, 0, true, true]);
+	const abiEncodedParamsContestPercentageNoFundingGoal = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[70, 20, 10], false, ethers.constants.AddressZero, 0, true, true, true, '', '', '']);
 	let contestPercentageNoFundingGoalInitOperation = [2, abiEncodedParamsContestPercentageNoFundingGoal];
 
-	const abiEncodedParamsContestFixed = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool'], [[300, 100], process.env.MOCK_LINK_TOKEN_ADDRESS, true, true]);
+	const abiEncodedParamsContestFixed = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[300, 100], process.env.MOCK_LINK_TOKEN_ADDRESS, true, true, true, '', '', '']);
 	let contestFixedInitOperation = [3, abiEncodedParamsContestFixed];
 
 	// DEPLOY CONTRACTS

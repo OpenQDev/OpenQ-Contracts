@@ -47,7 +47,7 @@ async function deployContracts() {
 	console.log('------------------------------------------');
 
 	console.log('Deploying OpenQV2 (Implementation)...');
-	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV3');
+	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV4');
 	const openQImplementationV2 = await OpenQImplementationV2.deploy();
 	await openQImplementationV2.deployed();
 	console.log(`OpenQV1 (Implementation) Deployed to ${openQImplementationV2.address}\n`);
@@ -71,15 +71,15 @@ async function deployContracts() {
 
 	console.log('Deploying Claim Manager Implementation...');
 	const ClaimManagerV3 = await ethers.getContractFactory('ClaimManagerV3');
-	let ClaimManagerV3 = await ClaimManagerV3.deploy();
-	const claimManagerConfirmation = await ClaimManagerV3.deployed();
+	let claimManagerV3 = await ClaimManagerV3.deploy();
+	const claimManagerConfirmation = await claimManagerV3.deployed();
 	const deployBlockNumber_claimManager = 1;
 	await optionalSleep(10000);
-	console.log(`Claim Manager Implementation Deployed to ${ClaimManagerV3.address} in block number ${deployBlockNumber_claimManager}\n`);
+	console.log(`Claim Manager Implementation Deployed to ${claimManagerV3.address} in block number ${deployBlockNumber_claimManager}\n`);
 
 	console.log('Deploying Claim Manager Proxy...');
 	const ClaimManagerProxy = await ethers.getContractFactory('OpenQProxy');
-	let claimManagerProxy = await ClaimManagerProxy.deploy(ClaimManagerV3.address, []);
+	let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerV3.address, []);
 	const claimManagerProxyConfirmation = await claimManagerProxy.deployed();
 	const deployBlockNumber_claimManagerProxy = 1;
 	await optionalSleep(10000);
@@ -129,7 +129,7 @@ async function deployContracts() {
 	console.log(`OpenQTokenWhitelist successfully set on DepositManager to ${openQTokenWhitelist.address}`);
 
 	console.log('Deploying BountyV1...');
-	const BountyV1 = await ethers.getContractFactory('BountyV2');
+	const BountyV1 = await ethers.getContractFactory('BountyV3');
 	const bountyV1 = await BountyV1.deploy();
 	await bountyV1.deployed();
 	await optionalSleep(10000);
@@ -196,7 +196,7 @@ async function deployContracts() {
 		addresses = `OPENQ_PROXY_ADDRESS=${openQProxy.address}
 OPENQ_IMPLEMENTATION_ADDRESS=${openQImplementationV2.address}
 CLAIM_MANAGER_PROXY_ADDRESS=${claimManagerProxy.address}
-CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${ClaimManagerV3.address}
+CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManagerV3.address}
 DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
 DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
 OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}

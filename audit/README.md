@@ -43,13 +43,13 @@ Excludes:
 
 #### UUPSUPgradeable
 
-`OpenQV3.sol`, `ClaimManagerV3.sol` and `DepositManagerV2.sol` are all [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy). 
+`OpenQV4.sol`, `ClaimManagerV3.sol` and `DepositManagerV2.sol` are all [UUPSUpgradeable](https://docs.openzeppelin.com/contracts/4.x/api/proxy). 
 
 The implementation lies behind a proxy.
 
 #### Beacon Proxy
 
-`BountyV2.sol` is also upgradeable, but because we have MANY deployed at any one time and want to be able to update them without calling `upgradeTo()` on each contract, we use the [Beacon Proxy pattern](https://docs.openzeppelin.com/contracts/3.x/api/proxy#beacon).
+`BountyV3.sol` is also upgradeable, but because we have MANY deployed at any one time and want to be able to update them without calling `upgradeTo()` on each contract, we use the [Beacon Proxy pattern](https://docs.openzeppelin.com/contracts/3.x/api/proxy#beacon).
 
 Each bounty contract lies behind a proxy.
 
@@ -77,13 +77,13 @@ Minting a bounty begins at `OpenQ.mintBounty(bountyId, organizationId, initializ
 
 Anyone can call this method to mint a bounty.
 
-`OpenQV3.sol` then calls `bountyFactory.mintBounty(...)`.
+`OpenQV4.sol` then calls `bountyFactory.mintBounty(...)`.
 
 The BountyFactory deploys a new `BeaconProxy`, pointing to the `beacon` address which will point each bounty to the proper implementation.
 
 All the fun happens in the `InitOperation`. This is an ABI encoding of everything needed to initialize any of the four types of contracts.
 
-The BountyV2.sol `initialization` method passes this `InitOperation` to `_initByType`, which then reads the type of bounty being minted, initializing the storage variables as needed.
+The BountyV3.sol `initialization` method passes this `InitOperation` to `_initByType`, which then reads the type of bounty being minted, initializing the storage variables as needed.
 
 ### Funding a Bounty
 
