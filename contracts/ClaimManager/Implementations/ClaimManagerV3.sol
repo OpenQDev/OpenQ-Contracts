@@ -371,14 +371,18 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
     }
 
     /**
-     * @dev Useful for competition minter to directly award a tier's prize to closer
+     * @dev Used for claimants who have:
+     * @dev A) Completed KYC with KYC DAO for their tier
+     * @dev B) Uploaded invoicing information for their tier
+     * @dev C) Uploaded any necessary financial forms for their tier
      * @param _bountyAddress The payout address of the bounty
+     * @param _externalUserId The Github ID of the claimant
      * @param _closerData ABI Encoded data associated with this claim
      */
     function permissionedClaimTieredBounty(
         address _bountyAddress,
         bytes calldata _closerData
-    ) external onlyProxy {
+    ) external onlyProxy hasKYC {
         BountyV3 bounty = BountyV3(payable(_bountyAddress));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -431,43 +435,5 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
             'You must have a valid KYC token to use this contract'
         );
         _;
-    }
-
-    /**
-     * @dev Used for claimants who have:
-     * @dev A) Completed KYC with KYC DAOB) Uploaded invoicing information
-     * @dev B) Uploaded invoicing information
-     * @dev C) Uploaded any necessary financial forms
-     * @param _bountyAddress The payout address of the bounty
-     * @param _externalUserId The Github ID of the claimant
-     * @param _closerData ABI Encoded data associated with this claim
-     */
-    function permissionedClaimTier(
-        address _bountyAddress,
-        string calldata _externalUserId,
-        bytes calldata _closerData
-    ) external onlyProxy hasKYC {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
-
-        address closer = IOpenQV2(openQ).externalUserIdToAddress(
-            _externalUserId
-        );
-
-        require(closer != address(0), Errors.NO_ASSOCIATED_ADDRESS);
-
-        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(bounty, closer, _closerData);
-        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, closer, _closerData);
-        } else {
-            revert(Errors.NOT_A_COMPETITION_CONTRACT);
-        }
-
-        emit ClaimSuccess(
-            block.timestamp,
-            bounty.bountyType(),
-            _closerData,
-            VERSION_3
-        );
     }
 }
