@@ -223,8 +223,7 @@ contract OpenQV4 is OpenQStorageV4 {
 
         emit InvoiceCompletedSet(
             bountyAddress,
-            _tier,
-            _invoiceComplete,
+            bounty.getInvoiceComplete(),
             new bytes(0),
             VERSION_4
         );
@@ -249,10 +248,9 @@ contract OpenQV4 is OpenQStorageV4 {
             _supportingDocumentsComplete
         );
 
-        emit SupportDocumentsCompletedSet(
+        emit SupportingDocumentsCompletedSet(
             bountyAddress,
-            _tier,
-            _supportingDocumentsComplete,
+            bounty.getSupportingDocumentsComplete(),
             new bytes(0),
             VERSION_4
         );
@@ -457,8 +455,7 @@ contract OpenQV4 is OpenQStorageV4 {
 
         emit TierWinnerSelected(
             bountyAddress,
-            _winner,
-            _tier,
+            bounty.getTierWinners(),
             new bytes(0),
             VERSION_4
         );

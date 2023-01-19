@@ -766,8 +766,8 @@ describe('OpenQ.sol', () => {
 
 			// ACT/ASSERT
 			await expect(await openQProxy.setSupportingDocumentsComplete(bountyId, 0, true))
-				.to.emit(openQProxy, 'SupportDocumentsCompletedSet')
-				.withArgs(bountyAddress, 0, true, [], 4);
+				.to.emit(openQProxy, 'SupportingDocumentsCompletedSet')
+				.withArgs(bountyAddress, [true, false, false], [], 4);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -811,7 +811,7 @@ describe('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setInvoiceComplete(bountyId, 0, true))
 				.to.emit(openQProxy, 'InvoiceCompletedSet')
-				.withArgs(bountyAddress, 0, true, [], 4);
+				.withArgs(bountyAddress, [ true, false, false ], [], 4);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -855,7 +855,7 @@ describe('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setTierWinner(bountyId, 0, mockOpenQId))
 				.to.emit(openQProxy, 'TierWinnerSelected')
-				.withArgs(bountyAddress, mockOpenQId, 0, [], 4);
+				.withArgs(bountyAddress, [mockOpenQId, "", ""], [], 4);
 		});
 
 		it('should revert if not called by issuer', async () => {

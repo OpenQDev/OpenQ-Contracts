@@ -1012,6 +1012,22 @@ contract BountyV3 is BountyStorageV3 {
         return payoutSchedule;
     }
 
+    function getTierWinners() external view returns (string[] memory) {
+        return tierWinners;
+    }
+
+    function getSupportingDocumentsComplete()
+        external
+        view
+        returns (bool[] memory)
+    {
+        return supportingDocumentsComplete;
+    }
+
+    function getInvoiceComplete() external view returns (bool[] memory) {
+        return invoiceComplete;
+    }
+
     /**
      * @dev Returns an array of ONLY NFT deposits for this bounty
      * @return nftDeposits The array of NFT deposits

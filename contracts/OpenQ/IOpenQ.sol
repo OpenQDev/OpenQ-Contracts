@@ -175,16 +175,21 @@ interface IOpenQ {
 
     event InvoiceCompletedSet(
         address bountyAddress,
-        uint256 tier,
-        bool invoiceCompletedSet,
+        bool[] invoiceCompletedSet,
         bytes data,
         uint256 version
     );
 
-    event SupportDocumentsCompletedSet(
+    event SupportingDocumentsCompletedSet(
         address bountyAddress,
-        uint256 tier,
-        bool supportDocumentsCompleted,
+        bool[] supportDocumentsCompleted,
+        bytes data,
+        uint256 version
+    );
+
+    event TierWinnerSelected(
+        address bountyAddress,
+        string[] tierWinners,
         bytes data,
         uint256 version
     );
@@ -192,14 +197,6 @@ interface IOpenQ {
     event ExternalUserIdAssociatedWithAddress(
         string externalUserId,
         address newAddress,
-        bytes data,
-        uint256 version
-    );
-
-    event TierWinnerSelected(
-        address bountyAddress,
-        string winner,
-        uint256 tier,
         bytes data,
         uint256 version
     );
