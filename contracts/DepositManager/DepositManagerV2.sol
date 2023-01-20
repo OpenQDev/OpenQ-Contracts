@@ -11,7 +11,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
     constructor() {}
 
     /**
-     * @dev Initializes the OpenQProxy storage with necessary storage variables like owner
+     * @dev Initializes the DepositManager storage with necessary storage variables like owner
      */
     function initialize() external initializer {
         __Ownable_init();

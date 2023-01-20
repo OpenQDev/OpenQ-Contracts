@@ -55,6 +55,7 @@ contract BountyV3 is BountyStorageV3 {
         organization = _organization;
         bountyCreatedTime = block.timestamp;
         nftDepositLimit = 5;
+        payoutSchedule = new uint256[](1);
 
         _initByType(_operation);
     }
@@ -239,6 +240,7 @@ contract BountyV3 is BountyStorageV3 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
+        payoutSchedule = new uint256[](0);
     }
 
     /**
@@ -272,6 +274,7 @@ contract BountyV3 is BountyStorageV3 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
+        payoutSchedule = new uint256[](0);
     }
 
     /**
@@ -445,7 +448,7 @@ contract BountyV3 is BountyStorageV3 {
         address _funder,
         uint256 _volume
     ) external onlyDepositManager nonReentrant {
-        require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
+        require(!refunded[_depositId], Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
         require(
             block.timestamp >= depositTime[_depositId] + expiration[_depositId],
@@ -483,7 +486,7 @@ contract BountyV3 is BountyStorageV3 {
         address _funder
     ) external onlyDepositManager nonReentrant returns (uint256) {
         require(status == OpenQDefinitions.OPEN, Errors.CONTRACT_IS_CLOSED);
-        require(refunded[_depositId] == false, Errors.DEPOSIT_ALREADY_REFUNDED);
+        require(!refunded[_depositId], Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
 
         if (

@@ -10,7 +10,7 @@ contract MockKyc is IKycValidity {
         isValid = _isValid;
     }
 
-    function hasValidToken(address _addr) external view returns (bool valid) {
+    function hasValidToken(address) external view returns (bool valid) {
         return isValid;
     }
 }
