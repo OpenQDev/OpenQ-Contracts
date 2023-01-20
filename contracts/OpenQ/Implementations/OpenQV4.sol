@@ -119,14 +119,14 @@ contract OpenQV4 is OpenQStorageV4 {
         address _fundingGoalToken,
         uint256 _fundingGoalVolume
     ) external onlyProxy {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setFundingGoal(_fundingGoalToken, _fundingGoalVolume);
 
         emit FundingGoalSet(
-            bountyAddress,
+            address(bounty),
             _fundingGoalToken,
             _fundingGoalVolume,
             bounty.bountyType(),
@@ -143,14 +143,14 @@ contract OpenQV4 is OpenQStorageV4 {
         external
         onlyProxy
     {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setKycRequired(_kycRequired);
 
         emit KYCRequiredSet(
-            bountyAddress,
+            address(bounty),
             _kycRequired,
             new bytes(0),
             VERSION_4
@@ -165,14 +165,14 @@ contract OpenQV4 is OpenQStorageV4 {
         external
         onlyProxy
     {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setInvoiceable(_invoiceable);
 
         emit InvoiceableSet(
-            bountyAddress,
+            address(bounty),
             _invoiceable,
             new bytes(0),
             VERSION_4
@@ -187,14 +187,14 @@ contract OpenQV4 is OpenQStorageV4 {
         string calldata _bountyId,
         bool _supportingDocuments
     ) external onlyProxy {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setSupportingDocuments(_supportingDocuments);
 
         emit SupportingDocumentsSet(
-            bountyAddress,
+            address(bounty),
             _supportingDocuments,
             new bytes(0),
             VERSION_4
@@ -210,14 +210,14 @@ contract OpenQV4 is OpenQStorageV4 {
         uint256 _tier,
         bool _invoiceComplete
     ) external onlyProxy {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setInvoiceComplete(_tier, _invoiceComplete);
 
         emit InvoiceCompletedSet(
-            bountyAddress,
+            address(bounty),
             bounty.getInvoiceComplete(),
             new bytes(0),
             VERSION_4
@@ -233,7 +233,7 @@ contract OpenQV4 is OpenQStorageV4 {
         uint256 _tier,
         bool _supportingDocumentsComplete
     ) external onlyProxy {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -243,7 +243,7 @@ contract OpenQV4 is OpenQStorageV4 {
         );
 
         emit SupportingDocumentsCompletedSet(
-            bountyAddress,
+            address(bounty),
             bounty.getSupportingDocumentsComplete(),
             new bytes(0),
             VERSION_4
@@ -261,14 +261,14 @@ contract OpenQV4 is OpenQStorageV4 {
         address _payoutToken,
         uint256 _payoutVolume
     ) external onlyProxy {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setPayout(_payoutToken, _payoutVolume);
 
         emit PayoutSet(
-            bountyAddress,
+            address(bounty),
             _payoutToken,
             _payoutVolume,
             bounty.bountyType(),
@@ -287,14 +287,14 @@ contract OpenQV4 is OpenQStorageV4 {
         string calldata _bountyId,
         uint256[] calldata _payoutSchedule
     ) external onlyProxy {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setPayoutSchedule(_payoutSchedule);
 
         emit PayoutScheduleSet(
-            bountyAddress,
+            address(bounty),
             address(0),
             _payoutSchedule,
             bounty.bountyType(),
@@ -314,14 +314,14 @@ contract OpenQV4 is OpenQStorageV4 {
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
     ) external onlyProxy {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         bounty.setPayoutScheduleFixed(_payoutSchedule, _payoutTokenAddress);
 
         emit PayoutScheduleSet(
-            bountyAddress,
+            address(bounty),
             _payoutTokenAddress,
             _payoutSchedule,
             bounty.bountyType(),
@@ -373,7 +373,7 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (bool)
     {
-        (BountyV3 bounty, ) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }
@@ -388,7 +388,7 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (uint256)
     {
-        (BountyV3 bounty, ) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
         uint256 _bountyType = bounty.bountyType();
         return _bountyType;
     }
@@ -418,13 +418,13 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (bool)
     {
-        (BountyV3 bounty, ) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
     }
 
     function solvent(string calldata _bountyId) external view returns (bool) {
-        (BountyV3 bounty, ) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
 
         uint256 balance = bounty.getTokenBalance(bounty.payoutTokenAddress());
         return balance >= bounty.payoutVolume();
@@ -433,11 +433,11 @@ contract OpenQV4 is OpenQStorageV4 {
     function getBounty(string calldata _bountyId)
         internal
         view
-        returns (BountyV3, address)
+        returns (BountyV3)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
         BountyV3 bounty = BountyV3(payable(bountyAddress));
-        return (bounty, bountyAddress);
+        return bounty;
     }
 
     function setTierWinner(
@@ -445,12 +445,12 @@ contract OpenQV4 is OpenQStorageV4 {
         uint256 _tier,
         string calldata _winner
     ) external {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
         bounty.setTierWinner(_winner, _tier);
 
         emit TierWinnerSelected(
-            bountyAddress,
+            address(bounty),
             bounty.getTierWinners(),
             new bytes(0),
             VERSION_4
@@ -469,7 +469,7 @@ contract OpenQV4 is OpenQStorageV4 {
         string calldata _claimant,
         string calldata _claimantAsset
     ) external view returns (bool) {
-        (BountyV3 bounty, ) = getBounty(_bountyId);
+        BountyV3 bounty = getBounty(_bountyId);
         bytes32 claimantId = keccak256(abi.encode(_claimant, _claimantAsset));
         bool _ongoingClaimed = bounty.claimantId(claimantId);
         return _ongoingClaimed;
