@@ -17,13 +17,13 @@ async function deployBounties() {
 	let abiCoder = new ethers.utils.AbiCoder;
 
 	// ATOMIC CONTRACT                              
-	const abiEncodedParamsAtomic = abiCoder.encode(['bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true, true, 'po', 'po', 'po']);
-	console.log('abiEncodedParamsAtomic', abiEncodedParamsAtomic);
-	let atomicBountyInitOperation = [0, abiEncodedParamsAtomic];
-
-	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(['bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [false, ethers.constants.AddressZero, 0, true, true, true, 'po', 'po', 'po']);
+	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(['tuple(bool,address,uint256,bool,bool,bool,string,string,string)'], [(false, ethers.constants.AddressZero, 0, true, true, true, 'po', 'po', 'po')]);
 	console.log('abiEncodedParamsAtomicNoFundingGoal', abiEncodedParamsAtomicNoFundingGoal);
 	let atomicBountyNoFundingGoalInitOperation = [0, abiEncodedParamsAtomicNoFundingGoal];
+	
+	const abiEncodedParamsAtomic = abiCoder.encode(['tuple(bool,address,uint256,bool,bool,bool,string,string,string)'], [(true, ethers.constants.AddressZero, 0, true, true, true, 'po', 'po', 'po')]);
+	console.log('abiEncodedParamsAtomic', abiEncodedParamsAtomic);
+	let atomicBountyInitOperation = [0, abiEncodedParamsAtomic];
 
 	// ONGOING
 

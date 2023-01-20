@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.16;
+pragma solidity 0.8.17;
 
 /**
  * @dev Custom imports - all transitive imports live in OpenQStorage
@@ -373,7 +373,7 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (bool)
     {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        (BountyV3 bounty, ) = getBounty(_bountyId);
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }
@@ -388,7 +388,7 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (uint256)
     {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        (BountyV3 bounty, ) = getBounty(_bountyId);
         uint256 _bountyType = bounty.bountyType();
         return _bountyType;
     }
@@ -418,13 +418,13 @@ contract OpenQV4 is OpenQStorageV4 {
         view
         returns (bool)
     {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        (BountyV3 bounty, ) = getBounty(_bountyId);
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
     }
 
     function solvent(string calldata _bountyId) external view returns (bool) {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        (BountyV3 bounty, ) = getBounty(_bountyId);
 
         uint256 balance = bounty.getTokenBalance(bounty.payoutTokenAddress());
         return balance >= bounty.payoutVolume();
@@ -469,7 +469,7 @@ contract OpenQV4 is OpenQStorageV4 {
         string calldata _claimant,
         string calldata _claimantAsset
     ) external view returns (bool) {
-        (BountyV3 bounty, address bountyAddress) = getBounty(_bountyId);
+        (BountyV3 bounty, ) = getBounty(_bountyId);
         bytes32 claimantId = keccak256(abi.encode(_claimant, _claimantAsset));
         bool _ongoingClaimed = bounty.claimantId(claimantId);
         return _ongoingClaimed;
