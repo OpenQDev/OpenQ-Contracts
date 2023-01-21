@@ -17,12 +17,10 @@ async function deployBounties() {
 	let abiCoder = new ethers.utils.AbiCoder;
 
 	// ATOMIC CONTRACT                              
-	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(['tuple(bool,address,uint256,bool,bool,bool,string,string,string)'], [(false, ethers.constants.AddressZero, 0, true, true, true, 'po', 'po', 'po')]);
-	console.log('abiEncodedParamsAtomicNoFundingGoal', abiEncodedParamsAtomicNoFundingGoal);
+	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], [false, ethers.constants.AddressZero, 0, true, true, true, 'po', 'po', 'po']);
 	let atomicBountyNoFundingGoalInitOperation = [0, abiEncodedParamsAtomicNoFundingGoal];
 	
-	const abiEncodedParamsAtomic = abiCoder.encode(['tuple(bool,address,uint256,bool,bool,bool,string,string,string)'], [(true, ethers.constants.AddressZero, 0, true, true, true, 'po', 'po', 'po')]);
-	console.log('abiEncodedParamsAtomic', abiEncodedParamsAtomic);
+	const abiEncodedParamsAtomic = abiCoder.encode(['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], [true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true, true, 'po', 'po', 'po']);
 	let atomicBountyInitOperation = [0, abiEncodedParamsAtomic];
 
 	// ONGOING
@@ -57,67 +55,67 @@ async function deployBounties() {
 	await optionalSleep(10000);
 	console.log('Atomic Contract with funding goal deployed!');
 	
-	// console.log('Minting Atomic Contract with no funding goal...');
-	// await openQ.mintBounty(otherOrgIssueIds[0], otherOrgIssueOwners[0], atomicBountyNoFundingGoalInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Atomic Contract with no funding goal deployed!');
+	console.log('Minting Atomic Contract with no funding goal...');
+	await openQ.mintBounty(otherOrgIssueIds[0], otherOrgIssueOwners[0], atomicBountyNoFundingGoalInitOperation);
+	await optionalSleep(10000);
+	console.log('Atomic Contract with no funding goal deployed!');
 
-	// console.log('Minting Atomic Contract with funding goal...');
-	// await openQ.mintBounty(otherOrgIssueIds[1], otherOrgIssueOwners[1], atomicBountyInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Atomic Contract with funding goal deployed!');
+	console.log('Minting Atomic Contract with funding goal...');
+	await openQ.mintBounty(otherOrgIssueIds[1], otherOrgIssueOwners[1], atomicBountyInitOperation);
+	await optionalSleep(10000);
+	console.log('Atomic Contract with funding goal deployed!');
 
-	// // ONGOING
-	// console.log('Minting Ongoing contract with no funding goal...');
-	// await openQ.mintBounty(openQIssueIds[2], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyNoFundingGoalInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Ongoing contract with no funding goal deployed!');
+	// ONGOING
+	console.log('Minting Ongoing contract with no funding goal...');
+	await openQ.mintBounty(openQIssueIds[2], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyNoFundingGoalInitOperation);
+	await optionalSleep(10000);
+	console.log('Ongoing contract with no funding goal deployed!');
 
-	// console.log('Minting Ongoing contract with no funding goal...');
-	// await openQ.mintBounty(otherOrgIssueIds[2], otherOrgIssueOwners[2], ongoingBountyNoFundingGoalInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Ongoing contract with no funding goal deployed!');
+	console.log('Minting Ongoing contract with no funding goal...');
+	await openQ.mintBounty(otherOrgIssueIds[2], otherOrgIssueOwners[2], ongoingBountyNoFundingGoalInitOperation);
+	await optionalSleep(10000);
+	console.log('Ongoing contract with no funding goal deployed!');
 
-	// console.log('Minting Ongoing contract with funding goal...');
-	// await openQ.mintBounty(openQIssueIds[3], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Ongoing contract with funding goal deployed!');
+	console.log('Minting Ongoing contract with funding goal...');
+	await openQ.mintBounty(openQIssueIds[3], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyInitOperation);
+	await optionalSleep(10000);
+	console.log('Ongoing contract with funding goal deployed!');
 
-	// console.log('Minting Ongoing contract with funding goal...');
-	// await openQ.mintBounty(otherOrgIssueIds[3], otherOrgIssueOwners[3], ongoingBountyInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Ongoing contract with funding goal deployed!');
+	console.log('Minting Ongoing contract with funding goal...');
+	await openQ.mintBounty(otherOrgIssueIds[3], otherOrgIssueOwners[3], ongoingBountyInitOperation);
+	await optionalSleep(10000);
+	console.log('Ongoing contract with funding goal deployed!');
 
-	// // CONTEST
-	// console.log('Minting Contest percentage contract with funding goal...');
-	// await openQ.mintBounty(openQIssueIds[4], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Contest percentage contract with funding goal deployed!');
+	// CONTEST
+	console.log('Minting Contest percentage contract with funding goal...');
+	await openQ.mintBounty(openQIssueIds[4], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageInitOperation);
+	await optionalSleep(10000);
+	console.log('Contest percentage contract with funding goal deployed!');
 
-	// console.log('Minting Contest percentage contract with funding goal...');
-	// await openQ.mintBounty(otherOrgIssueIds[4], otherOrgIssueOwners[4], contestPercentageInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Contest percentage contract with funding goal deployed!');
+	console.log('Minting Contest percentage contract with funding goal...');
+	await openQ.mintBounty(otherOrgIssueIds[4], otherOrgIssueOwners[4], contestPercentageInitOperation);
+	await optionalSleep(10000);
+	console.log('Contest percentage contract with funding goal deployed!');
 
-	// console.log('Minting Contest percentage contract with no funding goal...');
-	// await openQ.mintBounty(openQIssueIds[5], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageNoFundingGoalInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Contest percentage contract with no  funding goal deployed!');
+	console.log('Minting Contest percentage contract with no funding goal...');
+	await openQ.mintBounty(openQIssueIds[5], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageNoFundingGoalInitOperation);
+	await optionalSleep(10000);
+	console.log('Contest percentage contract with no  funding goal deployed!');
 
-	// console.log('Minting Contest percentage contract with no funding goal...');
-	// await openQ.mintBounty(otherOrgIssueIds[5], otherOrgIssueOwners[5], contestPercentageNoFundingGoalInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Contest percentage contract with no  funding goal deployed!');
+	console.log('Minting Contest percentage contract with no funding goal...');
+	await openQ.mintBounty(otherOrgIssueIds[5], otherOrgIssueOwners[5], contestPercentageNoFundingGoalInitOperation);
+	await optionalSleep(10000);
+	console.log('Contest percentage contract with no  funding goal deployed!');
 
-	// console.log('Minting Contest fixed contract...');
-	// await openQ.mintBounty(openQIssueIds[6], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestFixedInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Minting Contest fixed contract deployed!');
+	console.log('Minting Contest fixed contract...');
+	await openQ.mintBounty(openQIssueIds[6], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestFixedInitOperation);
+	await optionalSleep(10000);
+	console.log('Minting Contest fixed contract deployed!');
 
-	// console.log('Minting Contest fixed contract...');
-	// await openQ.mintBounty(otherOrgIssueIds[6], otherOrgIssueOwners[6], contestFixedInitOperation);
-	// await optionalSleep(10000);
-	// console.log('Minting Contest fixed contract deployed!');
+	console.log('Minting Contest fixed contract...');
+	await openQ.mintBounty(otherOrgIssueIds[6], otherOrgIssueOwners[6], contestFixedInitOperation);
+	await optionalSleep(10000);
+	console.log('Minting Contest fixed contract deployed!');
 
 	console.log('\nBounties Deployed Successfully!');
 }
