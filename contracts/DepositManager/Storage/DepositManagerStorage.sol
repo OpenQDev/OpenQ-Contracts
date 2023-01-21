@@ -10,28 +10,20 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 /**
  * @dev Custom imports inherited by DepositManagerV1
  */
-import '../OpenQ/IOpenQ.sol';
-import '../Tokens/OpenQTokenWhitelist.sol';
-import '../Bounty/Implementations/BountyV3.sol';
-import '../Library/Errors.sol';
+import '..//Interfaces/IDepositManager.sol';
+import '../../Tokens/OpenQTokenWhitelist.sol';
+import '../../Bounty/Implementations/BountyV1.sol';
+import '../../Library/Errors.sol';
 
 /**
  * @title DepositManagerStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by DepositManager implementations
  */
 abstract contract DepositManagerStorageV1 is
+    IDepositManager,
     OwnableUpgradeable,
-    UUPSUpgradeable,
-    IOpenQ
+    UUPSUpgradeable
 {
     uint256 public constant VERSION_1 = 1;
     OpenQTokenWhitelist public openQTokenWhitelist;
-}
-
-/**
- * @title DepositManagerStorageV2
- * @dev Backwards compatible, append-only chain of storage contracts inherited by DepositManager implementations
- */
-abstract contract DepositManagerStorageV2 is DepositManagerStorageV1 {
-    uint256 public constant VERSION_2 = 2;
 }

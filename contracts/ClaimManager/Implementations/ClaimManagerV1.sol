@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-import '../ClaimManagerStorage.sol';
-import 'hardhat/console.sol';
+import '../Storage/ClaimManagerStorage.sol';
 
 /**
  * @title ClaimManager
  * @dev Contract with claim abilities on work contracts
  */
-contract ClaimManagerV3 is ClaimManagerStorageV3 {
+contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /**
      * INITIALIZATION
      */
@@ -36,7 +35,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         address _closer,
         bytes calldata _closerData
     ) external onlyOracle onlyProxy {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
 
         if (_bountyType == OpenQDefinitions.ATOMIC) {
@@ -55,7 +54,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                 block.timestamp,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_3
+                VERSION_1
             );
         } else if (_bountyType == OpenQDefinitions.ONGOING) {
             require(
@@ -71,7 +70,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
             revert();
         }
 
-        emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_3);
+        emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_1);
     }
 
     /**
@@ -79,7 +78,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
      */
 
     function _claimSingle(
-        BountyV3 bounty,
+        BountyV1 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -99,7 +98,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_3
+                VERSION_1
             );
         }
 
@@ -116,13 +115,13 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                 bounty.tokenId(bounty.nftDeposits(i)),
                 bounty.bountyType(),
                 _closerData,
-                VERSION_3
+                VERSION_1
             );
         }
     }
 
     function _claimOngoing(
-        BountyV3 bounty,
+        BountyV1 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -141,12 +140,12 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
             volume,
             bounty.bountyType(),
             _closerData,
-            VERSION_3
+            VERSION_1
         );
     }
 
     function _claimTiered(
-        BountyV3 bounty,
+        BountyV1 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -168,7 +167,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                 block.timestamp,
                 bounty.bountyType(),
                 new bytes(0),
-                VERSION_3
+                VERSION_1
             );
         }
 
@@ -189,7 +188,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                 volume,
                 bounty.bountyType(),
                 _closerData,
-                VERSION_3
+                VERSION_1
             );
         }
 
@@ -208,7 +207,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                     bounty.tokenId(_depositId),
                     bounty.bountyType(),
                     _closerData,
-                    VERSION_3
+                    VERSION_1
                 );
             }
         }
@@ -217,7 +216,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
     }
 
     function _claimTieredFixed(
-        BountyV3 bounty,
+        BountyV1 bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -239,7 +238,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                 block.timestamp,
                 bounty.bountyType(),
                 new bytes(0),
-                VERSION_3
+                VERSION_1
             );
         }
 
@@ -255,7 +254,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
             volume,
             bounty.bountyType(),
             _closerData,
-            VERSION_3
+            VERSION_1
         );
 
         for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
@@ -273,7 +272,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
                     bounty.tokenId(_depositId),
                     bounty.bountyType(),
                     _closerData,
-                    VERSION_3
+                    VERSION_1
                 );
             }
         }
@@ -294,7 +293,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         view
         returns (bool)
     {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         uint256 status = bounty.status();
         uint256 _bountyType = bounty.bountyType();
@@ -345,12 +344,10 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         string calldata _externalUserId,
         bytes calldata _closerData
     ) external onlyProxy {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        address closer = IOpenQV2(openQ).externalUserIdToAddress(
-            _externalUserId
-        );
+        address closer = IOpenQ(openQ).externalUserIdToAddress(_externalUserId);
 
         require(closer != address(0), Errors.NO_ASSOCIATED_ADDRESS);
 
@@ -366,7 +363,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
             block.timestamp,
             bounty.bountyType(),
             _closerData,
-            VERSION_3
+            VERSION_1
         );
     }
 
@@ -382,14 +379,14 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
         address _bountyAddress,
         bytes calldata _closerData
     ) external onlyProxy hasKYC {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         (, , , , uint256 _tier) = abi.decode(
             _closerData,
             (address, string, address, string, uint256)
         );
 
-        string memory closer = IOpenQV2(openQ).addressToExternalUserId(
+        string memory closer = IOpenQ(openQ).addressToExternalUserId(
             msg.sender
         );
 
@@ -424,7 +421,7 @@ contract ClaimManagerV3 is ClaimManagerStorageV3 {
             block.timestamp,
             bounty.bountyType(),
             _closerData,
-            VERSION_3
+            VERSION_1
         );
     }
 

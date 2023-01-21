@@ -31,11 +31,11 @@ describe('BountyFactory', () => {
 	const mockOpenQId = "mockOpenQId"
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV4');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');
-		BountyV1 = await hre.ethers.getContractFactory('BountyV3');
+		BountyV1 = await hre.ethers.getContractFactory('BountyV1');
 
 		[owner, oracle, notOpenQ, claimManager, depositManager] = await ethers.getSigners();
 

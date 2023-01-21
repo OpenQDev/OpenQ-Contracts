@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-import './DepositManagerStorage.sol';
+import '../Storage/DepositManagerStorage.sol';
 
-contract DepositManagerV2 is DepositManagerStorageV2 {
+contract DepositManagerV1 is DepositManagerStorageV1 {
     /**
      * INITIALIZATION
      */
@@ -45,7 +45,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         uint256 _expiration,
         string memory funderUuid
     ) external payable onlyProxy {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         if (!isWhitelisted(_tokenAddress)) {
             require(
@@ -74,7 +74,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
             volumeReceived,
             0,
             funderUuidBytes,
-            VERSION_2
+            VERSION_1
         );
     }
 
@@ -89,7 +89,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         bytes32 _depositId,
         uint256 _seconds
     ) external onlyProxy {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -107,7 +107,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
             newExpiration,
             0,
             new bytes(0),
-            VERSION_2
+            VERSION_1
         );
     }
 
@@ -126,7 +126,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         uint256 _expiration,
         uint256 _tier
     ) external onlyProxy {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
         require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
@@ -151,7 +151,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
             _tokenId,
             0,
             new bytes(0),
-            VERSION_2
+            VERSION_1
         );
     }
 
@@ -164,7 +164,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         external
         onlyProxy
     {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -201,7 +201,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
             volume,
             0,
             new bytes(0),
-            VERSION_2
+            VERSION_1
         );
     }
 
@@ -224,7 +224,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
         view
         returns (bool)
     {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         return
             bounty.getTokenAddressesCount() >=
@@ -237,7 +237,7 @@ contract DepositManagerV2 is DepositManagerStorageV2 {
      * @return bool True if _bountyId is associated with an open bounty
      */
     function bountyIsOpen(address _bountyAddress) public view returns (bool) {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }

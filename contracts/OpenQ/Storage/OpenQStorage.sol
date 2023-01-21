@@ -11,12 +11,12 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 /**
  * @dev Custom imports inherited by OpenQV1
  */
-import '../BountyFactory/BountyFactory.sol';
-import '../Bounty/Implementations/BountyV3.sol';
-import '../Library/OpenQDefinitions.sol';
-import '../Library/Errors.sol';
-import '../OpenQ/IOpenQ.sol';
-import '../Oracle/Oraclize.sol';
+import '../../BountyFactory/BountyFactory.sol';
+import '../../Bounty/Implementations/BountyV1.sol';
+import '../../Library/OpenQDefinitions.sol';
+import '../../Library/Errors.sol';
+import '../../OpenQ/Interfaces/IOpenQ.sol';
+import '../../Oracle/Oraclize.sol';
 
 /**
  * @title OpenQStorageV1
@@ -26,25 +26,14 @@ abstract contract OpenQStorageV1 is
     IOpenQ,
     OwnableUpgradeable,
     UUPSUpgradeable,
-    ReentrancyGuardUpgradeable
+    ReentrancyGuardUpgradeable,
+    Oraclize
 {
     uint256 public constant VERSION_1 = 1;
     BountyFactory public bountyFactory;
     address public claimManager;
     address public depositManager;
     mapping(string => address) public bountyIdToAddress;
-}
-
-abstract contract OpenQStorageV2 is OpenQStorageV1, Oraclize {
-    uint256 public constant VERSION_2 = 2;
     mapping(string => address) public externalUserIdToAddress;
     mapping(address => string) public addressToExternalUserId;
-}
-
-abstract contract OpenQStorageV3 is OpenQStorageV2 {
-    uint256 public constant VERSION_3 = 3;
-}
-
-abstract contract OpenQStorageV4 is OpenQStorageV3 {
-    uint256 public constant VERSION_4 = 4;
 }

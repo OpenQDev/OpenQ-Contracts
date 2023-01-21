@@ -15,23 +15,24 @@ import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgra
 /**
  * @dev Custom imports inherited by BountyV0
  */
-import '../OnlyOpenQ/OnlyOpenQ.sol';
-import '../ClaimManager/ClaimManagerOwnable.sol';
-import '../DepositManager/DepositManagerOwnable.sol';
-import '../Library/OpenQDefinitions.sol';
-import '../Library/Errors.sol';
+import '../../OnlyOpenQ/OnlyOpenQ.sol';
+import '../../ClaimManager/ClaimManagerOwnable.sol';
+import '../../DepositManager/DepositManagerOwnable.sol';
+import '../../Library/OpenQDefinitions.sol';
+import '../../Library/Errors.sol';
 
 /**
- * @title BountyStorageV0
+ * @title BountyStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
  */
-abstract contract BountyStorageV0 is
+abstract contract BountyStorageV1 is
     ReentrancyGuardUpgradeable,
     ERC721HolderUpgradeable,
     OnlyOpenQ,
     ClaimManagerOwnable,
     DepositManagerOwnable
 {
+    uint256 public constant VERSION_1 = 1;
     /**
      * @dev Bounty data
      */
@@ -73,9 +74,7 @@ abstract contract BountyStorageV0 is
      * @dev Data related to the closer of this bounty
      */
     bytes public closerData;
-}
 
-abstract contract BountyStorageV1 is BountyStorageV0 {
     /**
     The class/type of bounty (Single, Ongoing, or Tiered)
     type is a reserved word in Solidity
@@ -103,14 +102,8 @@ abstract contract BountyStorageV1 is BountyStorageV0 {
     bool public hasFundingGoal;
     address public fundingToken;
     uint256 public fundingGoal;
-}
-
-abstract contract BountyStorageV2 is BountyStorageV1 {
     bool public invoiceable;
     bool public kycRequired;
-}
-
-abstract contract BountyStorageV3 is BountyStorageV2 {
     string public externalUserId;
     bool public supportingDocuments;
     bool[] public invoiceComplete;

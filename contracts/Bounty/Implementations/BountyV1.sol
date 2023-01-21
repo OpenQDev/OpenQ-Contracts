@@ -4,14 +4,13 @@ pragma solidity 0.8.17;
 /**
  * @dev Custom imports - all transitive imports live in BountyStorage
  */
-import '../../Storage/BountyStorage.sol';
-import 'hardhat/console.sol';
+import '../Storage/BountyStorage.sol';
 
 /**
- * @title BountyV3
+ * @title BountyV1
  * @dev Bounty Implementation Version 3
  */
-contract BountyV3 is BountyStorageV3 {
+contract BountyV1 is BountyStorageV1 {
     /**
      * INITIALIZATION
      */
@@ -689,7 +688,7 @@ contract BountyV3 is BountyStorageV3 {
         view
         returns (uint256)
     {
-        BountyV3 bounty = BountyV3(payable(_bountyAddress));
+        BountyV1 bounty = BountyV1(payable(_bountyAddress));
 
         uint256 lockedFunds;
         bytes32[] memory depList = bounty.getDeposits();
