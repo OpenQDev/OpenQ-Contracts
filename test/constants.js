@@ -11,7 +11,7 @@ const Constants = {
 	mockId: 'mockId',
 	bountyId: 'bountyId',
 	organization: 'mockOrganization',
-	mockFunderUuid: 'mock-funder-uuid',
+	funderUuid: 'mock-funder-uuid',
 };
 
 module.exports = Constants;
