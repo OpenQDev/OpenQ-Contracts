@@ -20,6 +20,6 @@ abstract contract OngoingBountyStorageV1 is BountyCore {
     // keccak256 hash of the claimant ID (GitHub ID) with the claimant asset ID (GitHub PR ID)
     mapping(bytes32 => bool) public claimantId;
 
-    mapping(string => bool) public invoiceComplete;
-    mapping(string => bool) public supportingDocumentsComplete;
+    mapping(bytes32 => bool) public invoiceComplete;
+    mapping(bytes32 => bool) public supportingDocumentsComplete;
 }

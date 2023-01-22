@@ -138,9 +138,9 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
      * @param _data Whether or not KYC is required to fund and claim the bounty
      */
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
-        (string memory _claimId, bool _invoiceComplete) = abi.decode(
+        (bytes32 _claimId, bool _invoiceComplete) = abi.decode(
             _data,
-            (string, bool)
+            (bytes32, bool)
         );
         invoiceComplete[_claimId] = _invoiceComplete;
     }
@@ -153,8 +153,10 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         external
         onlyOpenQ
     {
-        (string memory _claimId, bool _supportingDocumentsComplete) = abi
-            .decode(_data, (string, bool));
+        (bytes32 _claimId, bool _supportingDocumentsComplete) = abi.decode(
+            _data,
+            (bytes32, bool)
+        );
         supportingDocumentsComplete[_claimId] = _supportingDocumentsComplete;
     }
 

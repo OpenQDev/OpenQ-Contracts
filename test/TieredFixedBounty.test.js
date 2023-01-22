@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('./utils');
 
-describe.only('TieredFixedBountyV1.sol', () => {
+describe('TieredFixedBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 
@@ -230,7 +230,7 @@ describe.only('TieredFixedBountyV1.sol', () => {
 
 	describe('close', () => {
 		describe('TIERED - closeCompetition', () => {
-			it.only('should set bounty status to 1 and set bountyClosedTime', async () => {
+			it('should set bounty status to 1 and set bountyClosedTime', async () => {
 				// ASSUME
 				let status = await tieredFixedContract.status();
 				let bountyClosedTime = await tieredFixedContract.bountyClosedTime();
