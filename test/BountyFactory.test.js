@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 
-describe.only('BountyFactory', () => {
+describe('BountyFactory', () => {
 	let openQImplementation;
 	let openQProxy;
 	let bountyFactory;
@@ -65,7 +65,7 @@ describe.only('BountyFactory', () => {
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
 
-		// BOUNTY IMPLEMENTATION
+		// BOUNTY IMPLEMENTATIONS
 		atomicBountyV1 = await AtomicBountyV1.deploy();
 		await atomicBountyV1.deployed();
 		
