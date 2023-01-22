@@ -28,8 +28,6 @@ describe.only('OpenQ.sol', () => {
 	let notIssuer;
 
 	// CONSTANTS
-	const mockOpenQId = "mockOpenQId"
-	const mockId = "mockId";
 	const bountyId = "bountyId";
 	const organization = "mockOrganization";
 	let mockFunderUuid = 'mock-funder-uuid';
@@ -170,19 +168,19 @@ describe.only('OpenQ.sol', () => {
 
 		abiCoder = new ethers.utils.AbiCoder;
 
-		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
+		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, atomicBountyAbiEncodedParams];
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		ongoingBountyInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParams];
 
-		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
+		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredBountyInitOperation = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
 
-		const tieredAbiEncodedParamsNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10, 90], true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
+		const tieredAbiEncodedParamsNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10, 90], true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredBountyInitOperationNot100 = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParamsNot100];
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -230,7 +228,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(await atomicContract.fundingGoal()).equals(1000);
 				await expect(await atomicContract.invoiceable()).equals(true);
 				await expect(await atomicContract.kycRequired()).equals(true);
-				await expect(await atomicContract.externalUserId()).equals(mockOpenQId);
+				await expect(await atomicContract.externalUserId()).equals(Constants.mockOpenQId);
 				await expect(await atomicContract.supportingDocuments()).equals(true);
 			});
 
@@ -312,7 +310,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(await ongoingContract.fundingGoal()).equals(1000);
 				await expect(await ongoingContract.invoiceable()).equals(true);
 				await expect(await ongoingContract.kycRequired()).equals(true);
-				await expect(await ongoingContract.externalUserId()).equals(mockOpenQId);
+				await expect(await ongoingContract.externalUserId()).equals(Constants.mockOpenQId);
 				await expect(await ongoingContract.supportingDocuments()).equals(true);
 			});
 		});
@@ -351,7 +349,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(payoutToString[1]).equals("30");
 				await expect(await tieredPercentageContract.invoiceable()).equals(true);
 				await expect(await tieredPercentageContract.kycRequired()).equals(true);
-				await expect(await tieredPercentageContract.externalUserId()).equals(mockOpenQId);
+				await expect(await tieredPercentageContract.externalUserId()).equals(Constants.mockOpenQId);
 				await expect(await tieredPercentageContract.supportingDocuments()).equals(true);
 	
 				await expect(await tieredPercentageContract.invoiceComplete(0)).equals(false);
@@ -397,7 +395,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(payoutToString[1]).equals("20");
 				await expect(await tieredFixedContract.invoiceable()).equals(true);
 				await expect(await tieredFixedContract.kycRequired()).equals(true);
-				await expect(await tieredFixedContract.externalUserId()).equals(mockOpenQId);
+				await expect(await tieredFixedContract.externalUserId()).equals(Constants.mockOpenQId);
 				await expect(await tieredFixedContract.supportingDocuments()).equals(true);
 	
 				await expect(await tieredFixedContract.invoiceComplete(0)).equals(false);
@@ -829,12 +827,12 @@ describe.only('OpenQ.sol', () => {
 			expect(await bounty.tierWinners(1)).to.equal("");
 
 			// ACT
-			await openQProxy.setTierWinner(bountyId, 0, mockOpenQId);
-			await openQProxy.setTierWinner(bountyId, 1, mockOpenQId+"2");
+			await openQProxy.setTierWinner(bountyId, 0, Constants.mockOpenQId);
+			await openQProxy.setTierWinner(bountyId, 1, Constants.mockOpenQId+"2");
 
 			// ASSERT
-			expect(await bounty.tierWinners(0)).to.equal(mockOpenQId);
-			expect(await bounty.tierWinners(1)).to.equal(mockOpenQId+"2");
+			expect(await bounty.tierWinners(0)).to.equal(Constants.mockOpenQId);
+			expect(await bounty.tierWinners(1)).to.equal(Constants.mockOpenQId+"2");
 		});
 
 		it('should emit an TierWinnerSelected event', async () => {
@@ -844,9 +842,9 @@ describe.only('OpenQ.sol', () => {
 			const bounty = await TieredFixedBountyV1.attach(bountyAddress);
 
 			// ACT/ASSERT
-			await expect(await openQProxy.setTierWinner(bountyId, 0, mockOpenQId))
+			await expect(await openQProxy.setTierWinner(bountyId, 0, Constants.mockOpenQId))
 				.to.emit(openQProxy, 'TierWinnerSelected')
-				.withArgs(bountyAddress, [mockOpenQId], [], Constants.VERSION_1);
+				.withArgs(bountyAddress, [Constants.mockOpenQId], [], Constants.VERSION_1);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -855,7 +853,7 @@ describe.only('OpenQ.sol', () => {
 			const notOwnerContract = openQProxy.connect(oracle);
 
 			// ACT/ASSERT
-			await expect(notOwnerContract.setTierWinner(bountyId, 0, mockOpenQId)).to.be.revertedWith('CALLER_NOT_ISSUER');
+			await expect(notOwnerContract.setTierWinner(bountyId, 0, Constants.mockOpenQId)).to.be.revertedWith('CALLER_NOT_ISSUER');
 		});
 	});
 
