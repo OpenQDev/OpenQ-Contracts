@@ -867,7 +867,7 @@ describe.only('OpenQ.sol', () => {
 		});
 	});
 
-	describe.only('setPayout', () => {
+	describe('setPayout', () => {
 		it('should set payout', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, organization, ongoingBountyInitOperation);
@@ -1019,7 +1019,7 @@ describe.only('OpenQ.sol', () => {
 			// ACT
 			await expect(openQProxy.connect(oracle).associateExternalIdToAddress(exampleGithubId, owner.address))
 				.to.emit(openQProxy, 'ExternalUserIdAssociatedWithAddress')
-				.withArgs(exampleGithubId, owner.address, [], 4);
+				.withArgs(exampleGithubId, owner.address, [], VERSION_1);
 		});
 	});
 

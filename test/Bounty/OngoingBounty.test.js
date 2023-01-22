@@ -264,6 +264,29 @@ describe('OngoingBountyV1.sol', () => {
 		});
 	});
 
+	describe('setPayout', () => {
+		it('should revert if not called by OpenQ contract', async () => {
+			// ARRANGE
+			const [, notOwner] = await ethers.getSigners();
+
+			// ASSERT
+			await expect(ongoingContract.connect(notOwner).setPayout(mockLink.address, 100)).to.be.revertedWith('Method is only callable by OpenQ');
+		});
+
+		it('should set payoutTokenAddress and payoutTokenVolume', async () => {
+			// ASSUME
+			expect(await ongoingContract.payoutTokenAddress()).to.equal(mockLink.address)
+			expect(await ongoingContract.payoutVolume()).to.equal(100)
+
+			// ACT
+			await ongoingContract.setPayout(mockDai.address, 250);
+
+			// ASSERT
+			expect(await ongoingContract.payoutTokenAddress()).to.equal(mockDai.address)
+			expect(await ongoingContract.payoutVolume()).to.equal(250)
+		})
+	})
+
 	describe('closeOngoing', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
