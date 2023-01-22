@@ -116,6 +116,4 @@ interface IBountyCore {
     function supportingDocuments() external returns (bool);
 
     function externalUserId() external returns (string memory);
-
-    function tokenAddresses(uint256) external returns (address[] memory);
 }
