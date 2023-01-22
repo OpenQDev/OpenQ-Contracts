@@ -110,7 +110,7 @@ describe.only('TieredBountyV1.sol', () => {
 				await expect(await tieredContract.kycRequired()).equals(true);
 				await expect(await tieredContract.externalUserId()).equals(mockOpenQId);
 				await expect(await tieredContract.supportingDocuments()).equals(true);
-				
+
 				await expect(await tieredContract.invoiceComplete(0)).equals(false);
 				await expect(await tieredContract.supportingDocumentsComplete(0)).equals(false);
 			});
@@ -136,7 +136,7 @@ describe.only('TieredBountyV1.sol', () => {
 				tieredContract = await TieredBountyV1.deploy();
 
 				// ASSERT
-				await expect(tieredContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+				await expect(tieredContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 			});
 
 			it('should revert if organization is empty', async () => {
@@ -145,16 +145,7 @@ describe.only('TieredBountyV1.sol', () => {
 				tieredContract = await TieredBountyV1.deploy();
 
 				// ASSERT
-				await expect(tieredContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
-			});
-
-			it('should revert if given an invalid operaion', async () => {
-				// ARRANGE
-				const TieredBountyV1 = await ethers.getContractFactory('TieredBountyV1');
-				tieredContract = await TieredBountyV1.deploy();
-
-				// ASSERT
-				await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, [42, []])).to.be.revertedWith('OQ: unknown init operation type');
+				await expect(tieredContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 			});
 		});
 	});

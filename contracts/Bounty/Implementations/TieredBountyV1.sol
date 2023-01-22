@@ -82,6 +82,13 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
                 )
             );
 
+        uint256 sum;
+        for (uint256 i = 0; i < _payoutSchedule.length; i++) {
+            sum += _payoutSchedule[i];
+        }
+        require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
+        payoutSchedule = _payoutSchedule;
+
         bountyType = OpenQDefinitions.TIERED;
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
@@ -90,7 +97,11 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
-        payoutSchedule = _payoutSchedule;
+
+        // Initialize metadata arrays to same number of tiers
+        tierWinners = new string[](_payoutSchedule.length);
+        invoiceComplete = new bool[](_payoutSchedule.length);
+        supportingDocumentsComplete = new bool[](_payoutSchedule.length);
     }
 
     /**
@@ -249,6 +260,14 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
         nftDeposits.push(depositId);
 
         return depositId;
+    }
+
+    /**
+     * @dev Returns an array for the payoutSchedule
+     * @return payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
+     */
+    function getPayoutSchedule() external view returns (uint256[] memory) {
+        return payoutSchedule;
     }
 
     /**

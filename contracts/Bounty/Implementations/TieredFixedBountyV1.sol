@@ -91,6 +91,11 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
         payoutSchedule = _payoutSchedule;
+
+        // Initialize metadata arrays to same number of tiers
+        tierWinners = new string[](_payoutSchedule.length);
+        invoiceComplete = new bool[](_payoutSchedule.length);
+        supportingDocumentsComplete = new bool[](_payoutSchedule.length);
     }
 
     /**
@@ -149,6 +154,29 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         );
         payoutSchedule = _payoutSchedule;
         payoutTokenAddress = _payoutTokenAddress;
+
+        // Resize metadata arrays and copy current members to new array
+        // NOTE: If resizing to fewer tiers than previously, the final indexes will be removed
+        string[] memory newTierWinners = new string[](payoutSchedule.length);
+        bool[] memory newInvoiceComplete = new bool[](payoutSchedule.length);
+        bool[] memory newSupportingDocumentsCompleted = new bool[](
+            payoutSchedule.length
+        );
+
+        for (uint256 i = 0; i < tierWinners.length; i++) {
+            newTierWinners[i] = tierWinners[i];
+        }
+        tierWinners = newTierWinners;
+
+        for (uint256 i = 0; i < invoiceComplete.length; i++) {
+            newInvoiceComplete[i] = invoiceComplete[i];
+        }
+        invoiceComplete = newInvoiceComplete;
+
+        for (uint256 i = 0; i < supportingDocumentsComplete.length; i++) {
+            newSupportingDocumentsCompleted[i] = supportingDocumentsComplete[i];
+        }
+        supportingDocumentsComplete = newSupportingDocumentsCompleted;
     }
 
     /**
@@ -220,6 +248,14 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         nftDeposits.push(depositId);
 
         return depositId;
+    }
+
+    /**
+     * @dev Returns an array for the payoutSchedule
+     * @return payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
+     */
+    function getPayoutSchedule() external view returns (uint256[] memory) {
+        return payoutSchedule;
     }
 
     /**

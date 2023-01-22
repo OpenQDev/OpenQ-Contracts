@@ -31,4 +31,6 @@ interface IBountyTiered is IBountyCore {
     ) external returns (uint256);
 
     function tier(bytes32) external view returns (uint256);
+
+    function getPayoutSchedule() external view returns (uint256[] memory);
 }
