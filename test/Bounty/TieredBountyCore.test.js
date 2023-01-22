@@ -27,7 +27,7 @@ describe('TieredBountyCore.sol', () => {
 
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	const thirtyDays = 2765000;
+	
 
 	// INITIALIZATION OPERATIONS
 	let tieredFixedBountyInitOperation;
@@ -128,13 +128,13 @@ describe('TieredBountyCore.sol', () => {
 				// ACT
 				const expectedTimestamp = await setNextBlockTimestamp();
 				const depositId = generateDepositId(Constants.bountyId, 0);
-				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, thirtyDays, tierData);
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, Constants.thirtyDays, tierData);
 
 				// ASSERT
 				expect(await tieredFixedContract.funder(depositId)).to.equal(owner.address);
 				expect(await tieredFixedContract.tokenAddress(depositId)).to.equal(mockNft.address);
 				expect(await tieredFixedContract.tokenId(depositId)).to.equal(1);
-				expect(await tieredFixedContract.expiration(depositId)).to.equal(thirtyDays);
+				expect(await tieredFixedContract.expiration(depositId)).to.equal(Constants.thirtyDays);
 				expect(await tieredFixedContract.isNFT(depositId)).to.equal(true);
 
 				const depositTime = await tieredFixedContract.depositTime(depositId);

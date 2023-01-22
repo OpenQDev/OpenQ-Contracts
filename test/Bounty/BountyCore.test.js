@@ -27,7 +27,7 @@ describe('BountyCore.sol', () => {
 
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	const thirtyDays = 2765000;
+	
 	const mockId = "mockId";
 	const organization = "mockOrg";
 	const mockOpenQId = "mockOpenQId";
@@ -103,17 +103,17 @@ describe('BountyCore.sol', () => {
 				const [, , , , notDepositManager] = await ethers.getSigners();
 
 				// ASSERT
-				await expect(atomicContract.connect(notDepositManager).receiveFunds(owner.address, mockLink.address, 100, thirtyDays)).to.be.revertedWith('DepositManagerOwnable: caller is not the current OpenQ Deposit Manager');
+				await expect(atomicContract.connect(notDepositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays)).to.be.revertedWith('DepositManagerOwnable: caller is not the current OpenQ Deposit Manager');
 			});
 
 			it('should revert if no volume is sent', async () => {
 				// ASSERT
-				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 0, thirtyDays)).to.be.revertedWith('ZERO_VOLUME_SENT');
+				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 0, Constants.thirtyDays)).to.be.revertedWith('ZERO_VOLUME_SENT');
 			});
 
 			it('should revert if funder tries to send more than allowance', async () => {
 				const greaterThanAllowance = 100000000;
-				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, greaterThanAllowance, thirtyDays)).to.be.revertedWith('ERC20: insufficient allowance');
+				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, greaterThanAllowance, Constants.thirtyDays)).to.be.revertedWith('ERC20: insufficient allowance');
 			});
 
 			it('should revert if expiration is negative', async () => {
@@ -125,7 +125,7 @@ describe('BountyCore.sol', () => {
 				const volume = 1000;
 				await atomicContract.connect(claimManager).close(owner.address, []);
 
-				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays)).to.be.revertedWith('CONTRACT_IS_CLOSED');
+				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, Constants.thirtyDays)).to.be.revertedWith('CONTRACT_IS_CLOSED');
 			});
 		});
 
@@ -136,19 +136,19 @@ describe('BountyCore.sol', () => {
 				const expectedTimestamp = await setNextBlockTimestamp();
 
 				// ACT
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
 
 				// ASSERT
 				expect(await atomicContract.funder(depositId)).to.equal(owner.address);
 				expect(await atomicContract.tokenAddress(depositId)).to.equal(mockLink.address);
 				expect(await atomicContract.volume(depositId)).to.equal(100);
-				expect(await atomicContract.expiration(depositId)).to.equal(thirtyDays);
+				expect(await atomicContract.expiration(depositId)).to.equal(Constants.thirtyDays);
 				expect(await atomicContract.isNFT(depositId)).to.equal(false);
 				expect(await atomicContract.depositTime(depositId)).to.equal(expectedTimestamp);
 			});
 
 			it('should create a globally unique deposit id across all bounties', async () => {
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
 				const deposits = await atomicContract.getDeposits();
 				const depositId = deposits[0];
 
@@ -157,7 +157,7 @@ describe('BountyCore.sol', () => {
 				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
 				await mockLink.approve(newBounty.address, 20000);
-				await newBounty.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+				await newBounty.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
 				const newDeposits = await newBounty.getDeposits();
 				const newDepositId = newDeposits[0];
 
@@ -168,8 +168,8 @@ describe('BountyCore.sol', () => {
 		describe('TOKEN ADDRESSES', () => {
 			it('should add funding address to token address set', async () => {
 				// ACT
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
 
 				const tokenAddresses = await atomicContract.getTokenAddresses();
 				expect(tokenAddresses.length).to.equal(1);
@@ -195,8 +195,8 @@ describe('BountyCore.sol', () => {
 					const value = 100;
 
 					// ACT
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, value, thirtyDays);
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, value, thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, value, Constants.thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, value, Constants.thirtyDays);
 
 					// ASSERT
 					const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -228,8 +228,8 @@ describe('BountyCore.sol', () => {
 					const value = 100;
 
 					// ACT
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, value, thirtyDays);
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, value, thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, value, Constants.thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, value, Constants.thirtyDays);
 
 					// ASSERT
 					const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -248,7 +248,7 @@ describe('BountyCore.sol', () => {
 		describe('PROTOCOL TOKEN TRANSFER', () => {
 			it('should accept msg.value if token address is zero address', async () => {
 				const volume = ethers.utils.parseEther("1.0");
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, Constants.thirtyDays, { value: volume });
 				const bountyProtocolTokenBalance = await atomicContract.provider.getBalance(atomicContract.address);
 				expect(bountyProtocolTokenBalance).to.equal(volume);
 			});

@@ -27,7 +27,7 @@ describe('AtomicBountyV1.sol', () => {
 
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	const thirtyDays = 2765000;
+	
 
 	// INITIALIZATION OPERATIONS
 	let atomicBountyInitOperation;
@@ -166,13 +166,13 @@ describe('AtomicBountyV1.sol', () => {
 				// ACT
 				const expectedTimestamp = await setNextBlockTimestamp();
 				const depositId = generateDepositId(Constants.bountyId, 0);
-				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, thirtyDays, []);
+				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, Constants.thirtyDays, []);
 
 				// ASSERT
 				expect(await atomicContract.funder(depositId)).to.equal(owner.address);
 				expect(await atomicContract.tokenAddress(depositId)).to.equal(mockNft.address);
 				expect(await atomicContract.tokenId(depositId)).to.equal(1);
-				expect(await atomicContract.expiration(depositId)).to.equal(thirtyDays);
+				expect(await atomicContract.expiration(depositId)).to.equal(Constants.thirtyDays);
 				expect(await atomicContract.isNFT(depositId)).to.equal(true);
 
 				const depositTime = await atomicContract.depositTime(depositId);
@@ -202,7 +202,7 @@ describe('AtomicBountyV1.sol', () => {
 			const [, claimer] = await ethers.getSigners();
 			const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
 
-			await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, thirtyDays, { value: volume });
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, Constants.thirtyDays, { value: volume });
 
 			const deposits = await atomicContract.getDeposits();
 			const protocolDepositId = deposits[0];
@@ -230,8 +230,8 @@ describe('AtomicBountyV1.sol', () => {
 			const [, claimer] = await ethers.getSigners();
 			const initialClaimerProtocolBalance = (await atomicContract.provider.getBalance(claimer.address));
 
-			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, thirtyDays);
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, Constants.thirtyDays);
+			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, Constants.thirtyDays);
 
 			const deposits = await atomicContract.getDeposits();
 			const linkDepositId = deposits[0];

@@ -8,7 +8,7 @@ require('@nomiclabs/hardhat-waffle');
 const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe.only('TieredPercentageBountyV1.sol', () => {
+describe('TieredPercentageBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredPercentageBountyV1;
 
@@ -27,7 +27,7 @@ describe.only('TieredPercentageBountyV1.sol', () => {
 
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	const thirtyDays = 2765000;
+	
 
 	// INITIALIZATION OPERATIONS
 	let tieredBountyInitOperation;
@@ -159,7 +159,7 @@ describe.only('TieredPercentageBountyV1.sol', () => {
 
 			const [, firstPlace, secondPlace] = await ethers.getSigners();
 
-			await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+			await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, Constants.thirtyDays);
 
 			const deposits = await tieredContract.getDeposits();
 			const linkDepositId = deposits[0];
@@ -201,7 +201,7 @@ describe.only('TieredPercentageBountyV1.sol', () => {
 
 			const [, firstPlace, secondPlace] = await ethers.getSigners();
 
-			await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+			await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, Constants.thirtyDays);
 
 			// ASSUME
 			const bountyMockTokenBalance = (await mockLink.balanceOf(tieredContract.address)).toString();

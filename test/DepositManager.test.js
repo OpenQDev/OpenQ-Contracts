@@ -29,15 +29,7 @@ describe('DepositManager.sol', () => {
 	let claimant;
 
 	// CONSTANTS
-	const mockOpenQId = "mockOpenQId"
-	const mockId = "mockId";
-	const bountyId = "bountyId";
-	const organization = "mockOrganization";
-	const funderUuid = 'mock-funder-uuid';
 	let funderUuidEncoded;
-
-	// VERSIONS
-	const VERSION_1 = 1;
 
 	// INIT OPERATIONS
 	let atomicBountyInitOperation;
@@ -174,18 +166,18 @@ describe('DepositManager.sol', () => {
 
 		abiCoder = new ethers.utils.AbiCoder;
 		
-		funderUuidEncoded = abiCoder.encode(["string"], [funderUuid]);
+		funderUuidEncoded = abiCoder.encode(["string"], [Constants.funderUuid]);
 
-		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
+		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, atomicBountyAbiEncodedParams];
 
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
+		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		ongoingBountyInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParams];
 
-		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
+		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredPercentageBountyInitOperation = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -239,21 +231,21 @@ describe('DepositManager.sol', () => {
 	describe('fundBounty', () => {
 		it('should revert if bounty is already closed', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 			await mockLink.approve(bountyAddress, 10000000);
 
 			// ACT + ASSERT;
-			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
+			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
 		it('should revert if tiered bounty is already closed', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, tieredPercentageBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredPercentageBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData);
 
@@ -261,14 +253,14 @@ describe('DepositManager.sol', () => {
 			await mockDai.approve(bountyAddress, 10000000);
 
 			// ACT + ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
+			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
 		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 			await blacklistedMockDai.approve(bountyAddress, 10000000);
 			await mockLink.approve(bountyAddress, 10000000);
@@ -276,17 +268,17 @@ describe('DepositManager.sol', () => {
 			// set lower capacity for token
 			await openQTokenWhitelist.setTokenAddressLimit(1);
 
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, funderUuid);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid);
 
 			// ACT + ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, blacklistedMockDai.address, 10000000, 1, funderUuid)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
+			await expect(depositManager.fundBountyToken(bountyAddress, blacklistedMockDai.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
 		});
 
 		it('should ALLOW funding with whitelisted token EVEN IF bounty is at funded token address capacity', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 			await mockDai.approve(bountyAddress, 10000000);
 			await mockLink.approve(bountyAddress, 10000000);
@@ -294,23 +286,23 @@ describe('DepositManager.sol', () => {
 			// set lower capacity for token
 			await openQTokenWhitelist.setTokenAddressLimit(1);
 
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, funderUuid);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid);
 
 			// ACT + ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, mockDai.address, 10000000, 1, funderUuid)).to.not.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
+			await expect(depositManager.fundBountyToken(bountyAddress, mockDai.address, 10000000, 1, Constants.funderUuid)).to.not.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
 		});
 
 		it('should set funder to msg.sender', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			// ACT
 			await mockLink.approve(bountyAddress, 10000000);
-			depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, funderUuid);
+			depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, Constants.funderUuid);
 
-			const depositId = generateDepositId(bountyId, 0);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 
 			// ASSERT
 			expect(await bounty.funder(depositId)).to.equal(owner.address);
@@ -318,8 +310,8 @@ describe('DepositManager.sol', () => {
 
 		it('should deposit the correct amount from sender to bounty', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			// ASSUME
@@ -339,8 +331,8 @@ describe('DepositManager.sol', () => {
 
 			// ACT
 			const value = 100;
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, value, 1, funderUuid);
-			await depositManager.fundBountyToken(bountyAddress, mockDai.address, value, 1, funderUuid);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, value, 1, Constants.funderUuid);
+			await depositManager.fundBountyToken(bountyAddress, mockDai.address, value, 1, Constants.funderUuid);
 
 			// // ASSERT
 			const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -356,8 +348,8 @@ describe('DepositManager.sol', () => {
 
 		it('should transfer NFT from sender to bounty', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			await mockNft.approve(bountyAddress, 1);
 
 			// ASSUME
@@ -372,27 +364,27 @@ describe('DepositManager.sol', () => {
 
 		it('should emit an NFTDepositReceived event', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			await mockNft.approve(bountyAddress, 1);
 
 			// ASSUME
 			expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
-			const depositId = generateDepositId(bountyId, 0);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 			const expectedTimestamp = await setNextBlockTimestamp();
 
 			// ACT/ASSERT
 			await expect(depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0))
 				.to.emit(depositManager, 'NFTDepositReceived')
-				.withArgs(depositId, bountyAddress, bountyId, organization, mockNft.address, expectedTimestamp, owner.address, 1, 1, 0, [], VERSION_1);
+				.withArgs(depositId, bountyAddress, Constants.bountyId, Constants.organization, mockNft.address, expectedTimestamp, owner.address, 1, 1, 0, [], Constants.VERSION_1);
 		});
 
 		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, depositId, tokenStandard, tokenId, bountyType and data', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 			await mockLink.approve(bountyAddress, 10000000);
 
@@ -400,14 +392,14 @@ describe('DepositManager.sol', () => {
 				bountyAddress
 			);
 
-			const depositId = generateDepositId(bountyId, 0);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 			const expectedTimestamp = await setNextBlockTimestamp();
 
 			// ACT
 			// ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, funderUuid))
+			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, Constants.funderUuid))
 				.to.emit(depositManager, 'TokenDepositReceived')
-				.withArgs(depositId, bountyAddress, bountyId, organization, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, funderUuidEncoded, VERSION_1);
+				.withArgs(depositId, bountyAddress, Constants.bountyId, Constants.organization, mockLink.address, expectedTimestamp, owner.address, 1, 100, 0, funderUuidEncoded, Constants.VERSION_1);
 		});
 	});
 
@@ -415,20 +407,20 @@ describe('DepositManager.sol', () => {
 		describe('Event Emissions', () => {
 			it('should emit DepositRefunded event for refunded deposit', async () => {
 				// ARRANGE
-				await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 
-				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 				const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 				await mockLink.approve(bountyAddress, 10000000);
 
 				const volume = 100;
 				const depositedTimestamp = await setNextBlockTimestamp();
-				const tokenDepositId = generateDepositId(bountyId, 0);
-				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, funderUuid);
+				const tokenDepositId = generateDepositId(Constants.bountyId, 0);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, Constants.funderUuid);
 
-				const protocolDepositId = generateDepositId(bountyId, 1);
-				await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, funderUuid, { value: volume });
+				const protocolDepositId = generateDepositId(Constants.bountyId, 1);
+				await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, Constants.funderUuid, { value: volume });
 
 				const expectedTimestamp = await setNextBlockTimestamp(2764800);
 
@@ -436,21 +428,21 @@ describe('DepositManager.sol', () => {
 				// ASSERT
 				await expect(depositManager.refundDeposit(bountyAddress, protocolDepositId))
 					.to.emit(depositManager, 'DepositRefunded')
-					.withArgs(protocolDepositId, bountyId, bountyAddress, organization, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], VERSION_1);
+					.withArgs(protocolDepositId, Constants.bountyId, bountyAddress, Constants.organization, expectedTimestamp, ethers.constants.AddressZero, volume, 0, [], Constants.VERSION_1);
 
 				const secondExpectedTimestamp = await setNextBlockTimestamp(2764810);
 
 				await expect(depositManager.refundDeposit(bountyAddress, tokenDepositId))
 					.to.emit(depositManager, 'DepositRefunded')
-					.withArgs(tokenDepositId, bountyId, bountyAddress, organization, secondExpectedTimestamp, mockLink.address, volume, 0, [], VERSION_1);
+					.withArgs(tokenDepositId, Constants.bountyId, bountyAddress, Constants.organization, secondExpectedTimestamp, mockLink.address, volume, 0, [], Constants.VERSION_1);
 			});
 		});
 
 		describe('requires and reverts', () => {
 			it('should revert if attempt to withdraw too early', async () => {
 				// Mint Bounty
-				await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 				// Get Escrow Period
 				bounty = await AtomicBountyV1.attach(bountyAddress);
@@ -458,8 +450,8 @@ describe('DepositManager.sol', () => {
 				// Fund Bounty
 				await mockDai.approve(bountyAddress, 100000);
 
-				const depositId = generateDepositId(bountyId, 0);
-				await depositManager.fundBountyToken(bountyAddress, mockDai.address, 100000, 276000, funderUuid);
+				const depositId = generateDepositId(Constants.bountyId, 0);
+				await depositManager.fundBountyToken(bountyAddress, mockDai.address, 100000, 276000, Constants.funderUuid);
 
 				// ACT / ASSERT
 				await expect(depositManager.refundDeposit(bountyAddress, depositId)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
@@ -468,14 +460,14 @@ describe('DepositManager.sol', () => {
 			it('should revert if not funder', async () => {
 				// ARRANGE
 				// Mint Bounty
-				await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 				// Get Escrow Period
 				bounty = await AtomicBountyV1.attach(bountyAddress);
 
 				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(bountyId, 0);
+				const depositId = generateDepositId(Constants.bountyId, 0);
 
 				const escrowPeriod = await bounty.expiration(depositId);
 
@@ -491,23 +483,23 @@ describe('DepositManager.sol', () => {
 		describe('transfer', () => {
 			it('should transfer refunded deposit volume from bounty contract to funder', async () => {
 				// ARRANGE
-				await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 
-				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 				const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 				await mockLink.approve(bountyAddress, 10000000);
 				await mockDai.approve(bountyAddress, 10000000);
 				const volume = 100;
 
-				const linkDepositId = generateDepositId(bountyId, 0);
-				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, funderUuid);
+				const linkDepositId = generateDepositId(Constants.bountyId, 0);
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, Constants.funderUuid);
 
-				const daiDepositId = generateDepositId(bountyId, 1);
-				await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, funderUuid);
+				const daiDepositId = generateDepositId(Constants.bountyId, 1);
+				await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, Constants.funderUuid);
 
-				const protocolDepositId = generateDepositId(bountyId, 2);
-				await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, funderUuid, { value: volume });
+				const protocolDepositId = generateDepositId(Constants.bountyId, 2);
+				await depositManager.fundBountyToken(bountyAddress, ethers.constants.AddressZero, volume, 1, Constants.funderUuid, { value: volume });
 
 				const thirtyTwoDays = 2765000;
 				ethers.provider.send("evm_increaseTime", [thirtyTwoDays]);
@@ -553,13 +545,13 @@ describe('DepositManager.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 				// ARRANGE
-				await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 				const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 				await mockNft.approve(bountyAddress, 1);
 
-				const depositId = generateDepositId(bountyId, 0);
+				const depositId = generateDepositId(Constants.bountyId, 0);
 				await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0);
 
 				// ASSUME
@@ -577,14 +569,14 @@ describe('DepositManager.sol', () => {
 	describe('extendDeposit', () => {
 		it('should extend deposit', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, funderUuid);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, Constants.funderUuid);
 
-			const depositId = generateDepositId(bountyId, 0);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 
 			// ACT
 			await depositManager.extendDeposit(bountyAddress, depositId, 1000);
@@ -596,33 +588,33 @@ describe('DepositManager.sol', () => {
 
 		it('should emit DepositExtended event', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, funderUuid);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, 1, Constants.funderUuid);
 
-			const depositId = generateDepositId(bountyId, 0);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 
 			// ACT
 			await expect(depositManager.extendDeposit(bountyAddress, depositId, 1000))
 				.to.emit(depositManager, 'DepositExtended')
-				.withArgs(depositId, 1001, 0, [], VERSION_1);
+				.withArgs(depositId, 1001, 0, [], Constants.VERSION_1);
 		});
 
 		it('should extend past expiration period if not yet expired', async () => {
 			// Mint Bounty & be the funder
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
 
 			// Make deposit with expiration 10 days and get the deposit ID
 			const firstLockPeriod = 864000;
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod, funderUuid);
-			const depositId = generateDepositId(bountyId, 0);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod, Constants.funderUuid);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 
 			// ACT / ASSERT
 			const secondLockPeriod = 2000;
@@ -633,16 +625,16 @@ describe('DepositManager.sol', () => {
 
 		it('should start from current time for expiration if expired', async () => {
 			// Mint Bounty & be the funder
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			await mockLink.approve(bountyAddress, 10000000);
 
 			// Make deposit and get the deposit ID
 			const firstLockPeriod = 1000;
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod, funderUuid);
-			const depositId = generateDepositId(bountyId, 0);
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod, Constants.funderUuid);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 
 			// ADVANCE TIME (past expiration period)
 			const timePastSinceLock = 2000;
@@ -659,9 +651,9 @@ describe('DepositManager.sol', () => {
 		it('should revert if not funder', async () => {
 			// ARRANGE
 			// Mint Bounty & generate Deposit
-			await openQProxy.mintBounty(bountyId, organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-			const depositId = generateDepositId(bountyId, 0);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+			const depositId = generateDepositId(Constants.bountyId, 0);
 
 			// ACT / ASSERT 
 			// deposit extension of 10 days 

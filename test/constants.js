@@ -12,6 +12,8 @@ const Constants = {
 	bountyId: 'bountyId',
 	organization: 'mockOrganization',
 	funderUuid: 'mock-funder-uuid',
+	mockClaimantAsset: 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398',
+	thirtyDays: 2765000
 };
 
 module.exports = Constants;

@@ -27,11 +27,7 @@ describe('OngoingBountyV1.sol', () => {
 
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	const thirtyDays = 2765000;
-	const mockId = "mockId";
-	const organization = "mockOrg";
-	const mockOpenQId = "mockOpenQId";
-	const mockClaimantAsset = "https://github.com/OpenQDev/OpenQ-Frontend/pull/398";
+	
 
 	// INITIALIZATION OPERATIONS
 	let ongoingContractInitOperation;
@@ -72,10 +68,10 @@ describe('OngoingBountyV1.sol', () => {
 		// ONGOIN CONTRACT
 		ongoingContract = await OngoingBountyV1.deploy();
 		await ongoingContract.deployed();
-		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
+		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
 		ongoingContractInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParamsFundingGoalBounty];
 		initializationTimestamp = await setNextBlockTimestamp();
-		await ongoingContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, ongoingContractInitOperation);
+		await ongoingContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, ongoingContractInitOperation);
 
 		await mockNft.approve(ongoingContract.address, 0);
 		await mockNft.approve(ongoingContract.address, 1);
@@ -91,18 +87,18 @@ describe('OngoingBountyV1.sol', () => {
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
 		ongoingContract_noFundingGoal = await OngoingBountyV1.deploy();
 		await ongoingContract_noFundingGoal.deployed();
-		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', false, ethers.constants.AddressZero, '0', true, true, true, mockOpenQId, "", ""]);
+		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', false, ethers.constants.AddressZero, '0', true, true, true, Constants.mockOpenQId, "", ""]);
 		const ongoingBountyNoFundingGoalInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
 		initializationTimestampOngoingNoFundingGoal = await setNextBlockTimestamp();
-		await ongoingContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, ongoingBountyNoFundingGoalInitOperation);
+		await ongoingContract_noFundingGoal.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, ongoingBountyNoFundingGoalInitOperation);
 	});
 
 	describe('initializer', () => {
 		it(`should initialize bounty with correct metadata`, async () => {
 			// ARRANGE/ASSERT
-			await expect(await ongoingContract.bountyId()).equals(mockId);
+			await expect(await ongoingContract.bountyId()).equals(Constants.bountyId);
 			await expect(await ongoingContract.issuer()).equals(owner.address);
-			await expect(await ongoingContract.organization()).equals(organization);
+			await expect(await ongoingContract.organization()).equals(Constants.organization);
 			await expect(await ongoingContract.status()).equals(0);
 			await expect(await ongoingContract.openQ()).equals(owner.address);
 			await expect(await ongoingContract.claimManager()).equals(claimManager.address);
@@ -114,7 +110,7 @@ describe('OngoingBountyV1.sol', () => {
 			await expect(await ongoingContract.fundingGoal()).equals(100);
 			await expect(await ongoingContract.invoiceable()).equals(true);
 			await expect(await ongoingContract.kycRequired()).equals(true);
-			await expect(await ongoingContract.externalUserId()).equals(mockOpenQId);
+			await expect(await ongoingContract.externalUserId()).equals(Constants.mockOpenQId);
 			await expect(await ongoingContract.supportingDocuments()).equals(true);
 		});
 
@@ -124,7 +120,7 @@ describe('OngoingBountyV1.sol', () => {
 			ongoingContract = await OngoingBountyV1.deploy();
 
 			// ASSERT
-			await expect(ongoingContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, ongoingContractInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+			await expect(ongoingContract.initialize("", owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, ongoingContractInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 		});
 
 		it('should revert if organization is empty', async () => {
@@ -133,7 +129,7 @@ describe('OngoingBountyV1.sol', () => {
 			ongoingContract = await OngoingBountyV1.deploy();
 
 			// ASSERT
-			await expect(ongoingContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, ongoingContractInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+			await expect(ongoingContract.initialize(Constants.bountyId, owner.address, "", owner.address, claimManager.address, depositManager.address, ongoingContractInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 		});
 	});
 
@@ -169,14 +165,14 @@ describe('OngoingBountyV1.sol', () => {
 
 				// ACT
 				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(mockId, 0);
-				await ongoingContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, thirtyDays, []);
+				const depositId = generateDepositId(Constants.bountyId, 0);
+				await ongoingContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, Constants.thirtyDays, []);
 
 				// ASSERT
 				expect(await ongoingContract.funder(depositId)).to.equal(owner.address);
 				expect(await ongoingContract.tokenAddress(depositId)).to.equal(mockNft.address);
 				expect(await ongoingContract.tokenId(depositId)).to.equal(1);
-				expect(await ongoingContract.expiration(depositId)).to.equal(thirtyDays);
+				expect(await ongoingContract.expiration(depositId)).to.equal(Constants.thirtyDays);
 				expect(await ongoingContract.isNFT(depositId)).to.equal(true);
 
 				const depositTime = await ongoingContract.depositTime(depositId);
@@ -205,7 +201,7 @@ describe('OngoingBountyV1.sol', () => {
 
 			const [, claimer] = await ethers.getSigners();
 
-			await ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+			await ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, Constants.thirtyDays);
 
 			const deposits = await ongoingContract.getDeposits();
 			const linkDepositId = deposits[0];
@@ -241,7 +237,7 @@ describe('OngoingBountyV1.sol', () => {
 		it('should set claimantId to true for the claimant and claimant asset', async () => {
 			// ARRANGE
 			let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
-			await ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 10000000, thirtyDays);
+			await ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 10000000, Constants.thirtyDays);
 
 
 			// ASSUME
@@ -327,7 +323,7 @@ describe('OngoingBountyV1.sol', () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
-			const claimId = generateClaimantId(mockOpenQId, mockClaimantAsset)
+			const claimId = generateClaimantId(Constants.mockOpenQId, Constants.mockClaimantAsset)
 			let setInvoiceCompleteData = abiCoder.encode(["bytes32", "bool"], [claimId, true]);
 
 			// ASSERT
@@ -335,7 +331,7 @@ describe('OngoingBountyV1.sol', () => {
 		});
 
 		it('should set invoiceComplete for given claimantId', async () => {
-			const claimId = generateClaimantId(mockOpenQId, mockClaimantAsset)
+			const claimId = generateClaimantId(Constants.mockOpenQId, Constants.mockClaimantAsset)
 			let setInvoiceCompleteData = abiCoder.encode(["bytes32", "bool"], [claimId, true]);
 			
 			// ASSUME
@@ -354,7 +350,7 @@ describe('OngoingBountyV1.sol', () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
-			const claimId = generateClaimantId(mockOpenQId, mockClaimantAsset)
+			const claimId = generateClaimantId(Constants.mockOpenQId, Constants.mockClaimantAsset)
 			let setSupportingDocumentsCompleteData = abiCoder.encode(["bytes32", "bool"], [claimId, true]);
 
 			// ASSERT
@@ -362,7 +358,7 @@ describe('OngoingBountyV1.sol', () => {
 		});
 
 		it('should set supportingDocumentsComplete for given claimantId', async () => {
-			const claimId = generateClaimantId(mockOpenQId, mockClaimantAsset)
+			const claimId = generateClaimantId(Constants.mockOpenQId, Constants.mockClaimantAsset)
 			let setSupportingDocumentsCompleteData = abiCoder.encode(["bytes32", "bool"], [claimId, true]);
 
 			// ASSUME
