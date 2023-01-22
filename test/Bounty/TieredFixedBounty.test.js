@@ -5,9 +5,9 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
-const { generateDepositId, generateClaimantId } = require('./utils');
+const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe.only('TieredFixedBountyV1.sol', () => {
+describe('TieredFixedBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 

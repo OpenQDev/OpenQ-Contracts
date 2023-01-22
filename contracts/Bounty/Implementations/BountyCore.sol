@@ -16,6 +16,8 @@ abstract contract BountyCore is BountyStorageCore {
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
+    // EXTERNAL SETTERS
+
     /**
      * @dev Creates a deposit and transfers tokens from msg.sender to this contract
      * @param _funder The funder's address
@@ -130,24 +132,65 @@ abstract contract BountyCore is BountyStorageCore {
     }
 
     /**
-     * TRANSFER HELPERS
+     * @dev Transfers NFT from bounty address to _payoutAddress
+     * @param _payoutAddress The destination address for the NFT
+     * @param _depositId The payout address of the bounty
      */
+    function claimNft(address _payoutAddress, bytes32 _depositId)
+        external
+        onlyClaimManager
+        nonReentrant
+    {
+        _transferNft(
+            tokenAddress[_depositId],
+            _payoutAddress,
+            tokenId[_depositId]
+        );
+    }
 
     /**
-     * @dev Returns token balance for both ERC20 or protocol token
-     * @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
+     * @dev Sets the funding goal
+     * @param _fundingToken Token address for funding goal
+     * @param _fundingGoal Token volume for funding goal
      */
-    function getTokenBalance(address _tokenAddress)
-        public
-        view
-        returns (uint256)
+    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
+        external
+        virtual
+        onlyOpenQ
     {
-        if (_tokenAddress == address(0)) {
-            return address(this).balance;
-        } else {
-            return getERC20Balance(_tokenAddress);
-        }
+        fundingGoal = _fundingGoal;
+        fundingToken = _fundingToken;
+        hasFundingGoal = true;
     }
+
+    /**
+     * @dev Whether or not KYC is required to fund and claim the bounty
+     * @param _kycRequired Whether or not KYC is required to fund and claim the bounty
+     */
+    function setKycRequired(bool _kycRequired) external onlyOpenQ {
+        kycRequired = _kycRequired;
+    }
+
+    /**
+     * @dev Whether or not the Bounty is invoiceable
+     * @param _invoiceable Whether or not the Bounty is invoiceable
+     */
+    function setInvoiceable(bool _invoiceable) external onlyOpenQ {
+        invoiceable = _invoiceable;
+    }
+
+    /**
+     * @dev Whether or not KYC is required to fund and claim the bounty
+     * @param _supportingDocuments Whether or not KYC is required to fund and claim the bounty
+     */
+    function setSupportingDocuments(bool _supportingDocuments)
+        external
+        onlyOpenQ
+    {
+        supportingDocuments = _supportingDocuments;
+    }
+
+    // INTERNAL HELPERS
 
     /**
      * @dev Transfers _volume of both ERC20 or protocol token to _payoutAddress
@@ -261,23 +304,6 @@ abstract contract BountyCore is BountyStorageCore {
     }
 
     /**
-     * @dev Transfers NFT from bounty address to _payoutAddress
-     * @param _payoutAddress The destination address for the NFT
-     * @param _depositId The payout address of the bounty
-     */
-    function claimNft(address _payoutAddress, bytes32 _depositId)
-        external
-        onlyClaimManager
-        nonReentrant
-    {
-        _transferNft(
-            tokenAddress[_depositId],
-            _payoutAddress,
-            tokenId[_depositId]
-        );
-    }
-
-    /**
      * @dev Generates a unique claimant ID from user and asset
      */
     function _generateClaimantId(
@@ -285,6 +311,28 @@ abstract contract BountyCore is BountyStorageCore {
         string memory claimantAsset
     ) internal pure returns (bytes32) {
         return keccak256(abi.encode(claimant, claimantAsset));
+    }
+
+    // PUBLIC GETTERS
+
+    /**
+     * TRANSFER HELPERS
+     */
+
+    /**
+     * @dev Returns token balance for both ERC20 or protocol token
+     * @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
+     */
+    function getTokenBalance(address _tokenAddress)
+        public
+        view
+        returns (uint256)
+    {
+        if (_tokenAddress == address(0)) {
+            return address(this).balance;
+        } else {
+            return getERC20Balance(_tokenAddress);
+        }
     }
 
     /**
@@ -331,48 +379,6 @@ abstract contract BountyCore is BountyStorageCore {
      */
     function getTokenAddressesCount() external view returns (uint256) {
         return tokenAddresses.values().length;
-    }
-
-    /**
-     * @dev Sets the funding goal
-     * @param _fundingToken Token address for funding goal
-     * @param _fundingGoal Token volume for funding goal
-     */
-    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
-        external
-        virtual
-        onlyOpenQ
-    {
-        fundingGoal = _fundingGoal;
-        fundingToken = _fundingToken;
-        hasFundingGoal = true;
-    }
-
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _kycRequired Whether or not KYC is required to fund and claim the bounty
-     */
-    function setKycRequired(bool _kycRequired) external onlyOpenQ {
-        kycRequired = _kycRequired;
-    }
-
-    /**
-     * @dev Whether or not the Bounty is invoiceable
-     * @param _invoiceable Whether or not the Bounty is invoiceable
-     */
-    function setInvoiceable(bool _invoiceable) external onlyOpenQ {
-        invoiceable = _invoiceable;
-    }
-
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _supportingDocuments Whether or not KYC is required to fund and claim the bounty
-     */
-    function setSupportingDocuments(bool _supportingDocuments)
-        external
-        onlyOpenQ
-    {
-        supportingDocuments = _supportingDocuments;
     }
 
     /**
