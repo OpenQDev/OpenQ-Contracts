@@ -91,6 +91,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
         payoutSchedule = _payoutSchedule;
+        payoutTokenAddress = _fundingToken;
 
         // Initialize metadata arrays to same number of tiers
         tierWinners = new string[](_payoutSchedule.length);
@@ -132,6 +133,18 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
 
         status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
+    }
+
+    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
+        external
+        override
+        onlyOpenQ
+    {
+        fundingGoal = _fundingGoal;
+        fundingToken = _fundingToken;
+        hasFundingGoal = true;
+
+        payoutTokenAddress = _fundingToken;
     }
 
     /**

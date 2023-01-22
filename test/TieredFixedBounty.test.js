@@ -151,7 +151,7 @@ describe.only('TieredFixedBountyV1.sol', () => {
 	});
 
 	describe('claimBalance', () => {
-		describe('TIERED', () => {
+		describe('TIERED FIXED', () => {
 			it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
 				// ARRANGE
 				const volume = 1000;
@@ -163,7 +163,7 @@ describe.only('TieredFixedBountyV1.sol', () => {
 				const deposits = await tieredFixedContract.getDeposits();
 				const linkDepositId = deposits[0];
 
-				// ASSUME
+				// // ASSUME
 				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredFixedContract.address)).toString();
 				expect(bountyMockTokenBalance).to.equal('1000');
 
@@ -175,14 +175,14 @@ describe.only('TieredFixedBountyV1.sol', () => {
 
 				// ASSERT
 				const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-				expect(newClaimerMockTokenBalance).to.equal('800');
+				expect(newClaimerMockTokenBalance).to.equal('80');
 
-				// // ACT
-				// await tieredContract.connect(claimManager).claimTieredFixed(secondPlace.address, 1)
+				// ACT
+				await tieredFixedContract.connect(claimManager).claimTieredFixed(secondPlace.address, 1)
 
-				// // ASSERT
-				// const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
-				// expect(secondPlaceMockTokenBalance).to.equal('200');
+				// ASSERT
+				const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
+				expect(secondPlaceMockTokenBalance).to.equal('20');
 			});
 
 			it('should revert if not called by claim manager', async () => {
@@ -230,28 +230,12 @@ describe.only('TieredFixedBountyV1.sol', () => {
 
 	describe('close', () => {
 		describe('TIERED - closeCompetition', () => {
-			it('should set bounty status to 1, freeze balances and set bountyClosedTime', async () => {
-				// ARRANGE
-				const volume = 1000;
-
-				const [, firstPlace, secondPlace] = await ethers.getSigners();
-
-				await tieredFixedContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-
-				// ASSUME
-				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredFixedContract.address)).toString();
-				expect(bountyMockTokenBalance).to.equal('1000');
-
-				const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-				expect(claimerMockTokenBalance).to.equal('0');
-
+			it.only('should set bounty status to 1 and set bountyClosedTime', async () => {
 				// ASSUME
 				let status = await tieredFixedContract.status();
-				let mockTokenFundingTotal = await tieredFixedContract.fundingTotals(mockLink.address);
 				let bountyClosedTime = await tieredFixedContract.bountyClosedTime();
 
 				expect(status).to.equal(0);
-				expect(mockTokenFundingTotal).to.equal(0);
 				expect(bountyClosedTime).to.equal(0);
 
 				const expectedTimestamp = await setNextBlockTimestamp();
@@ -260,11 +244,9 @@ describe.only('TieredFixedBountyV1.sol', () => {
 
 				// ASSERT
 				status = await tieredFixedContract.status();
-				mockTokenFundingTotal = await tieredFixedContract.fundingTotals(mockLink.address);
 				bountyClosedTime = await tieredFixedContract.bountyClosedTime();
 
 				expect(status).to.equal(1);
-				expect(mockTokenFundingTotal).to.equal(1000);
 				expect(bountyClosedTime).to.equal(expectedTimestamp);
 			});
 
@@ -286,7 +268,7 @@ describe.only('TieredFixedBountyV1.sol', () => {
 			await expect(bountyWithNonOwnerAccount.setFundingGoal(mockLink.address, volume)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set funding goal when none exists', async () => {
+		it('should set funding goal AND payoutTokenAddress when none exists', async () => {
 			// ASSUME
 			let hasNoFundingGoal = await tieredFixedContract_noFundingGoal.hasFundingGoal();
 			expect(hasNoFundingGoal).to.equal(false);
@@ -298,9 +280,11 @@ describe.only('TieredFixedBountyV1.sol', () => {
 			let hasNoFundingGoalexpected = await tieredFixedContract_noFundingGoal.hasFundingGoal();
 			let fundingToken = await tieredFixedContract_noFundingGoal.fundingToken();
 			let fundingGoal = await tieredFixedContract_noFundingGoal.fundingGoal();
+			let payoutTokenAddress = await tieredFixedContract_noFundingGoal.payoutTokenAddress();
 			expect(hasNoFundingGoalexpected).to.equal(true);
 			expect(fundingToken).to.equal(mockLink.address);
 			expect(fundingToken).to.equal(mockLink.address);
+			expect(payoutTokenAddress).to.equal(mockLink.address);
 		});
 	});
 

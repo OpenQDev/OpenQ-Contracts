@@ -340,6 +340,7 @@ abstract contract BountyCore is BountyStorageCore {
      */
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
         external
+        virtual
         onlyOpenQ
     {
         fundingGoal = _fundingGoal;

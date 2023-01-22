@@ -9,7 +9,6 @@ import '../Implementations/BountyCore.sol';
  */
 abstract contract TieredFixedBountyStorageV1 is BountyCore {
     uint256 public constant VERSION_1 = 1;
-    address payoutTokenAddress;
 
     /**
      * @dev Integers in payoutSchedule must add up to 100
@@ -25,4 +24,7 @@ abstract contract TieredFixedBountyStorageV1 is BountyCore {
     bool[] public invoiceComplete;
     bool[] public supportingDocumentsComplete;
     string[] public tierWinners;
+
+    // TIERED FIXED
+    address public payoutTokenAddress;
 }
