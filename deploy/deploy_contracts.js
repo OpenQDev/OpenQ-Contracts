@@ -128,23 +128,70 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist successfully set on DepositManager to ${openQTokenWhitelist.address}`);
 
-	console.log('Deploying BountyV1...');
-	const BountyV1 = await ethers.getContractFactory('BountyV1');
-	const bountyV1 = await BountyV1.deploy();
-	await bountyV1.deployed();
+	console.log('Deploying AtomicBountyV1 implementation...');
+	const AtomicBountyV1 = await ethers.getContractFactory('AtomicBountyV1');
+	const atomicBountyV1 = await AtomicBountyV1.deploy();
+	await atomicBountyV1.deployed();
 	await optionalSleep(10000);
-	console.log(`BountyV1 Deployed to ${bountyV1.address}\n`);
+	console.log(`AtomicBountyV1 Deployed to ${atomicBountyV1.address}\n`);
 
-	console.log('Deploying BountyBeacon...');
-	const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
-	const bountyBeacon = await BountyBeacon.deploy(bountyV1.address);
-	await bountyBeacon.deployed();
+	console.log('Deploying OngoingBountyV1 implementation...');
+	const OngoingBountyV1 = await ethers.getContractFactory('OngoingBountyV1');
+	const ongoingBountyV1 = await OngoingBountyV1.deploy();
+	await ongoingBountyV1.deployed();
 	await optionalSleep(10000);
-	console.log(`BountyBeacon Deployed to ${bountyBeacon.address}\n`);
+	console.log(`OngoingBountyV1 Deployed to ${ongoingBountyV1.address}\n`);
+
+	console.log('Deploying TieredBountyV1 implementation...');
+	const TieredBountyV1 = await ethers.getContractFactory('TieredBountyV1');
+	const tieredBountyV1 = await TieredBountyV1.deploy();
+	await tieredBountyV1.deployed();
+	await optionalSleep(10000);
+	console.log(`TieredBountyV1 Deployed to ${tieredBountyV1.address}\n`);
+
+	console.log('Deploying TieredFixedBountyV1 implementation...');
+	const TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
+	const tieredFixedBountyV1 = await TieredFixedBountyV1.deploy();
+	await tieredFixedBountyV1.deployed();
+	await optionalSleep(10000);
+	console.log(`TieredFixedBountyV1 Deployed to ${tieredFixedBountyV1.address}\n`);
+
+	// Get BountyBeacon contract factory for all bounty types
+	const BountyBeacon = await ethers.getContractFactory('BountyBeacon');
+
+	console.log('Deploying AtomicBountyBeacon...');
+	const atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address);
+	await atomicBountyBeacon.deployed();
+	await optionalSleep(10000);
+	console.log(`AtomicBountyBeacon Deployed to ${atomicBountyBeacon.address}\n`);
+
+	console.log('Deploying OngoingBountyBeacon...');
+	const ongoingBountyBeacon = await BountyBeacon.deploy(ongoingBountyV1.address);
+	await ongoingBountyBeacon.deployed();
+	await optionalSleep(10000);
+	console.log(`OngoingBountyBeacon Deployed to ${ongoingBountyBeacon.address}\n`);
+
+	console.log('Deploying TieredBountyBeacon...');
+	const tieredBountyBeacon = await BountyBeacon.deploy(tieredBountyV1.address);
+	await tieredBountyBeacon.deployed();
+	await optionalSleep(10000);
+	console.log(`TieredBountyBeacon Deployed to ${tieredBountyBeacon.address}\n`);
+
+	console.log('Deploying TieredFixedBountyBeacon...');
+	const tieredFixedBountyBeacon = await BountyBeacon.deploy(tieredFixedBountyV1.address);
+	await tieredFixedBountyBeacon.deployed();
+	await optionalSleep(10000);
+	console.log(`TieredFixedBountyBeacon Deployed to ${tieredFixedBountyBeacon.address}\n`);
 
 	console.log('Deploying BountyFactory...');
 	const BountyFactory = await ethers.getContractFactory('BountyFactory');
-	const bountyFactory = await BountyFactory.deploy(openQProxy.address, bountyBeacon.address);
+	const bountyFactory = await BountyFactory.deploy(
+		openQProxy.address, 
+		atomicBountyBeacon.address, 
+		ongoingBountyBeacon.address,
+		tieredBountyBeacon.address,
+		tieredFixedBountyBeacon.address
+	);
 	await bountyFactory.deployed();
 	await optionalSleep(10000);
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
@@ -153,9 +200,17 @@ async function deployContracts() {
 	console.log(`OpenQV1 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV2.address}`);
 
-	console.log('\nBOUNTY ADDRESSES');
-	console.log(`BountyV1 (Implementation) deployed to ${bountyV1.address}\n`);
-	console.log(`BountyBeacon deployed to ${bountyBeacon.address}`);
+	console.log('\nBOUNTY PROXY and IMPLEMENTATION ADDRESSES');
+	console.log(`AtomicBountyV1 (Implementation) deployed to ${atomicBountyV1.address}\n`);
+	console.log(`OngoingBountyV1 (Implementation) deployed to ${ongoingBountyV1.address}\n`);
+	console.log(`TieredBountyV1 (Implementation) deployed to ${tieredBountyV1.address}\n`);
+	console.log(`TieredFixedBountyV1 (Implementation) deployed to ${tieredFixedBountyV1.address}\n`);
+	
+	console.log(`AtomicBountyBeacon deployed to ${atomicBountyBeacon.address}`);
+	console.log(`OngoingBountyBeacon deployed to ${ongoingBountyBeacon.address}`);
+	console.log(`TieredBountyBeacon deployed to ${tieredBountyBeacon.address}`);
+	console.log(`TieredFixedBountyBeacon deployed to ${tieredFixedBountyBeacon.address}`);
+
 	console.log(`BountyFactory deployed to: ${bountyFactory.address}`);
 
 	if (network.name === 'docker' || network.name === 'localhost') {
@@ -200,8 +255,10 @@ CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManagerV1.address}
 DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
 DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
 OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
-BOUNTY_BEACON_ADDRESS=${bountyBeacon.address}
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS=${bountyV1.address}
+ATOMIC_BOUNTY_BEACON_ADDRESS=${atomicBountyBeacon.address}
+ONGOING_BOUNTY_BEACON_ADDRESS=${ongoingBountyBeacon.address}
+TIERED_BOUNTY_BEACON_ADDRESS=${tieredBountyBeacon.address}
+TIERED_FIXED_BOUNTY_BEACON_ADDRESS=${tieredFixedBountyBeacon.address}
 OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
 OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
 MOCK_LINK_TOKEN_ADDRESS=${mockLink.address}
@@ -217,8 +274,6 @@ CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManagerV1.address}
 DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
 DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
 OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
-BOUNTY_BEACON_ADDRESS=${bountyBeacon.address}
-OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS=${bountyV1.address}
 OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
 OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
 MOCK_LINK_TOKEN_ADDRESS=0x326C977E6efc84E512bB9C30f76E30c160eD06FB
