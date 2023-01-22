@@ -10,6 +10,8 @@ interface IBountyTieredFixed is IBountyCore {
 
     function getInvoiceComplete() external view returns (bool[] memory);
 
+    function getTierWinners() external returns (string[] memory);
+
     function setPayoutScheduleFixed(
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress

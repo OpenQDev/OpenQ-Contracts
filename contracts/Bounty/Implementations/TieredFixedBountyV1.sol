@@ -156,6 +156,10 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         tierClaimed[_tier] = true;
     }
 
+    function getTierWinners() external view returns (string[] memory) {
+        return tierWinners;
+    }
+
     /**
      * @dev Whether or not KYC is required to fund and claim the bounty
      * @param _data Whether or not KYC is required to fund and claim the bounty

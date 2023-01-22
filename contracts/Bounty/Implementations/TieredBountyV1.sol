@@ -212,6 +212,10 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
         supportingDocumentsComplete[_tier] = _supportingDocumentsComplete;
     }
 
+    function getTierWinners() external view returns (string[] memory) {
+        return tierWinners;
+    }
+
     /**
      * @dev receive() method to accept protocol tokens
      */
