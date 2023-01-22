@@ -9,7 +9,7 @@ const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 const Constants = require('./constants');
 
-describe.only('OpenQ.sol', () => {
+describe('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
