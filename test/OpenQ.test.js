@@ -210,7 +210,7 @@ describe.only('OpenQ.sol', () => {
 	});
 
 	describe('mintBounty', () => {
-		describe.only('ATOMIC', () => {
+		describe('ATOMIC', () => {
 			it('should deploy a new bounty contract with expected initial metadata', async () => {
 
 				// ACT
@@ -290,43 +290,38 @@ describe.only('OpenQ.sol', () => {
 			});
 		});
 
-		describe('ONGOING', () => {
-			it('should correctly init bountyType, payoutToken and payoutVolume', async () => {
-				// ARRANGE
-				const expectedTimestamp = await setNextBlockTimestamp();
+		describe.only('ONGOING', () => {
+			it('should deploy a new bounty contract with expected initial metadata', async () => {
 
 				// ACT
-				await openQProxy.mintBounty(bountyId, mockOrg, ongoingBountyInitOperation);
+				let initializationTimestamp = await setNextBlockTimestamp();
+				await openQProxy.mintBounty(bountyId, organization, ongoingBountyInitOperation);
 
 				const bountyIsOpen = await openQProxy.bountyIsOpen(bountyId);
 				const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
-				const Bounty = await ethers.getContractFactory('BountyV1');
-
-				const newBounty = await Bounty.attach(
+				const ongoingContract = await OngoingBountyV1.attach(
 					bountyAddress
 				);
 
-				const newBountyId = await newBounty.bountyId();
-				const bountyCreatedTime = (await newBounty.bountyCreatedTime()).toNumber();
-				const bountyClosedTime = await newBounty.bountyClosedTime();
-				const issuer = await newBounty.issuer();
-				const closer = await newBounty.closer();
-				const status = await newBounty.status();
-				const bountyType = await newBounty.bountyType();
-				const payoutVolume = await newBounty.payoutVolume();
-				const payoutTokenAddress = await newBounty.payoutTokenAddress();
-
-				// ASSERT
-				expect(bountyId).to.equal(newBountyId);
-				expect(bountyCreatedTime).to.equal(expectedTimestamp);
-				expect(bountyClosedTime).to.equal(0);
-				expect(issuer).to.equal(owner.address);
-				expect(closer).to.equal(ethers.constants.AddressZero);
-				expect(status).to.equal(0);
-				expect(bountyType).to.equal(1);
-				expect(payoutVolume).to.equal(100);
-				expect(payoutTokenAddress).to.equal(mockLink.address);
+				await expect(await ongoingContract.bountyId()).equals(bountyId);
+				await expect(await ongoingContract.issuer()).equals(owner.address);
+				await expect(await ongoingContract.organization()).equals(organization);
+				await expect(await ongoingContract.status()).equals(0);
+				await expect(await ongoingContract.openQ()).equals(openQProxy.address);
+				await expect(await ongoingContract.claimManager()).equals(claimManager.address);
+				await expect(await ongoingContract.depositManager()).equals(depositManager.address);
+				await expect(await ongoingContract.bountyCreatedTime()).equals(initializationTimestamp);
+				await expect(await ongoingContract.bountyType()).equals(ONGOING_CONTRACT);
+				await expect(await ongoingContract.hasFundingGoal()).equals(true);
+				await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
+				await expect(await ongoingContract.payoutTokenAddress()).equals(mockLink.address);
+				await expect(await ongoingContract.payoutVolume()).equals(100);
+				await expect(await ongoingContract.fundingGoal()).equals(1000);
+				await expect(await ongoingContract.invoiceable()).equals(true);
+				await expect(await ongoingContract.kycRequired()).equals(true);
+				await expect(await ongoingContract.externalUserId()).equals(mockOpenQId);
+				await expect(await ongoingContract.supportingDocuments()).equals(true);
 			});
 		});
 
