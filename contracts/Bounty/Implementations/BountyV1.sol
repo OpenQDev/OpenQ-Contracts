@@ -861,23 +861,28 @@ contract BountyV1 is BountyStorageV1 {
 
     /**
      * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _invoiceComplete Whether or not KYC is required to fund and claim the bounty
+     * @param _data Whether or not KYC is required to fund and claim the bounty
      */
-    function setInvoiceComplete(uint256 tier, bool _invoiceComplete)
-        external
-        onlyOpenQ
-    {
-        invoiceComplete[tier] = _invoiceComplete;
+    function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
+        (uint256 _tier, bool _invoiceComplete) = abi.decode(
+            _data,
+            (uint256, bool)
+        );
+        invoiceComplete[_tier] = _invoiceComplete;
     }
 
     /**
      * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _supportingDocumentsComplete Whether or not KYC is required to fund and claim the bounty
+     * @param _data Whether or not KYC is required to fund and claim the bounty
      */
-    function setSupportingDocumentsComplete(
-        uint256 _tier,
-        bool _supportingDocumentsComplete
-    ) external onlyOpenQ {
+    function setSupportingDocumentsComplete(bytes calldata _data)
+        external
+        onlyOpenQ
+    {
+        (uint256 _tier, bool _supportingDocumentsComplete) = abi.decode(
+            _data,
+            (uint256, bool)
+        );
         supportingDocumentsComplete[_tier] = _supportingDocumentsComplete;
     }
 

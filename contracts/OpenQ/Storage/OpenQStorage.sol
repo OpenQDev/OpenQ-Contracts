@@ -18,6 +18,9 @@ import '../../Library/Errors.sol';
 import '../../OpenQ/Interfaces/IOpenQ.sol';
 import '../../Oracle/Oraclize.sol';
 
+import '../../Bounty/Interfaces/IBounty.sol';
+import '../../Bounty/Interfaces/IBountyTiered.sol';
+
 /**
  * @title OpenQStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by OpenQ implementations

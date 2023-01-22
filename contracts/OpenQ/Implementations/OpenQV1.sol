@@ -119,7 +119,7 @@ contract OpenQV1 is OpenQStorageV1 {
         address _fundingGoalToken,
         uint256 _fundingGoalVolume
     ) external onlyProxy {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -143,7 +143,7 @@ contract OpenQV1 is OpenQStorageV1 {
         external
         onlyProxy
     {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -165,7 +165,7 @@ contract OpenQV1 is OpenQStorageV1 {
         external
         onlyProxy
     {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -187,7 +187,7 @@ contract OpenQV1 is OpenQStorageV1 {
         string calldata _bountyId,
         bool _supportingDocuments
     ) external onlyProxy {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -203,48 +203,37 @@ contract OpenQV1 is OpenQStorageV1 {
 
     /**
      * @dev Sets invoiceComplete on bounty with id _bountyId
-     * @param _invoiceComplete Whether or not invoice is complete
+     * @param _data Whether or not invoice is complete
      */
-    function setInvoiceComplete(
-        string calldata _bountyId,
-        uint256 _tier,
-        bool _invoiceComplete
-    ) external onlyProxy {
-        BountyV1 bounty = getBounty(_bountyId);
+    function setInvoiceComplete(string calldata _bountyId, bytes calldata _data)
+        external
+        onlyProxy
+    {
+        IBountyTiered bounty = getTieredBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.setInvoiceComplete(_tier, _invoiceComplete);
+        bounty.setInvoiceComplete(_data);
 
-        emit InvoiceCompletedSet(
-            address(bounty),
-            bounty.getInvoiceComplete(),
-            new bytes(0),
-            VERSION_1
-        );
+        emit InvoiceCompletedSet(address(bounty), new bytes(0), VERSION_1);
     }
 
     /**
      * @dev Sets kycRequired on bounty with id _bountyId
-     * @param _supportingDocumentsComplete Whether or not supporting documents have been completed
+     * @param _data Whether or not supporting documents have been completed
      */
     function setSupportingDocumentsComplete(
         string calldata _bountyId,
-        uint256 _tier,
-        bool _supportingDocumentsComplete
+        bytes calldata _data
     ) external onlyProxy {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.setSupportingDocumentsComplete(
-            _tier,
-            _supportingDocumentsComplete
-        );
+        bounty.setSupportingDocumentsComplete(_data);
 
         emit SupportingDocumentsCompletedSet(
             address(bounty),
-            bounty.getSupportingDocumentsComplete(),
             new bytes(0),
             VERSION_1
         );
@@ -261,7 +250,7 @@ contract OpenQV1 is OpenQStorageV1 {
         address _payoutToken,
         uint256 _payoutVolume
     ) external onlyProxy {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -287,7 +276,7 @@ contract OpenQV1 is OpenQStorageV1 {
         string calldata _bountyId,
         uint256[] calldata _payoutSchedule
     ) external onlyProxy {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -314,7 +303,7 @@ contract OpenQV1 is OpenQStorageV1 {
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
     ) external onlyProxy {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -341,7 +330,7 @@ contract OpenQV1 is OpenQStorageV1 {
             Errors.NOT_AN_ONGOING_CONTRACT
         );
 
-        BountyV1 bounty = BountyV1(payable(bountyIdToAddress[_bountyId]));
+        IBounty bounty = IBounty(payable(bountyIdToAddress[_bountyId]));
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -373,7 +362,7 @@ contract OpenQV1 is OpenQStorageV1 {
         view
         returns (bool)
     {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }
@@ -388,7 +377,7 @@ contract OpenQV1 is OpenQStorageV1 {
         view
         returns (uint256)
     {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
         uint256 _bountyType = bounty.bountyType();
         return _bountyType;
     }
@@ -403,7 +392,7 @@ contract OpenQV1 is OpenQStorageV1 {
         view
         returns (string memory)
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        IBounty bounty = IBounty(payable(_bountyAddress));
         return bounty.bountyId();
     }
 
@@ -418,25 +407,45 @@ contract OpenQV1 is OpenQStorageV1 {
         view
         returns (bool)
     {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
     }
 
     function solvent(string calldata _bountyId) external view returns (bool) {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         uint256 balance = bounty.getTokenBalance(bounty.payoutTokenAddress());
         return balance >= bounty.payoutVolume();
     }
 
+    function getBountyType(string calldata _bountyId)
+        internal
+        view
+        returns (IBounty)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        IBounty bounty = IBounty(bountyAddress);
+        return bounty.bountyType();
+    }
+
     function getBounty(string calldata _bountyId)
         internal
         view
-        returns (BountyV1)
+        returns (IBounty)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
-        BountyV1 bounty = BountyV1(payable(bountyAddress));
+        IBounty bounty = IBounty(bountyAddress);
+        return bounty;
+    }
+
+    function getTieredBounty(string calldata _bountyId)
+        internal
+        view
+        returns (IBountyTiered)
+    {
+        address bountyAddress = bountyIdToAddress[_bountyId];
+        IBountyTiered bounty = IBountyTiered(bountyAddress);
         return bounty;
     }
 
@@ -445,7 +454,7 @@ contract OpenQV1 is OpenQStorageV1 {
         uint256 _tier,
         string calldata _winner
     ) external {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBountyTiered bounty = getBounty(_bountyId);
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
         bounty.setTierWinner(_winner, _tier);
 
@@ -469,7 +478,7 @@ contract OpenQV1 is OpenQStorageV1 {
         string calldata _claimant,
         string calldata _claimantAsset
     ) external view returns (bool) {
-        BountyV1 bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
         bytes32 claimantId = keccak256(abi.encode(_claimant, _claimantAsset));
         bool _ongoingClaimed = bounty.claimantId(claimantId);
         return _ongoingClaimed;

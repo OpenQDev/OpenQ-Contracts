@@ -80,7 +80,12 @@ interface IOpenQ {
 
     event InvoiceCompletedSet(
         address bountyAddress,
-        bool[] invoiceCompletedSet,
+        bytes data,
+        uint256 version
+    );
+
+    event SupportingDocumentsCompletedSet(
+        address bountyAddress,
         bytes data,
         uint256 version
     );
@@ -92,13 +97,6 @@ interface IOpenQ {
         address closer,
         uint256 bountyClosedTime,
         uint256 bountyType,
-        bytes data,
-        uint256 version
-    );
-
-    event SupportingDocumentsCompletedSet(
-        address bountyAddress,
-        bool[] supportDocumentsCompleted,
         bytes data,
         uint256 version
     );

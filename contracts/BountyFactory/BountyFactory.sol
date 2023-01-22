@@ -25,15 +25,21 @@ contract BountyFactory is OnlyOpenQ {
      * @dev The address of the UpgradeableBeacon holding the current bounty implementation
      */
     address immutable beacon;
+    address immutable atomicBountyBeacon;
 
     /**
      * @dev Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
      * @param _openQ The OpenQProxy address
      * @param _beacon The UpgradeableBeacon "BountyBeacon" address
      */
-    constructor(address _openQ, address _beacon) {
+    constructor(
+        address _openQ,
+        address _beacon,
+        address _atomicBountyBeacon
+    ) {
         __OnlyOpenQ_init(_openQ);
 
+        atomicBountyBeacon = _atomicBountyBeacon;
         beacon = _beacon;
     }
 
@@ -56,19 +62,39 @@ contract BountyFactory is OnlyOpenQ {
         address _depositManager,
         OpenQDefinitions.InitOperation memory operation
     ) external onlyOpenQ returns (address) {
-        BeaconProxy bounty = new BeaconProxy(
-            beacon,
-            abi.encodeWithSignature(
-                'initialize(string,address,string,address,address,address,(uint32,bytes))',
-                _id,
-                _issuer,
-                _organization,
-                openQ(),
-                _claimManager,
-                _depositManager,
-                operation
-            )
-        );
+        uint32 operationType = operation.operationType;
+
+        BeaconProxy bounty;
+
+        if (operationType == OpenQDefinitions.ATOMIC) {
+            bounty = new BeaconProxy(
+                atomicBountyBeacon,
+                abi.encodeWithSignature(
+                    'initialize(string,address,string,address,address,address,(uint32,bytes))',
+                    _id,
+                    _issuer,
+                    _organization,
+                    openQ(),
+                    _claimManager,
+                    _depositManager,
+                    operation
+                )
+            );
+        } else {
+            bounty = new BeaconProxy(
+                beacon,
+                abi.encodeWithSignature(
+                    'initialize(string,address,string,address,address,address,(uint32,bytes))',
+                    _id,
+                    _issuer,
+                    _organization,
+                    openQ(),
+                    _claimManager,
+                    _depositManager,
+                    operation
+                )
+            );
+        }
 
         return address(bounty);
     }
