@@ -8,7 +8,7 @@ require('@nomiclabs/hardhat-waffle');
 const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe('TieredBountyCore.sol', () => {
+describe.only('TieredBountyCore.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 
@@ -28,9 +28,6 @@ describe('TieredBountyCore.sol', () => {
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 	const thirtyDays = 2765000;
-	const mockId = "mockId";
-	const organization = "mockOrg";
-	const mockOpenQId = "mockOpenQId";
 
 	// INITIALIZATION OPERATIONS
 	let tieredFixedBountyInitOperation;
@@ -75,16 +72,16 @@ describe('TieredBountyCore.sol', () => {
 		tieredFixedContract_noFundingGoal = await TieredFixedBountyV1.deploy();
 		await tieredFixedContract_noFundingGoal.deployed();
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
-		const abiEncodedParamsTieredFixedBounty_noFundingGoal = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], false, ethers.constants.AddressZero, '0', true, true, true, mockOpenQId, "", ""]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
+		const abiEncodedParamsTieredFixedBounty_noFundingGoal = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], false, ethers.constants.AddressZero, '0', true, true, true, Constants.mockOpenQId, "", ""]);
 
 		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 		tieredBountyInitOperation_noFundingGoal = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty_noFundingGoal];
 
 		initializationTimestampTiered = await setNextBlockTimestamp();
-		await tieredFixedContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
+		await tieredFixedContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
 
-		await tieredFixedContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation_noFundingGoal);
+		await tieredFixedContract_noFundingGoal.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation_noFundingGoal);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredFixedContract.address, 10000000);
@@ -130,7 +127,7 @@ describe('TieredBountyCore.sol', () => {
 
 				// ACT
 				const expectedTimestamp = await setNextBlockTimestamp();
-				const depositId = generateDepositId(mockId, 0);
+				const depositId = generateDepositId(Constants.bountyId, 0);
 				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, thirtyDays, tierData);
 
 				// ASSERT
@@ -166,19 +163,19 @@ describe('TieredBountyCore.sol', () => {
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setTierWinner(mockOpenQId, 0)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredFixedContract.connect(notOwner).setTierWinner(Constants.mockOpenQId, 0)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set tier winner', async () => {
 			// ACT
-			await tieredFixedContract.setTierWinner(mockOpenQId, 0)
-			await tieredFixedContract.setTierWinner(mockOpenQId+"2", 1)
+			await tieredFixedContract.setTierWinner(Constants.mockOpenQId, 0)
+			await tieredFixedContract.setTierWinner(Constants.mockOpenQId+"2", 1)
 
 			// ASSERT
 			const winner = await tieredFixedContract.tierWinners(0)
 			const winner2 = await tieredFixedContract.tierWinners(1)
-			expect(winner).to.equal(mockOpenQId)
-			expect(winner2).to.equal(mockOpenQId+"2")
+			expect(winner).to.equal(Constants.mockOpenQId)
+			expect(winner2).to.equal(Constants.mockOpenQId+"2")
 		})
 	})
 
