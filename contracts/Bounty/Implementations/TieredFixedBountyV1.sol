@@ -56,6 +56,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         nftDepositLimit = 5;
 
         (
+            uint256[] memory _payoutSchedule,
             bool _hasFundingGoal,
             address _fundingToken,
             uint256 _fundingGoal,
@@ -68,6 +69,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         ) = abi.decode(
                 _operation.data,
                 (
+                    uint256[],
                     bool,
                     address,
                     uint256,
@@ -80,7 +82,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
                 )
             );
 
-        bountyType = OpenQDefinitions.ATOMIC;
+        bountyType = OpenQDefinitions.TIERED_FIXED;
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
@@ -88,6 +90,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         kycRequired = _kycRequired;
         supportingDocuments = _supportingDocuments;
         externalUserId = _externalUserId;
+        payoutSchedule = _payoutSchedule;
     }
 
     /**
