@@ -34,7 +34,7 @@ abstract contract BountyCore is BountyStorageCore {
     )
         external
         payable
-        override
+        virtual
         onlyDepositManager
         nonReentrant
         returns (bytes32, uint256)
@@ -75,7 +75,7 @@ abstract contract BountyCore is BountyStorageCore {
         bytes32 _depositId,
         address _funder,
         uint256 _volume
-    ) external onlyDepositManager nonReentrant {
+    ) external virtual onlyDepositManager nonReentrant {
         require(!refunded[_depositId], Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
         require(
@@ -112,7 +112,7 @@ abstract contract BountyCore is BountyStorageCore {
         bytes32 _depositId,
         uint256 _seconds,
         address _funder
-    ) external onlyDepositManager nonReentrant returns (uint256) {
+    ) external virtual onlyDepositManager nonReentrant returns (uint256) {
         require(status == OpenQDefinitions.OPEN, Errors.CONTRACT_IS_CLOSED);
         require(!refunded[_depositId], Errors.DEPOSIT_ALREADY_REFUNDED);
         require(funder[_depositId] == _funder, Errors.CALLER_NOT_FUNDER);
@@ -138,6 +138,7 @@ abstract contract BountyCore is BountyStorageCore {
      */
     function claimNft(address _payoutAddress, bytes32 _depositId)
         external
+        virtual
         onlyClaimManager
         nonReentrant
     {
@@ -167,7 +168,7 @@ abstract contract BountyCore is BountyStorageCore {
      * @dev Whether or not KYC is required to fund and claim the bounty
      * @param _kycRequired Whether or not KYC is required to fund and claim the bounty
      */
-    function setKycRequired(bool _kycRequired) external onlyOpenQ {
+    function setKycRequired(bool _kycRequired) external virtual onlyOpenQ {
         kycRequired = _kycRequired;
     }
 
@@ -175,7 +176,7 @@ abstract contract BountyCore is BountyStorageCore {
      * @dev Whether or not the Bounty is invoiceable
      * @param _invoiceable Whether or not the Bounty is invoiceable
      */
-    function setInvoiceable(bool _invoiceable) external onlyOpenQ {
+    function setInvoiceable(bool _invoiceable) external virtual onlyOpenQ {
         invoiceable = _invoiceable;
     }
 
@@ -185,6 +186,7 @@ abstract contract BountyCore is BountyStorageCore {
      */
     function setSupportingDocuments(bool _supportingDocuments)
         external
+        virtual
         onlyOpenQ
     {
         supportingDocuments = _supportingDocuments;
@@ -202,7 +204,7 @@ abstract contract BountyCore is BountyStorageCore {
         address _tokenAddress,
         uint256 _volume,
         address _payoutAddress
-    ) internal {
+    ) internal virtual {
         if (_tokenAddress == address(0)) {
             _transferProtocolToken(_payoutAddress, _volume);
         } else {
@@ -220,7 +222,7 @@ abstract contract BountyCore is BountyStorageCore {
         address _tokenAddress,
         address _funder,
         uint256 _volume
-    ) internal returns (uint256) {
+    ) internal virtual returns (uint256) {
         uint256 balanceBefore = getERC20Balance(_tokenAddress);
         IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         token.safeTransferFrom(_funder, address(this), _volume);
@@ -246,7 +248,7 @@ abstract contract BountyCore is BountyStorageCore {
         address _tokenAddress,
         address _payoutAddress,
         uint256 _volume
-    ) internal {
+    ) internal virtual {
         IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         token.safeTransfer(_payoutAddress, _volume);
     }
@@ -258,6 +260,7 @@ abstract contract BountyCore is BountyStorageCore {
      */
     function _transferProtocolToken(address _payoutAddress, uint256 _volume)
         internal
+        virtual
     {
         payable(_payoutAddress).sendValue(_volume);
     }
@@ -272,7 +275,7 @@ abstract contract BountyCore is BountyStorageCore {
         address _tokenAddress,
         address _sender,
         uint256 _tokenId
-    ) internal {
+    ) internal virtual {
         IERC721Upgradeable nft = IERC721Upgradeable(_tokenAddress);
         nft.safeTransferFrom(_sender, address(this), _tokenId);
     }
@@ -287,7 +290,7 @@ abstract contract BountyCore is BountyStorageCore {
         address _tokenAddress,
         address _payoutAddress,
         uint256 _tokenId
-    ) internal {
+    ) internal virtual {
         IERC721Upgradeable nft = IERC721Upgradeable(_tokenAddress);
         nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
     }
@@ -299,7 +302,7 @@ abstract contract BountyCore is BountyStorageCore {
     /**
      * @dev Generates a unique deposit ID from bountyId and the current length of deposits
      */
-    function _generateDepositId() internal view returns (bytes32) {
+    function _generateDepositId() internal view virtual returns (bytes32) {
         return keccak256(abi.encode(bountyId, deposits.length));
     }
 
@@ -309,7 +312,7 @@ abstract contract BountyCore is BountyStorageCore {
     function _generateClaimantId(
         string memory claimant,
         string memory claimantAsset
-    ) internal pure returns (bytes32) {
+    ) internal pure virtual returns (bytes32) {
         return keccak256(abi.encode(claimant, claimantAsset));
     }
 
@@ -326,6 +329,7 @@ abstract contract BountyCore is BountyStorageCore {
     function getTokenBalance(address _tokenAddress)
         public
         view
+        virtual
         returns (uint256)
     {
         if (_tokenAddress == address(0)) {
@@ -343,6 +347,7 @@ abstract contract BountyCore is BountyStorageCore {
     function getERC20Balance(address _tokenAddress)
         public
         view
+        virtual
         returns (uint256 balance)
     {
         IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
@@ -353,7 +358,7 @@ abstract contract BountyCore is BountyStorageCore {
      * @dev Returns an array of all deposits (ERC20, protocol token, and NFT) for this bounty
      * @return deposits The array of deposits including ERC20, protocol token, and NFT
      */
-    function getDeposits() external view returns (bytes32[] memory) {
+    function getDeposits() external view virtual returns (bytes32[] memory) {
         return deposits;
     }
 
@@ -361,7 +366,7 @@ abstract contract BountyCore is BountyStorageCore {
      * @dev Returns an array of ONLY NFT deposits for this bounty
      * @return nftDeposits The array of NFT deposits
      */
-    function getNftDeposits() external view returns (bytes32[] memory) {
+    function getNftDeposits() external view virtual returns (bytes32[] memory) {
         return nftDeposits;
     }
 
@@ -369,7 +374,12 @@ abstract contract BountyCore is BountyStorageCore {
      * @dev Returns an array of all ERC20 token addresses which have funded this bounty
      * @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
      */
-    function getTokenAddresses() public view returns (address[] memory) {
+    function getTokenAddresses()
+        public
+        view
+        virtual
+        returns (address[] memory)
+    {
         return tokenAddresses.values();
     }
 
@@ -377,7 +387,7 @@ abstract contract BountyCore is BountyStorageCore {
      * @dev Returns the total number of unique tokens deposited on the bounty
      * @return tokenAddressesCount The length of the array of all ERC20 token addresses which have funded this bounty
      */
-    function getTokenAddressesCount() external view returns (uint256) {
+    function getTokenAddressesCount() external view virtual returns (uint256) {
         return tokenAddresses.values().length;
     }
 
@@ -386,7 +396,12 @@ abstract contract BountyCore is BountyStorageCore {
      * @param _depositId The depositId that determines which token is being looked at
      * @return uint256
      */
-    function getLockedFunds(address _depositId) public view returns (uint256) {
+    function getLockedFunds(address _depositId)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         uint256 lockedFunds;
         bytes32[] memory depList = this.getDeposits();
         for (uint256 i = 0; i < depList.length; i++) {
