@@ -2,9 +2,9 @@
 pragma solidity 0.8.17;
 
 import './BountyCore.sol';
-import '../Storage/TieredBountyStorage.sol';
+import '../Storage/TieredBountyStorageCore.sol';
 
-abstract contract TieredBountyCore is BountyCore, TieredBountyStorageV1 {
+abstract contract TieredBountyCore is BountyCore, TieredBountyStorageCore {
     /**
      * @dev Sets tierClaimed to true for the given tier
      * @param _tier The tier being claimed
