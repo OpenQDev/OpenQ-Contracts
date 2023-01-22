@@ -5,16 +5,12 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 
+const Constants = require('./constants');
+
 describe('BountyFactory', () => {
 	let openQImplementation;
 	let openQProxy;
 	let bountyFactory;
-
-	// BOUNTY TYPES
-	let ATOMIC_CONTRACT = 0;
-	let ONGOING_CONTRACT = 1;
-	let TIERED_PERCENTAGE_CONTRACT = 2;
-	let TIERED_FIXED_CONTRACT = 3;
 
 	let randomContractUpgradeAddress;
 
@@ -115,16 +111,16 @@ describe('BountyFactory', () => {
 		const abiCoder = new ethers.utils.AbiCoder;
 
 		const abiEncodedParamsAtomic = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
-		atomicBountyInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsAtomic];
+		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsAtomic];
 
 		let abiEncodedParamsOngoing = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
-		ongoingBountyInitOperation = [ONGOING_CONTRACT, abiEncodedParamsOngoing];
+		ongoingBountyInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParamsOngoing];
 
 		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
-		tieredPercentageBountyInitOperation = [TIERED_PERCENTAGE_CONTRACT, abiEncodedParamsTieredBounty];
+		tieredPercentageBountyInitOperation = [Constants.TIERED_PERCENTAGE_CONTRACT, abiEncodedParamsTieredBounty];
 
 		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
-		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 	});
 
 	describe('constructor', () => {
@@ -178,7 +174,7 @@ describe('BountyFactory', () => {
 			await expect(await atomicContract.claimManager()).equals(claimManager.address);
 			await expect(await atomicContract.depositManager()).equals(depositManager.address);
 			await expect(await atomicContract.bountyCreatedTime()).equals(initializationTimestamp);
-			await expect(await atomicContract.bountyType()).equals(ATOMIC_CONTRACT);
+			await expect(await atomicContract.bountyType()).equals(Constants.ATOMIC_CONTRACT);
 			await expect(await atomicContract.hasFundingGoal()).equals(true);
 			await expect(await atomicContract.fundingToken()).equals(mockLink.address);
 			await expect(await atomicContract.fundingGoal()).equals(100);
@@ -224,7 +220,7 @@ describe('BountyFactory', () => {
 			await expect(await ongoingContract.claimManager()).equals(claimManager.address);
 			await expect(await ongoingContract.depositManager()).equals(depositManager.address);
 			await expect(await ongoingContract.bountyCreatedTime()).equals(initializationTimestamp);
-			await expect(await ongoingContract.bountyType()).equals(ONGOING_CONTRACT);
+			await expect(await ongoingContract.bountyType()).equals(Constants.ONGOING_CONTRACT);
 			await expect(await ongoingContract.hasFundingGoal()).equals(true);
 			await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
 			await expect(await ongoingContract.fundingGoal()).equals(100);
@@ -274,7 +270,7 @@ describe('BountyFactory', () => {
 			await expect(await tieredPercentageContract.claimManager()).equals(claimManager.address);
 			await expect(await tieredPercentageContract.depositManager()).equals(depositManager.address);
 			await expect(await tieredPercentageContract.bountyCreatedTime()).equals(initializationTimestamp);
-			await expect(await tieredPercentageContract.bountyType()).equals(TIERED_PERCENTAGE_CONTRACT);
+			await expect(await tieredPercentageContract.bountyType()).equals(Constants.TIERED_PERCENTAGE_CONTRACT);
 			await expect(await tieredPercentageContract.hasFundingGoal()).equals(true);
 			await expect(await tieredPercentageContract.fundingToken()).equals(mockLink.address);
 			await expect(await tieredPercentageContract.fundingGoal()).equals(100);
@@ -328,7 +324,7 @@ describe('BountyFactory', () => {
 			await expect(await tieredFixedContract.claimManager()).equals(claimManager.address);
 			await expect(await tieredFixedContract.depositManager()).equals(depositManager.address);
 			await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestamp);
-			await expect(await tieredFixedContract.bountyType()).equals(TIERED_FIXED_CONTRACT);
+			await expect(await tieredFixedContract.bountyType()).equals(Constants.TIERED_FIXED_CONTRACT);
 			await expect(await tieredFixedContract.hasFundingGoal()).equals(true);
 			await expect(await tieredFixedContract.fundingToken()).equals(mockLink.address);
 			await expect(await tieredFixedContract.fundingGoal()).equals(100);

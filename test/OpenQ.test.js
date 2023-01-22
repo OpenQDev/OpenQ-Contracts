@@ -9,7 +9,7 @@ const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 const Constants = require('./constants');
 
-describe.only('OpenQ.sol', () => {
+describe('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -33,12 +33,6 @@ describe.only('OpenQ.sol', () => {
 	const bountyId = "bountyId";
 	const organization = "mockOrganization";
 	let mockFunderUuid = 'mock-funder-uuid';
-
-	// BOUNTY TYPES
-	let ATOMIC_CONTRACT = 0;
-	let ONGOING_CONTRACT = 1;
-	let TIERED_PERCENTAGE_CONTRACT = 2;
-	let TIERED_FIXED_CONTRACT = 3;
 
 	// VERSIONS
 	const VERSION_1 = Constants.VERSION_1;
@@ -180,19 +174,19 @@ describe.only('OpenQ.sol', () => {
 		abiCoder = new ethers.utils.AbiCoder;
 
 		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
-		atomicBountyInitOperation = [ATOMIC_CONTRACT, atomicBountyAbiEncodedParams];
+		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, atomicBountyAbiEncodedParams];
 
 		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
-		ongoingBountyInitOperation = [ONGOING_CONTRACT, abiEncodedParams];
+		ongoingBountyInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParams];
 
 		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
-		tieredBountyInitOperation = [TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
+		tieredBountyInitOperation = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
 
 		const tieredAbiEncodedParamsNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10, 90], true, mockLink.address, 1000, true, true, true, mockOpenQId, "", ""]);
-		tieredBountyInitOperationNot100 = [TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParamsNot100];
+		tieredBountyInitOperationNot100 = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParamsNot100];
 
 		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
-		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -233,7 +227,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(await atomicContract.claimManager()).equals(claimManager.address);
 				await expect(await atomicContract.depositManager()).equals(depositManager.address);
 				await expect(await atomicContract.bountyCreatedTime()).equals(initializationTimestamp);
-				await expect(await atomicContract.bountyType()).equals(ATOMIC_CONTRACT);
+				await expect(await atomicContract.bountyType()).equals(Constants.ATOMIC_CONTRACT);
 				await expect(await atomicContract.hasFundingGoal()).equals(true);
 				await expect(await atomicContract.fundingToken()).equals(mockLink.address);
 				await expect(await atomicContract.fundingGoal()).equals(1000);
@@ -313,7 +307,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(await ongoingContract.claimManager()).equals(claimManager.address);
 				await expect(await ongoingContract.depositManager()).equals(depositManager.address);
 				await expect(await ongoingContract.bountyCreatedTime()).equals(initializationTimestamp);
-				await expect(await ongoingContract.bountyType()).equals(ONGOING_CONTRACT);
+				await expect(await ongoingContract.bountyType()).equals(Constants.ONGOING_CONTRACT);
 				await expect(await ongoingContract.hasFundingGoal()).equals(true);
 				await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
 				await expect(await ongoingContract.payoutTokenAddress()).equals(mockLink.address);
@@ -352,7 +346,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(await tieredPercentageContract.claimManager()).equals(claimManager.address);
 				await expect(await tieredPercentageContract.depositManager()).equals(depositManager.address);
 				await expect(await tieredPercentageContract.bountyCreatedTime()).equals(initializationTimestamp);
-				await expect(await tieredPercentageContract.bountyType()).equals(TIERED_PERCENTAGE_CONTRACT);
+				await expect(await tieredPercentageContract.bountyType()).equals(Constants.TIERED_PERCENTAGE_CONTRACT);
 				await expect(await tieredPercentageContract.hasFundingGoal()).equals(true);
 				await expect(await tieredPercentageContract.fundingToken()).equals(mockLink.address);
 				await expect(await tieredPercentageContract.fundingGoal()).equals(1000);
@@ -398,7 +392,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(await tieredFixedContract.claimManager()).equals(claimManager.address);
 				await expect(await tieredFixedContract.depositManager()).equals(depositManager.address);
 				await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestamp);
-				await expect(await tieredFixedContract.bountyType()).equals(TIERED_FIXED_CONTRACT);
+				await expect(await tieredFixedContract.bountyType()).equals(Constants.TIERED_FIXED_CONTRACT);
 				await expect(await tieredFixedContract.hasFundingGoal()).equals(true);
 				await expect(await tieredFixedContract.fundingToken()).equals(mockLink.address);
 				await expect(await tieredFixedContract.fundingGoal()).equals(100);
@@ -895,7 +889,7 @@ describe.only('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setPayout(bountyId, mockDai.address, 1000))
 				.to.emit(openQProxy, 'PayoutSet')
-				.withArgs(bountyAddress, mockDai.address, 1000, ONGOING_CONTRACT, [], VERSION_1);
+				.withArgs(bountyAddress, mockDai.address, 1000, Constants.ONGOING_CONTRACT, [], VERSION_1);
 		});
 
 		it('should revert if not called by issuer', async () => {

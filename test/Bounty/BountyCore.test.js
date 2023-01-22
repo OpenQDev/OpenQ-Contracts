@@ -5,6 +5,7 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
+const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
 
 describe('BountyCore.sol', () => {
@@ -30,9 +31,6 @@ describe('BountyCore.sol', () => {
 	const mockId = "mockId";
 	const organization = "mockOrg";
 	const mockOpenQId = "mockOpenQId";
-
-	// BOUNTY TYPES
-	let ATOMIC_CONTRACT = 0;
 
 	// INITIALIZATION OPERATIONS
 	let atomicBountyInitOperation;
@@ -74,7 +72,7 @@ describe('BountyCore.sol', () => {
 		atomicContract = await AtomicBountyV1.deploy();
 		await atomicContract.deployed();
 		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
-		atomicBountyInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
+		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
 		initializationTimestamp = await setNextBlockTimestamp();
 		await atomicContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
@@ -93,7 +91,7 @@ describe('BountyCore.sol', () => {
 		atomicContract_noFundingGoal = await AtomicBountyV1.deploy();
 		await atomicContract_noFundingGoal.deployed();
 		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [false, ethers.constants.AddressZero, 0, true, true, true, mockOpenQId, "", ""]);
-		atomicBountyNoFundingGoalInitOperation = [ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
+		atomicBountyNoFundingGoalInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
 		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
 	});

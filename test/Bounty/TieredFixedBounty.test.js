@@ -5,6 +5,7 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
+const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
 
 describe('TieredFixedBountyV1.sol', () => {
@@ -30,9 +31,6 @@ describe('TieredFixedBountyV1.sol', () => {
 	const mockId = "mockId";
 	const organization = "mockOrg";
 	const mockOpenQId = "mockOpenQId";
-
-	// BOUNTY TYPES
-	let TIERED_FIXED_CONTRACT = 3;
 
 	// INITIALIZATION OPERATIONS
 	let tieredFixedBountyInitOperation;
@@ -80,8 +78,8 @@ describe('TieredFixedBountyV1.sol', () => {
 		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
 		const abiEncodedParamsTieredFixedBounty_noFundingGoal = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], false, ethers.constants.AddressZero, '0', true, true, true, mockOpenQId, "", ""]);
 
-		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
-		tieredBountyInitOperation_noFundingGoal = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty_noFundingGoal];
+		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		tieredBountyInitOperation_noFundingGoal = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty_noFundingGoal];
 
 		initializationTimestampTiered = await setNextBlockTimestamp();
 		await tieredFixedContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
@@ -129,7 +127,7 @@ describe('TieredFixedBountyV1.sol', () => {
 			await expect(await tieredFixedContract.claimManager()).equals(claimManager.address);
 			await expect(await tieredFixedContract.depositManager()).equals(depositManager.address);
 			await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestampTiered);
-			await expect(await tieredFixedContract.bountyType()).equals(TIERED_FIXED_CONTRACT);
+			await expect(await tieredFixedContract.bountyType()).equals(Constants.TIERED_FIXED_CONTRACT);
 			await expect(await tieredFixedContract.hasFundingGoal()).equals(true);
 			await expect(await tieredFixedContract.fundingToken()).equals(mockLink.address);
 			await expect(await tieredFixedContract.fundingGoal()).equals(100);

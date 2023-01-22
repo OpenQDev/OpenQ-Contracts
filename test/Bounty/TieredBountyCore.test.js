@@ -5,6 +5,7 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
+const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
 
 describe('TieredBountyCore.sol', () => {
@@ -30,9 +31,6 @@ describe('TieredBountyCore.sol', () => {
 	const mockId = "mockId";
 	const organization = "mockOrg";
 	const mockOpenQId = "mockOpenQId";
-
-	// BOUNTY TYPES
-	let TIERED_FIXED_CONTRACT = 3;
 
 	// INITIALIZATION OPERATIONS
 	let tieredFixedBountyInitOperation;
@@ -80,8 +78,8 @@ describe('TieredBountyCore.sol', () => {
 		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
 		const abiEncodedParamsTieredFixedBounty_noFundingGoal = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], false, ethers.constants.AddressZero, '0', true, true, true, mockOpenQId, "", ""]);
 
-		tieredFixedBountyInitOperation = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
-		tieredBountyInitOperation_noFundingGoal = [TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty_noFundingGoal];
+		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		tieredBountyInitOperation_noFundingGoal = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty_noFundingGoal];
 
 		initializationTimestampTiered = await setNextBlockTimestamp();
 		await tieredFixedContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
