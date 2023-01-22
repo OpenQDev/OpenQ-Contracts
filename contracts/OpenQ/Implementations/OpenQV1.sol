@@ -407,7 +407,7 @@ contract OpenQV1 is OpenQStorageV1 {
         view
         returns (bool)
     {
-        IBounty bounty = getBounty(_bountyId);
+        IBountyTiered bounty = getBounty(_bountyId);
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
     }

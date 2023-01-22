@@ -4,13 +4,13 @@ pragma solidity 0.8.17;
 /**
  * @dev Custom imports - all transitive imports live in BountyStorage
  */
-import '../Storage/TieredBountyStorage.sol';
+import '../Storage/OngoingBountyStorage.sol';
 
 /**
  * @title BountyV1
  * @dev Bounty Implementation Version 1
  */
-contract TieredBountyV1 is TieredBountyStorageV1 {
+contract TieredBountyV1 is OngoingBountyStorageV1 {
     /**
      * INITIALIZATION
      */
@@ -56,6 +56,8 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
         nftDepositLimit = 5;
 
         (
+            address _payoutTokenAddress,
+            uint256 _payoutVolume,
             bool _hasFundingGoal,
             address _fundingToken,
             uint256 _fundingGoal,
@@ -68,6 +70,8 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
         ) = abi.decode(
                 _operation.data,
                 (
+                    address,
+                    uint256,
                     bool,
                     address,
                     uint256,
@@ -80,7 +84,9 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
                 )
             );
 
-        bountyType = OpenQDefinitions.ATOMIC;
+        bountyType = OpenQDefinitions.ONGOING;
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _payoutVolume;
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
@@ -91,98 +97,40 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
     }
 
     /**
-     * @dev Transfers the tiered percentage of the token balance of _tokenAddress from bounty to _payoutAddress
-     * @param _payoutAddress The destination address for the fund
-     * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
-     * @param _tokenAddress The token address being claimed
+     * @dev Transfers a payout amount of an ongoing bounty to claimant for claimant asset
+     * @param _payoutAddress The destination address for the funds
+     * @param _closerData ABI-encoded data of the claimant and claimant asset
      */
-    function claimTiered(
+    function claimOngoingPayout(
         address _payoutAddress,
-        uint256 _tier,
-        address _tokenAddress
-    ) external onlyClaimManager nonReentrant returns (uint256) {
-        require(
-            bountyType == OpenQDefinitions.TIERED,
-            Errors.NOT_A_TIERED_BOUNTY
+        bytes calldata _closerData
+    ) external onlyClaimManager nonReentrant returns (address, uint256) {
+        (, string memory claimant, , string memory claimantAsset) = abi.decode(
+            _closerData,
+            (address, string, address, string)
         );
-        require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
 
-        uint256 claimedBalance = (payoutSchedule[_tier] *
-            fundingTotals[_tokenAddress]) / 100;
+        bytes32 _claimantId = _generateClaimantId(claimant, claimantAsset);
 
-        _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
-        return claimedBalance;
+        claimantId[_claimantId] = true;
+
+        _transferToken(payoutTokenAddress, payoutVolume, _payoutAddress);
+        return (payoutTokenAddress, payoutVolume);
     }
 
     /**
-     * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
+     * @dev Similar to close() for single priced bounties. Stops all withdrawls.
+     * @param _closer Address of the closer
      */
-    function closeCompetition() external onlyClaimManager {
+    function closeOngoing(address _closer) external onlyOpenQ {
         require(
             status == OpenQDefinitions.OPEN,
             Errors.CONTRACT_ALREADY_CLOSED
         );
+        require(_closer == issuer, Errors.CALLER_NOT_ISSUER);
 
         status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
-
-        for (uint256 i = 0; i < getTokenAddresses().length; i++) {
-            address _tokenAddress = getTokenAddresses()[i];
-            fundingTotals[_tokenAddress] = getTokenBalance(_tokenAddress);
-        }
-    }
-
-    /**
-     * @dev Sets the payout schedule
-     * @dev There is no tokenAddress needed here - payouts on percentage tiered bounties is a percentage of whatever is deposited on the contract
-     * @param _payoutSchedule An array of payout volumes for each tier
-     */
-    function setPayoutSchedule(uint256[] calldata _payoutSchedule)
-        external
-        onlyOpenQ
-    {
-        require(
-            bountyType == OpenQDefinitions.TIERED,
-            Errors.NOT_A_TIERED_BOUNTY
-        );
-        uint256 sum;
-        for (uint256 i = 0; i < _payoutSchedule.length; i++) {
-            sum += _payoutSchedule[i];
-        }
-        require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
-
-        payoutSchedule = _payoutSchedule;
-
-        // Resize metadata arrays and copy current members to new array
-        // NOTE: If resizing to fewer tiers than previously, the final indexes will be removed
-        string[] memory newTierWinners = new string[](payoutSchedule.length);
-        bool[] memory newInvoiceComplete = new bool[](payoutSchedule.length);
-        bool[] memory newSupportingDocumentsCompleted = new bool[](
-            payoutSchedule.length
-        );
-
-        for (uint256 i = 0; i < tierWinners.length; i++) {
-            newTierWinners[i] = tierWinners[i];
-        }
-        tierWinners = newTierWinners;
-
-        for (uint256 i = 0; i < invoiceComplete.length; i++) {
-            newInvoiceComplete[i] = invoiceComplete[i];
-        }
-        invoiceComplete = newInvoiceComplete;
-
-        for (uint256 i = 0; i < supportingDocumentsComplete.length; i++) {
-            newSupportingDocumentsCompleted[i] = supportingDocumentsComplete[i];
-        }
-        supportingDocumentsComplete = newSupportingDocumentsCompleted;
-    }
-
-    /**
-     * @dev Sets tierClaimed to true for the given tier
-     * @param _tier The tier being claimed
-     */
-    function setTierClaimed(uint256 _tier) external onlyClaimManager {
-        tierClaimed[_tier] = true;
     }
 
     /**
@@ -190,11 +138,11 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
      * @param _data Whether or not KYC is required to fund and claim the bounty
      */
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
-        (uint256 _tier, bool _invoiceComplete) = abi.decode(
+        (string memory _claimId, bool _invoiceComplete) = abi.decode(
             _data,
-            (uint256, bool)
+            (uint256, string)
         );
-        invoiceComplete[_tier] = _invoiceComplete;
+        invoiceComplete[_claimId] = _invoiceComplete;
     }
 
     /**
@@ -205,11 +153,9 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
         external
         onlyOpenQ
     {
-        (uint256 _tier, bool _supportingDocumentsComplete) = abi.decode(
-            _data,
-            (uint256, bool)
-        );
-        supportingDocumentsComplete[_tier] = _supportingDocumentsComplete;
+        (string memory _claimId, bool _supportingDocumentsComplete) = abi
+            .decode(_data, (uint256, bool));
+        supportingDocumentsComplete[_claimId] = _supportingDocumentsComplete;
     }
 
     /**

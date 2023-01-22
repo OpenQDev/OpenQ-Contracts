@@ -82,9 +82,6 @@ abstract contract BountyStorageCore is
 		 */
     uint256 public bountyType;
 
-    // keccak256 hash of the claimant ID (GitHub ID) with the claimant asset ID (GitHub PR ID)
-    mapping(bytes32 => bool) public claimantId;
-
     bool public hasFundingGoal;
     address public fundingToken;
     uint256 public fundingGoal;

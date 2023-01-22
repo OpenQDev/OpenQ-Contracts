@@ -4,13 +4,13 @@ pragma solidity 0.8.17;
 /**
  * @dev Custom imports - all transitive imports live in BountyStorage
  */
-import '../Storage/TieredBountyStorage.sol';
+import '../Storage/TieredFixedBountyStorage.sol';
 
 /**
  * @title BountyV1
  * @dev Bounty Implementation Version 1
  */
-contract TieredBountyV1 is TieredBountyStorageV1 {
+contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
     /**
      * INITIALIZATION
      */
@@ -91,26 +91,25 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
     }
 
     /**
-     * @dev Transfers the tiered percentage of the token balance of _tokenAddress from bounty to _payoutAddress
+     * @dev Transfers the fixed amount of balance associated with the tier
      * @param _payoutAddress The destination address for the fund
      * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
-     * @param _tokenAddress The token address being claimed
      */
-    function claimTiered(
-        address _payoutAddress,
-        uint256 _tier,
-        address _tokenAddress
-    ) external onlyClaimManager nonReentrant returns (uint256) {
+    function claimTieredFixed(address _payoutAddress, uint256 _tier)
+        external
+        onlyClaimManager
+        nonReentrant
+        returns (uint256)
+    {
         require(
-            bountyType == OpenQDefinitions.TIERED,
-            Errors.NOT_A_TIERED_BOUNTY
+            bountyType == OpenQDefinitions.TIERED_FIXED,
+            Errors.NOT_A_TIERED_FIXED_BOUNTY
         );
         require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
 
-        uint256 claimedBalance = (payoutSchedule[_tier] *
-            fundingTotals[_tokenAddress]) / 100;
+        uint256 claimedBalance = payoutSchedule[_tier];
 
-        _transferToken(_tokenAddress, claimedBalance, _payoutAddress);
+        _transferToken(payoutTokenAddress, claimedBalance, _payoutAddress);
         return claimedBalance;
     }
 

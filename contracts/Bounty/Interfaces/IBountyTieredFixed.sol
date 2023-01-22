@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import './IBounty.sol';
 
-interface IBountyTiered is IBounty {
+interface IBountyTieredFixed is IBounty {
     function setTierWinner(string memory _winner, uint256 _tier) external;
 
     function tierClaimed(uint256 _tier) external returns (bool);
