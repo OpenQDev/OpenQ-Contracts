@@ -97,6 +97,19 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
     }
 
     /**
+     * @dev Sets the payout for an ongoing bounty
+     * @param _payoutTokenAddress Sets payout token address
+     * @param _payoutVolume Sets payout token volume
+     */
+    function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
+        external
+        onlyOpenQ
+    {
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _payoutVolume;
+    }
+
+    /**
      * @dev Transfers a payout amount of an ongoing bounty to claimant for claimant asset
      * @param _payoutAddress The destination address for the funds
      * @param _closerData ABI-encoded data of the claimant and claimant asset
