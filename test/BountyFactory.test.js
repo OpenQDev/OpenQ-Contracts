@@ -42,7 +42,7 @@ describe.only('BountyFactory', () => {
 
 	const mockOpenQId = "mockOpenQId"
 	const mockId = "mockId";
-	const mockOrganization = "mockOrganization";
+	const organization = "mockOrganization";
 
 	beforeEach(async () => {
 		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
@@ -160,7 +160,7 @@ describe.only('BountyFactory', () => {
 			const txn = await newBountyFactory.mintBounty(
 				mockId,
 				owner.address,
-				mockOrganization,
+				organization,
 				claimManager.address,
 				depositManager.address,
 				atomicBountyInitOperation
@@ -168,26 +168,72 @@ describe.only('BountyFactory', () => {
 
 			const receipt = await txn.wait();
 
-			const newBounty = await AtomicBountyV1.attach(receipt.events[0].address);
+			const atomicContract = await AtomicBountyV1.attach(receipt.events[0].address);
 
-			await expect(await newBounty.bountyId()).equals(mockId);
-			await expect(await newBounty.issuer()).equals(owner.address);
-			await expect(await newBounty.organization()).equals(mockOrganization);
-			await expect(await newBounty.status()).equals(0);
-			await expect(await newBounty.openQ()).equals(owner.address);
-			await expect(await newBounty.claimManager()).equals(claimManager.address);
-			await expect(await newBounty.depositManager()).equals(depositManager.address);
-			await expect(await newBounty.bountyCreatedTime()).equals(initializationTimestamp);
-			await expect(await newBounty.bountyType()).equals(ATOMIC_CONTRACT);
-			await expect(await newBounty.hasFundingGoal()).equals(true);
-			await expect(await newBounty.fundingToken()).equals(mockLink.address);
-			await expect(await newBounty.fundingGoal()).equals(100);
-			await expect(await newBounty.invoiceable()).equals(true);
-			await expect(await newBounty.kycRequired()).equals(true);
-			await expect(await newBounty.externalUserId()).equals(mockOpenQId);
-			await expect(await newBounty.supportingDocuments()).equals(true);
+			await expect(await atomicContract.bountyId()).equals(mockId);
+			await expect(await atomicContract.issuer()).equals(owner.address);
+			await expect(await atomicContract.organization()).equals(organization);
+			await expect(await atomicContract.status()).equals(0);
+			await expect(await atomicContract.openQ()).equals(owner.address);
+			await expect(await atomicContract.claimManager()).equals(claimManager.address);
+			await expect(await atomicContract.depositManager()).equals(depositManager.address);
+			await expect(await atomicContract.bountyCreatedTime()).equals(initializationTimestamp);
+			await expect(await atomicContract.bountyType()).equals(ATOMIC_CONTRACT);
+			await expect(await atomicContract.hasFundingGoal()).equals(true);
+			await expect(await atomicContract.fundingToken()).equals(mockLink.address);
+			await expect(await atomicContract.fundingGoal()).equals(100);
+			await expect(await atomicContract.invoiceable()).equals(true);
+			await expect(await atomicContract.kycRequired()).equals(true);
+			await expect(await atomicContract.externalUserId()).equals(mockOpenQId);
+			await expect(await atomicContract.supportingDocuments()).equals(true);
 
-			await expect(newBounty.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
+			await expect(atomicContract.initialize(mockOpenQId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
+		});
+
+		it.only('should mint a bounty with expected data - ONGOIN', async () => {
+			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
+			let newBountyFactory = await BountyFactory.deploy(
+				owner.address,
+				atomicBountyBeacon.address,
+				ongoingBountyBeacon.address,
+				tieredPercentageBountyBeacon.address,
+				tieredFixedBountyBeacon.address
+				);
+			await newBountyFactory.deployed();
+
+			let initializationTimestamp = await setNextBlockTimestamp();
+
+			const txn = await newBountyFactory.mintBounty(
+				mockId,
+				owner.address,
+				organization,
+				claimManager.address,
+				depositManager.address,
+				ongoingBountyInitOperation
+			);
+
+			const receipt = await txn.wait();
+
+			const ongoingContract = await AtomicBountyV1.attach(receipt.events[0].address);
+
+			await expect(await ongoingContract.bountyId()).equals(mockId);
+			await expect(await ongoingContract.issuer()).equals(owner.address);
+			await expect(await ongoingContract.organization()).equals(organization);
+			await expect(await ongoingContract.status()).equals(0);
+			await expect(await ongoingContract.openQ()).equals(owner.address);
+			await expect(await ongoingContract.claimManager()).equals(claimManager.address);
+			await expect(await ongoingContract.depositManager()).equals(depositManager.address);
+			await expect(await ongoingContract.bountyCreatedTime()).equals(initializationTimestamp);
+			await expect(await ongoingContract.bountyType()).equals(ONGOING_CONTRACT);
+			await expect(await ongoingContract.hasFundingGoal()).equals(true);
+			await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
+			await expect(await ongoingContract.fundingGoal()).equals(100);
+			await expect(await ongoingContract.invoiceable()).equals(true);
+			await expect(await ongoingContract.kycRequired()).equals(true);
+			await expect(await ongoingContract.externalUserId()).equals(mockOpenQId);
+			await expect(await ongoingContract.supportingDocuments()).equals(true);
+
+			await expect(ongoingContract.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, ongoingBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
 	});
 });
