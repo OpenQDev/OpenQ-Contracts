@@ -3,13 +3,13 @@ pragma solidity 0.8.17;
 
 import './IBountyAtomic.sol';
 import './IBountyOngoing.sol';
-import './IBountyTiered.sol';
+import './IBountyTieredPercentage.sol';
 import './IBountyTieredFixed.sol';
 
 interface IBounty is
     IBountyAtomic,
     IBountyOngoing,
-    IBountyTiered,
+    IBountyTieredPercentage,
     IBountyTieredFixed
 {
     function tierClaimed(uint256 _tier)
