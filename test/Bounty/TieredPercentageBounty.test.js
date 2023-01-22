@@ -98,68 +98,62 @@ describe('TieredPercentageBountyV1.sol', () => {
 	});
 
 	describe('initializer', () => {
+		it('should init with tiered correct metadata', async () => {
+			const actualBountyPayoutSchedule = await tieredContract.getPayoutSchedule();
+			const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
 
-		describe('TIERED', () => {
-			it('should init with tiered correct metadata', async () => {
-				const actualBountyPayoutSchedule = await tieredContract.getPayoutSchedule();
-				const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
+			await expect(await tieredContract.bountyId()).equals(mockId);
+			await expect(await tieredContract.issuer()).equals(owner.address);
+			await expect(await tieredContract.organization()).equals(organization);
+			await expect(await tieredContract.status()).equals(0);
+			await expect(await tieredContract.openQ()).equals(owner.address);
+			await expect(await tieredContract.claimManager()).equals(claimManager.address);
+			await expect(await tieredContract.depositManager()).equals(depositManager.address);
+			await expect(await tieredContract.bountyCreatedTime()).equals(initializationTimestampTiered);
+			await expect(await tieredContract.bountyType()).equals(TIERED_CONTRACT);
+			await expect(await tieredContract.hasFundingGoal()).equals(true);
+			await expect(await tieredContract.fundingToken()).equals(mockLink.address);
+			await expect(await tieredContract.fundingGoal()).equals(100);
+			await expect(payoutToString[0]).equals("80");
+			await expect(payoutToString[1]).equals("20");
+			await expect(await tieredContract.invoiceable()).equals(true);
+			await expect(await tieredContract.kycRequired()).equals(true);
+			await expect(await tieredContract.externalUserId()).equals(mockOpenQId);
+			await expect(await tieredContract.supportingDocuments()).equals(true);
 
-
-				await expect(await tieredContract.bountyId()).equals(mockId);
-				await expect(await tieredContract.issuer()).equals(owner.address);
-				await expect(await tieredContract.organization()).equals(organization);
-				await expect(await tieredContract.status()).equals(0);
-				await expect(await tieredContract.openQ()).equals(owner.address);
-				await expect(await tieredContract.claimManager()).equals(claimManager.address);
-				await expect(await tieredContract.depositManager()).equals(depositManager.address);
-				await expect(await tieredContract.bountyCreatedTime()).equals(initializationTimestampTiered);
-				await expect(await tieredContract.bountyType()).equals(TIERED_CONTRACT);
-				await expect(await tieredContract.hasFundingGoal()).equals(true);
-				await expect(await tieredContract.fundingToken()).equals(mockLink.address);
-				await expect(await tieredContract.fundingGoal()).equals(100);
-				await expect(payoutToString[0]).equals("80");
-				await expect(payoutToString[1]).equals("20");
-				await expect(await tieredContract.invoiceable()).equals(true);
-				await expect(await tieredContract.kycRequired()).equals(true);
-				await expect(await tieredContract.externalUserId()).equals(mockOpenQId);
-				await expect(await tieredContract.supportingDocuments()).equals(true);
-
-				await expect(await tieredContract.invoiceComplete(0)).equals(false);
-				await expect(await tieredContract.supportingDocumentsComplete(0)).equals(false);
-			});
-
-			it('should revert if payoutSchedule values do not add up to 100', async () => {
-				// ARRANGE
-				tieredContract = await TieredPercentageBountyV1.deploy();
-				await tieredContract.deployed();
-
-				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[1, 2], true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
-
-				tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
-
-				// ACT/ASSERT
-				await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('PAYOUT_SCHEDULE_MUST_ADD_TO_100');
-			});
+			await expect(await tieredContract.invoiceComplete(0)).equals(false);
+			await expect(await tieredContract.supportingDocumentsComplete(0)).equals(false);
 		});
 
-		describe('REVERTS', () => {
-			it('should revert if bountyId is empty', async () => {
-				// ARRANGE
-				const TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
-				tieredContract = await TieredPercentageBountyV1.deploy();
+		it('should revert if payoutSchedule values do not add up to 100', async () => {
+			// ARRANGE
+			tieredContract = await TieredPercentageBountyV1.deploy();
+			await tieredContract.deployed();
 
-				// ASSERT
-				await expect(tieredContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
-			});
+			const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[1, 2], true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
 
-			it('should revert if organization is empty', async () => {
-				// ARRANGE
-				const TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
-				tieredContract = await TieredPercentageBountyV1.deploy();
+			tieredBountyInitOperation = [2, abiEncodedParamsTieredBountyNot100];
 
-				// ASSERT
-				await expect(tieredContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
-			});
+			// ACT/ASSERT
+			await expect(tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('PAYOUT_SCHEDULE_MUST_ADD_TO_100');
+		});
+
+		it('should revert if bountyId is empty', async () => {
+			// ARRANGE
+			const TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
+			tieredContract = await TieredPercentageBountyV1.deploy();
+
+			// ASSERT
+			await expect(tieredContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+		});
+
+		it('should revert if organization is empty', async () => {
+			// ARRANGE
+			const TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
+			tieredContract = await TieredPercentageBountyV1.deploy();
+
+			// ASSERT
+			await expect(tieredContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 		});
 	});
 

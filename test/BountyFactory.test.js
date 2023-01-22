@@ -190,7 +190,7 @@ describe.only('BountyFactory', () => {
 			await expect(atomicContract.initialize(mockOpenQId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
 
-		it.only('should mint a bounty with expected data - ONGOIN', async () => {
+		it.only('should mint a bounty with expected data - ONGOING', async () => {
 			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
 			let newBountyFactory = await BountyFactory.deploy(
 				owner.address,
@@ -214,7 +214,7 @@ describe.only('BountyFactory', () => {
 
 			const receipt = await txn.wait();
 
-			const ongoingContract = await AtomicBountyV1.attach(receipt.events[0].address);
+			const ongoingContract = await OngoingBountyV1.attach(receipt.events[0].address);
 
 			await expect(await ongoingContract.bountyId()).equals(mockId);
 			await expect(await ongoingContract.issuer()).equals(owner.address);
@@ -234,6 +234,61 @@ describe.only('BountyFactory', () => {
 			await expect(await ongoingContract.supportingDocuments()).equals(true);
 
 			await expect(ongoingContract.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, ongoingBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
+		});
+
+		it.only('should mint a bounty with expected data - TIERED PERCENTAGE', async () => {
+			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
+			let newBountyFactory = await BountyFactory.deploy(
+				owner.address,
+				atomicBountyBeacon.address,
+				ongoingBountyBeacon.address,
+				tieredPercentageBountyBeacon.address,
+				tieredFixedBountyBeacon.address
+				);
+			await newBountyFactory.deployed();
+
+			let initializationTimestamp = await setNextBlockTimestamp();
+
+			const txn = await newBountyFactory.mintBounty(
+				mockId,
+				owner.address,
+				organization,
+				claimManager.address,
+				depositManager.address,
+				tieredPercentageBountyInitOperation
+			);
+
+			const receipt = await txn.wait();
+
+			const tieredPercentageContract = await TieredPercentageBountyV1.attach(receipt.events[0].address);
+
+			const actualBountyPayoutSchedule = await tieredPercentageContract.getPayoutSchedule();
+			const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
+
+			await expect(await tieredPercentageContract.bountyId()).equals(mockId);
+			await expect(await tieredPercentageContract.bountyId()).equals(mockId);
+			await expect(await tieredPercentageContract.issuer()).equals(owner.address);
+			await expect(await tieredPercentageContract.organization()).equals(organization);
+			await expect(await tieredPercentageContract.status()).equals(0);
+			await expect(await tieredPercentageContract.openQ()).equals(owner.address);
+			await expect(await tieredPercentageContract.claimManager()).equals(claimManager.address);
+			await expect(await tieredPercentageContract.depositManager()).equals(depositManager.address);
+			await expect(await tieredPercentageContract.bountyCreatedTime()).equals(initializationTimestamp);
+			await expect(await tieredPercentageContract.bountyType()).equals(TIERED_PERCENTAGE_CONTRACT);
+			await expect(await tieredPercentageContract.hasFundingGoal()).equals(true);
+			await expect(await tieredPercentageContract.fundingToken()).equals(mockLink.address);
+			await expect(await tieredPercentageContract.fundingGoal()).equals(100);
+			await expect(payoutToString[0]).equals("80");
+			await expect(payoutToString[1]).equals("20");
+			await expect(await tieredPercentageContract.invoiceable()).equals(true);
+			await expect(await tieredPercentageContract.kycRequired()).equals(true);
+			await expect(await tieredPercentageContract.externalUserId()).equals(mockOpenQId);
+			await expect(await tieredPercentageContract.supportingDocuments()).equals(true);
+
+			await expect(await tieredPercentageContract.invoiceComplete(0)).equals(false);
+			await expect(await tieredPercentageContract.supportingDocumentsComplete(0)).equals(false);
+
+			await expect(tieredPercentageContract.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, tieredPercentageBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
 	});
 });
