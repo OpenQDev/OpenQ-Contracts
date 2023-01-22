@@ -9,4 +9,14 @@ interface IBountyAtomic is IBountyCore {
         returns (uint256);
 
     function claimNft(address _payoutAddress, bytes32 _depositId) external;
+
+    function close(address _payoutAddress, bytes calldata _closerData) external;
+
+    function getTokenAddresses() external view returns (address[] memory);
+
+    function getNftDeposits() external view returns (bytes32[] memory);
+
+    function getLockedFunds(address) external view returns (uint256);
+
+    function getTokenAddressesCount() external view returns (uint256);
 }

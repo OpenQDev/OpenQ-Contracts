@@ -45,7 +45,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         uint256 _expiration,
         string memory funderUuid
     ) external payable onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        IBounty bounty = IBounty(payable(_bountyAddress));
 
         if (!isWhitelisted(_tokenAddress)) {
             require(
@@ -89,7 +89,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         bytes32 _depositId,
         uint256 _seconds
     ) external onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        IBounty bounty = IBounty(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -117,16 +117,16 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
      * @param _tokenAddress The ERC721 token address of the NFT
      * @param _tokenId The tokenId of the NFT to transfer
      * @param _expiration The duration until the deposit becomes refundable
-     * @param _tier The tier of the NFT (not relevant for non-tiered bounties)
+     * @param _data The tier of the NFT (not relevant for non-tiered bounties)
      */
     function fundBountyNFT(
         address _bountyAddress,
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration,
-        uint256 _tier
+        bytes calldata _data
     ) external onlyProxy {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        IBounty bounty = IBounty(payable(_bountyAddress));
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
         require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
@@ -136,7 +136,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
             _tokenAddress,
             _tokenId,
             _expiration,
-            _tier
+            _data
         );
 
         emit NFTDepositReceived(
@@ -150,7 +150,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
             _expiration,
             _tokenId,
             0,
-            new bytes(0),
+            _data,
             VERSION_1
         );
     }
@@ -164,7 +164,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         external
         onlyProxy
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        IBounty bounty = IBounty(payable(_bountyAddress));
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -180,7 +180,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         address depToken = bounty.tokenAddress(_depositId);
 
         uint256 availableFunds = bounty.getTokenBalance(depToken) -
-            bounty.getLockedFunds(_bountyAddress, depToken);
+            bounty.getLockedFunds(depToken);
 
         uint256 volume;
         if (bounty.volume(_depositId) <= availableFunds) {
@@ -224,7 +224,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         view
         returns (bool)
     {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        IBounty bounty = IBounty(payable(_bountyAddress));
 
         return
             bounty.getTokenAddressesCount() >=
@@ -237,7 +237,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
      * @return bool True if _bountyId is associated with an open bounty
      */
     function bountyIsOpen(address _bountyAddress) public view returns (bool) {
-        BountyV1 bounty = BountyV1(payable(_bountyAddress));
+        IBounty bounty = IBounty(payable(_bountyAddress));
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
     }

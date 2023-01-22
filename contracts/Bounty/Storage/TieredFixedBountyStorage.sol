@@ -19,6 +19,9 @@ abstract contract TieredFixedBountyStorageV1 is BountyCore {
     mapping(address => uint256) public fundingTotals;
     mapping(uint256 => bool) public tierClaimed;
 
+    // Tier associated with deposit
+    mapping(bytes32 => uint256) public tier;
+
     bool[] public invoiceComplete;
     bool[] public supportingDocumentsComplete;
     string[] public tierWinners;

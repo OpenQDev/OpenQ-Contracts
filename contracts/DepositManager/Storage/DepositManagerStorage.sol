@@ -12,7 +12,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
  */
 import '..//Interfaces/IDepositManager.sol';
 import '../../Tokens/OpenQTokenWhitelist.sol';
-import '../../Bounty/Implementations/BountyV1.sol';
+import '../../Bounty/Interfaces/IBounty.sol';
 import '../../Library/Errors.sol';
 
 /**

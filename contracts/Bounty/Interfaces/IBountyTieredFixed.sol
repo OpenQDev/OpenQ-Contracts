@@ -11,6 +11,10 @@ interface IBountyTieredFixed is IBountyCore {
 
     function getTierWinners() external returns (string[] memory);
 
+    function claimTieredFixed(address _payoutAddress, uint256 _tier)
+        external
+        returns (uint256);
+
     // SETTERS
     function setTierWinner(string memory _winner, uint256 _tier) external;
 

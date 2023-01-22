@@ -14,7 +14,7 @@ import '../Interfaces/IClaimManager.sol';
 import '../../OpenQ/Interfaces/IOpenQ.sol';
 import '../../Library/OpenQDefinitions.sol';
 import '../../Oracle/Oraclize.sol';
-import '../../Bounty/Implementations/BountyV1.sol';
+import '../../Bounty/Interfaces/IBounty.sol';
 import '../../Library/Errors.sol';
 import '../../KYC/IKycValidity.sol';
 

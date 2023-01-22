@@ -4,8 +4,8 @@ pragma solidity 0.8.17;
 import '../Storage/BountyStorageCore.sol';
 
 /**
- * @title BountyUtils
- * @dev Bounty Implementation Version 1
+ * @title BountyCore
+ * @dev BountyCore Version 1
  */
 abstract contract BountyCore is BountyStorageCore {
     /**
@@ -61,44 +61,6 @@ abstract contract BountyCore is BountyStorageCore {
         tokenAddresses.add(_tokenAddress);
 
         return (depositId, volumeReceived);
-    }
-
-    /**
-     * @dev Creates a deposit and transfers NFT from msg.sender to self
-     * @param _sender The funder address
-     * @param _tokenAddress The ERC721 token address of the NFT
-     * @param _tokenId The tokenId of the NFT to transfer
-     * @param _expiration The duration until the deposit becomes refundable
-     * @param _data (optional) Data including the tier
-     * @return depositId
-     */
-    function receiveNft(
-        address _sender,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration,
-        bytes calldata _data
-    ) external onlyDepositManager nonReentrant returns (bytes32) {
-        require(
-            nftDeposits.length < nftDepositLimit,
-            Errors.NFT_DEPOSIT_LIMIT_REACHED
-        );
-        require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
-        _receiveNft(_tokenAddress, _sender, _tokenId);
-
-        bytes32 depositId = _generateDepositId();
-
-        funder[depositId] = _sender;
-        tokenAddress[depositId] = _tokenAddress;
-        depositTime[depositId] = block.timestamp;
-        tokenId[depositId] = _tokenId;
-        expiration[depositId] = _expiration;
-        isNFT[depositId] = true;
-
-        deposits.push(depositId);
-        nftDeposits.push(depositId);
-
-        return depositId;
     }
 
     /**
@@ -355,14 +317,6 @@ abstract contract BountyCore is BountyStorageCore {
     }
 
     /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _kycRequired Whether or not KYC is required to fund and claim the bounty
-     */
-    function setKycRequired(bool _kycRequired) external onlyOpenQ {
-        kycRequired = _kycRequired;
-    }
-
-    /**
      * @dev Sets the funding goal
      * @param _fundingToken Token address for funding goal
      * @param _fundingGoal Token volume for funding goal
@@ -374,6 +328,14 @@ abstract contract BountyCore is BountyStorageCore {
         fundingGoal = _fundingGoal;
         fundingToken = _fundingToken;
         hasFundingGoal = true;
+    }
+
+    /**
+     * @dev Whether or not KYC is required to fund and claim the bounty
+     * @param _kycRequired Whether or not KYC is required to fund and claim the bounty
+     */
+    function setKycRequired(bool _kycRequired) external onlyOpenQ {
+        kycRequired = _kycRequired;
     }
 
     /**
@@ -393,5 +355,26 @@ abstract contract BountyCore is BountyStorageCore {
         onlyOpenQ
     {
         supportingDocuments = _supportingDocuments;
+    }
+
+    /**
+     * @dev Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
+     * @param _depositId The depositId that determines which token is being looked at
+     * @return uint256
+     */
+    function getLockedFunds(address _depositId) public view returns (uint256) {
+        uint256 lockedFunds;
+        bytes32[] memory depList = this.getDeposits();
+        for (uint256 i = 0; i < depList.length; i++) {
+            if (
+                block.timestamp <
+                depositTime[depList[i]] + expiration[depList[i]] &&
+                tokenAddress[depList[i]] == _depositId
+            ) {
+                lockedFunds += volume[depList[i]];
+            }
+        }
+
+        return lockedFunds;
     }
 }
