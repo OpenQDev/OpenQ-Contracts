@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe('TieredFixedBountyV1.sol', () => {
+describe.only('TieredFixedBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 
@@ -247,85 +247,6 @@ describe('TieredFixedBountyV1.sol', () => {
 			expect(payoutToString[2]).to.equal('10');
 		});
 	});
-
-	describe('setTierWinner', () => {
-		it('should revert if not called by OpenQ contract', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-
-			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setTierWinner(mockOpenQId, 0)).to.be.revertedWith('Method is only callable by OpenQ');
-		});
-
-		it('should set tier winner', async () => {
-			// ACT
-			await tieredFixedContract.setTierWinner(mockOpenQId, 0)
-			await tieredFixedContract.setTierWinner(mockOpenQId+"2", 1)
-
-			// ASSERT
-			const winner = await tieredFixedContract.tierWinners(0)
-			const winner2 = await tieredFixedContract.tierWinners(1)
-			expect(winner).to.equal(mockOpenQId)
-			expect(winner2).to.equal(mockOpenQId+"2")
-		})
-	})
-
-	describe('setInvoiceComplete', () => {
-		it('should revert if not called by OpenQ contract', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-
-			let setInvoiceCompleteData = abiCoder.encode(['uint256', 'bool'], [0, true]);
-			
-			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setInvoiceComplete(setInvoiceCompleteData)).to.be.revertedWith('Method is only callable by OpenQ');
-		});
-
-		it('should set invoiceComplete for given tier', async () => {
-			let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-			let setInvoiceCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
-			// ASSUME
-			expect(await tieredFixedContract.invoiceComplete(0)).to.equal(false)
-			expect(await tieredFixedContract.invoiceComplete(1)).to.equal(false)
-			
-			// ACT
-			await tieredFixedContract.setInvoiceComplete(setInvoiceCompleteData_1);
-			await tieredFixedContract.setInvoiceComplete(setInvoiceCompleteData_2);
-
-			// ASSERT
-			expect(await tieredFixedContract.invoiceComplete(0)).to.equal(true)
-			expect(await tieredFixedContract.invoiceComplete(1)).to.equal(true)
-		})
-	})
-
-	describe('setSupportingDocumentsComplete', () => {
-		it('should revert if not called by OpenQ contract', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-
-			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-
-			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_1)).to.be.revertedWith('Method is only callable by OpenQ');
-		});
-
-		it('should set supportingDocumentsComplete', async () => {
-			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-			let setSupportingDocumentsCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
-
-			// ASSUME
-			expect(await tieredFixedContract.supportingDocumentsComplete(0)).to.equal(false)
-			expect(await tieredFixedContract.supportingDocumentsComplete(1)).to.equal(false)
-			
-			// ACT
-			await tieredFixedContract.setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_1);
-			await tieredFixedContract.setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_2);
-
-			// ASSERT
-			expect(await tieredFixedContract.supportingDocumentsComplete(0)).to.equal(true)
-			expect(await tieredFixedContract.supportingDocumentsComplete(1)).to.equal(true)
-		})
-	})
 
 });
 

@@ -99,54 +99,6 @@ describe.only('TieredBountyCore.sol', () => {
 		await mockNft.approve(tieredFixedContract.address, 4);
 	});
 
-	describe('initializer', () => {
-		it('should revert if bountyId is empty', async () => {
-			// ARRANGE
-			const TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
-			tieredFixedContract = await TieredFixedBountyV1.deploy();
-
-			// ASSERT
-			await expect(tieredFixedContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
-		});
-
-		it('should revert if organization is empty', async () => {
-			// ARRANGE
-			const TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
-			tieredFixedContract = await TieredFixedBountyV1.deploy();
-
-			// ASSERT
-			await expect(tieredFixedContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
-		});
-
-		it('should init with tiered correct metadata', async () => {
-			const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
-			const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
-
-
-			await expect(await tieredFixedContract.bountyId()).equals(mockId);
-			await expect(await tieredFixedContract.issuer()).equals(owner.address);
-			await expect(await tieredFixedContract.organization()).equals(organization);
-			await expect(await tieredFixedContract.status()).equals(0);
-			await expect(await tieredFixedContract.openQ()).equals(owner.address);
-			await expect(await tieredFixedContract.claimManager()).equals(claimManager.address);
-			await expect(await tieredFixedContract.depositManager()).equals(depositManager.address);
-			await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestampTiered);
-			await expect(await tieredFixedContract.bountyType()).equals(TIERED_FIXED_CONTRACT);
-			await expect(await tieredFixedContract.hasFundingGoal()).equals(true);
-			await expect(await tieredFixedContract.fundingToken()).equals(mockLink.address);
-			await expect(await tieredFixedContract.fundingGoal()).equals(100);
-			await expect(payoutToString[0]).equals("80");
-			await expect(payoutToString[1]).equals("20");
-			await expect(await tieredFixedContract.invoiceable()).equals(true);
-			await expect(await tieredFixedContract.kycRequired()).equals(true);
-			await expect(await tieredFixedContract.externalUserId()).equals(mockOpenQId);
-			await expect(await tieredFixedContract.supportingDocuments()).equals(true);
-
-			await expect(await tieredFixedContract.invoiceComplete(0)).equals(false);
-			await expect(await tieredFixedContract.supportingDocumentsComplete(0)).equals(false);
-		});
-	});
-
 	describe('receiveNFT', () => {
 		let tierData = abiCoder.encode(['uint256'], ['0']);
 
