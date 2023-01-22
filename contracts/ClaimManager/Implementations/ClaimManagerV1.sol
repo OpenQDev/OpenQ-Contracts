@@ -334,40 +334,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     }
 
     /**
-     * @dev Useful for competition minter to directly award a tier's prize to closer
-     * @param _bountyAddress The payout address of the bounty
-     * @param _externalUserId The Github ID of the winner
-     * @param _closerData ABI Encoded data associated with this claim
-     */
-    function directClaimTieredBounty(
-        address _bountyAddress,
-        string calldata _externalUserId,
-        bytes calldata _closerData
-    ) external onlyProxy {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-
-        address closer = IOpenQ(openQ).externalUserIdToAddress(_externalUserId);
-
-        require(closer != address(0), Errors.NO_ASSOCIATED_ADDRESS);
-
-        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(bounty, closer, _closerData);
-        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, closer, _closerData);
-        } else {
-            revert(Errors.NOT_A_COMPETITION_CONTRACT);
-        }
-
-        emit ClaimSuccess(
-            block.timestamp,
-            bounty.bountyType(),
-            _closerData,
-            VERSION_1
-        );
-    }
-
-    /**
      * @dev Used for claimants who have:
      * @dev A) Completed KYC with KYC DAO for their tier
      * @dev B) Uploaded invoicing information for their tier
