@@ -24,23 +24,32 @@ contract BountyFactory is OnlyOpenQ {
     /**
      * @dev The address of the UpgradeableBeacon holding the current bounty implementation
      */
-    address immutable beacon;
     address immutable atomicBountyBeacon;
+    address immutable ongoingBountyBeacon;
+    address immutable tieredBountyBeacon;
+    address immutable tieredFixedBountyBeacon;
 
     /**
      * @dev Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
      * @param _openQ The OpenQProxy address
-     * @param _beacon The UpgradeableBeacon "BountyBeacon" address
+     * @param _atomicBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Atomic contracts
+     * @param _ongoingBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Ongoing contracts
+     * @param _tieredBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Tiered contracts
+     * @param _tieredFixedBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Tiered Fixed contracts
      */
     constructor(
         address _openQ,
-        address _beacon,
-        address _atomicBountyBeacon
+        address _atomicBountyBeacon,
+        address _ongoingBountyBeacon,
+        address _tieredBountyBeacon,
+        address _tieredFixedBountyBeacon
     ) {
         __OnlyOpenQ_init(_openQ);
 
         atomicBountyBeacon = _atomicBountyBeacon;
-        beacon = _beacon;
+        ongoingBountyBeacon = _ongoingBountyBeacon;
+        tieredBountyBeacon = _tieredBountyBeacon;
+        tieredFixedBountyBeacon = _tieredFixedBountyBeacon;
     }
 
     /**
@@ -64,50 +73,32 @@ contract BountyFactory is OnlyOpenQ {
     ) external onlyOpenQ returns (address) {
         uint32 operationType = operation.operationType;
 
-        BeaconProxy bounty;
+        address beaconProxy;
 
         if (operationType == OpenQDefinitions.ATOMIC) {
-            bounty = new BeaconProxy(
-                atomicBountyBeacon,
-                abi.encodeWithSignature(
-                    'initialize(string,address,string,address,address,address,(uint32,bytes))',
-                    _id,
-                    _issuer,
-                    _organization,
-                    openQ(),
-                    _claimManager,
-                    _depositManager,
-                    operation
-                )
-            );
+            beaconProxy = atomicBountyBeacon;
+        } else if (operationType == OpenQDefinitions.ONGOING) {
+            beaconProxy = ongoingBountyBeacon;
+        } else if (operationType == OpenQDefinitions.TIERED) {
+            beaconProxy = tieredBountyBeacon;
         } else {
-            bounty = new BeaconProxy(
-                beacon,
-                abi.encodeWithSignature(
-                    'initialize(string,address,string,address,address,address,(uint32,bytes))',
-                    _id,
-                    _issuer,
-                    _organization,
-                    openQ(),
-                    _claimManager,
-                    _depositManager,
-                    operation
-                )
-            );
+            beaconProxy = tieredFixedBountyBeacon;
         }
 
+        BeaconProxy bounty = new BeaconProxy(
+            beaconProxy,
+            abi.encodeWithSignature(
+                'initialize(string,address,string,address,address,address,(uint32,bytes))',
+                _id,
+                _issuer,
+                _organization,
+                openQ(),
+                _claimManager,
+                _depositManager,
+                operation
+            )
+        );
+
         return address(bounty);
-    }
-
-    /**
-     * UTILITY
-     */
-
-    /**
-     * @dev Returns the BountyBeacon address
-     * @return address BountyBeacon address
-     */
-    function getBeacon() external view returns (address) {
-        return beacon;
     }
 }

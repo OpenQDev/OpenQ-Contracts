@@ -4,12 +4,14 @@ pragma solidity 0.8.17;
 import './IBountyCore.sol';
 
 interface IBountyOngoing is IBountyCore {
-    function payoutTokenAddress() external returns (address);
+    // GETTERS
+    function payoutTokenAddress() external view returns (address);
 
-    function payoutVolume() external returns (uint256);
+    function payoutVolume() external view returns (uint256);
 
-    function claimantId(bytes32) external returns (bool);
+    function claimantId(bytes32) external view returns (bool);
 
+    // SETTERS
     function setPayout(address, uint256) external;
 
     function claimOngoingPayout(

@@ -7,10 +7,10 @@ pragma solidity 0.8.17;
 import '../Storage/OngoingBountyStorage.sol';
 
 /**
- * @title BountyV1
- * @dev Bounty Implementation Version 1
+ * @title OngoingBountyV1
+ * @dev OngoingBounty Implementation Version 1
  */
-contract TieredBountyV1 is OngoingBountyStorageV1 {
+contract OngoingBountyV1 is OngoingBountyStorageV1 {
     /**
      * INITIALIZATION
      */

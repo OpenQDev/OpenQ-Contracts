@@ -42,11 +42,6 @@ interface IBountyCore {
         address _funder
     ) external returns (uint256);
 
-    function getTokenBalance(address _tokenAddress)
-        external
-        view
-        returns (uint256);
-
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
         external;
 
@@ -60,60 +55,65 @@ interface IBountyCore {
 
     function setSupportingDocumentsComplete(bytes calldata _data) external;
 
-    // State getters
-    function bountyId() external returns (string memory);
+    // GETTERS
+    function getTokenBalance(address _tokenAddress)
+        external
+        view
+        returns (uint256);
 
-    function bountyCreatedTime() external returns (uint256);
+    function bountyId() external view returns (string memory);
 
-    function bountyClosedTime() external returns (uint256);
+    function bountyCreatedTime() external view returns (uint256);
 
-    function issuer() external returns (address);
+    function bountyClosedTime() external view returns (uint256);
 
-    function organization() external returns (string memory);
+    function issuer() external view returns (address);
 
-    function closer() external returns (address);
+    function organization() external view returns (string memory);
 
-    function status() external returns (uint256);
+    function closer() external view returns (address);
 
-    function nftDepositLimit() external returns (uint256);
+    function status() external view returns (uint256);
 
-    function funder(bytes32) external returns (address);
+    function nftDepositLimit() external view returns (uint256);
 
-    function tokenAddress(bytes32) external returns (address);
+    function funder(bytes32) external view returns (address);
 
-    function volume(bytes32) external returns (uint256);
+    function tokenAddress(bytes32) external view returns (address);
 
-    function depositTime(bytes32) external returns (uint256);
+    function volume(bytes32) external view returns (uint256);
 
-    function refunded(bytes32) external returns (bool);
+    function depositTime(bytes32) external view returns (uint256);
 
-    function payoutAddress(bytes32) external returns (address);
+    function refunded(bytes32) external view returns (bool);
 
-    function tokenId(bytes32) external returns (uint256);
+    function payoutAddress(bytes32) external view returns (address);
 
-    function expiration(bytes32) external returns (uint256);
+    function tokenId(bytes32) external view returns (uint256);
 
-    function isNFT(bytes32) external returns (bool);
+    function expiration(bytes32) external view returns (uint256);
 
-    function deposits(uint256) external returns (bytes32);
+    function isNFT(bytes32) external view returns (bool);
 
-    function nftDeposits(uint256) external returns (bytes32);
+    function deposits(uint256) external view returns (bytes32);
 
-    function closerData() external returns (bytes memory);
+    function nftDeposits(uint256) external view returns (bytes32);
 
-    function bountyType() external returns (uint256);
+    function closerData() external view returns (bytes memory);
 
-    function hasFundingGoal() external returns (bool);
+    function bountyType() external view returns (uint256);
 
-    function fundingToken() external returns (address);
+    function hasFundingGoal() external view returns (bool);
 
-    function fundingGoal() external returns (uint256);
+    function fundingToken() external view returns (address);
 
-    function invoiceable() external returns (bool);
+    function fundingGoal() external view returns (uint256);
 
-    function kycRequired() external returns (bool);
+    function invoiceable() external view returns (bool);
 
-    function supportingDocuments() external returns (bool);
+    function kycRequired() external view returns (bool);
 
-    function externalUserId() external returns (string memory);
+    function supportingDocuments() external view returns (bool);
+
+    function externalUserId() external view returns (string memory);
 }

@@ -14,6 +14,7 @@ interface IBounty is
 {
     function tierClaimed(uint256 _tier)
         external
+        view
         override(IBountyTiered, IBountyTieredFixed)
         returns (bool);
 
