@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-import '../Implementations/BountyCore.sol';
+import '../Implementations/TieredBountyCore.sol';
 import '../Storage/TieredBountyStorage.sol';
 
 /**
@@ -10,7 +10,7 @@ import '../Storage/TieredBountyStorage.sol';
  */
 abstract contract TieredPercentageBountyStorageV1 is
     TieredBountyStorageV1,
-    BountyCore
+    TieredBountyCore
 {
 
 }

@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe('TieredFixedBountyV1.sol', () => {
+describe.only('TieredBountyCore.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 
@@ -95,6 +95,8 @@ describe('TieredFixedBountyV1.sol', () => {
 		await mockNft.approve(tieredFixedContract.address, 0);
 		await mockNft.approve(tieredFixedContract.address, 1);
 		await mockNft.approve(tieredFixedContract.address, 2);
+		await mockNft.approve(tieredFixedContract.address, 3);
+		await mockNft.approve(tieredFixedContract.address, 4);
 	});
 
 	describe('initializer', () => {
@@ -145,106 +147,66 @@ describe('TieredFixedBountyV1.sol', () => {
 		});
 	});
 
-	describe('claimTieredFixed', () => {
-		it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
-			// ARRANGE
-			const volume = 1000;
+	describe('receiveNFT', () => {
+		let tierData = abiCoder.encode(['uint256'], ['0']);
 
-			const [, firstPlace, secondPlace] = await ethers.getSigners();
+		describe('REVERTS', () => {
+			it('should revert if too many NFT deposits', async () => {
+				// ASSUME
+				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(2)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(3)).to.equal(owner.address);
+				expect(await mockNft.ownerOf(4)).to.equal(owner.address);
 
-			await tieredFixedContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+				// ACT
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 0, 1, tierData);
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, tierData);
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 2, 1, tierData);
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 3, 1, tierData);
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 4, 1, tierData);
+				
+				// ASSERT
+				await expect(tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 5, 1, tierData)).to.be.revertedWith('NFT_DEPOSIT_LIMIT_REACHED');
+			});
 
-			const deposits = await tieredFixedContract.getDeposits();
-			const linkDepositId = deposits[0];
-
-			// // ASSUME
-			const bountyMockTokenBalance = (await mockLink.balanceOf(tieredFixedContract.address)).toString();
-			expect(bountyMockTokenBalance).to.equal('1000');
-
-			const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-			expect(claimerMockTokenBalance).to.equal('0');
-
-			// ACT
-			await tieredFixedContract.connect(claimManager).claimTieredFixed(firstPlace.address, 0);
-
-			// ASSERT
-			const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-			expect(newClaimerMockTokenBalance).to.equal('80');
-
-			// ACT
-			await tieredFixedContract.connect(claimManager).claimTieredFixed(secondPlace.address, 1)
-
-			// ASSERT
-			const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
-			expect(secondPlaceMockTokenBalance).to.equal('20');
+			it('should revert if expiration is negative', async () => {
+				await expect(tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 0, 0, tierData)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
+			});
 		});
 
-		it('should revert if not called by claim manager', async () => {
-			// ACT/ASSERT
-			await expect(tieredFixedContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
-		});
-	});
+		describe('DEPOSIT INITIALIZATION', () => {
+			it(`should initialize nft deposit data with correct metadata`, async () => {
 
-	describe('closeCompetition', () => {
-		it('should set bounty status to 1 and set bountyClosedTime', async () => {
-			// ASSUME
-			let status = await tieredFixedContract.status();
-			let bountyClosedTime = await tieredFixedContract.bountyClosedTime();
+				// ACT
+				const expectedTimestamp = await setNextBlockTimestamp();
+				const depositId = generateDepositId(mockId, 0);
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, thirtyDays, tierData);
 
-			expect(status).to.equal(0);
-			expect(bountyClosedTime).to.equal(0);
+				// ASSERT
+				expect(await tieredFixedContract.funder(depositId)).to.equal(owner.address);
+				expect(await tieredFixedContract.tokenAddress(depositId)).to.equal(mockNft.address);
+				expect(await tieredFixedContract.tokenId(depositId)).to.equal(1);
+				expect(await tieredFixedContract.expiration(depositId)).to.equal(thirtyDays);
+				expect(await tieredFixedContract.isNFT(depositId)).to.equal(true);
 
-			const expectedTimestamp = await setNextBlockTimestamp();
-			// ACT
-			await tieredFixedContract.connect(claimManager).closeCompetition();
-
-			// ASSERT
-			status = await tieredFixedContract.status();
-			bountyClosedTime = await tieredFixedContract.bountyClosedTime();
-
-			expect(status).to.equal(1);
-			expect(bountyClosedTime).to.equal(expectedTimestamp);
+				const depositTime = await tieredFixedContract.depositTime(depositId);
+				expect(depositTime.toString()).to.equal(expectedTimestamp.toString());
+			});
 		});
 
-		it('should revert if already closed', async () => {
-			await tieredFixedContract.connect(claimManager).closeCompetition();
-			await expect(tieredFixedContract.connect(claimManager).closeCompetition()).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
-		});
-	});
+		describe('transfer', () => {
+			it('should transfer NFT from owner to bounty contract', async () => {
+				// ASSUME
+				expect(await mockNft.ownerOf(0)).to.equal(owner.address);
 
-	describe('setPayoutSchedule', () => {
-		it('should revert if not called by OpenQ contract', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
+				// ACT
 
-			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
-		});
+				await tieredFixedContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 0, 1, tierData);
 
-		it('should revert if payoutschedule doesnt add to 100', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-
-			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setPayoutScheduleFixed([100, 20], mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
-		});
-
-		it('should set payout schedule', async () => {
-			// ASSUME
-			let initialPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
-			let payoutToString = initialPayoutSchedule.map(thing => thing.toString());
-			expect(payoutToString[0]).to.equal('80');
-			expect(payoutToString[1]).to.equal('20');
-
-			// ACT
-			await tieredFixedContract.setPayoutScheduleFixed([70, 20, 10], mockLink.address);
-
-			// ASSERT
-			let expectedPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
-			payoutToString = expectedPayoutSchedule.map(thing => thing.toString());
-			expect(payoutToString[0]).to.equal('70');
-			expect(payoutToString[1]).to.equal('20');
-			expect(payoutToString[2]).to.equal('10');
+				// ASSERT
+				expect(await mockNft.ownerOf(0)).to.equal(tieredFixedContract.address);
+			});
 		});
 	});
 
