@@ -8,9 +8,9 @@ import '../Storage/TieredBountyStorage.sol';
  * @title BountyStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
  */
-abstract contract TieredFixedBountyStorageV1 is
+abstract contract TieredPercentageBountyStorageV1 is
     TieredBountyStorageV1,
     BountyCore
 {
-    address public payoutTokenAddress;
+
 }

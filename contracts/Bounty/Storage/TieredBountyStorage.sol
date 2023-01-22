@@ -7,7 +7,7 @@ import '../Implementations/BountyCore.sol';
  * @title BountyStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
  */
-abstract contract TieredBountyStorageV1 is BountyCore {
+abstract contract TieredBountyStorageV1 {
     uint256 public constant VERSION_1 = 1;
     /**
      * @dev Integers in payoutSchedule must add up to 100

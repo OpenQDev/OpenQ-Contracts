@@ -4,13 +4,13 @@ pragma solidity 0.8.17;
 /**
  * @dev Custom imports - all transitive imports live in BountyStorage
  */
-import '../Storage/TieredBountyStorage.sol';
+import '../Storage/TieredPercentageBountyStorage.sol';
 
 /**
  * @title BountyV1
  * @dev Bounty Implementation Version 1
  */
-contract TieredBountyV1 is TieredBountyStorageV1 {
+contract TieredPercentageBounty is TieredPercentageBountyStorageV1 {
     /**
      * INITIALIZATION
      */
