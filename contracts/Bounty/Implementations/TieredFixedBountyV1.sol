@@ -132,11 +132,6 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
 
         status = OpenQDefinitions.CLOSED;
         bountyClosedTime = block.timestamp;
-
-        for (uint256 i = 0; i < getTokenAddresses().length; i++) {
-            address _tokenAddress = getTokenAddresses()[i];
-            fundingTotals[_tokenAddress] = getTokenBalance(_tokenAddress);
-        }
     }
 
     /**
