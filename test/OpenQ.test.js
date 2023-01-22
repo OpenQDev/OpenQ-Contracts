@@ -7,8 +7,9 @@ const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
+const Constants = require('./constants');
 
-describe('OpenQ.sol', () => {
+describe.only('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -40,7 +41,7 @@ describe('OpenQ.sol', () => {
 	let TIERED_FIXED_CONTRACT = 3;
 
 	// VERSIONS
-	const VERSION_1 = 1;
+	const VERSION_1 = Constants.VERSION_1;
 
 	// INIT OPERATIONS
 	let atomicBountyInitOperation;
