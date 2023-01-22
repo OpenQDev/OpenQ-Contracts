@@ -68,7 +68,7 @@ abstract contract BountyStorageV1 is
     /**
      * @dev Set of unique token address
      */
-    EnumerableSetUpgradeable.AddressSet internal tokenAddresses;
+    EnumerableSetUpgradeable.AddressSet tokenAddresses;
 
     /**
      * @dev Data related to the closer of this bounty

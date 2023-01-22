@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-import './IBounty.sol';
+import './IBountyCore.sol';
 
-interface IBountyOngoing is IBounty {
+interface IBountyOngoing is IBountyCore {
     function payoutTokenAddress() external returns (address);
 
     function payoutVolume() external returns (uint256);
 
     function claimantId(bytes32) external returns (bool);
+
+    function setPayout(address, uint256) external;
 
     function claimOngoingPayout(
         address _payoutAddress,

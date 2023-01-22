@@ -209,7 +209,7 @@ contract OpenQV1 is OpenQStorageV1 {
         external
         onlyProxy
     {
-        IBountyTiered bounty = getTieredBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -407,7 +407,7 @@ contract OpenQV1 is OpenQStorageV1 {
         view
         returns (bool)
     {
-        IBountyTiered bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
     }
@@ -422,7 +422,7 @@ contract OpenQV1 is OpenQStorageV1 {
     function getBountyType(string calldata _bountyId)
         internal
         view
-        returns (IBounty)
+        returns (uint256)
     {
         address bountyAddress = bountyIdToAddress[_bountyId];
         IBounty bounty = IBounty(bountyAddress);
@@ -439,22 +439,12 @@ contract OpenQV1 is OpenQStorageV1 {
         return bounty;
     }
 
-    function getTieredBounty(string calldata _bountyId)
-        internal
-        view
-        returns (IBountyTiered)
-    {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        IBountyTiered bounty = IBountyTiered(bountyAddress);
-        return bounty;
-    }
-
     function setTierWinner(
         string calldata _bountyId,
         uint256 _tier,
         string calldata _winner
     ) external {
-        IBountyTiered bounty = getBounty(_bountyId);
+        IBounty bounty = getBounty(_bountyId);
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
         bounty.setTierWinner(_winner, _tier);
 

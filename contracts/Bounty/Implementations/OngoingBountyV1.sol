@@ -140,7 +140,7 @@ contract TieredBountyV1 is OngoingBountyStorageV1 {
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         (string memory _claimId, bool _invoiceComplete) = abi.decode(
             _data,
-            (uint256, string)
+            (string, bool)
         );
         invoiceComplete[_claimId] = _invoiceComplete;
     }
@@ -154,7 +154,7 @@ contract TieredBountyV1 is OngoingBountyStorageV1 {
         onlyOpenQ
     {
         (string memory _claimId, bool _supportingDocumentsComplete) = abi
-            .decode(_data, (uint256, bool));
+            .decode(_data, (string, bool));
         supportingDocumentsComplete[_claimId] = _supportingDocumentsComplete;
     }
 

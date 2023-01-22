@@ -133,47 +133,19 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
 
     /**
      * @dev Sets the payout schedule
-     * @dev There is no tokenAddress needed here - payouts on percentage tiered bounties is a percentage of whatever is deposited on the contract
      * @param _payoutSchedule An array of payout volumes for each tier
+     * @param _payoutTokenAddress The address of the token to be used for the payout
      */
-    function setPayoutSchedule(uint256[] calldata _payoutSchedule)
-        external
-        onlyOpenQ
-    {
+    function setPayoutScheduleFixed(
+        uint256[] calldata _payoutSchedule,
+        address _payoutTokenAddress
+    ) external onlyOpenQ {
         require(
-            bountyType == OpenQDefinitions.TIERED,
-            Errors.NOT_A_TIERED_BOUNTY
+            bountyType == OpenQDefinitions.TIERED_FIXED,
+            Errors.NOT_A_FIXED_TIERED_BOUNTY
         );
-        uint256 sum;
-        for (uint256 i = 0; i < _payoutSchedule.length; i++) {
-            sum += _payoutSchedule[i];
-        }
-        require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
-
         payoutSchedule = _payoutSchedule;
-
-        // Resize metadata arrays and copy current members to new array
-        // NOTE: If resizing to fewer tiers than previously, the final indexes will be removed
-        string[] memory newTierWinners = new string[](payoutSchedule.length);
-        bool[] memory newInvoiceComplete = new bool[](payoutSchedule.length);
-        bool[] memory newSupportingDocumentsCompleted = new bool[](
-            payoutSchedule.length
-        );
-
-        for (uint256 i = 0; i < tierWinners.length; i++) {
-            newTierWinners[i] = tierWinners[i];
-        }
-        tierWinners = newTierWinners;
-
-        for (uint256 i = 0; i < invoiceComplete.length; i++) {
-            newInvoiceComplete[i] = invoiceComplete[i];
-        }
-        invoiceComplete = newInvoiceComplete;
-
-        for (uint256 i = 0; i < supportingDocumentsComplete.length; i++) {
-            newSupportingDocumentsCompleted[i] = supportingDocumentsComplete[i];
-        }
-        supportingDocumentsComplete = newSupportingDocumentsCompleted;
+        payoutTokenAddress = _payoutTokenAddress;
     }
 
     /**

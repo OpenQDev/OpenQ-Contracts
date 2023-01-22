@@ -19,7 +19,6 @@ import '../../OpenQ/Interfaces/IOpenQ.sol';
 import '../../Oracle/Oraclize.sol';
 
 import '../../Bounty/Interfaces/IBounty.sol';
-import '../../Bounty/Interfaces/IBountyTiered.sol';
 
 /**
  * @title OpenQStorageV1

@@ -21,14 +21,14 @@ import '../../DepositManager/DepositManagerOwnable.sol';
 import '../../Library/OpenQDefinitions.sol';
 import '../../Library/Errors.sol';
 
-import '../Interfaces/IBounty.sol';
+import '../Interfaces/IBountyCore.sol';
 
 /**
  * @title BountyStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
  */
 abstract contract BountyStorageCore is
-    IBounty,
+    IBountyCore,
     ReentrancyGuardUpgradeable,
     ERC721HolderUpgradeable,
     OnlyOpenQ,

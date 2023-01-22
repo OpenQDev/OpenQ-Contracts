@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-import './IBounty.sol';
+import './IBountyCore.sol';
 
-interface IBountyAtomic is IBounty {
+interface IBountyAtomic is IBountyCore {
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
         returns (uint256);
