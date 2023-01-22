@@ -226,6 +226,13 @@ contract TieredBountyV1 is TieredBountyStorageV1 {
         supportingDocumentsComplete[_tier] = _supportingDocumentsComplete;
     }
 
+    function setTierWinner(string memory _winner, uint256 _tier)
+        external
+        onlyOpenQ
+    {
+        tierWinners[_tier] = _winner;
+    }
+
     function getTierWinners() external view returns (string[] memory) {
         return tierWinners;
     }

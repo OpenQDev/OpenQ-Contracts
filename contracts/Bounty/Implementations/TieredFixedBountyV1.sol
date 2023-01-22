@@ -187,6 +187,13 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         tierClaimed[_tier] = true;
     }
 
+    function setTierWinner(string memory _winner, uint256 _tier)
+        external
+        onlyOpenQ
+    {
+        tierWinners[_tier] = _winner;
+    }
+
     function getTierWinners() external view returns (string[] memory) {
         return tierWinners;
     }

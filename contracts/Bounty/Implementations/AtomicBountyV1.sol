@@ -111,23 +111,6 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
     }
 
     /**
-     * @dev Transfers NFT from bounty address to _payoutAddress
-     * @param _payoutAddress The destination address for the NFT
-     * @param _depositId The payout address of the bounty
-     */
-    function claimNft(address _payoutAddress, bytes32 _depositId)
-        external
-        onlyClaimManager
-        nonReentrant
-    {
-        _transferNft(
-            tokenAddress[_depositId],
-            _payoutAddress,
-            tokenId[_depositId]
-        );
-    }
-
-    /**
      * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSED)
      * @param _payoutAddress The closer of the bounty
      * @param _closerData ABI-encoded data about the claimant and claimant asset

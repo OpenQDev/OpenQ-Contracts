@@ -42,6 +42,8 @@ interface IBountyCore {
         address _funder
     ) external returns (uint256);
 
+    function claimNft(address _payoutAddress, bytes32 _depositId) external;
+
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
         external;
 

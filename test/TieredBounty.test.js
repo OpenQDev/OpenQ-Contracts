@@ -39,6 +39,7 @@ describe.only('TieredBountyV1.sol', () => {
 
 	// TEST CONTRACTS
 	let tieredContract;
+	let tieredContract_noFundingGoal;
 
 	// MISC
 	let initializationTimestampTiered;
@@ -72,16 +73,28 @@ describe.only('TieredBountyV1.sol', () => {
 		tieredContract = await TieredBountyV1.deploy();
 		await tieredContract.deployed();
 
+		// TIERED BOUNTY No FUNDING GOAL
+		tieredContract_noFundingGoal = await TieredBountyV1.deploy();
+		await tieredContract_noFundingGoal.deployed();
+
 		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
+		const abiEncodedParamsTieredBounty_noFundingGoal = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], false, ethers.constants.AddressZero, '0', true, true, true, mockOpenQId, "", ""]);
 
 		tieredBountyInitOperation = [TIERED_CONTRACT, abiEncodedParamsTieredBounty];
+		tieredBountyInitOperation_noFundingGoal = [TIERED_CONTRACT, abiEncodedParamsTieredBounty_noFundingGoal];
 
 		initializationTimestampTiered = await setNextBlockTimestamp();
 		await tieredContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation);
 
+		await tieredContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation_noFundingGoal);
+
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredContract.address, 10000000);
 		await mockDai.approve(tieredContract.address, 10000000);
+		
+		await mockNft.approve(tieredContract.address, 0);
+		await mockNft.approve(tieredContract.address, 1);
+		await mockNft.approve(tieredContract.address, 2);
 	});
 
 	describe('initializer', () => {
@@ -189,13 +202,7 @@ describe.only('TieredBountyV1.sol', () => {
 
 			it('should revert if not called by claim manager', async () => {
 				// ACT/ASSERT
-				await expect(tieredContract.claimTieredFixed(owner.address, 0)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
-			});
-
-			it('should revert if competition is not TIERED', async () => {
-				// ACT/ASSERT
-				await tieredContract.connect(claimManager).closeCompetition();
-				await expect(tieredContract.connect(claimManager).claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('NOT_A_TIERED_BOUNTY');
+				await expect(tieredContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
 			});
 		});
 	});
@@ -220,7 +227,9 @@ describe.only('TieredBountyV1.sol', () => {
 
 				// ARRANGE
 				const depositId = generateDepositId(mockId, 0);
-				await tieredContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, 0);
+
+				let nftTierMetadata = abiCoder.encode(['uint256'], [0]);
+				await tieredContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, nftTierMetadata);
 
 				// ASSUME
 				expect(await mockNft.ownerOf(1)).to.equal(tieredContract.address);
@@ -294,16 +303,16 @@ describe.only('TieredBountyV1.sol', () => {
 
 		it('should set funding goal when none exists', async () => {
 			// ASSUME
-			let hasNoFundingGoal = await atomicContract_noFundingGoal.hasFundingGoal();
+			let hasNoFundingGoal = await tieredContract_noFundingGoal.hasFundingGoal();
 			expect(hasNoFundingGoal).to.equal(false);
 
 			// ACT
-			await atomicContract_noFundingGoal.setFundingGoal(mockLink.address, 100);
+			await tieredContract_noFundingGoal.setFundingGoal(mockLink.address, 100);
 
 			// ASSERT
-			let hasNoFundingGoalexpected = await atomicContract_noFundingGoal.hasFundingGoal();
-			let fundingToken = await atomicContract_noFundingGoal.fundingToken();
-			let fundingGoal = await atomicContract_noFundingGoal.fundingGoal();
+			let hasNoFundingGoalexpected = await tieredContract_noFundingGoal.hasFundingGoal();
+			let fundingToken = await tieredContract_noFundingGoal.fundingToken();
+			let fundingGoal = await tieredContract_noFundingGoal.fundingGoal();
 			expect(hasNoFundingGoalexpected).to.equal(true);
 			expect(fundingToken).to.equal(mockLink.address);
 			expect(fundingToken).to.equal(mockLink.address);
@@ -317,11 +326,6 @@ describe.only('TieredBountyV1.sol', () => {
 
 			// ASSERT
 			await expect(tieredContract.connect(notOwner).setPayoutSchedule([80, 20])).to.be.revertedWith('Method is only callable by OpenQ');
-		});
-
-		it('should revert if not a percentage competition', async () => {
-			// ACT / ASSERT
-			await expect(tieredContract.setPayoutSchedule([80, 20])).to.be.revertedWith('NOT_A_TIERED_BOUNTY');
 		});
 
 		it('should revert if payoutschedule doesnt add to 100', async () => {
@@ -357,7 +361,7 @@ describe.only('TieredBountyV1.sol', () => {
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(tieredContract.connect(notOwner).setPayoutScheduleFixed([80, 20], mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredContract.connect(notOwner).setTierWinner(mockOpenQId, 0)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set tier winner', async () => {
@@ -399,18 +403,22 @@ describe.only('TieredBountyV1.sol', () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
+			let setInvoiceCompleteData = abiCoder.encode(['uint256', 'bool'], [0, true]);
+			
 			// ASSERT
-			await expect(tieredContract.connect(notOwner).setInvoiceComplete(0, true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredContract.connect(notOwner).setInvoiceComplete(setInvoiceCompleteData)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set invoiceComplete for given tier', async () => {
+			let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+			let setInvoiceCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
 			// ASSUME
 			expect(await tieredContract.invoiceComplete(0)).to.equal(false)
 			expect(await tieredContract.invoiceComplete(1)).to.equal(false)
 			
 			// ACT
-			await tieredContract.setInvoiceComplete(0, true);
-			await tieredContract.setInvoiceComplete(1, true);
+			await tieredContract.setInvoiceComplete(setInvoiceCompleteData_1);
+			await tieredContract.setInvoiceComplete(setInvoiceCompleteData_2);
 
 			// ASSERT
 			expect(await tieredContract.invoiceComplete(0)).to.equal(true)
@@ -423,18 +431,23 @@ describe.only('TieredBountyV1.sol', () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
+			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+
 			// ASSERT
-			await expect(tieredContract.connect(notOwner).setSupportingDocumentsComplete(0, true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredContract.connect(notOwner).setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_1)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set supportingDocumentsComplete', async () => {
+			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+			let setSupportingDocumentsCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
+
 			// ASSUME
 			expect(await tieredContract.supportingDocumentsComplete(0)).to.equal(false)
 			expect(await tieredContract.supportingDocumentsComplete(1)).to.equal(false)
 			
 			// ACT
-			await tieredContract.setSupportingDocumentsComplete(0, true);
-			await tieredContract.setSupportingDocumentsComplete(1, true);
+			await tieredContract.setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_1);
+			await tieredContract.setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_2);
 
 			// ASSERT
 			expect(await tieredContract.supportingDocumentsComplete(0)).to.equal(true)

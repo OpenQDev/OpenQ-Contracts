@@ -261,6 +261,23 @@ abstract contract BountyCore is BountyStorageCore {
     }
 
     /**
+     * @dev Transfers NFT from bounty address to _payoutAddress
+     * @param _payoutAddress The destination address for the NFT
+     * @param _depositId The payout address of the bounty
+     */
+    function claimNft(address _payoutAddress, bytes32 _depositId)
+        external
+        onlyClaimManager
+        nonReentrant
+    {
+        _transferNft(
+            tokenAddress[_depositId],
+            _payoutAddress,
+            tokenId[_depositId]
+        );
+    }
+
+    /**
      * @dev Generates a unique claimant ID from user and asset
      */
     function _generateClaimantId(
