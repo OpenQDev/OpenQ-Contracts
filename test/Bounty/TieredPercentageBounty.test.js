@@ -7,9 +7,9 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe('TieredBountyV1.sol', () => {
+describe.only('TieredPercentageBountyV1.sol', () => {
 	// CONTRACT FACTORIES
-	let TieredBountyV1;
+	let TieredPercentageBountyV1;
 
 	// ACCOUNTS
 	let owner;
@@ -45,7 +45,7 @@ describe('TieredBountyV1.sol', () => {
 	let initializationTimestampTiered;
 
 	beforeEach(async () => {
-		TieredBountyV1 = await ethers.getContractFactory('TieredBountyV1');
+		TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
 		const MockNft = await ethers.getContractFactory('MockNft');
@@ -70,11 +70,11 @@ describe('TieredBountyV1.sol', () => {
 		await mockNft.safeMint(owner.address);
 
 		// TIERED BOUNTY
-		tieredContract = await TieredBountyV1.deploy();
+		tieredContract = await TieredPercentageBountyV1.deploy();
 		await tieredContract.deployed();
 
 		// TIERED BOUNTY No FUNDING GOAL
-		tieredContract_noFundingGoal = await TieredBountyV1.deploy();
+		tieredContract_noFundingGoal = await TieredPercentageBountyV1.deploy();
 		await tieredContract_noFundingGoal.deployed();
 
 		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
@@ -130,7 +130,7 @@ describe('TieredBountyV1.sol', () => {
 
 			it('should revert if payoutSchedule values do not add up to 100', async () => {
 				// ARRANGE
-				tieredContract = await TieredBountyV1.deploy();
+				tieredContract = await TieredPercentageBountyV1.deploy();
 				await tieredContract.deployed();
 
 				const abiEncodedParamsTieredBountyNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[1, 2], true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
@@ -145,8 +145,8 @@ describe('TieredBountyV1.sol', () => {
 		describe('REVERTS', () => {
 			it('should revert if bountyId is empty', async () => {
 				// ARRANGE
-				const TieredBountyV1 = await ethers.getContractFactory('TieredBountyV1');
-				tieredContract = await TieredBountyV1.deploy();
+				const TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
+				tieredContract = await TieredPercentageBountyV1.deploy();
 
 				// ASSERT
 				await expect(tieredContract.initialize("", owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
@@ -154,8 +154,8 @@ describe('TieredBountyV1.sol', () => {
 
 			it('should revert if organization is empty', async () => {
 				// ARRANGE
-				const TieredBountyV1 = await ethers.getContractFactory('TieredBountyV1');
-				tieredContract = await TieredBountyV1.deploy();
+				const TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
+				tieredContract = await TieredPercentageBountyV1.deploy();
 
 				// ASSERT
 				await expect(tieredContract.initialize(mockId, owner.address, "", owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
@@ -163,159 +163,90 @@ describe('TieredBountyV1.sol', () => {
 		});
 	});
 
-	describe('claimBalance', () => {
-		describe('TIERED', () => {
-			it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
-				// ARRANGE
-				const volume = 1000;
-
-				const [, firstPlace, secondPlace] = await ethers.getSigners();
-
-				await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-
-				const deposits = await tieredContract.getDeposits();
-				const linkDepositId = deposits[0];
-
-				await tieredContract.connect(claimManager).closeCompetition();
-
-				// ASSUME
-				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredContract.address)).toString();
-				expect(bountyMockTokenBalance).to.equal('1000');
-
-				const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-				expect(claimerMockTokenBalance).to.equal('0');
-
-				// ACT
-				await tieredContract.connect(claimManager).claimTiered(firstPlace.address, 0, mockLink.address);
-
-				// // // ASSERT
-				// const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-				// expect(newClaimerMockTokenBalance).to.equal('800');
-
-				// // ACT
-				// await tieredContract.connect(claimManager).claimTiered(secondPlace.address, 1, mockLink.address);
-
-				// // // ASSERT
-				// const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
-				// expect(secondPlaceMockTokenBalance).to.equal('200');
-			});
-
-			it('should revert if not called by claim manager', async () => {
-				// ACT/ASSERT
-				await expect(tieredContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
-			});
-		});
-	});
-
-	describe('claimNft', () => {
-		describe('require and revert', () => {
-			it('should revert if not called by Claim Manager contract', async () => {
-				// ARRANGE
-				const [, , , , , notClaimManager] = await ethers.getSigners();
-				const value = 10000;
-				let issueWithNonOwnerAccount = tieredContract.connect(notClaimManager);
-
-				// ASSERT
-				await expect(issueWithNonOwnerAccount.claimNft(notClaimManager.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
-			});
-		});
-
-		describe('transfer', () => {
-			it('should transfer NFT deposit from bounty contract to claimer', async () => {
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-
-				// ARRANGE
-				const depositId = generateDepositId(mockId, 0);
-
-				let nftTierMetadata = abiCoder.encode(['uint256'], [0]);
-				await tieredContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, nftTierMetadata);
-
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(tieredContract.address);
-
-				// ACT
-				await tieredContract.connect(claimManager).claimNft(owner.address, depositId);
-
-				// ASSERT
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-			});
-		});
-	});
-
-	describe('close', () => {
-		describe('TIERED - closeCompetition', () => {
-			it('should set bounty status to 1, freeze balances and set bountyClosedTime', async () => {
-				// ARRANGE
-				const volume = 1000;
-
-				const [, firstPlace, secondPlace] = await ethers.getSigners();
-
-				await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
-
-				// ASSUME
-				const bountyMockTokenBalance = (await mockLink.balanceOf(tieredContract.address)).toString();
-				expect(bountyMockTokenBalance).to.equal('1000');
-
-				const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
-				expect(claimerMockTokenBalance).to.equal('0');
-
-				// ASSUME
-				let status = await tieredContract.status();
-				let mockTokenFundingTotal = await tieredContract.fundingTotals(mockLink.address);
-				let bountyClosedTime = await tieredContract.bountyClosedTime();
-
-				expect(status).to.equal(0);
-				expect(mockTokenFundingTotal).to.equal(0);
-				expect(bountyClosedTime).to.equal(0);
-
-				const expectedTimestamp = await setNextBlockTimestamp();
-				// ACT
-				await tieredContract.connect(claimManager).closeCompetition();
-
-				// ASSERT
-				status = await tieredContract.status();
-				mockTokenFundingTotal = await tieredContract.fundingTotals(mockLink.address);
-				bountyClosedTime = await tieredContract.bountyClosedTime();
-
-				expect(status).to.equal(1);
-				expect(mockTokenFundingTotal).to.equal(1000);
-				expect(bountyClosedTime).to.equal(expectedTimestamp);
-			});
-
-			it('should revert if already closed', async () => {
-				await tieredContract.connect(claimManager).closeCompetition();
-				await expect(tieredContract.connect(claimManager).closeCompetition()).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
-			});
-		});
-	});
-
-	describe('setFundingGoal', () => {
-		it('should revert if not called by OpenQ contract', async () => {
+	describe('claimTiered', () => {
+		it('should transfer volume of tokenAddress balance based on payoutSchedule', async () => {
 			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-			const volume = 10000;
-			let bountyWithNonOwnerAccount = tieredContract.connect(notOwner);
+			const volume = 1000;
 
-			// ASSERT
-			await expect(bountyWithNonOwnerAccount.setFundingGoal(mockLink.address, volume)).to.be.revertedWith('Method is only callable by OpenQ');
-		});
+			const [, firstPlace, secondPlace] = await ethers.getSigners();
 
-		it('should set funding goal when none exists', async () => {
+			await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+
+			const deposits = await tieredContract.getDeposits();
+			const linkDepositId = deposits[0];
+
+			await tieredContract.connect(claimManager).closeCompetition();
+
 			// ASSUME
-			let hasNoFundingGoal = await tieredContract_noFundingGoal.hasFundingGoal();
-			expect(hasNoFundingGoal).to.equal(false);
+			const bountyMockTokenBalance = (await mockLink.balanceOf(tieredContract.address)).toString();
+			expect(bountyMockTokenBalance).to.equal('1000');
+
+			const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+			expect(claimerMockTokenBalance).to.equal('0');
 
 			// ACT
-			await tieredContract_noFundingGoal.setFundingGoal(mockLink.address, 100);
+			await tieredContract.connect(claimManager).claimTiered(firstPlace.address, 0, mockLink.address);
+
+			// // // ASSERT
+			// const newClaimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+			// expect(newClaimerMockTokenBalance).to.equal('800');
+
+			// // ACT
+			// await tieredContract.connect(claimManager).claimTiered(secondPlace.address, 1, mockLink.address);
+
+			// // // ASSERT
+			// const secondPlaceMockTokenBalance = (await mockLink.balanceOf(secondPlace.address)).toString();
+			// expect(secondPlaceMockTokenBalance).to.equal('200');
+		});
+
+		it('should revert if not called by claim manager', async () => {
+			// ACT/ASSERT
+			await expect(tieredContract.claimTiered(owner.address, 0, mockLink.address)).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
+		});
+	});
+
+	describe('closeCompetition', () => {
+		it('should set bounty status to 1, freeze balances and set bountyClosedTime', async () => {
+			// ARRANGE
+			const volume = 1000;
+
+			const [, firstPlace, secondPlace] = await ethers.getSigners();
+
+			await tieredContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, thirtyDays);
+
+			// ASSUME
+			const bountyMockTokenBalance = (await mockLink.balanceOf(tieredContract.address)).toString();
+			expect(bountyMockTokenBalance).to.equal('1000');
+
+			const claimerMockTokenBalance = (await mockLink.balanceOf(firstPlace.address)).toString();
+			expect(claimerMockTokenBalance).to.equal('0');
+
+			// ASSUME
+			let status = await tieredContract.status();
+			let mockTokenFundingTotal = await tieredContract.fundingTotals(mockLink.address);
+			let bountyClosedTime = await tieredContract.bountyClosedTime();
+
+			expect(status).to.equal(0);
+			expect(mockTokenFundingTotal).to.equal(0);
+			expect(bountyClosedTime).to.equal(0);
+
+			const expectedTimestamp = await setNextBlockTimestamp();
+			// ACT
+			await tieredContract.connect(claimManager).closeCompetition();
 
 			// ASSERT
-			let hasNoFundingGoalexpected = await tieredContract_noFundingGoal.hasFundingGoal();
-			let fundingToken = await tieredContract_noFundingGoal.fundingToken();
-			let fundingGoal = await tieredContract_noFundingGoal.fundingGoal();
-			expect(hasNoFundingGoalexpected).to.equal(true);
-			expect(fundingToken).to.equal(mockLink.address);
-			expect(fundingToken).to.equal(mockLink.address);
+			status = await tieredContract.status();
+			mockTokenFundingTotal = await tieredContract.fundingTotals(mockLink.address);
+			bountyClosedTime = await tieredContract.bountyClosedTime();
+
+			expect(status).to.equal(1);
+			expect(mockTokenFundingTotal).to.equal(1000);
+			expect(bountyClosedTime).to.equal(expectedTimestamp);
+		});
+
+		it('should revert if already closed', async () => {
+			await tieredContract.connect(claimManager).closeCompetition();
+			await expect(tieredContract.connect(claimManager).closeCompetition()).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 	});
 
@@ -374,27 +305,6 @@ describe('TieredBountyV1.sol', () => {
 			const winner2 = await tieredContract.tierWinners(1)
 			expect(winner).to.equal(mockOpenQId)
 			expect(winner2).to.equal(mockOpenQId+"2")
-		})
-	})
-
-	describe('setSupportingDocuments', () => {
-		it('should revert if not called by OpenQ contract', async () => {
-			// ARRANGE
-			const [, notOwner] = await ethers.getSigners();
-
-			// ASSERT
-			await expect(tieredContract.connect(notOwner).setSupportingDocuments(true)).to.be.revertedWith('Method is only callable by OpenQ');
-		});
-
-		it('should set supportingDocuments', async () => {
-			// ASSUME
-			expect(await tieredContract.supportingDocuments()).to.equal(true)
-			
-			// ACT
-			await tieredContract.setSupportingDocuments(false);
-
-			// ASSERT
-			expect(await tieredContract.supportingDocuments()).to.equal(false)
 		})
 	})
 

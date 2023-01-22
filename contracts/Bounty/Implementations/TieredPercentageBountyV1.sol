@@ -10,7 +10,7 @@ import '../Storage/TieredPercentageBountyStorage.sol';
  * @title BountyV1
  * @dev Bounty Implementation Version 1
  */
-contract TieredPercentageBounty is TieredPercentageBountyStorageV1 {
+contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
     /**
      * INITIALIZATION
      */
