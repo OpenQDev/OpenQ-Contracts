@@ -5,7 +5,7 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 
-describe('BountyFactory', () => {
+describe.only('BountyFactory', () => {
 	let openQImplementation;
 	let openQProxy;
 	let bountyFactory;
@@ -15,7 +15,11 @@ describe('BountyFactory', () => {
 	let OpenQImplementation;
 	let OpenQProxy;
 
-	let BountyV1;
+	let AtomicBountyV1;
+	let OngoingBountyV1;
+	let TieredPercentageBountyV1;
+	let TieredFixedBountyV1;
+
 	let BountyBeacon;
 	let BountyFactory;
 
@@ -35,7 +39,11 @@ describe('BountyFactory', () => {
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');
-		BountyV1 = await hre.ethers.getContractFactory('BountyV1');
+		
+		AtomicBountyV1 = await hre.ethers.getContractFactory('AtomicBountyV1');
+		OngoingBountyV1 = await hre.ethers.getContractFactory('OngoingBountyV1');
+		TieredPercentageBountyV1 = await hre.ethers.getContractFactory('TieredPercentageBountyV1');
+		TieredFixedBountyV1 = await hre.ethers.getContractFactory('TieredFixedBountyV1');
 
 		[owner, oracle, notOpenQ, claimManager, depositManager] = await ethers.getSigners();
 
@@ -43,12 +51,31 @@ describe('BountyFactory', () => {
 		openQImplementation = await OpenQImplementation.deploy();
 		await openQImplementation.deployed();
 
-		// Deploy BountyV1 Implementation
-		bountyV1 = await BountyV1.deploy();
-		await bountyV1.deployed();
+		// BOUNTY IMPLEMENTATION
+		atomicBountyV1 = await AtomicBountyV1.deploy();
+		await atomicBountyV1.deployed();
+		
+		ongoingBountyV1 = await OngoingBountyV1.deploy();
+		await ongoingBountyV1.deployed();
+		
+		tieredPercentageBountyV1 = await TieredPercentageBountyV1.deploy();
+		await tieredPercentageBountyV1.deployed();
+		
+		tieredFixedBountyV1 = await TieredFixedBountyV1.deploy();
+		await tieredFixedBountyV1.deployed();
 
-		bountyBeacon = await BountyBeacon.deploy(bountyV1.address);
-		await bountyBeacon.deployed();
+		// BOUNTY BEACONS
+		atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address);
+		await atomicBountyBeacon.deployed();
+
+		ongoingBountyBeacon = await BountyBeacon.deploy(ongoingBountyV1.address);
+		await ongoingBountyBeacon.deployed();
+
+		tieredPercentageBountyBeacon = await BountyBeacon.deploy(tieredPercentageBountyV1.address);
+		await tieredPercentageBountyBeacon.deployed();
+
+		tieredFixedBountyBeacon = await BountyBeacon.deploy(tieredFixedBountyV1.address);
+		await tieredFixedBountyBeacon.deployed();
 
 		// Deploy OpenQProxy with the previously deployed OpenQV1 implementation's address
 		openQProxy = await OpenQProxy.deploy(openQImplementation.address, []);
@@ -61,7 +88,13 @@ describe('BountyFactory', () => {
 		await openQProxy.initialize();
 
 		// Deploy BountyFactory
-		bountyFactory = await BountyFactory.deploy(openQProxy.address, bountyBeacon.address);
+		bountyFactory = await BountyFactory.deploy(
+			openQProxy.address,
+			atomicBountyBeacon.address,
+			ongoingBountyBeacon.address,
+			tieredPercentageBountyBeacon.address,
+			tieredFixedBountyBeacon.address
+			);
 		await bountyFactory.deployed();
 
 		bountyInitOperation = [0, []];
@@ -72,10 +105,13 @@ describe('BountyFactory', () => {
 		initOperation = [1, abiEncodedParams];
 	});
 
-	describe('constructor', () => {
+	describe.only('constructor', () => {
 		it('should initiatlize with correct OpenQ proxy address and BountyBeacon address', async () => {
 			expect(await bountyFactory.openQ()).equals(openQProxy.address);
-			expect(await bountyFactory.getBeacon()).equals(bountyBeacon.address);
+			expect(await bountyFactory.atomicBountyBeacon()).equals(atomicBountyBeacon.address);
+			expect(await bountyFactory.ongoingBountyBeacon()).equals(ongoingBountyBeacon.address);
+			expect(await bountyFactory.tieredPercentageBountyBeacon()).equals(tieredPercentageBountyBeacon.address);
+			expect(await bountyFactory.tieredFixedBountyBeacon()).equals(tieredFixedBountyBeacon.address);
 		});
 	});
 
@@ -88,7 +124,7 @@ describe('BountyFactory', () => {
 	describe('mintBounty', () => {
 		it('should mint a bounty with expected data', async () => {
 			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
-			let newBountyFactory = await BountyFactory.deploy(owner.address, bountyBeacon.address);
+			let newBountyFactory = await BountyFactory.deploy(owner.address, atomicBountyBeacon.address);
 			await newBountyFactory.deployed();
 
 			const txn = await newBountyFactory.mintBounty(
@@ -102,7 +138,7 @@ describe('BountyFactory', () => {
 
 			const receipt = await txn.wait();
 
-			const newBounty = await BountyV1.attach(receipt.events[0].address);
+			const newBounty = await AtomicBountyV1.attach(receipt.events[0].address);
 
 			expect(await newBounty.bountyId()).to.equal('mock-id');
 			expect(await newBounty.bountyType()).to.equal(1);

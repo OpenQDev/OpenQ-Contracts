@@ -24,31 +24,31 @@ contract BountyFactory is OnlyOpenQ {
     /**
      * @dev The address of the UpgradeableBeacon holding the current bounty implementation
      */
-    address immutable atomicBountyBeacon;
-    address immutable ongoingBountyBeacon;
-    address immutable tieredBountyBeacon;
-    address immutable tieredFixedBountyBeacon;
+    address public immutable atomicBountyBeacon;
+    address public immutable ongoingBountyBeacon;
+    address public immutable tieredPercentageBountyBeacon;
+    address public immutable tieredFixedBountyBeacon;
 
     /**
      * @dev Deploys and initializes a new BeaconProxy with implementation pulled from BountyBeacon
      * @param _openQ The OpenQProxy address
      * @param _atomicBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Atomic contracts
      * @param _ongoingBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Ongoing contracts
-     * @param _tieredBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Tiered contracts
+     * @param _tieredPercentageBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Tiered contracts
      * @param _tieredFixedBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Tiered Fixed contracts
      */
     constructor(
         address _openQ,
         address _atomicBountyBeacon,
         address _ongoingBountyBeacon,
-        address _tieredBountyBeacon,
+        address _tieredPercentageBountyBeacon,
         address _tieredFixedBountyBeacon
     ) {
         __OnlyOpenQ_init(_openQ);
 
         atomicBountyBeacon = _atomicBountyBeacon;
         ongoingBountyBeacon = _ongoingBountyBeacon;
-        tieredBountyBeacon = _tieredBountyBeacon;
+        tieredPercentageBountyBeacon = _tieredPercentageBountyBeacon;
         tieredFixedBountyBeacon = _tieredFixedBountyBeacon;
     }
 
@@ -80,7 +80,7 @@ contract BountyFactory is OnlyOpenQ {
         } else if (operationType == OpenQDefinitions.ONGOING) {
             beaconProxy = ongoingBountyBeacon;
         } else if (operationType == OpenQDefinitions.TIERED) {
-            beaconProxy = tieredBountyBeacon;
+            beaconProxy = tieredPercentageBountyBeacon;
         } else {
             beaconProxy = tieredFixedBountyBeacon;
         }

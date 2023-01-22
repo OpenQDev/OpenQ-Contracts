@@ -7,7 +7,7 @@ require('@nomiclabs/hardhat-waffle');
 
 const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe.only('BountyCore.sol', () => {
+describe('BountyCore.sol', () => {
 	// CONTRACT FACTORIES
 	let AtomicBountyV1;
 
