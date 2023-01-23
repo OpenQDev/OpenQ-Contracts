@@ -4,8 +4,9 @@ pragma solidity 0.8.17;
 import '../Implementations/BountyCore.sol';
 
 /**
- * @title BountyStorageV1
- * @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
+ * @title AtomicBountyStorageV1
+ * @notice Backwards compatible, append-only chain of storage contracts inherited by all AtomicBountyStorage implementations
+ * @dev Add new variables for upgrades in a new, derived abstract contract that inherits from the previous storage contract version (see: https://forum.openzeppelin.com/t/to-inherit-version1-to-version2-or-to-copy-code-inheritance-order-from-version1-to-version2/28069)
  */
 abstract contract AtomicBountyStorageV1 is BountyCore {
     uint256 public constant VERSION_1 = 1;

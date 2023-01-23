@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-/**
- * @dev Custom imports - all transitive imports live in BountyStorage
- */
 import '../Storage/AtomicBountyStorage.sol';
 
 /**
- * @title BountyV1
- * @dev Bounty Implementation Version 1
+ * @title AtomicBountyV1
+ * @notice AtomicBountyV1 is a bounty implementation contract for single contributor, single payout circumstances
+ * @dev AtomicBountyV1 -> AtomicBountyStorageV1 -> BountyCore -> BountyStorageCore -> (Third Party Deps + Custom )
  */
 contract AtomicBountyV1 is AtomicBountyStorageV1 {
     /**

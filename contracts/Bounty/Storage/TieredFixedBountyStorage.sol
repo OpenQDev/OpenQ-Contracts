@@ -2,15 +2,11 @@
 pragma solidity 0.8.17;
 
 import '../Implementations/TieredBountyCore.sol';
-import '../Storage/TieredBountyStorageCore.sol';
 
 /**
- * @title BountyStorageV1
+ * @title TieredFixedBountyStorageV1
  * @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
  */
-abstract contract TieredFixedBountyStorageV1 is
-    TieredBountyStorageCore,
-    TieredBountyCore
-{
+abstract contract TieredFixedBountyStorageV1 is TieredBountyCore {
     address public payoutTokenAddress;
 }

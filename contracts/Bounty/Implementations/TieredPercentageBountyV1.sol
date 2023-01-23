@@ -7,8 +7,9 @@ pragma solidity 0.8.17;
 import '../Storage/TieredPercentageBountyStorage.sol';
 
 /**
- * @title BountyV1
- * @dev Bounty Implementation Version 1
+ * @title AtomicBountyV1
+ * @notice TieredPercentageBountyV1 is a bounty implementation contract for single contributor, single payout circumstances
+ * @dev TieredPercentageBountyV1 -> TieredPercentageBountyStorageV1 -> (TieredBountyStorageCore, TieredBountyCore) -> BountyStorageCore -> (Third Party Deps + Custom )
  */
 contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
     /**
