@@ -76,7 +76,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     function permissionedClaimTieredBounty(
         address _bountyAddress,
         bytes calldata _closerData
-    ) external onlyProxy hasKYC {
+    ) external onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
         (, , , , uint256 _tier) = abi.decode(
@@ -87,6 +87,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         string memory closer = IOpenQ(openQ).addressToExternalUserId(
             msg.sender
         );
+
+        require(hasKYC(msg.sender), Errors.ADDRESS_LACKS_KYC);
 
         require(
             keccak256(abi.encodePacked(closer)) !=
@@ -388,11 +390,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     }
 
     /// @notice Checks the current KYC DAO contract address (kyc)to see if user has a valid KYC NFT or not
-    modifier hasKYC() {
-        require(
-            kyc.hasValidToken(msg.sender),
-            'You must have a valid KYC token to claim this bounty'
-        );
-        _;
+    /// @return True if address is KYC with KYC DAO, false otherwise
+    function hasKYC(address _address) public returns (bool) {
+        return kyc.hasValidToken(msg.sender);
     }
 }
