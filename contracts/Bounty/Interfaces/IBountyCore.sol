@@ -118,4 +118,12 @@ interface IBountyCore {
     function supportingDocuments() external view returns (bool);
 
     function externalUserId() external view returns (string memory);
+
+    function getTokenAddresses() external view returns (address[] memory);
+
+    function getNftDeposits() external view returns (bytes32[] memory);
+
+    function getLockedFunds(address _depositId) external view returns (uint256);
+
+    function getTokenAddressesCount() external view returns (uint256);
 }
