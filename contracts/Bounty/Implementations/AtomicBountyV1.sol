@@ -166,6 +166,18 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         return depositId;
     }
 
+    /// @notice Returns whether or not invoice is completed
+    /// @return True if completed, false otherwise
+    function getInvoiceComplete() external view returns (bool) {
+        return invoiceComplete;
+    }
+
+    /// @notice Returns whether or not supporting documents have been completed
+    /// @return True if completed, false otherwise
+    function getSupportingDocumentsComplete() external view returns (bool) {
+        return supportingDocumentsComplete;
+    }
+
     /// @notice receive() method to accept protocol tokens
     receive() external payable {
         revert(

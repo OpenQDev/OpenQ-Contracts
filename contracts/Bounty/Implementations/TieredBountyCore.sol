@@ -24,12 +24,6 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
         tierWinners[_tier] = _winner;
     }
 
-    /// @notice Returns array of winners
-    /// @return An array of the external ids (e.g. OpenQ User UUIDs) of the tier winners
-    function getTierWinners() external view returns (string[] memory) {
-        return tierWinners;
-    }
-
     /// @notice Whether or not invoice has been completed
     /// @param _data ABI encoded data ((uint256), [tier])
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
@@ -96,5 +90,27 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
     /// @return payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
     function getPayoutSchedule() external view returns (uint256[] memory) {
         return payoutSchedule;
+    }
+
+    /// @notice Returns array of winners
+    /// @return An array of the external ids (e.g. OpenQ User UUIDs) of the tier winners
+    function getTierWinners() external view returns (string[] memory) {
+        return tierWinners;
+    }
+
+    /// @notice Returns array of invoice complete
+    /// @return An array of the booleans for each tier, true or false for if invoices have been completed for that tier
+    function getInvoiceComplete() external view returns (bool[] memory) {
+        return invoiceComplete;
+    }
+
+    /// @notice Returns array of supporting documents complete
+    /// @return An array of the booleans for each tier, true or false for if supporting documents have been completed for that tier
+    function getSupportingDocumentsComplete()
+        external
+        view
+        returns (bool[] memory)
+    {
+        return supportingDocumentsComplete;
     }
 }

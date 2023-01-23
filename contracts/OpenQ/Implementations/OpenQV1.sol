@@ -216,7 +216,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit InvoiceCompletedSet(
             address(bounty),
             bounty.bountyType(),
-            _data,
+            abi.encode(bounty.getInvoiceComplete()),
             VERSION_1
         );
     }
@@ -237,7 +237,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit SupportingDocumentsCompletedSet(
             address(bounty),
             bounty.bountyType(),
-            _data,
+            abi.encode(bounty.getSupportingDocumentsComplete()),
             VERSION_1
         );
     }
