@@ -38,8 +38,8 @@ async function deployBounties() {
 	const abiEncodedParamsContestPercentageNoFundingGoal = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[70, 20, 10], false, ethers.constants.AddressZero, 0, true, true, true, '', '', '']);
 	let contestPercentageNoFundingGoalInitOperation = [2, abiEncodedParamsContestPercentageNoFundingGoal];
 
-	const abiEncodedParamsContestFixed = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[300, 100], process.env.MOCK_LINK_TOKEN_ADDRESS, true, true, true, '', '', '']);
-	let contestFixedInitOperation = [3, abiEncodedParamsContestFixed];
+	const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], true, process.env.MOCK_LINK_TOKEN_ADDRESS, '100', true, true, true, '', '', '']);
+	let tieredFixedBountyInitOperation = [3, abiEncodedParamsTieredFixedBounty];
 
 	// DEPLOY CONTRACTS
 
@@ -108,12 +108,12 @@ async function deployBounties() {
 	console.log('Contest percentage contract with no  funding goal deployed!');
 
 	console.log('Minting Contest fixed contract...');
-	await openQ.mintBounty(openQIssueIds[6], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestFixedInitOperation);
+	await openQ.mintBounty(openQIssueIds[6], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', tieredFixedBountyInitOperation);
 	await optionalSleep(10000);
 	console.log('Minting Contest fixed contract deployed!');
 
 	console.log('Minting Contest fixed contract...');
-	await openQ.mintBounty(otherOrgIssueIds[6], otherOrgIssueOwners[6], contestFixedInitOperation);
+	await openQ.mintBounty(otherOrgIssueIds[6], otherOrgIssueOwners[6], tieredFixedBountyInitOperation);
 	await optionalSleep(10000);
 	console.log('Minting Contest fixed contract deployed!');
 

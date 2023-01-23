@@ -142,12 +142,12 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`OngoingBountyV1 Deployed to ${ongoingBountyV1.address}\n`);
 
-	console.log('Deploying TieredBountyV1 implementation...');
-	const TieredBountyV1 = await ethers.getContractFactory('TieredBountyV1');
-	const tieredBountyV1 = await TieredBountyV1.deploy();
-	await tieredBountyV1.deployed();
+	console.log('Deploying TieredPercentageBountyV1 implementation...');
+	const TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
+	const tieredPercentageBountyV1 = await TieredPercentageBountyV1.deploy();
+	await tieredPercentageBountyV1.deployed();
 	await optionalSleep(10000);
-	console.log(`TieredBountyV1 Deployed to ${tieredBountyV1.address}\n`);
+	console.log(`TieredPercentageBountyV1 Deployed to ${tieredPercentageBountyV1.address}\n`);
 
 	console.log('Deploying TieredFixedBountyV1 implementation...');
 	const TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
@@ -172,7 +172,7 @@ async function deployContracts() {
 	console.log(`OngoingBountyBeacon Deployed to ${ongoingBountyBeacon.address}\n`);
 
 	console.log('Deploying TieredBountyBeacon...');
-	const tieredBountyBeacon = await BountyBeacon.deploy(tieredBountyV1.address);
+	const tieredBountyBeacon = await BountyBeacon.deploy(tieredPercentageBountyV1.address);
 	await tieredBountyBeacon.deployed();
 	await optionalSleep(10000);
 	console.log(`TieredBountyBeacon Deployed to ${tieredBountyBeacon.address}\n`);
@@ -203,7 +203,7 @@ async function deployContracts() {
 	console.log('\nBOUNTY PROXY and IMPLEMENTATION ADDRESSES');
 	console.log(`AtomicBountyV1 (Implementation) deployed to ${atomicBountyV1.address}\n`);
 	console.log(`OngoingBountyV1 (Implementation) deployed to ${ongoingBountyV1.address}\n`);
-	console.log(`TieredBountyV1 (Implementation) deployed to ${tieredBountyV1.address}\n`);
+	console.log(`TieredPercentageBountyV1 (Implementation) deployed to ${tieredPercentageBountyV1.address}\n`);
 	console.log(`TieredFixedBountyV1 (Implementation) deployed to ${tieredFixedBountyV1.address}\n`);
 	
 	console.log(`AtomicBountyBeacon deployed to ${atomicBountyBeacon.address}`);
