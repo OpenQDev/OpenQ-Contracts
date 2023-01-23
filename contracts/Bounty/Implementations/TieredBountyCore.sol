@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-import './BountyCore.sol';
 import '../Storage/TieredBountyStorageCore.sol';
 
-abstract contract TieredBountyCore is BountyCore, TieredBountyStorageCore {
+abstract contract TieredBountyCore is TieredBountyStorageCore {
     /**
      * @dev Sets tierClaimed to true for the given tier
      * @param _tier The tier being claimed

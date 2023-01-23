@@ -4,10 +4,10 @@ pragma solidity 0.8.17;
 import '../Implementations/BountyCore.sol';
 
 /**
- * @title BountyStorageV1
+ * @title TieredBountyStorageCore
  * @dev Backwards compatible, append-only chain of storage contracts inherited by Bounty implementations
  */
-abstract contract TieredBountyStorageCore {
+abstract contract TieredBountyStorageCore is BountyCore {
     uint256 public constant VERSION_1 = 1;
     /**
      * @dev Integers in payoutSchedule must add up to 100
