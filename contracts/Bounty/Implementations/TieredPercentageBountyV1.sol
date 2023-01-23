@@ -99,6 +99,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
     /// @param _payoutAddress The destination address for the fund
     /// @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
     /// @param _tokenAddress The token address being claimed
+    /// @return Volume of claimed token payout
     function claimTiered(
         address _payoutAddress,
         uint256 _tier,

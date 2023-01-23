@@ -20,12 +20,10 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         __Oraclize_init(_oracle);
     }
 
-    /**
-     * @dev Calls appropriate claim method based on bounty type
-     * @param _bountyAddress The payout address of the bounty
-     * @param _closer The payout address of the claimant
-     * @param _closerData ABI Encoded data associated with this claim
-     */
+    /// @notice Calls appropriate claim method based on bounty type
+    /// @param _bountyAddress The payout address of the bounty
+    /// @param _closer The payout address of the claimant
+    /// @param _closerData ABI Encoded data associated with this claim
     function claimBounty(
         address _bountyAddress,
         address _closer,
@@ -39,7 +37,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 bounty.status() == OpenQDefinitions.OPEN,
                 Errors.CONTRACT_IS_NOT_CLAIMABLE
             );
-            _claimSingle(bounty, _closer, _closerData);
+            _claimAtomicBounty(bounty, _closer, _closerData);
             bounty.close(_closer, _closerData);
 
             emit BountyClosed(
@@ -57,11 +55,11 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 bounty.status() == OpenQDefinitions.OPEN,
                 Errors.CONTRACT_IS_NOT_CLAIMABLE
             );
-            _claimOngoing(bounty, _closer, _closerData);
+            _claimOngoingBounty(bounty, _closer, _closerData);
         } else if (_bountyType == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, _closer, _closerData);
+            _claimTieredPercentageBounty(bounty, _closer, _closerData);
         } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(bounty, _closer, _closerData);
+            _claimTieredFixedBounty(bounty, _closer, _closerData);
         } else {
             revert();
         }
@@ -69,11 +67,67 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_1);
     }
 
-    /**
-     * CLAIM HELPERS
-     */
+    /// @notice Used for claimants who have:
+    /// @notice A) Completed KYC with KYC DAO for their tier
+    /// @notice B) Uploaded invoicing information for their tier
+    /// @notice C) Uploaded any necessary financial forms for their tier
+    /// @param _bountyAddress The payout address of the bounty
+    /// @param _closerData ABI Encoded data associated with this claim
+    function permissionedClaimTieredBounty(
+        address _bountyAddress,
+        bytes calldata _closerData
+    ) external onlyProxy hasKYC {
+        IBounty bounty = IBounty(payable(_bountyAddress));
 
-    function _claimSingle(
+        (, , , , uint256 _tier) = abi.decode(
+            _closerData,
+            (address, string, address, string, uint256)
+        );
+
+        string memory closer = IOpenQ(openQ).addressToExternalUserId(
+            msg.sender
+        );
+
+        require(
+            keccak256(abi.encodePacked(closer)) !=
+                keccak256(abi.encodePacked('')),
+            Errors.NO_ASSOCIATED_ADDRESS
+        );
+
+        require(
+            keccak256(abi.encode(closer)) ==
+                keccak256(abi.encode(bounty.tierWinners(_tier))),
+            Errors.CLAIMANT_NOT_TIER_WINNER
+        );
+
+        require(bounty.invoiceComplete(_tier), Errors.INVOICE_NOT_COMPLETE);
+
+        require(
+            bounty.supportingDocumentsComplete(_tier),
+            Errors.SUPPORTING_DOCS_NOT_COMPLETE
+        );
+
+        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
+            _claimTieredFixedBounty(bounty, msg.sender, _closerData);
+        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
+            _claimTieredPercentageBounty(bounty, msg.sender, _closerData);
+        } else {
+            revert(Errors.NOT_A_COMPETITION_CONTRACT);
+        }
+
+        emit ClaimSuccess(
+            block.timestamp,
+            bounty.bountyType(),
+            _closerData,
+            VERSION_1
+        );
+    }
+
+    /// @notice Claim method for AtomicBounty
+    /// @param bounty The payout address of the bounty
+    /// @param _closer The payout address of the claimant
+    /// @param _closerData ABI Encoded data associated with this claim
+    function _claimAtomicBounty(
         IBounty bounty,
         address _closer,
         bytes calldata _closerData
@@ -116,7 +170,11 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         }
     }
 
-    function _claimOngoing(
+    /// @notice Claim method for OngoingBounty
+    /// @param bounty The payout address of the bounty
+    /// @param _closer The payout address of the claimant
+    /// @param _closerData ABI Encoded data associated with this claim
+    function _claimOngoingBounty(
         IBounty bounty,
         address _closer,
         bytes calldata _closerData
@@ -140,7 +198,11 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         );
     }
 
-    function _claimTiered(
+    /// @notice Claim method for TieredPercentageBounty
+    /// @param bounty The payout address of the bounty
+    /// @param _closer The payout address of the claimant
+    /// @param _closerData ABI Encoded data associated with this claim
+    function _claimTieredPercentageBounty(
         IBounty bounty,
         address _closer,
         bytes calldata _closerData
@@ -211,7 +273,11 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         bounty.setTierClaimed(_tier);
     }
 
-    function _claimTieredFixed(
+    /// @notice Claim method for TieredFixedBounty
+    /// @param bounty The payout address of the bounty
+    /// @param _closer The payout address of the claimant
+    /// @param _closerData ABI Encoded data associated with this claim
+    function _claimTieredFixedBounty(
         IBounty bounty,
         address _closer,
         bytes calldata _closerData
@@ -276,14 +342,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         bounty.setTierClaimed(_tier);
     }
 
-    /**
-     * UTILITY
-     */
-
-    /**
-     * @dev Checks if bounty associated with _bountyId is open
-     * @return bool True if _bountyId is associated with an open bounty
-     */
+    /// @notice Checks if bounty associated with _bountyId is open
+    /// @return bool True if _bountyId is associated with an open bounty
     function bountyIsClaimable(address _bountyAddress)
         public
         view
@@ -306,92 +366,28 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         }
     }
 
-    /**
-     * ADMIN
-     */
-
-    /**
-     * @dev Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
-     */
+    /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    /**
-     * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
-     * @param _newOracle The new oracle address
-     */
+    /// @notice Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
+    /// @param _newOracle The new oracle address
     function transferOracle(address _newOracle) external onlyProxy onlyOwner {
         require(_newOracle != address(0), Errors.NO_ZERO_ADDRESS);
         _transferOracle(_newOracle);
     }
 
-    // VERSION 2
+    /// @notice Sets the OpenQProxy address used for checking IOpenQ(openQ).addressToExternalUserId
     function setOpenQ(address _openQ) external onlyProxy onlyOwner {
         openQ = _openQ;
     }
 
-    /**
-     * @dev Used for claimants who have:
-     * @dev A) Completed KYC with KYC DAO for their tier
-     * @dev B) Uploaded invoicing information for their tier
-     * @dev C) Uploaded any necessary financial forms for their tier
-     * @param _bountyAddress The payout address of the bounty
-     * @param _closerData ABI Encoded data associated with this claim
-     */
-    function permissionedClaimTieredBounty(
-        address _bountyAddress,
-        bytes calldata _closerData
-    ) external onlyProxy hasKYC {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-
-        (, , , , uint256 _tier) = abi.decode(
-            _closerData,
-            (address, string, address, string, uint256)
-        );
-
-        string memory closer = IOpenQ(openQ).addressToExternalUserId(
-            msg.sender
-        );
-
-        require(
-            keccak256(abi.encodePacked(closer)) !=
-                keccak256(abi.encodePacked('')),
-            Errors.NO_ASSOCIATED_ADDRESS
-        );
-
-        require(
-            keccak256(abi.encode(closer)) ==
-                keccak256(abi.encode(bounty.tierWinners(_tier))),
-            Errors.CLAIMANT_NOT_TIER_WINNER
-        );
-
-        require(bounty.invoiceComplete(_tier), Errors.INVOICE_NOT_COMPLETE);
-
-        require(
-            bounty.supportingDocumentsComplete(_tier),
-            Errors.SUPPORTING_DOCS_NOT_COMPLETE
-        );
-
-        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixed(bounty, msg.sender, _closerData);
-        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
-            _claimTiered(bounty, msg.sender, _closerData);
-        } else {
-            revert(Errors.NOT_A_COMPETITION_CONTRACT);
-        }
-
-        emit ClaimSuccess(
-            block.timestamp,
-            bounty.bountyType(),
-            _closerData,
-            VERSION_1
-        );
-    }
-
-    // VERSION 3
+    /// @notice Sets the KYC DAO contract address
+    /// @param _kyc The KYC DAO contract address
     function setKyc(address _kyc) external onlyProxy onlyOwner {
         kyc = IKycValidity(_kyc);
     }
 
+    /// @notice Checks the current KYC DAO contract address (kyc)to see if user has a valid KYC NFT or not
     modifier hasKYC() {
         require(
             kyc.hasValidToken(msg.sender),
