@@ -1,65 +1,50 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-/**
- * @dev Third party
- */
 import '@openzeppelin/contracts/access/Ownable.sol';
+import '../Library/Errors.sol';
 
-/**
- * @title OpenQTokenWhitelist
- * @dev OpenQTokenWhitelist provides the list of verified token addresses
- */
+/// @title TokenWhitelist
+/// @author FlacoJones
+/// @notice Base contract for token whitelists
+/// @dev Whitelisting and token address limit is implemented primarily as a means of preventing out-of-gas exceptions when looping over funded addresses for payouts
 abstract contract TokenWhitelist is Ownable {
-    /**
-     * INITIALIZATION
-     */
-
     uint256 public TOKEN_ADDRESS_LIMIT;
     uint256 public tokenCount;
     mapping(address => bool) public whitelist;
 
-    /**
-     * UTILITY
-     */
-
-    /**
-     * @dev Determines if a tokenAddress is whitelisted
-     * @param tokenAddress The token address in question
-     * @return bool Whether or not tokenAddress is whitelisted
-     */
-    function isWhitelisted(address tokenAddress) external view returns (bool) {
-        return whitelist[tokenAddress];
+    /// @notice Determines if a tokenAddress is whitelisted
+    /// @param _tokenAddress The token address on which to check whitelisting status
+    /// @return bool Whether or not tokenAddress is whitelisted
+    function isWhitelisted(address _tokenAddress) external view returns (bool) {
+        return whitelist[_tokenAddress];
     }
 
-    /**
-     * @dev Adds tokenAddress to the whitelist
-     * @param tokenAddress The token address to add
-     */
-    function addToken(address tokenAddress) external onlyOwner {
-        require(!this.isWhitelisted(tokenAddress), 'TOKEN_ALREADY_WHITELISTED');
-        whitelist[tokenAddress] = true;
+    /// @notice Adds tokenAddress to the whitelist
+    /// @param _tokenAddress The token address to add to the whitelist
+    function addToken(address _tokenAddress) external onlyOwner {
+        require(
+            !this.isWhitelisted(_tokenAddress),
+            Errors.TOKEN_ALREADY_WHITELISTED
+        );
+        whitelist[_tokenAddress] = true;
         tokenCount++;
     }
 
-    /**
-     * @dev Removes tokenAddress to the whitelist
-     * @param tokenAddress The token address to remove
-     */
+    /// @notice Removes tokenAddress to the whitelist
+    /// @param _tokenAddress The token address to remove from the whitelist
     function removeToken(address tokenAddress) external onlyOwner {
         require(
             this.isWhitelisted(tokenAddress),
-            'TOKEN_NOT_ALREADY_WHITELISTED'
+            Errors.TOKEN_NOT_ALREADY_WHITELISTED
         );
         whitelist[tokenAddress] = false;
         tokenCount--;
     }
 
-    /**
-     * @dev Updates the tokenAddressLimit
-     * @param newTokenAddressLimit The new value for TOKEN_ADDRESS_LIMIT
-     */
-    function setTokenAddressLimit(uint256 newTokenAddressLimit)
+    /// @notice Updates the tokenAddressLimit
+    /// @param _newTokenAddressLimit The new value for TOKEN_ADDRESS_LIMIT
+    function setTokenAddressLimit(uint256 _newTokenAddressLimit)
         external
         onlyOwner
     {
