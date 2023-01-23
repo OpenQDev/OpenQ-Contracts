@@ -2,9 +2,9 @@
 pragma solidity 0.8.17;
 
 import './IBountyCore.sol';
-import './IBountyTiered.sol';
+import './ITieredBounty.sol';
 
-interface IBountyTieredFixed is IBountyCore, IBountyTiered {
+interface ITieredFixedBounty is IBountyCore, ITieredBounty {
     function setPayoutScheduleFixed(
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress

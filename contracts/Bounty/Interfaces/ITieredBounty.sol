@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import './IBountyCore.sol';
 
-interface IBountyTiered is IBountyCore {
+interface ITieredBounty is IBountyCore {
     // GETTERS
     function tierClaimed(uint256 _tier) external view returns (bool);
 

@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import './IBountyCore.sol';
 
-interface IBountyOngoing is IBountyCore {
+interface IOngoingBounty is IBountyCore {
     // GETTERS
     function payoutTokenAddress() external view returns (address);
 

@@ -2,9 +2,9 @@
 pragma solidity 0.8.17;
 
 import './IBountyCore.sol';
-import './IBountyTiered.sol';
+import './ITieredBounty.sol';
 
-interface IBountyTieredPercentage is IBountyCore, IBountyTiered {
+interface ITieredPercentageBounty is IBountyCore, ITieredBounty {
     function setPayoutSchedule(uint256[] calldata _payoutSchedule) external;
 
     function claimTiered(
