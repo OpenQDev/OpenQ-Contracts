@@ -1,23 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-/**
- * @dev Third party imports
- */
 import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
 
-/**
- * @title Oraclize
- * @dev Restricts access for method calls to Oracle address
- */
+/// @title Oraclize
+/// @author FlacoJones
+/// @notice Restricts access for method calls to oracle address
 abstract contract Oraclize is ContextUpgradeable {
-    /**
-     * INITIALIZATION
-     */
-
-    /**
-     * @dev Oracle address
-     */
+    /// @notice Oracle address
     address private _oracle;
 
     /**

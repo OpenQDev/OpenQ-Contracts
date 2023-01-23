@@ -7,7 +7,7 @@ import '../OnlyOpenQ/OnlyOpenQ.sol';
 import '../Library/OpenQDefinitions.sol';
 
 /// @title BountyFactory
-/// @author BountyFactory
+/// @author FlacoJones
 /// @notice Factory contract to deploy upgradeable beacon proxies for each type of bounty
 contract BountyFactory is OnlyOpenQ {
     /// @notice The address of the UpgradeableBeacon holding the current bounty implementation

@@ -1,25 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-/**
- * @dev Custom imports - all transitive imports live in OpenQStorage
- */
 import '../Storage/OpenQStorage.sol';
 
-/**
- * @title OpenQV1
- * @dev Main administrative contract for all bounty operations
- */
+/// @title OpenQV1
+/// @author FlacoJones
+/// @notice Main administrative contract for all bounty operations
+/// @dev Do not add any new storage variables here. Put them in a OpenQStorageV# and release new implementation
 contract OpenQV1 is OpenQStorageV1 {
-    /**
-     * INITIALIZATION
-     */
-
     constructor() {}
 
-    /**
-     * @dev Initializes the OpenQProxy storage with necessary storage variables like owner
-     */
+    /// @notice Initializes the OpenQ implementation with necessary storage variables like owner
     function initialize() external initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();

@@ -3,25 +3,21 @@ pragma solidity 0.8.17;
 
 import '../Storage/ClaimManagerStorage.sol';
 
-/**
- * @title ClaimManager
- * @dev Contract with claim abilities on work contracts
- */
+/// @title ClaimManagerV1
+/// @author FlacoJones
+/// @notice Sole contract authorized to attempt claims on all bounty types
+/// @dev Emitter of all claim-related events
+/// @dev Some claim methods are onlyOracle protected, others have exclusively on-chain claim criteria
 contract ClaimManagerV1 is ClaimManagerStorageV1 {
-    /**
-     * INITIALIZATION
-     */
-
     constructor() {}
 
-    /**
-     * @dev Initializes the ClaimManager storage with necessary storage variables like oracle and owner
-     * @param oracle The oracle address to be used for onlyOracle methods (e.g. claimBounty)
-     */
-    function initialize(address oracle) external initializer onlyProxy {
+    /// @notice Initializes the ClaimManager implementation with oracle address
+    /// @param _oracle The address of the oracle authorized to call onlyOracle methods (e.g. claimBounty)
+    /// @dev Can only be called once thanks to initializer (https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializers)
+    function initialize(address _oracle) external initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        __Oraclize_init(oracle);
+        __Oraclize_init(_oracle);
     }
 
     /**

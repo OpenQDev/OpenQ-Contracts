@@ -1,16 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-/**
- * @dev Third party imports inherited by OpenQV1
- */
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 
-/**
- * @dev Custom imports inherited by OpenQV1
- */
 import '../../BountyFactory/BountyFactory.sol';
 import '../../Library/OpenQDefinitions.sol';
 import '../../Library/Errors.sol';
@@ -19,10 +13,11 @@ import '../../Oracle/Oraclize.sol';
 
 import '../../Bounty/Interfaces/IBounty.sol';
 
-/**
- * @title OpenQStorageV1
- * @dev Backwards compatible, append-only chain of storage contracts inherited by OpenQ implementations
- */
+/// @title OpenQStorageV1
+/// @author FlacoJones
+/// @notice Backwards compatible, append-only chain of storage contracts inherited by OpenQ implementations
+/// @dev See (https://github.com/compound-finance/compound-protocol/blob/master/contracts/ComptrollerStorage.sol) for example
+/// @dev See (https://forum.openzeppelin.com/t/to-inherit-version1-to-version2-or-to-copy-code-inheritance-order-from-version1-to-version2/28069) for explanation
 abstract contract OpenQStorageV1 is
     IOpenQ,
     OwnableUpgradeable,

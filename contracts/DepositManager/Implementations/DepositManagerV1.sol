@@ -3,16 +3,15 @@ pragma solidity 0.8.17;
 
 import '../Storage/DepositManagerStorage.sol';
 
+/// @title DepositManagerV1
+/// @author FlacoJones
+/// @notice Manager contract for depositing protocol, ERC-20, and ERC-721 on bounty contracts
+/// @dev Emitter of all deposit-related events
 contract DepositManagerV1 is DepositManagerStorageV1 {
-    /**
-     * INITIALIZATION
-     */
-
     constructor() {}
 
-    /**
-     * @dev Initializes the DepositManager storage with necessary storage variables like owner
-     */
+    /// @notice Initializes the DepositManager implementation
+    /// @dev Can only be called once thanks to initializer (https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializers)
     function initialize() external initializer {
         __Ownable_init();
         __UUPSUpgradeable_init();

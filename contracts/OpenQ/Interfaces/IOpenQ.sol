@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-/**
- * @title IOpenQ
- * @dev Interface declaring all OpenQ Events
- */
+/// @title IOpenQ
+/// @author FlacoJones
+/// @notice Interface declaring OpenQ events and methods used by other contracts
 interface IOpenQ {
     function externalUserIdToAddress(string calldata)
         external
