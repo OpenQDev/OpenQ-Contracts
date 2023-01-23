@@ -9,26 +9,20 @@ import '../Storage/AtomicBountyStorage.sol';
 /// @dev AtomicBountyV1 -> AtomicBountyStorageV1 -> BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
 /// @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation
 contract AtomicBountyV1 is AtomicBountyStorageV1 {
-    /**
-     * INITIALIZATION
-     */
-
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     constructor() {}
 
-    /**
-     * @dev Initializes a bounty proxy with initial state
-     * @param _bountyId The unique bounty identifier
-     * @param _issuer The sender of the mint bounty transaction
-     * @param _organization The organization associated with the bounty
-     * @param _openQ The OpenQProxy address
-     * @param _claimManager The Claim Manager proxy address
-     * @param _depositManager The Deposit Manager proxy address
-     * @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-     */
+    /// @notice Initializes a bounty proxy with initial state
+    /// @param _bountyId The unique bounty identifier
+    /// @param _issuer The sender of the mint bounty transaction
+    /// @param _organization The organization associated with the bounty
+    /// @param _openQ The OpenQProxy address
+    /// @param _claimManager The Claim Manager proxy address
+    /// @param _depositManager The Deposit Manager proxy address
+    /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -88,15 +82,9 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         externalUserId = _externalUserId;
     }
 
-    /**
-     * TRANSACTIONS
-     */
-
-    /**
-     * @dev Transfers full balance of _tokenAddress from bounty to _payoutAddress
-     * @param _tokenAddress ERC20 token address or Zero Address for protocol token
-     * @param _payoutAddress The destination address for the funds
-     */
+    /// @notice Transfers full balance of _tokenAddress from bounty to _payoutAddress
+    /// @param _tokenAddress ERC20 token address or Zero Address for protocol token
+    /// @param _payoutAddress The destination address for the funds
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
         onlyClaimManager
@@ -108,11 +96,9 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         return claimedBalance;
     }
 
-    /**
-     * @dev Changes bounty status from 0 (OPEN) to 1 (CLOSED)
-     * @param _payoutAddress The closer of the bounty
-     * @param _closerData ABI-encoded data about the claimant and claimant asset
-     */
+    /// @notice Changes bounty status from 0 (OPEN) to 1 (CLOSED)
+    /// @param _payoutAddress The closer of the bounty
+    /// @param _closerData ABI-encoded data about the claimant and claimant asset
     function close(address _payoutAddress, bytes calldata _closerData)
         external
         onlyClaimManager
@@ -128,19 +114,15 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         closerData = _closerData;
     }
 
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _data Whether or not KYC is required to fund and claim the bounty
-     */
+    /// @notice Whether or not invoice has been completed
+    /// @param _data ABI encoded data ((bool), [true/false])
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         bool _invoiceComplete = abi.decode(_data, (bool));
         invoiceComplete = _invoiceComplete;
     }
 
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _data Whether or not KYC is required to fund and claim the bounty
-     */
+    /// @notice Whether or not supporting documents have been completed
+    /// @param _data ABI encoded data ((bool), [true/false])
     function setSupportingDocumentsComplete(bytes calldata _data)
         external
         onlyOpenQ
@@ -149,6 +131,13 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         supportingDocumentsComplete = _supportingDocumentsComplete;
     }
 
+    /// @notice Receives an NFT for this contract
+    /// @param _sender Sender of the NFT
+    /// @param _tokenAddress NFT token address
+    /// @param _tokenId NFT token id
+    /// @param _expiration How long before this deposit becomes refundable
+    /// @param _data ABI encoded data (unused in this case)
+    /// @return bytes32 the deposit id
     function receiveNft(
         address _sender,
         address _tokenAddress,
@@ -178,9 +167,7 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         return depositId;
     }
 
-    /**
-     * @dev receive() method to accept protocol tokens
-     */
+    /// @notice receive() method to accept protocol tokens
     receive() external payable {
         revert(
             'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'

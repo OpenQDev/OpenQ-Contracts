@@ -9,26 +9,20 @@ import '../Storage/OngoingBountyStorage.sol';
 /// @dev OngoingBountyV1 -> OngoingBountyStorageV1 -> BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
 /// @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation
 contract OngoingBountyV1 is OngoingBountyStorageV1 {
-    /**
-     * INITIALIZATION
-     */
-
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     constructor() {}
 
-    /**
-     * @dev Initializes a bounty proxy with initial state
-     * @param _bountyId The unique bounty identifier
-     * @param _issuer The sender of the mint bounty transaction
-     * @param _organization The organization associated with the bounty
-     * @param _openQ The OpenQProxy address
-     * @param _claimManager The Claim Manager proxy address
-     * @param _depositManager The Deposit Manager proxy address
-     * @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-     */
+    /// @notice Initializes a bounty proxy with initial state
+    /// @param _bountyId The unique bounty identifier
+    /// @param _issuer The sender of the mint bounty transaction
+    /// @param _organization The organization associated with the bounty
+    /// @param _openQ The OpenQProxy address
+    /// @param _claimManager The Claim Manager proxy address
+    /// @param _depositManager The Deposit Manager proxy address
+    /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -94,11 +88,9 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         externalUserId = _externalUserId;
     }
 
-    /**
-     * @dev Sets the payout for an ongoing bounty
-     * @param _payoutTokenAddress Sets payout token address
-     * @param _payoutVolume Sets payout token volume
-     */
+    /// @notice Sets the payout for an ongoing bounty
+    /// @param _payoutTokenAddress Sets payout token address
+    /// @param _payoutVolume Sets payout token volume
     function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
         external
         onlyOpenQ
@@ -107,11 +99,9 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         payoutVolume = _payoutVolume;
     }
 
-    /**
-     * @dev Transfers a payout amount of an ongoing bounty to claimant for claimant asset
-     * @param _payoutAddress The destination address for the funds
-     * @param _closerData ABI-encoded data of the claimant and claimant asset
-     */
+    /// @notice Transfers a payout amount of an ongoing bounty to claimant for claimant asset
+    /// @param _payoutAddress The destination address for the funds
+    /// @param _closerData ABI-encoded data of the claimant and claimant asset
     function claimOngoingPayout(
         address _payoutAddress,
         bytes calldata _closerData
@@ -129,10 +119,8 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         return (payoutTokenAddress, payoutVolume);
     }
 
-    /**
-     * @dev Similar to close() for single priced bounties. Stops all withdrawls.
-     * @param _closer Address of the closer
-     */
+    /// @notice Similar to close() for single priced bounties. Stops all withdrawls.
+    /// @param _closer Address of the closer
     function closeOngoing(address _closer) external onlyOpenQ {
         require(
             status == OpenQDefinitions.OPEN,
@@ -144,10 +132,8 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         bountyClosedTime = block.timestamp;
     }
 
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _data Whether or not KYC is required to fund and claim the bounty
-     */
+    /// @notice Whether or not invoice has been completed
+    /// @param _data ABI encoded data ((bool), [true/false])
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         (bytes32 _claimId, bool _invoiceComplete) = abi.decode(
             _data,
@@ -156,10 +142,8 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         invoiceComplete[_claimId] = _invoiceComplete;
     }
 
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _data Whether or not KYC is required to fund and claim the bounty
-     */
+    /// @notice Whether or not supporting documents have been completed
+    /// @param _data ABI encoded data ((bool), [true/false])
     function setSupportingDocumentsComplete(bytes calldata _data)
         external
         onlyOpenQ
@@ -171,6 +155,13 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         supportingDocumentsComplete[_claimId] = _supportingDocumentsComplete;
     }
 
+    /// @notice Receives an NFT for this contract
+    /// @param _sender Sender of the NFT
+    /// @param _tokenAddress NFT token address
+    /// @param _tokenId NFT token id
+    /// @param _expiration How long before this deposit becomes refundable
+    /// @param _data ABI encoded data (unused in this case)
+    /// @return bytes32 the deposit id
     function receiveNft(
         address _sender,
         address _tokenAddress,
@@ -200,9 +191,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         return depositId;
     }
 
-    /**
-     * @dev receive() method to accept protocol tokens
-     */
+    /// @notice receive() method to accept protocol tokens
     receive() external payable {
         revert(
             'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'
