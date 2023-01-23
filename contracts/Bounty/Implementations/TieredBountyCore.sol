@@ -8,14 +8,15 @@ import '../Storage/TieredBountyStorageCore.sol';
 /// @notice Shared methods common to all tiered bounty types (tier meaning multiple payout levels, e.g. 1st, 2nd, 3rd)
 /// @dev TieredBountyCore -> TieredBountyStorageCore -> BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
 abstract contract TieredBountyCore is TieredBountyStorageCore {
-    /**
-     * @dev Sets tierClaimed to true for the given tier
-     * @param _tier The tier being claimed
-     */
+    /// @notice Sets tierClaimed to true for the given tier
+    /// @param _tier The tier being claimed
     function setTierClaimed(uint256 _tier) external onlyClaimManager {
         tierClaimed[_tier] = true;
     }
 
+    /// @notice Sets a winner for a particular tier
+    /// @param _tier The tier they won
+    /// @param _winner The external UUID (e.g. an OpenQ User UUID) that won this tier
     function setTierWinner(string memory _winner, uint256 _tier)
         external
         onlyOpenQ
@@ -23,14 +24,14 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
         tierWinners[_tier] = _winner;
     }
 
+    /// @notice Returns array of winners
+    /// @return An array of the external ids (e.g. OpenQ User UUIDs) of the tier winners
     function getTierWinners() external view returns (string[] memory) {
         return tierWinners;
     }
 
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _data Whether or not KYC is required to fund and claim the bounty
-     */
+    /// @notice Whether or not invoice has been completed
+    /// @param _data ABI encoded data ((uint256), [tier])
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         (uint256 _tier, bool _invoiceComplete) = abi.decode(
             _data,
@@ -39,10 +40,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
         invoiceComplete[_tier] = _invoiceComplete;
     }
 
-    /**
-     * @dev Whether or not KYC is required to fund and claim the bounty
-     * @param _data Whether or not KYC is required to fund and claim the bounty
-     */
+    /// @notice Whether or not supporting documents have been completed
+    /// @param _data ABI encoded data ((uint256), [tier])
     function setSupportingDocumentsComplete(bytes calldata _data)
         external
         onlyOpenQ
@@ -54,6 +53,13 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
         supportingDocumentsComplete[_tier] = _supportingDocumentsComplete;
     }
 
+    /// @notice Receives an NFT for this contract
+    /// @param _sender Sender of the NFT
+    /// @param _tokenAddress NFT token address
+    /// @param _tokenId NFT token id
+    /// @param _expiration How long before this deposit becomes refundable
+    /// @param _data ABI encoded data (unused in this case)
+    /// @return bytes32 the deposit id
     function receiveNft(
         address _sender,
         address _tokenAddress,
@@ -86,10 +92,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
         return depositId;
     }
 
-    /**
-     * @dev Returns an array for the payoutSchedule
-     * @return payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
-     */
+    /// @notice Returns an array for the payoutSchedule
+    /// @return payoutSchedule An array containing the percentage to pay to [1st, 2nd, etc.] place
     function getPayoutSchedule() external view returns (uint256[] memory) {
         return payoutSchedule;
     }

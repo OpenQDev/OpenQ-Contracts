@@ -9,26 +9,21 @@ import '../Storage/TieredFixedBountyStorage.sol';
 /// @dev TieredFixedBountyV1 -> TieredFixedBountyStorageV1 -> TieredBountyCore -> TieredBountyStorageCore -> BountyCore -> BountyStorageCore -> (Third Party Deps + Custom )
 /// @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation
 contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
-    /**
-     * INITIALIZATION
-     */
-
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     constructor() {}
 
-    /**
-     * @dev Initializes a bounty proxy with initial state
-     * @param _bountyId The unique bounty identifier
-     * @param _issuer The sender of the mint bounty transaction
-     * @param _organization The organization associated with the bounty
-     * @param _openQ The OpenQProxy address
-     * @param _claimManager The Claim Manager proxy address
-     * @param _depositManager The Deposit Manager proxy address
-     * @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-     */
+    /// @notice Initializes a bounty proxy with initial state
+    /// @param _bountyId The unique bounty identifier
+    /// @param _issuer The sender of the mint bounty transaction
+    /// @param _organization The organization associated with the bounty
+    /// @param _openQ The OpenQProxy address
+    /// @param _claimManager The Claim Manager proxy address
+    /// @param _depositManager The Deposit Manager proxy address
+    /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
+
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -97,11 +92,9 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         supportingDocumentsComplete = new bool[](_payoutSchedule.length);
     }
 
-    /**
-     * @dev Transfers the fixed amount of balance associated with the tier
-     * @param _payoutAddress The destination address for the fund
-     * @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
-     */
+    /// @notice Transfers the fixed amount of balance associated with the tier
+    /// @param _payoutAddress The destination address for the fund
+    /// @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)
     function claimTieredFixed(address _payoutAddress, uint256 _tier)
         external
         onlyClaimManager
@@ -120,9 +113,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         return claimedBalance;
     }
 
-    /**
-     * @dev Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
-     */
+    /// @notice Similar to close() for single priced bounties. closeCompetition() freezes the current funds for the competition.
     function closeCompetition() external onlyClaimManager {
         require(
             status == OpenQDefinitions.OPEN,
@@ -133,6 +124,9 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         bountyClosedTime = block.timestamp;
     }
 
+    /// @notice Sets fundingGoal for bounty with id _bountyId
+    /// @param _fundingToken The token address to be used for the funding goal
+    /// @param _fundingGoal The volume of token to be used for the funding goal
     function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
         external
         override
@@ -145,11 +139,9 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         payoutTokenAddress = _fundingToken;
     }
 
-    /**
-     * @dev Sets the payout schedule
-     * @param _payoutSchedule An array of payout volumes for each tier
-     * @param _payoutTokenAddress The address of the token to be used for the payout
-     */
+    /// @notice Sets the payout schedule
+    /// @param _payoutSchedule An array of payout volumes for each tier
+    /// @param _payoutTokenAddress The address of the token to be used for the payout
     function setPayoutScheduleFixed(
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
@@ -185,9 +177,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         supportingDocumentsComplete = newSupportingDocumentsCompleted;
     }
 
-    /**
-     * @dev receive() method to accept protocol tokens
-     */
+    /// @notice receive() method to accept protocol tokens
     receive() external payable {
         revert(
             'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'
