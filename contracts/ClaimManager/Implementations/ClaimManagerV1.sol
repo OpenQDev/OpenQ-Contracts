@@ -391,7 +391,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
 
     /// @notice Checks the current KYC DAO contract address (kyc)to see if user has a valid KYC NFT or not
     /// @return True if address is KYC with KYC DAO, false otherwise
-    function hasKYC(address _address) public returns (bool) {
-        return kyc.hasValidToken(msg.sender);
+    function hasKYC(address _address) public view returns (bool) {
+        return kyc.hasValidToken(_address);
     }
 }
