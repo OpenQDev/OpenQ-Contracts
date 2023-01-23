@@ -18,6 +18,11 @@ You can read all about how OpenQ works from the user's perspective by reading ou
 
 https://docs.openq.dev
 
+## Trusted Services
+
+- Assume Oracles are trusted
+- Assume KYC DAO is secure, and only has NFTs for valid 
+
 ## Technical Background
 
 Blockchain: `Polygon Mainnet`

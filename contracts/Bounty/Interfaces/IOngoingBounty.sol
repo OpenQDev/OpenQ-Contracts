@@ -3,21 +3,32 @@ pragma solidity 0.8.17;
 
 import './IBountyCore.sol';
 
+/// @title IOngoingBounty
+/// @author FlacoJones
+/// @notice Interface defining OngoingBounty specific methods
 interface IOngoingBounty is IBountyCore {
-    // GETTERS
-    function payoutTokenAddress() external view returns (address);
+    /// @notice Sets the payout for an ongoing bounty
+    /// @param _payoutTokenAddress Sets payout token address
+    /// @param _payoutVolume Sets payout token volume
+    function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
+        external;
 
-    function payoutVolume() external view returns (uint256);
-
-    function claimantId(bytes32) external view returns (bool);
-
-    // SETTERS
-    function setPayout(address, uint256) external;
-
+    /// @notice Transfers a payout amount of an ongoing bounty to claimant for claimant asset
+    /// @param _payoutAddress The destination address for the funds
+    /// @param _closerData ABI-encoded data of the claimant and claimant asset
     function claimOngoingPayout(
         address _payoutAddress,
         bytes calldata _closerData
     ) external returns (address, uint256);
 
+    /// @notice Similar to close() for single priced bounties. Stops all withdrawls.
+    /// @param _closer Address of the closer
     function closeOngoing(address _closer) external;
+
+    // PUBLIC GETTERS
+    function payoutTokenAddress() external view returns (address);
+
+    function payoutVolume() external view returns (uint256);
+
+    function claimantId(bytes32) external view returns (bool);
 }
