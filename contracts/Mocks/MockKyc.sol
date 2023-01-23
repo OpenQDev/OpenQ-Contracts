@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-import './IKycValidity.sol';
+import '../KYC/IKycValidity.sol';
 
 contract MockKyc is IKycValidity {
     bool public isValid;
