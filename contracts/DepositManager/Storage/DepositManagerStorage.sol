@@ -11,7 +11,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
  * @dev Custom imports inherited by DepositManagerV1
  */
 import '..//Interfaces/IDepositManager.sol';
-import '../../Tokens/OpenQTokenWhitelist.sol';
+import '../../TokenWhitelist/OpenQTokenWhitelist.sol';
 import '../../Bounty/Interfaces/IBounty.sol';
 import '../../Library/Errors.sol';
 
