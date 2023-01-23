@@ -9,7 +9,7 @@ const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 const Constants = require('./constants');
 
-describe('OpenQ.sol', () => {
+describe.only('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -621,7 +621,7 @@ describe('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setInvoiceRequired(Constants.bountyId, false))
 				.to.emit(openQProxy, 'InvoiceRequiredSet')
-				.withArgs(bountyAddress, false, [], Constants.VERSION_1);
+				.withArgs(bountyAddress, false, Constants.ATOMIC_CONTRACT, [], Constants.VERSION_1);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -660,7 +660,7 @@ describe('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setKycRequired(Constants.bountyId, false))
 				.to.emit(openQProxy, 'KYCRequiredSet')
-				.withArgs(bountyAddress, false, [], Constants.VERSION_1);
+				.withArgs(bountyAddress, false, Constants.ATOMIC_CONTRACT, [], Constants.VERSION_1);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -699,7 +699,7 @@ describe('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setSupportingDocumentsRequired(Constants.bountyId, false))
 				.to.emit(openQProxy, 'SupportingDocumentsRequiredSet')
-				.withArgs(bountyAddress, false, [], Constants.VERSION_1);
+				.withArgs(bountyAddress, false, Constants.ATOMIC_CONTRACT, [], Constants.VERSION_1);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -746,7 +746,7 @@ describe('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1))
 				.to.emit(openQProxy, 'SupportingDocumentsCompletedSet')
-				.withArgs(bountyAddress, setSupportingDocumentsCompleteData_1, Constants.VERSION_1);
+				.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, setSupportingDocumentsCompleteData_1, Constants.VERSION_1);
 		});
 
 		it('should revert if not called by issuer', async () => {
@@ -795,7 +795,7 @@ describe('OpenQ.sol', () => {
 			// ACT/ASSERT
 			await expect(await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1))
 				.to.emit(openQProxy, 'InvoiceCompletedSet')
-				.withArgs(bountyAddress, setInvoiceCompleteData_1, Constants.VERSION_1);
+				.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, setInvoiceCompleteData_1, Constants.VERSION_1);
 		});
 
 		it('should revert if not called by issuer', async () => {
