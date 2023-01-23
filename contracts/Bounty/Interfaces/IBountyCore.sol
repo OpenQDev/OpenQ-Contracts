@@ -94,8 +94,9 @@ interface IBountyCore {
     function setInvoiceable(bool _invoiceable) external;
 
     /// @notice Whether or not KYC is required to fund and claim the bounty
-    /// @param _supportingDocuments Whether or not KYC is required to fund and claim the bounty
-    function setSupportingDocuments(bool _supportingDocuments) external;
+    /// @param _supportingDocumentsRequired Whether or not KYC is required to fund and claim the bounty
+    function setSupportingDocumentsRequired(bool _supportingDocumentsRequired)
+        external;
 
     /// @notice Whether or not invoice has been completed
     /// @param _data ABI encoded data ((uint256), [tier])
@@ -182,7 +183,7 @@ interface IBountyCore {
 
     function kycRequired() external view returns (bool);
 
-    function supportingDocuments() external view returns (bool);
+    function supportingDocumentsRequired() external view returns (bool);
 
-    function externalUserId() external view returns (string memory);
+    function issuerExternalUserId() external view returns (string memory);
 }

@@ -178,20 +178,20 @@ contract OpenQV1 is OpenQStorageV1 {
 
     /// @notice Sets whether or not supporting documents will be required to claim a bounty
     /// @param _bountyId The id to update
-    /// @param _supportingDocuments Whether or not KYC is required for a bounty
-    function setSupportingDocuments(
+    /// @param _supportingDocumentsRequired Whether or not supporting documents are required to claim this bounty
+    function setSupportingDocumentsRequired(
         string calldata _bountyId,
-        bool _supportingDocuments
+        bool _supportingDocumentsRequired
     ) external onlyProxy {
         IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.setSupportingDocuments(_supportingDocuments);
+        bounty.setSupportingDocumentsRequired(_supportingDocumentsRequired);
 
-        emit SupportingDocumentsSet(
+        emit SupportingDocumentsRequiredSet(
             address(bounty),
-            _supportingDocuments,
+            _supportingDocumentsRequired,
             new bytes(0),
             VERSION_1
         );

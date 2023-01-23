@@ -70,7 +70,7 @@ interface IOpenQ {
         uint256 version
     );
 
-    event SupportingDocumentsSet(
+    event SupportingDocumentsRequiredSet(
         address bountyAddress,
         bool supportingDocuments,
         bytes data,

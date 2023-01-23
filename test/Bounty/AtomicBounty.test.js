@@ -110,8 +110,8 @@ describe('AtomicBountyV1.sol', () => {
 			await expect(await atomicContract.fundingGoal()).equals(100);
 			await expect(await atomicContract.invoiceable()).equals(true);
 			await expect(await atomicContract.kycRequired()).equals(true);
-			await expect(await atomicContract.externalUserId()).equals(Constants.mockOpenQId);
-			await expect(await atomicContract.supportingDocuments()).equals(true);
+			await expect(await atomicContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
+			await expect(await atomicContract.supportingDocumentsRequired()).equals(true);
 		});
 
 		it('should revert if bountyId is empty', async () => {

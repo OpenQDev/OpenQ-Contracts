@@ -161,13 +161,13 @@ abstract contract BountyCore is BountyStorageCore {
     }
 
     /// @notice Whether or not KYC is required to fund and claim the bounty
-    /// @param _supportingDocuments Whether or not KYC is required to fund and claim the bounty
-    function setSupportingDocuments(bool _supportingDocuments)
+    /// @param _supportingDocumentsRequired Whether or not KYC is required to fund and claim the bounty
+    function setSupportingDocumentsRequired(bool _supportingDocumentsRequired)
         external
         virtual
         onlyOpenQ
     {
-        supportingDocuments = _supportingDocuments;
+        supportingDocumentsRequired = _supportingDocumentsRequired;
     }
 
     /// @notice Transfers _volume of both ERC20 or protocol token to _payoutAddress

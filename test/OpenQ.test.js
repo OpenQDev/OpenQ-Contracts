@@ -223,8 +223,8 @@ describe('OpenQ.sol', () => {
 				await expect(await atomicContract.fundingGoal()).equals(1000);
 				await expect(await atomicContract.invoiceable()).equals(true);
 				await expect(await atomicContract.kycRequired()).equals(true);
-				await expect(await atomicContract.externalUserId()).equals(Constants.mockOpenQId);
-				await expect(await atomicContract.supportingDocuments()).equals(true);
+				await expect(await atomicContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
+				await expect(await atomicContract.supportingDocumentsRequired()).equals(true);
 			});
 
 			it('should revert if bounty already exists', async () => {
@@ -305,8 +305,8 @@ describe('OpenQ.sol', () => {
 				await expect(await ongoingContract.fundingGoal()).equals(1000);
 				await expect(await ongoingContract.invoiceable()).equals(true);
 				await expect(await ongoingContract.kycRequired()).equals(true);
-				await expect(await ongoingContract.externalUserId()).equals(Constants.mockOpenQId);
-				await expect(await ongoingContract.supportingDocuments()).equals(true);
+				await expect(await ongoingContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
+				await expect(await ongoingContract.supportingDocumentsRequired()).equals(true);
 			});
 		});
 
@@ -344,8 +344,8 @@ describe('OpenQ.sol', () => {
 				await expect(payoutToString[1]).equals("30");
 				await expect(await tieredPercentageContract.invoiceable()).equals(true);
 				await expect(await tieredPercentageContract.kycRequired()).equals(true);
-				await expect(await tieredPercentageContract.externalUserId()).equals(Constants.mockOpenQId);
-				await expect(await tieredPercentageContract.supportingDocuments()).equals(true);
+				await expect(await tieredPercentageContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
+				await expect(await tieredPercentageContract.supportingDocumentsRequired()).equals(true);
 	
 				await expect(await tieredPercentageContract.invoiceComplete(0)).equals(false);
 				await expect(await tieredPercentageContract.supportingDocumentsComplete(0)).equals(false);
@@ -390,8 +390,8 @@ describe('OpenQ.sol', () => {
 				await expect(payoutToString[1]).equals("20");
 				await expect(await tieredFixedContract.invoiceable()).equals(true);
 				await expect(await tieredFixedContract.kycRequired()).equals(true);
-				await expect(await tieredFixedContract.externalUserId()).equals(Constants.mockOpenQId);
-				await expect(await tieredFixedContract.supportingDocuments()).equals(true);
+				await expect(await tieredFixedContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
+				await expect(await tieredFixedContract.supportingDocumentsRequired()).equals(true);
 	
 				await expect(await tieredFixedContract.invoiceComplete(0)).equals(false);
 				await expect(await tieredFixedContract.supportingDocumentsComplete(0)).equals(false);
@@ -673,32 +673,32 @@ describe('OpenQ.sol', () => {
 		});
 	});
 
-	describe('setSupportingDocuments', () => {
-		it('should set setSupportingDocuments', async () => {
+	describe('setSupportingDocumentsRequired', () => {
+		it('should set setSupportingDocumentsRequired', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			// ASSUME
-			expect(await bounty.supportingDocuments()).to.equal(true);
+			expect(await bounty.supportingDocumentsRequired()).to.equal(true);
 
 			// ACT
-			await openQProxy.setSupportingDocuments(Constants.bountyId, false);
+			await openQProxy.setSupportingDocumentsRequired(Constants.bountyId, false);
 
 			// ASSERT
-			expect(await bounty.supportingDocuments()).to.equal(false);
+			expect(await bounty.supportingDocumentsRequired()).to.equal(false);
 		});
 
-		it('should emit an SupportingDocumentsSet event', async () => {
+		it('should emit an SupportingDocumentsRequiredSet event', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 			const bounty = await AtomicBountyV1.attach(bountyAddress);
 
 			// ACT/ASSERT
-			await expect(await openQProxy.setSupportingDocuments(Constants.bountyId, false))
-				.to.emit(openQProxy, 'SupportingDocumentsSet')
+			await expect(await openQProxy.setSupportingDocumentsRequired(Constants.bountyId, false))
+				.to.emit(openQProxy, 'SupportingDocumentsRequiredSet')
 				.withArgs(bountyAddress, false, [], Constants.VERSION_1);
 		});
 
@@ -708,7 +708,7 @@ describe('OpenQ.sol', () => {
 			const notOwnerContract = openQProxy.connect(oracle);
 
 			// ACT/ASSERT
-			await expect(notOwnerContract.setSupportingDocuments(Constants.bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
+			await expect(notOwnerContract.setSupportingDocumentsRequired(Constants.bountyId, false)).to.be.revertedWith('CALLER_NOT_ISSUER');
 		});
 	});
 
@@ -735,7 +735,7 @@ describe('OpenQ.sol', () => {
 			expect(await bounty.supportingDocumentsComplete(1)).to.equal(true);
 		});
 
-		it('should emit an SupportingDocumentsSet event', async () => {
+		it('should emit an SupportingDocumentsRequiredSet event', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);

@@ -55,8 +55,8 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
             uint256 _fundingGoal,
             bool _invoiceable,
             bool _kycRequired,
-            bool _supportingDocuments,
-            string memory _externalUserId,
+            bool _supportingDocumentsRequired,
+            string memory _issuerExternalUserId,
             ,
 
         ) = abi.decode(
@@ -81,8 +81,8 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         fundingGoal = _fundingGoal;
         invoiceable = _invoiceable;
         kycRequired = _kycRequired;
-        supportingDocuments = _supportingDocuments;
-        externalUserId = _externalUserId;
+        supportingDocumentsRequired = _supportingDocumentsRequired;
+        issuerExternalUserId = _issuerExternalUserId;
         payoutSchedule = _payoutSchedule;
         payoutTokenAddress = _fundingToken;
 

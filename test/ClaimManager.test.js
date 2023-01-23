@@ -948,7 +948,7 @@ describe('ClaimManager.sol', () => {
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
 			// ASSERT
-			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('You must have a valid KYC token to claim this bounty');
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('ADDRESS_LACKS_KYC');
 		});
 
 		it('should revert if caller lacks associated address to their uuid', async () => {

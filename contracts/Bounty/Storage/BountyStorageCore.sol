@@ -69,6 +69,6 @@ abstract contract BountyStorageCore is
     uint256 public fundingGoal;
     bool public invoiceable;
     bool public kycRequired;
-    bool public supportingDocuments;
-    string public externalUserId;
+    bool public supportingDocumentsRequired;
+    string public issuerExternalUserId;
 }

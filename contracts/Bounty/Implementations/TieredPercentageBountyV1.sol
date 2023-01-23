@@ -53,8 +53,8 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
             uint256 _fundingGoal,
             bool _invoiceable,
             bool _kycRequired,
-            bool _supportingDocuments,
-            string memory _externalUserId,
+            bool _supportingDocumentsRequired,
+            string memory _issuerExternalUserId,
             ,
 
         ) = abi.decode(
@@ -86,8 +86,8 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
         fundingGoal = _fundingGoal;
         invoiceable = _invoiceable;
         kycRequired = _kycRequired;
-        supportingDocuments = _supportingDocuments;
-        externalUserId = _externalUserId;
+        supportingDocumentsRequired = _supportingDocumentsRequired;
+        issuerExternalUserId = _issuerExternalUserId;
 
         // Initialize metadata arrays to same number of tiers
         tierWinners = new string[](_payoutSchedule.length);

@@ -463,18 +463,18 @@ describe('BountyCore.sol', () => {
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(atomicContract.connect(notOwner).setSupportingDocuments(true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(atomicContract.connect(notOwner).setSupportingDocumentsRequired(true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set supportingDocuments', async () => {
+		it('should set kycRequired', async () => {
 			// ASSUME
-			expect(await atomicContract.supportingDocuments()).to.equal(true)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(true)
 			
 			// ACT
-			await atomicContract.setSupportingDocuments(false);
+			await atomicContract.setSupportingDocumentsRequired(false);
 
 			// ASSERT
-			expect(await atomicContract.supportingDocuments()).to.equal(false)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(false)
 		})
 	})
 
@@ -484,18 +484,18 @@ describe('BountyCore.sol', () => {
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(atomicContract.connect(notOwner).setSupportingDocuments(true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(atomicContract.connect(notOwner).setInvoiceable(true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set supportingDocuments', async () => {
+		it('should set invoiceable', async () => {
 			// ASSUME
-			expect(await atomicContract.supportingDocuments()).to.equal(true)
+			expect(await atomicContract.invoiceable()).to.equal(true)
 			
 			// ACT
-			await atomicContract.setSupportingDocuments(false);
+			await atomicContract.setInvoiceable(false);
 
 			// ASSERT
-			expect(await atomicContract.supportingDocuments()).to.equal(false)
+			expect(await atomicContract.invoiceable()).to.equal(false)
 		})
 	})
 
@@ -505,18 +505,18 @@ describe('BountyCore.sol', () => {
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(atomicContract.connect(notOwner).setSupportingDocuments(true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(atomicContract.connect(notOwner).setSupportingDocumentsRequired(true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set supportingDocuments', async () => {
 			// ASSUME
-			expect(await atomicContract.supportingDocuments()).to.equal(true)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(true)
 			
 			// ACT
-			await atomicContract.setSupportingDocuments(false);
+			await atomicContract.setSupportingDocumentsRequired(false);
 
 			// ASSERT
-			expect(await atomicContract.supportingDocuments()).to.equal(false)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(false)
 		})
 	})
 

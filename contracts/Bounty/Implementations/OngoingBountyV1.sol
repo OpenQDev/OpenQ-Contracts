@@ -55,8 +55,8 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
             uint256 _fundingGoal,
             bool _invoiceable,
             bool _kycRequired,
-            bool _supportingDocuments,
-            string memory _externalUserId,
+            bool _supportingDocumentsRequired,
+            string memory _issuerExternalUserId,
             ,
 
         ) = abi.decode(
@@ -84,8 +84,8 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         fundingGoal = _fundingGoal;
         invoiceable = _invoiceable;
         kycRequired = _kycRequired;
-        supportingDocuments = _supportingDocuments;
-        externalUserId = _externalUserId;
+        supportingDocumentsRequired = _supportingDocumentsRequired;
+        issuerExternalUserId = _issuerExternalUserId;
     }
 
     /// @notice Sets the payout for an ongoing bounty
@@ -160,14 +160,13 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
     /// @param _tokenAddress NFT token address
     /// @param _tokenId NFT token id
     /// @param _expiration How long before this deposit becomes refundable
-    /// @param _data ABI encoded data (unused in this case)
     /// @return bytes32 the deposit id
     function receiveNft(
         address _sender,
         address _tokenAddress,
         uint256 _tokenId,
         uint256 _expiration,
-        bytes calldata _data
+        bytes calldata
     ) external onlyDepositManager nonReentrant returns (bytes32) {
         require(
             nftDeposits.length < nftDepositLimit,
