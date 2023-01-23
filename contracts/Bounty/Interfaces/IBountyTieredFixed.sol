@@ -5,22 +5,12 @@ import './IBountyCore.sol';
 import './IBountyTiered.sol';
 
 interface IBountyTieredFixed is IBountyCore, IBountyTiered {
-    // GETTERS
-    function tierClaimed(uint256 _tier) external view returns (bool);
-
-    function getInvoiceComplete() external view returns (bool[] memory);
-
-    function getTierWinners() external returns (string[] memory);
-
-    function claimTieredFixed(address _payoutAddress, uint256 _tier)
-        external
-        returns (uint256);
-
-    // SETTERS
-    function setTierWinner(string memory _winner, uint256 _tier) external;
-
     function setPayoutScheduleFixed(
         uint256[] calldata _payoutSchedule,
         address _payoutTokenAddress
     ) external;
+
+    function claimTieredFixed(address _payoutAddress, uint256 _tier)
+        external
+        returns (uint256);
 }

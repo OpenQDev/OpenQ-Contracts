@@ -11,20 +11,4 @@ interface IBounty is
     IBountyOngoing,
     IBountyTieredPercentage,
     IBountyTieredFixed
-{
-    function tierClaimed(uint256 _tier)
-        external
-        view
-        override(IBountyTiered, IBountyTieredFixed)
-        returns (bool);
-
-    function setTierWinner(string memory _winner, uint256 _tier)
-        external
-        override(IBountyTiered, IBountyTieredFixed);
-
-    function getInvoiceComplete()
-        external
-        view
-        override(IBountyTiered, IBountyTieredFixed)
-        returns (bool[] memory);
-}
+{}
