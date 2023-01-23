@@ -59,6 +59,7 @@ interface IOpenQ {
     event KYCRequiredSet(
         address bountyAddress,
         bool kycRequired,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
@@ -66,6 +67,7 @@ interface IOpenQ {
     event InvoiceRequiredSet(
         address bountyAddress,
         bool invoiceRequired,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
@@ -73,18 +75,21 @@ interface IOpenQ {
     event SupportingDocumentsRequiredSet(
         address bountyAddress,
         bool supportingDocuments,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
 
     event InvoiceCompletedSet(
         address bountyAddress,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );
 
     event SupportingDocumentsCompletedSet(
         address bountyAddress,
+        uint256 bountyType,
         bytes data,
         uint256 version
     );

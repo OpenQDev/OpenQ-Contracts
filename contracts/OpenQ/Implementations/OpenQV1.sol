@@ -150,6 +150,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit KYCRequiredSet(
             address(bounty),
             _kycRequired,
+            bounty.bountyType(),
             new bytes(0),
             VERSION_1
         );
@@ -171,6 +172,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit InvoiceRequiredSet(
             address(bounty),
             _invoiceRequired,
+            bounty.bountyType(),
             new bytes(0),
             VERSION_1
         );
@@ -192,6 +194,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit SupportingDocumentsRequiredSet(
             address(bounty),
             _supportingDocumentsRequired,
+            bounty.bountyType(),
             new bytes(0),
             VERSION_1
         );
@@ -210,7 +213,12 @@ contract OpenQV1 is OpenQStorageV1 {
 
         bounty.setInvoiceComplete(_data);
 
-        emit InvoiceCompletedSet(address(bounty), _data, VERSION_1);
+        emit InvoiceCompletedSet(
+            address(bounty),
+            bounty.bountyType(),
+            _data,
+            VERSION_1
+        );
     }
 
     /// @notice Sets supportingDocumentsComplete on bounty with id _bountyId
@@ -226,7 +234,12 @@ contract OpenQV1 is OpenQStorageV1 {
 
         bounty.setSupportingDocumentsComplete(_data);
 
-        emit SupportingDocumentsCompletedSet(address(bounty), _data, VERSION_1);
+        emit SupportingDocumentsCompletedSet(
+            address(bounty),
+            bounty.bountyType(),
+            _data,
+            VERSION_1
+        );
     }
 
     /// @notice Sets payout token address and volume on bounty with id _bountyId
