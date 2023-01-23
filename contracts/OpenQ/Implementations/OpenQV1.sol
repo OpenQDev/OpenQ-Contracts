@@ -17,17 +17,11 @@ contract OpenQV1 is OpenQStorageV1 {
         __ReentrancyGuard_init();
     }
 
-    /**
-     * TRANSACTIONS
-     */
-
-    /**
-     * @dev Mints a new bounty BeaconProxy using BountyFactory
-     * @param _bountyId A unique string to identify a bounty
-     * @param _organization The ID of the organization which owns the bounty
-     * @param _initOperation The ABI encoded data determining the type of bounty being initialized and associated data
-     * @return bountyAddress The address of the bounty minted
-     */
+    /// @notice Mints a new bounty BeaconProxy using BountyFactory
+    /// @param _bountyId A unique string to identify a bounty
+    /// @param _organization The ID of the organization which owns the bounty
+    /// @param _initOperation The ABI encoded data determining the type of bounty being initialized and associated data
+    /// @return bountyAddress The address of the newly minted bounty
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization,
@@ -63,10 +57,8 @@ contract OpenQV1 is OpenQStorageV1 {
         return bountyAddress;
     }
 
-    /**
-     * @dev Sets bountyFactory address
-     * @param _bountyFactory The BountyFactory address
-     */
+    /// @notice Sets the BountyFactory
+    /// @param _bountyFactory The BountyFactory address
     function setBountyFactory(address _bountyFactory)
         external
         onlyProxy
@@ -75,10 +67,8 @@ contract OpenQV1 is OpenQStorageV1 {
         bountyFactory = BountyFactory(_bountyFactory);
     }
 
-    /**
-     * @dev Sets ClaimManager proxy address
-     * @param _claimManager The ClaimManager address
-     */
+    /// @notice Sets ClaimManager proxy address
+    /// @param _claimManager The ClaimManager address
     function setClaimManager(address _claimManager)
         external
         onlyProxy
@@ -87,10 +77,8 @@ contract OpenQV1 is OpenQStorageV1 {
         claimManager = _claimManager;
     }
 
-    /**
-     * @dev Sets DepositManager proxy address
-     * @param _depositManager The DepositManager address
-     */
+    /// @notice Sets DepositManager proxy address
+    /// @param _depositManager The DepositManager address
     function setDepositManager(address _depositManager)
         external
         onlyProxy
@@ -99,12 +87,32 @@ contract OpenQV1 is OpenQStorageV1 {
         depositManager = _depositManager;
     }
 
-    /**
-     * @dev Sets fundingGoal for bounty with id _bountyId
-     * @param _bountyId The id to update
-     * @param _fundingGoalToken The token address to be used for the funding goal
-     * @param _fundingGoalVolume The volume of token to be used for the funding goal
-     */
+    /// @notice Sets a winner for a particular tier
+    /// @param _bountyId The bounty id
+    /// @param _tier The tier they won
+    /// @param _winner The external UUID (e.g. an OpenQ User UUID) that won this tier
+    /// @dev Only callable by the bounty admin (AKA the minter of the bounty)
+    function setTierWinner(
+        string calldata _bountyId,
+        uint256 _tier,
+        string calldata _winner
+    ) external {
+        IBounty bounty = getBounty(_bountyId);
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+        bounty.setTierWinner(_winner, _tier);
+
+        emit TierWinnerSelected(
+            address(bounty),
+            bounty.getTierWinners(),
+            new bytes(0),
+            VERSION_1
+        );
+    }
+
+    /// @notice Sets fundingGoal for bounty with id _bountyId
+    /// @param _bountyId The id to update
+    /// @param _fundingGoalToken The token address to be used for the funding goal
+    /// @param _fundingGoalVolume The volume of token to be used for the funding goal
     function setFundingGoal(
         string calldata _bountyId,
         address _fundingGoalToken,
@@ -126,10 +134,9 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * @dev Sets kycRequired on bounty with id _bountyId
-     * @param _kycRequired Whether or not KYC is required for a bounty
-     */
+    /// @notice Sets kycRequired on bounty with id _bountyId
+    /// @param _bountyId The id to update
+    /// @param _kycRequired Whether or not KYC is required for a bounty
     function setKycRequired(string calldata _bountyId, bool _kycRequired)
         external
         onlyProxy
@@ -148,10 +155,9 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * @dev Sets invoiceable on bounty with id _bountyId
-     * @param _invoiceable Whether or not the bounty is invoiceable
-     */
+    /// @notice Sets invoiceable on bounty with id _bountyId
+    /// @param _bountyId The id to update
+    /// @param _invoiceable Whether or not the bounty should be set as invoiceable
     function setInvoiceable(string calldata _bountyId, bool _invoiceable)
         external
         onlyProxy
@@ -170,10 +176,9 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * @dev Sets kycRequired on bounty with id _bountyId
-     * @param _supportingDocuments Whether or not KYC is required for a bounty
-     */
+    /// @notice Sets whether or not supporting documents will be required to claim a bounty
+    /// @param _bountyId The id to update
+    /// @param _supportingDocuments Whether or not KYC is required for a bounty
     function setSupportingDocuments(
         string calldata _bountyId,
         bool _supportingDocuments
@@ -192,10 +197,9 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * @dev Sets invoiceComplete on bounty with id _bountyId
-     * @param _data Whether or not invoice is complete
-     */
+    /// @notice Sets invoiceComplete on bounty with id _bountyId
+    /// @param _bountyId The id to update
+    /// @param _data ABI encoded data (A simple bool for AtomicContract, a (string, bool) of claimId for Ongoing, and a (uint256, bool) for TieredBounty to specify the tier it was completed for)
     function setInvoiceComplete(string calldata _bountyId, bytes calldata _data)
         external
         onlyProxy
@@ -209,10 +213,9 @@ contract OpenQV1 is OpenQStorageV1 {
         emit InvoiceCompletedSet(address(bounty), _data, VERSION_1);
     }
 
-    /**
-     * @dev Sets kycRequired on bounty with id _bountyId
-     * @param _data Whether or not supporting documents have been completed
-     */
+    /// @notice Sets supportingDocumentsComplete on bounty with id _bountyId
+    /// @param _bountyId The id to update
+    /// @param _data ABI encoded data (A simple bool for AtomicContract, a (string, bool) of claimId for Ongoing, and a (uint256, bool) for TieredBounty to specify the tier it was completed for)
     function setSupportingDocumentsComplete(
         string calldata _bountyId,
         bytes calldata _data
@@ -226,12 +229,10 @@ contract OpenQV1 is OpenQStorageV1 {
         emit SupportingDocumentsCompletedSet(address(bounty), _data, VERSION_1);
     }
 
-    /**
-     * @dev Sets payout token address and volume on bounty with id _bountyId
-     * @param _bountyId The id to update
-     * @param _payoutToken The token address to be used for the payout
-     * @param _payoutVolume The volume of token to be used for the payout
-     */
+    /// @notice Sets payout token address and volume on bounty with id _bountyId
+    /// @param _bountyId The id to update
+    /// @param _payoutToken The token address to be used for the payout
+    /// @param _payoutVolume The volume of token to be used for the payout
     function setPayout(
         string calldata _bountyId,
         address _payoutToken,
@@ -253,12 +254,10 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * @dev Sets payout volume array on percentage tiered bounty with id _bountyId
-     * @dev There is no tokenAddress needed here - payouts on percentage tiered bounties is a percentage of whatever is deposited on the contract
-     * @param _bountyId The bounty to update
-     * @param _payoutSchedule An array of payout volumes for each tier
-     */
+    /// @notice Sets payout volume array on percentage tiered bounty with id _bountyId
+    /// @dev There is no tokenAddress needed here - payouts on percentage tiered bounties is a percentage of whatever is deposited on the contract
+    /// @param _bountyId The bounty to update
+    /// @param _payoutSchedule An array of payout volumes for each tier
     function setPayoutSchedule(
         string calldata _bountyId,
         uint256[] calldata _payoutSchedule
@@ -279,12 +278,10 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * @dev Sets payout volume array on fixed tiered bounty with id _bountyId
-     * @param _bountyId The bounty to update
-     * @param _payoutSchedule An array of payout volumes for each tier
-     * @param _payoutTokenAddress The address of the token to be used for the payout
-     */
+    /// @notice Sets payout volume array on fixed tiered bounty with id _bountyId
+    /// @param _bountyId The bounty to update
+    /// @param _payoutSchedule An array of payout volumes for each tier
+    /// @param _payoutTokenAddress The address of the token to be used for the payout
     function setPayoutScheduleFixed(
         string calldata _bountyId,
         uint256[] calldata _payoutSchedule,
@@ -306,10 +303,8 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * @dev Closes an ongoing bounty
-     * @param _bountyId The bounty to close
-     */
+    /// @notice Closes and ongoing bounty
+    /// @param _bountyId The ongoing bounty to close
     function closeOngoing(string calldata _bountyId) external {
         require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
         require(
@@ -335,15 +330,9 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /**
-     * UTILITY
-     */
-
-    /**
-     * @dev Checks if bounty associated with _bountyId is open
-     * @param _bountyId The bounty id
-     * @return True if _bountyId is associated with an open bounty, false otherwise
-     */
+    /// @notice Checks if bounty associated with _bountyId is open
+    /// @param _bountyId The bounty id
+    /// @return True if _bountyId is associated with an open bounty, false otherwise
     function bountyIsOpen(string calldata _bountyId)
         public
         view
@@ -354,11 +343,9 @@ contract OpenQV1 is OpenQStorageV1 {
         return isOpen;
     }
 
-    /**
-     * @dev Returns the bountyType of the bounty (Single(0), Ongoing(1), Tiered(2), or Tiered Fixed(3))
-     * @param _bountyId The bounty id
-     * @return bountyType - See OpenQDefinitions.sol for values
-     */
+    /// @notice Returns the bountyType of the bounty (Single(0), Ongoing(1), Tiered(2), or Tiered Fixed(3))
+    /// @param _bountyId The bounty id
+    /// @return bountyType - See OpenQDefinitions.sol for values
     function bountyType(string calldata _bountyId)
         public
         view
@@ -369,11 +356,9 @@ contract OpenQV1 is OpenQStorageV1 {
         return _bountyType;
     }
 
-    /**
-     * @dev Retrieves bountyId from a bounty's address
-     * @param _bountyAddress The bounty address
-     * @return The bounty id associated with _bountyAddress
-     */
+    /// @notice Retrieves bountyId from a bounty's address
+    /// @param _bountyAddress The bounty address
+    /// @return string The bounty id associated with _bountyAddress
     function bountyAddressToBountyId(address _bountyAddress)
         external
         view
@@ -383,12 +368,10 @@ contract OpenQV1 is OpenQStorageV1 {
         return bounty.bountyId();
     }
 
-    /**
-     * @dev Determines whether or not a tier is claimed on a percentage tiered or fixed tiered bounty
-     * @param _bountyId The bounty id
-     * @param _tier The tier to check
-     * @return True if claimed, false otherwise
-     */
+    /// @notice Determines whether or not a tier is claimed on a percentage tiered or fixed tiered bounty
+    /// @param _bountyId The bounty id
+    /// @param _tier The tier to check
+    /// @return True if claimed, false otherwise
     function tierClaimed(string calldata _bountyId, uint256 _tier)
         external
         view
@@ -399,6 +382,9 @@ contract OpenQV1 is OpenQStorageV1 {
         return _tierClaimed;
     }
 
+    /// @notice Determines whether or not an ongoing bounty or tiered bounty have enough funds to cover payouts
+    /// @param _bountyId The bounty id
+    /// @return True if solvent, false otherwise
     function solvent(string calldata _bountyId) external view returns (bool) {
         IBounty bounty = getBounty(_bountyId);
 
@@ -406,16 +392,9 @@ contract OpenQV1 is OpenQStorageV1 {
         return balance >= bounty.payoutVolume();
     }
 
-    function getBountyType(string calldata _bountyId)
-        internal
-        view
-        returns (uint256)
-    {
-        address bountyAddress = bountyIdToAddress[_bountyId];
-        IBounty bounty = IBounty(bountyAddress);
-        return bounty.bountyType();
-    }
-
+    /// @notice Returns an IBounty ABI wrapped arround given bounty address
+    /// @param _bountyId The bounty id
+    /// @return An IBounty upon which any methods in IBounty can be called
     function getBounty(string calldata _bountyId)
         internal
         view
@@ -426,30 +405,11 @@ contract OpenQV1 is OpenQStorageV1 {
         return bounty;
     }
 
-    function setTierWinner(
-        string calldata _bountyId,
-        uint256 _tier,
-        string calldata _winner
-    ) external {
-        IBounty bounty = getBounty(_bountyId);
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-        bounty.setTierWinner(_winner, _tier);
-
-        emit TierWinnerSelected(
-            address(bounty),
-            bounty.getTierWinners(),
-            new bytes(0),
-            VERSION_1
-        );
-    }
-
-    /**
-     * @dev Determines whether or not a given submission by claimant has already been used for a claim
-     * @param _bountyId The bounty id
-     * @param _claimant The external user id to check
-     * @param _claimantAsset The external id of the claimant's asset to check
-     * @return True if claimed, false otherwise
-     */
+    /// @notice Determines whether or not a given submission by claimant has already been used for a claim
+    /// @param _bountyId The bounty id
+    /// @param _claimant The external user id to check
+    /// @param _claimantAsset The external id of the claimant's asset to check
+    /// @return True if claimed, false otherwise
     function ongoingClaimed(
         string calldata _bountyId,
         string calldata _claimant,
@@ -461,37 +421,25 @@ contract OpenQV1 is OpenQStorageV1 {
         return _ongoingClaimed;
     }
 
-    /**
-     * UPGRADES
-     */
-
-    /**
-     * @dev Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
-     */
+    /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    /**
-     * @dev Override for ERC1967Upgrade._getImplementation() to expose implementation
-     * @return address Implementation address associated with OpenQProxy
-     */
+    /// @notice Override for ERC1967Upgrade._getImplementation() to expose implementation
+    /// @return address Implementation address associated with OpenQProxy
     function getImplementation() external view returns (address) {
         return _getImplementation();
     }
 
-    /**
-     * @dev Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
-     * @param _newOracle The new oracle address
-     */
+    /// @notice Exposes internal method Oraclize._transferOracle(address) restricted to onlyOwner called via proxy
+    /// @param _newOracle The new oracle address
     function transferOracle(address _newOracle) external onlyProxy onlyOwner {
         require(_newOracle != address(0), Errors.NO_ZERO_ADDRESS);
         _transferOracle(_newOracle);
     }
 
-    /**
-     * @dev Establishes a mapping between an external user id and an address
-     * @param _externalUserId The external user id (e.g. Github user id) to associate
-     * @param _associatedAddress The address to associate to _externalUserId
-     */
+    /// @notice Establishes a mapping between an external user id and an address
+    /// @param _externalUserId The external user id (e.g. Github user id) to associate
+    /// @param _associatedAddress The address to associate to _externalUserId
     function associateExternalIdToAddress(
         string calldata _externalUserId,
         address _associatedAddress

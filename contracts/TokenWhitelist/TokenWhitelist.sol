@@ -33,12 +33,12 @@ abstract contract TokenWhitelist is Ownable {
 
     /// @notice Removes tokenAddress to the whitelist
     /// @param _tokenAddress The token address to remove from the whitelist
-    function removeToken(address tokenAddress) external onlyOwner {
+    function removeToken(address _tokenAddress) external onlyOwner {
         require(
-            this.isWhitelisted(tokenAddress),
+            this.isWhitelisted(_tokenAddress),
             Errors.TOKEN_NOT_ALREADY_WHITELISTED
         );
-        whitelist[tokenAddress] = false;
+        whitelist[_tokenAddress] = false;
         tokenCount--;
     }
 
@@ -48,6 +48,6 @@ abstract contract TokenWhitelist is Ownable {
         external
         onlyOwner
     {
-        TOKEN_ADDRESS_LIMIT = newTokenAddressLimit;
+        TOKEN_ADDRESS_LIMIT = _newTokenAddressLimit;
     }
 }
