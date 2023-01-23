@@ -21,9 +21,7 @@ abstract contract OnlyOpenQ is ContextUpgradeable {
         return _openQ;
     }
 
-    /**
-     * @dev Modifier to restrict access of methods to OpenQProxy address
-     */
+    /// @notice Modifier to restrict access of methods to OpenQProxy address
     modifier onlyOpenQ() {
         require(_msgSender() == _openQ, 'Method is only callable by OpenQ');
         _;
