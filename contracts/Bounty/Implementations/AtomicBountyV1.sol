@@ -3,11 +3,11 @@ pragma solidity 0.8.17;
 
 import '../Storage/AtomicBountyStorage.sol';
 
-/**
- * @title AtomicBountyV1
- * @notice AtomicBountyV1 is a bounty implementation contract for single contributor, single payout circumstances
- * @dev AtomicBountyV1 -> AtomicBountyStorageV1 -> BountyCore -> BountyStorageCore -> (Third Party Deps + Custom )
- */
+/// @title AtomicBountyV1
+/// @author FlacoJones
+/// @notice Bounty implementation for single contributor, single payout scenarios (e.g. 500 USDC for work completion)
+/// @dev AtomicBountyV1 -> AtomicBountyStorageV1 -> BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
+/// @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation
 contract AtomicBountyV1 is AtomicBountyStorageV1 {
     /**
      * INITIALIZATION

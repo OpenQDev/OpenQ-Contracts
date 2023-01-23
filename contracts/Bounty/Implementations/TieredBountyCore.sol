@@ -3,6 +3,10 @@ pragma solidity 0.8.17;
 
 import '../Storage/TieredBountyStorageCore.sol';
 
+/// @title TieredBountyCore
+/// @author FlacoJones
+/// @notice Shared methods common to all tiered bounty types (tier meaning multiple payout levels, e.g. 1st, 2nd, 3rd)
+/// @dev TieredBountyCore -> TieredBountyStorageCore -> BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
 abstract contract TieredBountyCore is TieredBountyStorageCore {
     /**
      * @dev Sets tierClaimed to true for the given tier

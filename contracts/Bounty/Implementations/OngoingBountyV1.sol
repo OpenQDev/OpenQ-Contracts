@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-/**
- * @dev Custom imports - all transitive imports live in BountyStorage
- */
 import '../Storage/OngoingBountyStorage.sol';
 
-/**
- * @title OngoingBountyV1
- * @dev OngoingBounty Implementation Version 1
- */
+/// @title OngoingBountyV1
+/// @author FlacoJones
+/// @notice Bounty implementation for multiple contributor, multiple + fixed payout scenarios (e.g. 500 USDC for every submission)
+/// @dev OngoingBountyV1 -> OngoingBountyStorageV1 -> BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
+/// @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation
 contract OngoingBountyV1 is OngoingBountyStorageV1 {
     /**
      * INITIALIZATION

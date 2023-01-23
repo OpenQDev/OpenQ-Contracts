@@ -3,10 +3,10 @@ pragma solidity 0.8.17;
 
 import '../Storage/BountyStorageCore.sol';
 
-/**
- * @title BountyCore
- * @dev BountyCore Version 1
- */
+/// @title BountyCore
+/// @author FlacoJones
+/// @notice Shared methods common to all bounty types
+/// @dev BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
 abstract contract BountyCore is BountyStorageCore {
     /**
      * INITIALIZATION

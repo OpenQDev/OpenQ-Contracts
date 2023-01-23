@@ -3,12 +3,10 @@ pragma solidity 0.8.17;
 
 import '../Storage/TieredPercentageBountyStorage.sol';
 
-/**
- * @title TieredPercentageBountyV1
- * @notice TieredPercentageBountyV1 is a bounty implementation contract for single contributor, single payout circumstances
- * @dev TieredPercentageBountyV1 -> TieredPercentageBountyStorageV1 -> TieredBountyCore -> TieredBountyStorageCore -> (BountyCore -> BountyStorageCore) -> (Third Party Deps + Custom )
- * @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation.
- */
+/// @title TieredPercentageBountyV1
+/// @notice TieredPercentageBountyV1 is a bounty implementation contract for single contributor, single payout circumstances
+/// @dev TieredPercentageBountyV1 -> TieredPercentageBountyStorageV1 -> TieredBountyCore -> TieredBountyStorageCore -> (BountyCore -> BountyStorageCore) -> (Third Party Deps + Custom )
+/// @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation
 contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
     /**
      * INITIALIZATION

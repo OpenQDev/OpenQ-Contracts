@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.17;
 
-/**
- * @dev Custom imports - all transitive imports live in BountyStorage
- */
 import '../Storage/TieredFixedBountyStorage.sol';
 
-/**
- * @title BountyV1
- * @dev Bounty Implementation Version 1
- */
+/// @title TieredFixedBountyV1
+/// @author FlacoJones
+/// @notice Bounty implementation for tiered bounties with fixed amount for each tier
+/// @dev TieredFixedBountyV1 -> TieredFixedBountyStorageV1 -> TieredBountyCore -> TieredBountyStorageCore -> BountyCore -> BountyStorageCore -> (Third Party Deps + Custom )
+/// @dev Do not add any new storage variables here. Put them in a TieredPercentageBountyStorageV# and release new implementation
 contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
     /**
      * INITIALIZATION
