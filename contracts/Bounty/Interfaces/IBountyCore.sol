@@ -89,9 +89,9 @@ interface IBountyCore {
     /// @param _kycRequired Whether or not KYC is required to fund and claim the bounty
     function setKycRequired(bool _kycRequired) external;
 
-    /// @notice Whether or not the Bounty is invoiceable
-    /// @param _invoiceable Whether or not the Bounty is invoiceable
-    function setInvoiceable(bool _invoiceable) external;
+    /// @notice Whether or not the Bounty is invoiceRequired
+    /// @param _invoiceRequired Whether or not the Bounty is invoiceRequired
+    function setInvoiceRequired(bool _invoiceRequired) external;
 
     /// @notice Whether or not KYC is required to fund and claim the bounty
     /// @param _supportingDocumentsRequired Whether or not KYC is required to fund and claim the bounty
@@ -179,7 +179,7 @@ interface IBountyCore {
 
     function fundingGoal() external view returns (uint256);
 
-    function invoiceable() external view returns (bool);
+    function invoiceRequired() external view returns (bool);
 
     function kycRequired() external view returns (bool);
 

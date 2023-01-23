@@ -155,22 +155,22 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /// @notice Sets invoiceable on bounty with id _bountyId
+    /// @notice Sets invoiceRequired on bounty with id _bountyId
     /// @param _bountyId The id to update
-    /// @param _invoiceable Whether or not the bounty should be set as invoiceable
-    function setInvoiceable(string calldata _bountyId, bool _invoiceable)
-        external
-        onlyProxy
-    {
+    /// @param _invoiceRequired Whether or not the bounty should be set as invoiceRequired
+    function setInvoiceRequired(
+        string calldata _bountyId,
+        bool _invoiceRequired
+    ) external onlyProxy {
         IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
-        bounty.setInvoiceable(_invoiceable);
+        bounty.setInvoiceRequired(_invoiceRequired);
 
-        emit InvoiceableSet(
+        emit InvoiceRequiredSet(
             address(bounty),
-            _invoiceable,
+            _invoiceRequired,
             new bytes(0),
             VERSION_1
         );

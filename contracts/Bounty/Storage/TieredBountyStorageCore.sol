@@ -9,10 +9,9 @@ import '../Implementations/BountyCore.sol';
 /// @dev Since this contract is deep in the bounty implementations' inheritance chain, no new methods can be added to it (see: https://forum.openzeppelin.com/t/to-inherit-version1-to-version2-or-to-copy-code-inheritance-order-from-version1-to-version2/28069)
 abstract contract TieredBountyStorageCore is BountyCore {
     uint256 public constant VERSION_1 = 1;
-    /**
-     * @dev Integers in payoutSchedule must add up to 100
-     * @dev [0] is 1st place, [1] is 2nd, etc.
-     */
+
+    /// @notice Integers in payoutSchedule must add up to 100
+    /// @dev [0] is 1st place, [1] is 2nd, etc.
     uint256[] public payoutSchedule;
     mapping(address => uint256) public fundingTotals;
     mapping(uint256 => bool) public tierClaimed;

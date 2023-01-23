@@ -63,9 +63,9 @@ interface IOpenQ {
         uint256 version
     );
 
-    event InvoiceableSet(
+    event InvoiceRequiredSet(
         address bountyAddress,
-        bool invoiceable,
+        bool invoiceRequired,
         bytes data,
         uint256 version
     );

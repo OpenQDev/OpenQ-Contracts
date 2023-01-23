@@ -67,7 +67,7 @@ abstract contract BountyStorageCore is
     bool public hasFundingGoal;
     address public fundingToken;
     uint256 public fundingGoal;
-    bool public invoiceable;
+    bool public invoiceRequired;
     bool public kycRequired;
     bool public supportingDocumentsRequired;
     string public issuerExternalUserId;

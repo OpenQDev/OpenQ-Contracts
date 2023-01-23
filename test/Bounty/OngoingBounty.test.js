@@ -108,7 +108,7 @@ describe('OngoingBountyV1.sol', () => {
 			await expect(await ongoingContract.hasFundingGoal()).equals(true);
 			await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
 			await expect(await ongoingContract.fundingGoal()).equals(100);
-			await expect(await ongoingContract.invoiceable()).equals(true);
+			await expect(await ongoingContract.invoiceRequired()).equals(true);
 			await expect(await ongoingContract.kycRequired()).equals(true);
 			await expect(await ongoingContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
 			await expect(await ongoingContract.supportingDocumentsRequired()).equals(true);

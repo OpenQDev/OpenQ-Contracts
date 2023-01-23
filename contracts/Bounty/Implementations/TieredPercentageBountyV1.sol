@@ -51,7 +51,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
             bool _hasFundingGoal,
             address _fundingToken,
             uint256 _fundingGoal,
-            bool _invoiceable,
+            bool _invoiceRequired,
             bool _kycRequired,
             bool _supportingDocumentsRequired,
             string memory _issuerExternalUserId,
@@ -84,7 +84,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
-        invoiceable = _invoiceable;
+        invoiceRequired = _invoiceRequired;
         kycRequired = _kycRequired;
         supportingDocumentsRequired = _supportingDocumentsRequired;
         issuerExternalUserId = _issuerExternalUserId;

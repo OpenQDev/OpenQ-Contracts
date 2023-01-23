@@ -178,7 +178,7 @@ describe('BountyFactory', () => {
 			await expect(await atomicContract.hasFundingGoal()).equals(true);
 			await expect(await atomicContract.fundingToken()).equals(mockLink.address);
 			await expect(await atomicContract.fundingGoal()).equals(100);
-			await expect(await atomicContract.invoiceable()).equals(true);
+			await expect(await atomicContract.invoiceRequired()).equals(true);
 			await expect(await atomicContract.kycRequired()).equals(true);
 			await expect(await atomicContract.issuerExternalUserId()).equals(mockOpenQId);
 			await expect(await atomicContract.supportingDocumentsRequired()).equals(true);
@@ -224,7 +224,7 @@ describe('BountyFactory', () => {
 			await expect(await ongoingContract.hasFundingGoal()).equals(true);
 			await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
 			await expect(await ongoingContract.fundingGoal()).equals(100);
-			await expect(await ongoingContract.invoiceable()).equals(true);
+			await expect(await ongoingContract.invoiceRequired()).equals(true);
 			await expect(await ongoingContract.kycRequired()).equals(true);
 			await expect(await ongoingContract.issuerExternalUserId()).equals(mockOpenQId);
 			await expect(await ongoingContract.supportingDocumentsRequired()).equals(true);
@@ -276,7 +276,7 @@ describe('BountyFactory', () => {
 			await expect(await tieredPercentageContract.fundingGoal()).equals(100);
 			await expect(payoutToString[0]).equals("80");
 			await expect(payoutToString[1]).equals("20");
-			await expect(await tieredPercentageContract.invoiceable()).equals(true);
+			await expect(await tieredPercentageContract.invoiceRequired()).equals(true);
 			await expect(await tieredPercentageContract.kycRequired()).equals(true);
 			await expect(await tieredPercentageContract.issuerExternalUserId()).equals(mockOpenQId);
 			await expect(await tieredPercentageContract.supportingDocumentsRequired()).equals(true);
@@ -330,7 +330,7 @@ describe('BountyFactory', () => {
 			await expect(await tieredFixedContract.fundingGoal()).equals(100);
 			await expect(payoutToString[0]).equals("80");
 			await expect(payoutToString[1]).equals("20");
-			await expect(await tieredFixedContract.invoiceable()).equals(true);
+			await expect(await tieredFixedContract.invoiceRequired()).equals(true);
 			await expect(await tieredFixedContract.kycRequired()).equals(true);
 			await expect(await tieredFixedContract.issuerExternalUserId()).equals(mockOpenQId);
 			await expect(await tieredFixedContract.supportingDocumentsRequired()).equals(true);

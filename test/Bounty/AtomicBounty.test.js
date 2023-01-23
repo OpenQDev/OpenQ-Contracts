@@ -108,7 +108,7 @@ describe('AtomicBountyV1.sol', () => {
 			await expect(await atomicContract.hasFundingGoal()).equals(true);
 			await expect(await atomicContract.fundingToken()).equals(mockLink.address);
 			await expect(await atomicContract.fundingGoal()).equals(100);
-			await expect(await atomicContract.invoiceable()).equals(true);
+			await expect(await atomicContract.invoiceRequired()).equals(true);
 			await expect(await atomicContract.kycRequired()).equals(true);
 			await expect(await atomicContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
 			await expect(await atomicContract.supportingDocumentsRequired()).equals(true);

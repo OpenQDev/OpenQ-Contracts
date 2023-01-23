@@ -478,24 +478,24 @@ describe('BountyCore.sol', () => {
 		})
 	})
 
-	describe('setInvoiceable', () => {
+	describe('setInvoiceRequired', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
 			// ASSERT
-			await expect(atomicContract.connect(notOwner).setInvoiceable(true)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(atomicContract.connect(notOwner).setInvoiceRequired(true)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set invoiceable', async () => {
+		it('should set invoiceRequired', async () => {
 			// ASSUME
-			expect(await atomicContract.invoiceable()).to.equal(true)
+			expect(await atomicContract.invoiceRequired()).to.equal(true)
 			
 			// ACT
-			await atomicContract.setInvoiceable(false);
+			await atomicContract.setInvoiceRequired(false);
 
 			// ASSERT
-			expect(await atomicContract.invoiceable()).to.equal(false)
+			expect(await atomicContract.invoiceRequired()).to.equal(false)
 		})
 	})
 

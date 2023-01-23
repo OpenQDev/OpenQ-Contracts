@@ -130,7 +130,7 @@ describe('TieredFixedBountyV1.sol', () => {
 			await expect(await tieredFixedContract.fundingGoal()).equals(100);
 			await expect(payoutToString[0]).equals("80");
 			await expect(payoutToString[1]).equals("20");
-			await expect(await tieredFixedContract.invoiceable()).equals(true);
+			await expect(await tieredFixedContract.invoiceRequired()).equals(true);
 			await expect(await tieredFixedContract.kycRequired()).equals(true);
 			await expect(await tieredFixedContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
 			await expect(await tieredFixedContract.supportingDocumentsRequired()).equals(true);

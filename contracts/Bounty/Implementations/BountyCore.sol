@@ -154,10 +154,14 @@ abstract contract BountyCore is BountyStorageCore {
         kycRequired = _kycRequired;
     }
 
-    /// @notice Whether or not the Bounty is invoiceable
-    /// @param _invoiceable Whether or not the Bounty is invoiceable
-    function setInvoiceable(bool _invoiceable) external virtual onlyOpenQ {
-        invoiceable = _invoiceable;
+    /// @notice Whether or not the Bounty is invoiceRequired
+    /// @param _invoiceRequired Whether or not the Bounty is invoiceRequired
+    function setInvoiceRequired(bool _invoiceRequired)
+        external
+        virtual
+        onlyOpenQ
+    {
+        invoiceRequired = _invoiceRequired;
     }
 
     /// @notice Whether or not KYC is required to fund and claim the bounty
