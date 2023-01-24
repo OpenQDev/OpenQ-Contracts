@@ -25,7 +25,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
     }
 
     /// @notice Whether or not invoice has been completed
-    /// @param _data ABI encoded data ((uint256), [tier])
+    /// @param _data ABI encoded data
+		/// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         (uint256 _tier, bool _invoiceComplete) = abi.decode(
             _data,
@@ -35,7 +36,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
     }
 
     /// @notice Whether or not supporting documents have been completed
-    /// @param _data ABI encoded data ((uint256), [tier])
+    /// @param _data ABI encoded data
+		/// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
     function setSupportingDocumentsComplete(bytes calldata _data)
         external
         onlyOpenQ

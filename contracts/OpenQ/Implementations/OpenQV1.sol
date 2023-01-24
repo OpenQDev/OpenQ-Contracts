@@ -21,7 +21,7 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @param _bountyId A unique string to identify a bounty
     /// @param _organization The ID of the organization which owns the bounty
     /// @param _initOperation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore initialize.(_operation) for _operation ABI encoding schema
+		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema
 		/// @return bountyAddress The address of the newly minted bounty
     function mintBounty(
         string calldata _bountyId,

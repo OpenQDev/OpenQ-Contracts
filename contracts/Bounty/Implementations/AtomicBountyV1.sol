@@ -23,7 +23,7 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore initialize.(_operation) for _operation ABI encoding schema
+		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -100,6 +100,7 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
     /// @notice Changes bounty status from 0 (OPEN) to 1 (CLOSED)
     /// @param _payoutAddress The closer of the bounty
     /// @param _closerData ABI-encoded data about the claimant and claimant asset (see IBountyAtomic for data spec)
+		/// @dev See IAtomicBounty.close.(_closerData)for _closerData ABI encoding schema
     function close(address _payoutAddress, bytes calldata _closerData)
         external
         onlyClaimManager
@@ -116,14 +117,16 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
     }
 
     /// @notice Whether or not invoice has been completed
-    /// @param _data ABI encoded data ((bool), [true/false])
+    /// @param _data ABI encoded data
+		/// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         bool _invoiceComplete = abi.decode(_data, (bool));
         invoiceComplete = _invoiceComplete;
     }
 
     /// @notice Whether or not supporting documents have been completed
-    /// @param _data ABI encoded data ((bool), [true/false])
+    /// @param _data ABI encoded data
+		/// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
     function setSupportingDocumentsComplete(bytes calldata _data)
         external
         onlyOpenQ

@@ -50,6 +50,7 @@ interface IBountyCore {
     /// @return bytes32 the deposit id
 		/// @dev _data (TIERED): (uint256):(tier)
     /// @dev _data (ATOMIC): empty bytes array
+    /// @dev _data (ONGOING): empty bytes array
     function receiveNft(
         address _sender,
         address _tokenAddress,
@@ -104,14 +105,16 @@ interface IBountyCore {
 
     /// @notice Whether or not invoice has been completed
     /// @param _data ABI encoded data
-		/// @dev _data (TIERED): (uint256):(tier)
-    /// @dev _data (ATOMIC): empty bytes array
+    /// @dev _data (ATOMIC): (bool):(invoiceComplete)
+		/// @dev _data (TIERED): (uint256,bool):(tier,invoiceComplete)
+    /// @dev _data (ONGOING): (bytes32,bool):(claimId, invoiceComplete)
     function setInvoiceComplete(bytes calldata _data) external;
 
     /// @notice Whether or not supporting documents have been completed
     /// @param _data ABI encoded data
-		/// @dev _data (TIERED): (uint256):(tier)
-		/// @dev _data (ATOMIC): empty
+		/// @dev _data (ATOMIC): (bool):(supportingDocumentsComplete)
+		/// @dev _data (TIERED): (uint256,bool):(tier,supportingDocumentsComplete)
+		/// @dev _data (ONGOING): (bytes32,bool):(claimId, supportingDocumentsComplete)
     function setSupportingDocumentsComplete(bytes calldata _data) external;
 
     /// @notice Returns token balance for both ERC20 or protocol token

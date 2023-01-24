@@ -24,6 +24,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @param _bountyAddress The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
+		/// @dev see IBountyCore for _closerData ABI encoding schema
     function claimBounty(
         address _bountyAddress,
         address _closer,
@@ -129,6 +130,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @param bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
+		/// @dev See IAtomicBounty
     function _claimAtomicBounty(
         IBounty bounty,
         address _closer,
@@ -176,6 +178,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @param bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
+		/// @dev see IBountyCore.claimOngoingPayout.(_closerData) for _closerData ABI encoding schema
     function _claimOngoingBounty(
         IBounty bounty,
         address _closer,

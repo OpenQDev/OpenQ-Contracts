@@ -16,6 +16,8 @@ interface IOngoingBounty is IBountyCore {
     /// @notice Transfers a payout amount of an ongoing bounty to claimant for claimant asset
     /// @param _payoutAddress The destination address for the funds
     /// @param _closerData ABI-encoded data of the claimant and claimant asset
+    /// @dev _closerData (address,string,address,string,uint256)
+    /// @dev _closerData (bountyAddress, externalUserId, closer, claimantAsset, tier)
     function claimOngoingPayout(
         address _payoutAddress,
         bytes calldata _closerData
