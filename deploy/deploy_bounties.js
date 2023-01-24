@@ -38,7 +38,7 @@ async function deployBounties() {
 	const abiEncodedParamsContestPercentageNoFundingGoal = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[70, 20, 10], false, ethers.constants.AddressZero, 0, true, true, true, '', '', '']);
 	let contestPercentageNoFundingGoalInitOperation = [2, abiEncodedParamsContestPercentageNoFundingGoal];
 
-	const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], true, process.env.MOCK_LINK_TOKEN_ADDRESS, '100', true, true, true, '', '', '']);
+	const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], process.env.MOCK_LINK_TOKEN_ADDRESS, true, true, true, '', '', '']);
 	let tieredFixedBountyInitOperation = [3, abiEncodedParamsTieredFixedBounty];
 
 	// DEPLOY CONTRACTS
