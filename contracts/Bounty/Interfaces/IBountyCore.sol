@@ -16,8 +16,18 @@ interface IBountyCore {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-    /// @dev _operation (bool,address,uint256,bool,bool,bool,string,string,string)
+    /// @dev ATOMIC
+		/// @dev _operation (bool,address,uint256,bool,bool,bool,string,string,string)
     /// @dev _operation (hasFundingGoal, fundingToken, fundingGoal, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeLogo, alternativeName)
+		/// @dev ONGOING
+		/// @dev _operation (address,uint256,bool,address,uint256,bool,bool,bool,string,string,string)
+    /// @dev _operation (payoutTokenAddress, payoutVolume, hasFundingGoal, fundingToken, fundingGoal, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo)
+		/// @dev TIERED PERCENTAGE
+		/// @dev _operation (uint256[],bool,address,uint256,bool,bool,bool,string,string,string)
+    /// @dev _operation (payoutSchedule, hasFundingGoal, fundingToken, fundingGoal, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo)
+		/// @dev TIERED FIXED
+		/// @dev _operation (uint256[],address,bool,bool,bool,string,string,string)
+    /// @dev _operation (payoutSchedule, payoutTokenAddress, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo)
 		function initialize(
         string memory _bountyId,
         address _issuer,

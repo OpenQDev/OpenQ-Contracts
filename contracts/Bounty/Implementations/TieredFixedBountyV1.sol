@@ -23,7 +23,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore initialize.(_operation) for _operation ABI encoding schema
+		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for TIERED FIXED
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -50,9 +50,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
 
         (
             uint256[] memory _payoutSchedule,
-            bool _hasFundingGoal,
-            address _fundingToken,
-            uint256 _fundingGoal,
+            address _payoutTokenAddress,
             bool _invoiceRequired,
             bool _kycRequired,
             bool _supportingDocumentsRequired,
@@ -63,9 +61,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
                 _operation.data,
                 (
                     uint256[],
-                    bool,
                     address,
-                    uint256,
                     bool,
                     bool,
                     bool,
@@ -76,15 +72,12 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
             );
 
         bountyType = OpenQDefinitions.TIERED_FIXED;
-        hasFundingGoal = _hasFundingGoal;
-        fundingToken = _fundingToken;
-        fundingGoal = _fundingGoal;
+        payoutSchedule = _payoutSchedule;
+				payoutTokenAddress = _payoutTokenAddress;
         invoiceRequired = _invoiceRequired;
         kycRequired = _kycRequired;
         supportingDocumentsRequired = _supportingDocumentsRequired;
         issuerExternalUserId = _issuerExternalUserId;
-        payoutSchedule = _payoutSchedule;
-        payoutTokenAddress = _fundingToken;
 
         // Initialize metadata arrays to same number of tiers
         tierWinners = new string[](_payoutSchedule.length);
