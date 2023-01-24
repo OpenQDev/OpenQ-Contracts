@@ -34,7 +34,6 @@ describe('TieredBountyCore.sol', () => {
 
 	// TEST CONTRACTS
 	let tieredFixedContract;
-	let tieredFixedContract_noFundingGoal;
 
 	// MISC
 	let initializationTimestampTiered;
@@ -68,20 +67,11 @@ describe('TieredBountyCore.sol', () => {
 		tieredFixedContract = await TieredFixedBountyV1.deploy();
 		await tieredFixedContract.deployed();
 
-		// TIERED BOUNTY No FUNDING GOAL
-		tieredFixedContract_noFundingGoal = await TieredFixedBountyV1.deploy();
-		await tieredFixedContract_noFundingGoal.deployed();
-
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
-		const abiEncodedParamsTieredFixedBounty_noFundingGoal = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], false, ethers.constants.AddressZero, '0', true, true, true, Constants.mockOpenQId, "", ""]);
-
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], mockLink.address, true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
-		tieredBountyInitOperation_noFundingGoal = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty_noFundingGoal];
 
 		initializationTimestampTiered = await setNextBlockTimestamp();
 		await tieredFixedContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
-
-		await tieredFixedContract_noFundingGoal.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredBountyInitOperation_noFundingGoal);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredFixedContract.address, 10000000);

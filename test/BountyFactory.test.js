@@ -119,7 +119,7 @@ describe('BountyFactory', () => {
 		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
 		tieredPercentageBountyInitOperation = [Constants.TIERED_PERCENTAGE_CONTRACT, abiEncodedParamsTieredBounty];
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], mockLink.address, true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 	});
 
@@ -325,9 +325,7 @@ describe('BountyFactory', () => {
 			await expect(await tieredFixedContract.depositManager()).equals(depositManager.address);
 			await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestamp);
 			await expect(await tieredFixedContract.bountyType()).equals(Constants.TIERED_FIXED_CONTRACT);
-			await expect(await tieredFixedContract.hasFundingGoal()).equals(true);
-			await expect(await tieredFixedContract.fundingToken()).equals(mockLink.address);
-			await expect(await tieredFixedContract.fundingGoal()).equals(100);
+			await expect(await tieredFixedContract.payoutTokenAddress()).equals(mockLink.address);
 			await expect(payoutToString[0]).equals("80");
 			await expect(payoutToString[1]).equals("20");
 			await expect(await tieredFixedContract.invoiceRequired()).equals(true);

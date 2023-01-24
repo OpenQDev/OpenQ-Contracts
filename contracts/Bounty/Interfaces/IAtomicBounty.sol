@@ -10,7 +10,7 @@ interface IAtomicBounty is IBountyCore {
     /// @notice Changes bounty status from 0 (OPEN) to 1 (CLOSED)
     /// @param _payoutAddress The closer of the bounty
     /// @param _closerData ABI-encoded data about the claimant and claimant asset
-		/// @dev _closerData (address,string,address,string,uint256)
+    /// @dev _closerData (address,string,address,string,uint256)
     /// @dev _closerData (bountyAddress, externalUserId, closer, claimantAsset, tier)
     function close(address _payoutAddress, bytes calldata _closerData) external;
 
@@ -20,4 +20,8 @@ interface IAtomicBounty is IBountyCore {
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
         returns (uint256);
+
+    function getSupportingDocumentsCompleteBool() external view returns (bool);
+
+    function getInvoiceCompleteBool() external view returns (bool);
 }

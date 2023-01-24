@@ -21,8 +21,8 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @param _bountyId A unique string to identify a bounty
     /// @param _organization The ID of the organization which owns the bounty
     /// @param _initOperation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema
-		/// @return bountyAddress The address of the newly minted bounty
+    /// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema
+    /// @return bountyAddress The address of the newly minted bounty
     function mintBounty(
         string calldata _bountyId,
         string calldata _organization,
@@ -214,12 +214,21 @@ contract OpenQV1 is OpenQStorageV1 {
 
         bounty.setInvoiceComplete(_data);
 
-        emit InvoiceCompletedSet(
-            address(bounty),
-            bounty.bountyType(),
-            abi.encode(bounty.getInvoiceComplete()),
-            VERSION_1
-        );
+        if (bounty.bountyType() == OpenQDefinitions.ATOMIC) {
+            emit InvoiceCompletedSet(
+                address(bounty),
+                bounty.bountyType(),
+                abi.encode(bounty.getInvoiceCompleteBool()),
+                VERSION_1
+            );
+        } else {
+            emit InvoiceCompletedSet(
+                address(bounty),
+                bounty.bountyType(),
+                abi.encode(bounty.getInvoiceComplete()),
+                VERSION_1
+            );
+        }
     }
 
     /// @notice Sets supportingDocumentsComplete on bounty with id _bountyId
@@ -235,12 +244,21 @@ contract OpenQV1 is OpenQStorageV1 {
 
         bounty.setSupportingDocumentsComplete(_data);
 
-        emit SupportingDocumentsCompletedSet(
-            address(bounty),
-            bounty.bountyType(),
-            abi.encode(bounty.getSupportingDocumentsComplete()),
-            VERSION_1
-        );
+        if (bounty.bountyType() == OpenQDefinitions.ATOMIC) {
+            emit SupportingDocumentsCompletedSet(
+                address(bounty),
+                bounty.bountyType(),
+                abi.encode(bounty.getSupportingDocumentsCompleteBool()),
+                VERSION_1
+            );
+        } else {
+            emit SupportingDocumentsCompletedSet(
+                address(bounty),
+                bounty.bountyType(),
+                abi.encode(bounty.getSupportingDocumentsComplete()),
+                VERSION_1
+            );
+        }
     }
 
     /// @notice Sets payout token address and volume on bounty with id _bountyId

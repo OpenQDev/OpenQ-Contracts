@@ -9,7 +9,7 @@ const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 const Constants = require('./constants');
 
-describe.only('OpenQ.sol', () => {
+describe('OpenQ.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -175,7 +175,7 @@ describe.only('OpenQ.sol', () => {
 		const tieredAbiEncodedParamsNot100 = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10, 90], true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredBountyInitOperationNot100 = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParamsNot100];
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
+		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], mockLink.address, true, true, true, Constants.mockOpenQId, "", ""]);
 		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -383,9 +383,7 @@ describe.only('OpenQ.sol', () => {
 				await expect(await tieredFixedContract.depositManager()).equals(depositManager.address);
 				await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestamp);
 				await expect(await tieredFixedContract.bountyType()).equals(Constants.TIERED_FIXED_CONTRACT);
-				await expect(await tieredFixedContract.hasFundingGoal()).equals(true);
-				await expect(await tieredFixedContract.fundingToken()).equals(mockLink.address);
-				await expect(await tieredFixedContract.fundingGoal()).equals(100);
+				await expect(await tieredFixedContract.payoutTokenAddress()).equals(mockLink.address);
 				await expect(payoutToString[0]).equals("80");
 				await expect(payoutToString[1]).equals("20");
 				await expect(await tieredFixedContract.invoiceRequired()).equals(true);
@@ -713,101 +711,144 @@ describe.only('OpenQ.sol', () => {
 	});
 
 	describe('setSupportingDocumentsComplete', () => {
-		it('should set setSupportingDocumentsComplete', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			const bounty = await TieredFixedBountyV1.attach(bountyAddress);
+		describe('TIERED', () => {
+			it('should set setSupportingDocumentsComplete', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+				const bounty = await TieredFixedBountyV1.attach(bountyAddress);
+	
+				let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+				let setSupportingDocumentsCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
+	
+				// ASSUME
+				expect(await bounty.supportingDocumentsComplete(0)).to.equal(false);
+				expect(await bounty.supportingDocumentsComplete(1)).to.equal(false);
+	
+				// ACT
+				await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1);
+				await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_2);
+	
+				// ASSERT
+				expect(await bounty.supportingDocumentsComplete(0)).to.equal(true);
+				expect(await bounty.supportingDocumentsComplete(1)).to.equal(true);
+			});
+	
+			it('should emit an setSupportingDocumentsComplete event', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+				const bounty = await TieredFixedBountyV1.attach(bountyAddress);
+	
+				let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+				const supportingDocumentsCompleteArrayData = abiCoder.encode(['bool[]'], [[true, false]]);
+	
+				// ACT/ASSERT
+				await expect(await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1))
+					.to.emit(openQProxy, 'SupportingDocumentsCompletedSet')
+					.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, supportingDocumentsCompleteArrayData, Constants.VERSION_1);
+			});
+	
+			it('should revert if not called by issuer', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
+				const notOwnerContract = openQProxy.connect(oracle);
+				let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+	
+				// ACT/ASSERT
+				await expect(notOwnerContract.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER');
+			});
+		})
 
-			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-			let setSupportingDocumentsCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
+		describe('ATOMIC', () => {
+			it('should emit an SupportingDocumentsCompletedSet event with a boolean of supportingDocumentsComplete', async () => {
+								// ARRANGE
+								await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+								const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+								const bounty = await AtomicBountyV1.attach(bountyAddress);
+					
+								let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['bool'], [true]);
+					
+								const supportingDocumentsCompleteArrayData = abiCoder.encode(['bool'], [true]);
 
-			// ASSUME
-			expect(await bounty.supportingDocumentsComplete(0)).to.equal(false);
-			expect(await bounty.supportingDocumentsComplete(1)).to.equal(false);
-
-			// ACT
-			await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1);
-			await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_2);
-
-			// ASSERT
-			expect(await bounty.supportingDocumentsComplete(0)).to.equal(true);
-			expect(await bounty.supportingDocumentsComplete(1)).to.equal(true);
-		});
-
-		it('should emit an SupportingDocumentsRequiredSet event', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			const bounty = await TieredFixedBountyV1.attach(bountyAddress);
-
-			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-
-			// ACT/ASSERT
-			await expect(await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1))
-				.to.emit(openQProxy, 'SupportingDocumentsCompletedSet')
-				.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, setSupportingDocumentsCompleteData_1, Constants.VERSION_1);
-		});
-
-		it('should revert if not called by issuer', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-			const notOwnerContract = openQProxy.connect(oracle);
-			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-
-			// ACT/ASSERT
-			await expect(notOwnerContract.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER');
-		});
+								// ACT/ASSERT
+								await expect(await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1))
+									.to.emit(openQProxy, 'SupportingDocumentsCompletedSet')
+									.withArgs(bountyAddress, Constants.ATOMIC_CONTRACT, supportingDocumentsCompleteArrayData, Constants.VERSION_1);
+			})
+		})
 	});
 
 	describe('setInvoiceComplete', () => {
 
-		it('should set setInvoiceComplete', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			const bounty = await TieredFixedBountyV1.attach(bountyAddress);
+		describe('TIERED', () => {
+			it('should set setInvoiceComplete', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+				const bounty = await TieredFixedBountyV1.attach(bountyAddress);
+	
+				// ASSUME
+				expect(await bounty.invoiceComplete(0)).to.equal(false);
+				expect(await bounty.invoiceComplete(1)).to.equal(false);
+	
+				let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+				let setInvoiceCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
+	
+				// ACT
+				await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1);
+				await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_2);
+	
+				// ASSERT
+				expect(await bounty.invoiceComplete(0)).to.equal(true);
+				expect(await bounty.invoiceComplete(1)).to.equal(true);
+			});
+	
+			it('should emit an InvoiceCompletedSet event with array of invoiceComplete', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+				const bounty = await TieredFixedBountyV1.attach(bountyAddress);
+	
+				let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+	
+				const invoiceCompleteArrayData = abiCoder.encode(['bool[]'], [[true, false]]);
+	
+				// ACT/ASSERT
+				await expect(await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1))
+					.to.emit(openQProxy, 'InvoiceCompletedSet')
+					.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, invoiceCompleteArrayData, Constants.VERSION_1);
+			});
+	
+			it('should revert if not called by issuer', async () => {
+				// ARRANGE
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
+				const notOwnerContract = openQProxy.connect(oracle);
+	
+				let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
+	
+				// ACT/ASSERT
+				await expect(notOwnerContract.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER');
+			});
+		})
 
-			// ASSUME
-			expect(await bounty.invoiceComplete(0)).to.equal(false);
-			expect(await bounty.invoiceComplete(1)).to.equal(false);
+		describe('ATOMIC', () => {
+			it('should emit an InvoiceCompletedSet event with a boolean of invoiceComplete', async () => {
+								// ARRANGE
+								await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
+								const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+								const bounty = await AtomicBountyV1.attach(bountyAddress);
+					
+								let setInvoiceCompleteData_1 = abiCoder.encode(['bool'], [true]);
+					
+								const invoiceCompleteArrayData = abiCoder.encode(['bool'], [true]);
 
-			let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-			let setInvoiceCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
-
-			// ACT
-			await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1);
-			await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_2);
-
-			// ASSERT
-			expect(await bounty.invoiceComplete(0)).to.equal(true);
-			expect(await bounty.invoiceComplete(1)).to.equal(true);
-		});
-
-		it('should emit an InvoiceCompletedSet event', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			const bounty = await TieredFixedBountyV1.attach(bountyAddress);
-
-			let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-
-			// ACT/ASSERT
-			await expect(await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1))
-				.to.emit(openQProxy, 'InvoiceCompletedSet')
-				.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, setInvoiceCompleteData_1, Constants.VERSION_1);
-		});
-
-		it('should revert if not called by issuer', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-			const notOwnerContract = openQProxy.connect(oracle);
-
-			let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-
-			// ACT/ASSERT
-			await expect(notOwnerContract.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER');
-		});
+								// ACT/ASSERT
+								await expect(await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1))
+									.to.emit(openQProxy, 'InvoiceCompletedSet')
+									.withArgs(bountyAddress, Constants.ATOMIC_CONTRACT, invoiceCompleteArrayData, Constants.VERSION_1);
+			})
+		})
 	});
 
 	describe('setTierWinner', () => {

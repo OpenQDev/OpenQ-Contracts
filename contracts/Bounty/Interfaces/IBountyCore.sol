@@ -17,18 +17,18 @@ interface IBountyCore {
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
     /// @dev ATOMIC
-		/// @dev _operation (bool,address,uint256,bool,bool,bool,string,string,string)
+    /// @dev _operation (bool,address,uint256,bool,bool,bool,string,string,string)
     /// @dev _operation (hasFundingGoal, fundingToken, fundingGoal, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeLogo, alternativeName)
-		/// @dev ONGOING
-		/// @dev _operation (address,uint256,bool,address,uint256,bool,bool,bool,string,string,string)
+    /// @dev ONGOING
+    /// @dev _operation (address,uint256,bool,address,uint256,bool,bool,bool,string,string,string)
     /// @dev _operation (payoutTokenAddress, payoutVolume, hasFundingGoal, fundingToken, fundingGoal, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo)
-		/// @dev TIERED PERCENTAGE
-		/// @dev _operation (uint256[],bool,address,uint256,bool,bool,bool,string,string,string)
+    /// @dev TIERED PERCENTAGE
+    /// @dev _operation (uint256[],bool,address,uint256,bool,bool,bool,string,string,string)
     /// @dev _operation (payoutSchedule, hasFundingGoal, fundingToken, fundingGoal, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo)
-		/// @dev TIERED FIXED
-		/// @dev _operation (uint256[],address,bool,bool,bool,string,string,string)
+    /// @dev TIERED FIXED
+    /// @dev _operation (uint256[],address,bool,bool,bool,string,string,string)
     /// @dev _operation (payoutSchedule, payoutTokenAddress, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo)
-		function initialize(
+    function initialize(
         string memory _bountyId,
         address _issuer,
         string memory _organization,
@@ -58,7 +58,7 @@ interface IBountyCore {
     /// @param _expiration How long before this deposit becomes refundable
     /// @param _data ABI encoded data (unused in this case)
     /// @return bytes32 the deposit id
-		/// @dev _data (TIERED): (uint256):(tier)
+    /// @dev _data (TIERED): (uint256):(tier)
     /// @dev _data (ATOMIC): empty bytes array
     /// @dev _data (ONGOING): empty bytes array
     function receiveNft(
@@ -116,15 +116,15 @@ interface IBountyCore {
     /// @notice Whether or not invoice has been completed
     /// @param _data ABI encoded data
     /// @dev _data (ATOMIC): (bool):(invoiceComplete)
-		/// @dev _data (TIERED): (uint256,bool):(tier,invoiceComplete)
+    /// @dev _data (TIERED): (uint256,bool):(tier,invoiceComplete)
     /// @dev _data (ONGOING): (bytes32,bool):(claimId, invoiceComplete)
     function setInvoiceComplete(bytes calldata _data) external;
 
     /// @notice Whether or not supporting documents have been completed
     /// @param _data ABI encoded data
-		/// @dev _data (ATOMIC): (bool):(supportingDocumentsComplete)
-		/// @dev _data (TIERED): (uint256,bool):(tier,supportingDocumentsComplete)
-		/// @dev _data (ONGOING): (bytes32,bool):(claimId, supportingDocumentsComplete)
+    /// @dev _data (ATOMIC): (bool):(supportingDocumentsComplete)
+    /// @dev _data (TIERED): (uint256,bool):(tier,supportingDocumentsComplete)
+    /// @dev _data (ONGOING): (bytes32,bool):(claimId, supportingDocumentsComplete)
     function setSupportingDocumentsComplete(bytes calldata _data) external;
 
     /// @notice Returns token balance for both ERC20 or protocol token
