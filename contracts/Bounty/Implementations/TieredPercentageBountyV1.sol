@@ -22,6 +22,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
+		/// @dev see IBountyCore initialize.(_operation) for _operation ABI encoding schema
     function initialize(
         string memory _bountyId,
         address _issuer,

@@ -16,7 +16,9 @@ interface IBountyCore {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-    function initialize(
+    /// @dev _operation (bool,address,uint256,bool,bool,bool,string,string,string)
+    /// @dev _operation (hasFundingGoal, fundingToken, fundingGoal, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeLogo, alternativeName)
+		function initialize(
         string memory _bountyId,
         address _issuer,
         string memory _organization,
@@ -46,6 +48,8 @@ interface IBountyCore {
     /// @param _expiration How long before this deposit becomes refundable
     /// @param _data ABI encoded data (unused in this case)
     /// @return bytes32 the deposit id
+		/// @dev _data (TIERED): (uint256):(tier)
+    /// @dev _data (ATOMIC): empty bytes array
     function receiveNft(
         address _sender,
         address _tokenAddress,
@@ -99,11 +103,15 @@ interface IBountyCore {
         external;
 
     /// @notice Whether or not invoice has been completed
-    /// @param _data ABI encoded data ((uint256), [tier])
+    /// @param _data ABI encoded data
+		/// @dev _data (TIERED): (uint256):(tier)
+    /// @dev _data (ATOMIC): empty bytes array
     function setInvoiceComplete(bytes calldata _data) external;
 
     /// @notice Whether or not supporting documents have been completed
     /// @param _data ABI encoded data
+		/// @dev _data (TIERED): (uint256):(tier)
+		/// @dev _data (ATOMIC): empty
     function setSupportingDocumentsComplete(bytes calldata _data) external;
 
     /// @notice Returns token balance for both ERC20 or protocol token
