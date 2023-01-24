@@ -338,6 +338,32 @@ describe('BountyFactory', () => {
 
 			await expect(tieredFixedContract.initialize(mockOpenQId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
+
+		it('should revert for unknown bounty type', async () => {
+						// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
+						let newBountyFactory = await BountyFactory.deploy(
+							owner.address,
+							atomicBountyBeacon.address,
+							ongoingBountyBeacon.address,
+							tieredPercentageBountyBeacon.address,
+							tieredFixedBountyBeacon.address
+							);
+						await newBountyFactory.deployed();
+			
+						const abiCoder = new ethers.utils.AbiCoder;
+						const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], mockLink.address, true, true, true, Constants.mockOpenQId, "", ""]);
+						tieredFixedBountyInitOperation_UnknownBountyType = [42, abiEncodedParamsTieredFixedBounty];
+						let initializationTimestamp = await setNextBlockTimestamp();
+			
+						expect(newBountyFactory.mintBounty(
+							mockId,
+							owner.address,
+							organization,
+							claimManager.address,
+							depositManager.address,
+							tieredFixedBountyInitOperation_UnknownBountyType
+						)).to.be.revertedWith('UNKNOWN_BOUNTY_TYPE')
+		})
 	});
 });
 

@@ -24,7 +24,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @param _bountyAddress The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
-		/// @dev see IBountyCore for _closerData ABI encoding schema
+    /// @dev see IAtomicBounty.close(_closerData) for _closerData ABI encoding schema
     function claimBounty(
         address _bountyAddress,
         address _closer,
@@ -32,6 +32,9 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     ) external onlyOracle onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
+
+        // Decode to ensure data meets closerData schema before emitting any events
+        abi.decode(_closerData, (address, string, address, string, uint256));
 
         if (_bountyType == OpenQDefinitions.ATOMIC) {
             require(
@@ -62,7 +65,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
             _claimTieredFixedBounty(bounty, _closer, _closerData);
         } else {
-            revert();
+            revert(Errors.UNKNOWN_BOUNTY_TYPE);
         }
 
         emit ClaimSuccess(block.timestamp, _bountyType, _closerData, VERSION_1);
@@ -130,7 +133,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @param bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
-		/// @dev See IAtomicBounty
+    /// @dev See IAtomicBounty
     function _claimAtomicBounty(
         IBounty bounty,
         address _closer,
@@ -178,7 +181,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @param bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
-		/// @dev see IBountyCore.claimOngoingPayout.(_closerData) for _closerData ABI encoding schema
+    /// @dev see IBountyCore.claimOngoingPayout.(_closerData) for _closerData ABI encoding schema
     function _claimOngoingBounty(
         IBounty bounty,
         address _closer,

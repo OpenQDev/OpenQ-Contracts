@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol';
 
 import '../OnlyOpenQ/OnlyOpenQ.sol';
 import '../Library/OpenQDefinitions.sol';
+import '../Library/Errors.sol';
 
 /// @title BountyFactory
 /// @author FlacoJones
@@ -63,8 +64,10 @@ contract BountyFactory is OnlyOpenQ {
             beaconProxy = ongoingBountyBeacon;
         } else if (operationType == OpenQDefinitions.TIERED) {
             beaconProxy = tieredPercentageBountyBeacon;
-        } else {
+        } else if (operationType == OpenQDefinitions.TIERED_FIXED) {
             beaconProxy = tieredFixedBountyBeacon;
+        } else {
+            revert(Errors.UNKNOWN_BOUNTY_TYPE);
         }
 
         BeaconProxy bounty = new BeaconProxy(

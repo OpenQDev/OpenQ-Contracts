@@ -258,7 +258,7 @@ describe('ClaimManager.sol', () => {
 				expect(bountyIsClaimable).to.equal(true);
 
 				// ACT
-				await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, []);
+				await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
 
 				// ASSERT
 				bountyIsClaimable = await claimManager.bountyIsClaimable(bountyAddress);
