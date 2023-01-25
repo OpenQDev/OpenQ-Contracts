@@ -11,7 +11,7 @@
 		"console:local": "hardhat console --network localhost",
 		"accounts": "hardhat accounts --network localhost",
 		"test": "hardhat test",
-		"deploy-single:localhost": "hardhat run --network localhost deploy/eventTesters/bountyCreated.js",
+		"deploy-single:localhost": "hardhat run --network localhost deploy/eventTesters/BountyCreated.js",
 		"deploy:localhost": "yarn deploy-contracts:localhost && yarn configure-whitelist:localhost && yarn deploy-bounties:localhost && yarn fund-bounties:localhost",
 		"deploy:docker": "yarn deploy-contracts:docker && yarn configure-whitelist:docker && yarn deploy-bounties:docker && yarn fund-bounties:docker",
 		"deploy:polygon": "yarn deploy-contracts:polygon && yarn configure-whitelist:polygon && yarn verify-contracts:polygon",
