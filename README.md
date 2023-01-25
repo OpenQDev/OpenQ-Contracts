@@ -215,7 +215,7 @@ This one-liner deploys:
 provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', artifact.abi, provider.getSigner());artifactDepositManager = require('./artifacts/contracts/DepositManager/DepositManagerV1.sol/DepositManagerV1.json');depositManager = new ethers.Contract('0x610178dA211FEF7D417bC0e6FeD39F05609AD788', artifactDepositManager.abi, provider.getSigner());artifactClaimManager = require('./artifacts/contracts/ClaimManager/Implementations/ClaimManagerV1.sol/ClaimManagerV1.json');claimManager = new ethers.Contract('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', artifactClaimManager.abi, provider.getSigner());
 ```
 
-#### OpenQ
+#### Deploy OpenQ Contract
 
 ```javascript
 provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');artifact = require('./artifacts/contracts/OpenQ/Implementations/OpenQV1.sol/OpenQV1.json');openQ = new ethers.Contract('0x5FC8d32690cc91D4c39d9d3abcBD16989F875707', artifact.abi, provider.getSigner());
