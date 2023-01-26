@@ -710,7 +710,7 @@ describe('OpenQ.sol', () => {
 		});
 	});
 
-	describe('setSupportingDocumentsComplete', () => {
+	describe.only('setSupportingDocumentsComplete', () => {
 		describe('TIERED', () => {
 			it('should set setSupportingDocumentsComplete', async () => {
 				// ARRANGE

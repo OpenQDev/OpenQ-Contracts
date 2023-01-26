@@ -23,7 +23,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for ONGOING
+    /// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for ONGOING
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -103,7 +103,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
     /// @notice Transfers a payout amount of an ongoing bounty to claimant for claimant asset
     /// @param _payoutAddress The destination address for the funds
     /// @param _closerData ABI-encoded data of the claimant and claimant asset
-		/// @dev see IBountyCore.claimOngoingPayout.(_closerData) for _closerData ABI encoding schema
+    /// @dev see IBountyCore.claimOngoingPayout.(_closerData) for _closerData ABI encoding schema
     function claimOngoingPayout(
         address _payoutAddress,
         bytes calldata _closerData
@@ -136,7 +136,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
 
     /// @notice Whether or not invoice has been completed
     /// @param _data ABI encoded data
-		/// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
+    /// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         (bytes32 _claimId, bool _invoiceComplete) = abi.decode(
             _data,
@@ -147,7 +147,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
 
     /// @notice Whether or not supporting documents have been completed
     /// @param _data ABI encoded data
-		/// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
+    /// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
     function setSupportingDocumentsComplete(bytes calldata _data)
         external
         onlyOpenQ
@@ -199,5 +199,17 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         revert(
             'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'
         );
+    }
+
+    function getSupportingDocumentsComplete()
+        external
+        view
+        returns (bytes memory)
+    {
+        return abi.encode(true);
+    }
+
+    function getInvoiceComplete() external view returns (bytes memory) {
+        return abi.encode(true);
     }
 }

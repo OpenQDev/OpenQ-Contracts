@@ -127,6 +127,13 @@ interface IBountyCore {
     /// @dev _data (ONGOING): (bytes32,bool):(claimId, supportingDocumentsComplete)
     function setSupportingDocumentsComplete(bytes calldata _data) external;
 
+    function getSupportingDocumentsComplete()
+        external
+        view
+        returns (bytes memory);
+
+    function getInvoiceComplete() external view returns (bytes memory);
+
     /// @notice Returns token balance for both ERC20 or protocol token
     /// @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
     function getTokenBalance(address _tokenAddress)

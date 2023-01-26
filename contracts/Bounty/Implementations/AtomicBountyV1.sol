@@ -172,14 +172,18 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
 
     /// @notice Returns whether or not invoice is completed
     /// @return True if completed, false otherwise
-    function getInvoiceCompleteBool() external view returns (bool) {
-        return invoiceComplete;
+    function getInvoiceComplete() external view returns (bytes memory) {
+        return abi.encode(invoiceComplete);
     }
 
     /// @notice Returns whether or not supporting documents have been completed
     /// @return True if completed, false otherwise
-    function getSupportingDocumentsCompleteBool() external view returns (bool) {
-        return supportingDocumentsComplete;
+    function getSupportingDocumentsComplete()
+        external
+        view
+        returns (bytes memory)
+    {
+        return abi.encode(supportingDocumentsComplete);
     }
 
     /// @notice receive() method to accept protocol tokens

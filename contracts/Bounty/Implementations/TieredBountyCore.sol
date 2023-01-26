@@ -26,7 +26,7 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
 
     /// @notice Whether or not invoice has been completed
     /// @param _data ABI encoded data
-		/// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
+    /// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
     function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
         (uint256 _tier, bool _invoiceComplete) = abi.decode(
             _data,
@@ -37,7 +37,7 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
 
     /// @notice Whether or not supporting documents have been completed
     /// @param _data ABI encoded data
-		/// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
+    /// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
     function setSupportingDocumentsComplete(bytes calldata _data)
         external
         onlyOpenQ
@@ -102,8 +102,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
 
     /// @notice Returns array of invoice complete
     /// @return An array of the booleans for each tier, true or false for if invoices have been completed for that tier
-    function getInvoiceComplete() external view returns (bool[] memory) {
-        return invoiceComplete;
+    function getInvoiceComplete() external view returns (bytes memory) {
+        return abi.encode(invoiceComplete);
     }
 
     /// @notice Returns array of supporting documents complete
@@ -111,8 +111,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
     function getSupportingDocumentsComplete()
         external
         view
-        returns (bool[] memory)
+        returns (bytes memory)
     {
-        return supportingDocumentsComplete;
+        return abi.encode(supportingDocumentsComplete);
     }
 }

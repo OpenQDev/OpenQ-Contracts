@@ -20,8 +20,4 @@ interface IAtomicBounty is IBountyCore {
     function claimBalance(address _payoutAddress, address _tokenAddress)
         external
         returns (uint256);
-
-    function getSupportingDocumentsCompleteBool() external view returns (bool);
-
-    function getInvoiceCompleteBool() external view returns (bool);
 }

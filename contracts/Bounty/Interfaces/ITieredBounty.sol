@@ -36,13 +36,6 @@ interface ITieredBounty is IBountyCore {
     // PUBLIC GETTERS
     function tierClaimed(uint256 _tier) external view returns (bool);
 
-    function getInvoiceComplete() external view returns (bool[] memory);
-
-    function getSupportingDocumentsComplete()
-        external
-        view
-        returns (bool[] memory);
-
     function tierWinners(uint256) external view returns (string memory);
 
     function invoiceComplete(uint256) external view returns (bool);

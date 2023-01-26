@@ -113,8 +113,10 @@ interface IOpenQ {
     );
 
     event ExternalUserIdAssociatedWithAddress(
-        string externalUserId,
+        string currentExternalUserId,
         address newAddress,
+        string oldExternalUserId,
+        address oldAddress,
         bytes data,
         uint256 version
     );

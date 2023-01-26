@@ -217,21 +217,12 @@ contract OpenQV1 is OpenQStorageV1 {
 
         bounty.setInvoiceComplete(_data);
 
-        if (bounty.bountyType() == OpenQDefinitions.ATOMIC) {
-            emit InvoiceCompletedSet(
-                address(bounty),
-                bounty.bountyType(),
-                abi.encode(bounty.getInvoiceCompleteBool()),
-                VERSION_1
-            );
-        } else {
-            emit InvoiceCompletedSet(
-                address(bounty),
-                bounty.bountyType(),
-                abi.encode(bounty.getInvoiceComplete()),
-                VERSION_1
-            );
-        }
+        emit InvoiceCompletedSet(
+            address(bounty),
+            bounty.bountyType(),
+            bounty.getInvoiceComplete(),
+            VERSION_1
+        );
     }
 
     /// @notice Sets supportingDocumentsComplete on bounty with id _bountyId
@@ -250,21 +241,12 @@ contract OpenQV1 is OpenQStorageV1 {
 
         bounty.setSupportingDocumentsComplete(_data);
 
-        if (bounty.bountyType() == OpenQDefinitions.ATOMIC) {
-            emit SupportingDocumentsCompletedSet(
-                address(bounty),
-                bounty.bountyType(),
-                abi.encode(bounty.getSupportingDocumentsCompleteBool()),
-                VERSION_1
-            );
-        } else {
-            emit SupportingDocumentsCompletedSet(
-                address(bounty),
-                bounty.bountyType(),
-                abi.encode(bounty.getSupportingDocumentsComplete()),
-                VERSION_1
-            );
-        }
+        emit SupportingDocumentsCompletedSet(
+            address(bounty),
+            bounty.bountyType(),
+            bounty.getSupportingDocumentsComplete(),
+            VERSION_1
+        );
     }
 
     /// @notice Sets payout token address and volume on bounty with id _bountyId
@@ -478,18 +460,19 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @notice Establishes a one-to-one mapping between an external user id and an address
     /// @param _externalUserId The external user id (e.g. Github user id) to associate
     /// @param _associatedAddress The address to associate to _externalUserId
+    /// @dev It is important that this nulls out the previous addres<=>uuid association
     function associateExternalIdToAddress(
         string calldata _externalUserId,
         address _associatedAddress
     ) external onlyOracle {
         // Clear previous addres<=>off-chain identity associations
-        address currentAddress = externalUserIdToAddress[_externalUserId];
         string memory currentExternalUserId = addressToExternalUserId[
             _associatedAddress
         ];
+        address currentAddress = externalUserIdToAddress[_externalUserId];
 
-        addressToExternalUserId[currentAddress] = '';
         externalUserIdToAddress[currentExternalUserId] = address(0);
+        addressToExternalUserId[currentAddress] = '';
 
         externalUserIdToAddress[_externalUserId] = _associatedAddress;
         addressToExternalUserId[_associatedAddress] = _externalUserId;
@@ -497,6 +480,8 @@ contract OpenQV1 is OpenQStorageV1 {
         emit ExternalUserIdAssociatedWithAddress(
             _externalUserId,
             _associatedAddress,
+            currentExternalUserId,
+            currentAddress,
             new bytes(0),
             VERSION_1
         );
