@@ -1040,6 +1040,50 @@ describe('OpenQ.sol', () => {
 			expect(associatedExternalUserId).to.equal(exampleGithubId);
 		});
 
+		it('should remove previous associated address for NEW EXTERNAL ID', async () => {
+			const oldExternalUserId = 'oldExternalUserId';
+			const newExternalUserId = 'newExternalUserId';
+
+			const address = owner.address
+
+			// ASSUME
+			await openQProxy.connect(oracle).associateExternalIdToAddress(oldExternalUserId, address);
+			expect(await openQProxy.externalUserIdToAddress(oldExternalUserId)).to.equal(address);
+			expect(await openQProxy.addressToExternalUserId(address)).to.equal(oldExternalUserId);
+
+			// ACT
+			await openQProxy.connect(oracle).associateExternalIdToAddress(newExternalUserId, address);
+
+			// ASSERT
+			// Cleared old one
+			expect(await openQProxy.externalUserIdToAddress(oldExternalUserId)).to.equal(ethers.constants.AddressZero);
+			
+			expect(await openQProxy.addressToExternalUserId(address)).to.equal(newExternalUserId);
+			expect(await openQProxy.externalUserIdToAddress(newExternalUserId)).to.equal(address);
+		});
+
+		it('should remove previous external user id for NEW ADDRESS', async () => {
+			const oldAddress = owner.address
+			const newAddress = claimant.address
+
+			const externalUserId = 'externalUserId';
+
+			// ASSUME
+			await openQProxy.connect(oracle).associateExternalIdToAddress(externalUserId, oldAddress);
+			expect(await openQProxy.externalUserIdToAddress(externalUserId)).to.equal(oldAddress);
+			expect(await openQProxy.addressToExternalUserId(oldAddress)).to.equal(externalUserId);
+
+			// ACT
+			await openQProxy.connect(oracle).associateExternalIdToAddress(externalUserId, newAddress);
+
+			// ASSERT
+			// Cleared old one
+			expect(await openQProxy.addressToExternalUserId(oldAddress)).to.equal("");
+			
+			expect(await openQProxy.addressToExternalUserId(newAddress)).to.equal(externalUserId);
+			expect(await openQProxy.externalUserIdToAddress(externalUserId)).to.equal(newAddress);
+		});
+
 		it('should emit an event with the correct external user id and assocaited address', async () => {
 			// ARRANGE
 			const exampleGithubId = 'exampleGithubId';

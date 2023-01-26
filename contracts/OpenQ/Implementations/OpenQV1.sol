@@ -475,15 +475,25 @@ contract OpenQV1 is OpenQStorageV1 {
         _transferOracle(_newOracle);
     }
 
-    /// @notice Establishes a mapping between an external user id and an address
+    /// @notice Establishes a one-to-one mapping between an external user id and an address
     /// @param _externalUserId The external user id (e.g. Github user id) to associate
     /// @param _associatedAddress The address to associate to _externalUserId
     function associateExternalIdToAddress(
         string calldata _externalUserId,
         address _associatedAddress
     ) external onlyOracle {
+        // Clear previous addres<=>off-chain identity associations
+        address currentAddress = externalUserIdToAddress[_externalUserId];
+        string memory currentExternalUserId = addressToExternalUserId[
+            _associatedAddress
+        ];
+
+        addressToExternalUserId[currentAddress] = '';
+        externalUserIdToAddress[currentExternalUserId] = address(0);
+
         externalUserIdToAddress[_externalUserId] = _associatedAddress;
         addressToExternalUserId[_associatedAddress] = _externalUserId;
+
         emit ExternalUserIdAssociatedWithAddress(
             _externalUserId,
             _associatedAddress,
