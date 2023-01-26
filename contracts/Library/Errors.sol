@@ -7,6 +7,7 @@ pragma solidity 0.8.17;
 library Errors {
     string constant BOUNTY_ALREADY_EXISTS = 'BOUNTY_ALREADY_EXISTS';
     string constant CALLER_NOT_ISSUER = 'CALLER_NOT_ISSUER';
+    string constant CALLER_NOT_ISSUER_OR_ORACLE = 'CALLER_NOT_ISSUER_OR_ORACLE';
     string constant CONTRACT_NOT_CLOSED = 'CONTRACT_NOT_CLOSED';
     string constant CONTRACT_ALREADY_CLOSED = 'CONTRACT_ALREADY_CLOSED';
     string constant TOKEN_NOT_ACCEPTED = 'TOKEN_NOT_ACCEPTED';

@@ -210,7 +210,10 @@ contract OpenQV1 is OpenQStorageV1 {
     {
         IBounty bounty = getBounty(_bountyId);
 
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+        require(
+            msg.sender == bounty.issuer() || msg.sender == _oracle,
+            Errors.CALLER_NOT_ISSUER_OR_ORACLE
+        );
 
         bounty.setInvoiceComplete(_data);
 
@@ -240,7 +243,10 @@ contract OpenQV1 is OpenQStorageV1 {
     ) external onlyProxy {
         IBounty bounty = getBounty(_bountyId);
 
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+        require(
+            msg.sender == bounty.issuer() || msg.sender == _oracle,
+            Errors.CALLER_NOT_ISSUER_OR_ORACLE
+        );
 
         bounty.setSupportingDocumentsComplete(_data);
 

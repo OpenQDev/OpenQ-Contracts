@@ -749,14 +749,15 @@ describe('OpenQ.sol', () => {
 					.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, supportingDocumentsCompleteArrayData, Constants.VERSION_1);
 			});
 	
-			it('should revert if not called by issuer', async () => {
+			it('should revert if not called by issuer OR oracle', async () => {
 				// ARRANGE
 				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-				const notOwnerContract = openQProxy.connect(oracle);
+				const notOwnerContract = openQProxy.connect(claimant);
 				let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
 	
 				// ACT/ASSERT
-				await expect(notOwnerContract.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER');
+				await expect(notOwnerContract.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER_OR_ORACLE');
+				await expect(openQProxy.connect(oracle).setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsCompleteData_1)).to.not.be.reverted
 			});
 		})
 
@@ -820,15 +821,16 @@ describe('OpenQ.sol', () => {
 					.withArgs(bountyAddress, Constants.TIERED_FIXED_CONTRACT, invoiceCompleteArrayData, Constants.VERSION_1);
 			});
 	
-			it('should revert if not called by issuer', async () => {
+			it('should revert if not called by issuer OR oracle', async () => {
 				// ARRANGE
 				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-				const notOwnerContract = openQProxy.connect(oracle);
-	
+				const notOwnerContract = openQProxy.connect(claimant);
+				
 				let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-	
+				
 				// ACT/ASSERT
-				await expect(notOwnerContract.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER');
+				await expect(notOwnerContract.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1)).to.be.revertedWith('CALLER_NOT_ISSUER_OR_ORACLE');
+				await expect(openQProxy.connect(oracle).setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_1)).to.not.be.reverted
 			});
 		})
 

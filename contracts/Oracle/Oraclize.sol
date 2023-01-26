@@ -8,7 +8,7 @@ import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
 /// @notice Restricts access for method calls to oracle address
 abstract contract Oraclize is ContextUpgradeable {
     /// @notice Oracle address
-    address private _oracle;
+    address internal _oracle;
 
     event OracleTransferred(
         address indexed previousOracle,
