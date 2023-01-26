@@ -80,14 +80,14 @@ interface IOpenQ {
         uint256 version
     );
 
-    event InvoiceCompletedSet(
+    event InvoiceCompleteSet(
         address bountyAddress,
         uint256 bountyType,
         bytes data,
         uint256 version
     );
 
-    event SupportingDocumentsCompletedSet(
+    event SupportingDocumentsCompleteSet(
         address bountyAddress,
         uint256 bountyType,
         bytes data,
