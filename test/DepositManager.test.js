@@ -15,7 +15,8 @@ const {
 	ongoingBountyInitOperationBuilder,
 	tieredBountyInitOperationBuilder,
 	tieredFixedBountyInitOperationBuilder,
-	tieredBountyInitOperation_not100
+	tieredBountyInitOperation_not100,
+	tieredBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
 describe('DepositManager.sol', () => {
@@ -44,6 +45,7 @@ describe('DepositManager.sol', () => {
 	let atomicBountyInitOperation;
 	let ongoingBountyInitOperation;
 	let tieredPercentageBountyInitOperation;
+	let tieredPercentageBountyInitOperation_permissionless;
 	let tieredFixedBountyInitOperation;
 
 	// CLOSER DATA
@@ -181,6 +183,7 @@ describe('DepositManager.sol', () => {
 		ongoingBountyInitOperation = ongoingBountyInitOperationBuilder(mockLink.address)
 		tieredPercentageBountyInitOperation = tieredBountyInitOperationBuilder(mockLink.address)
 		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
+		tieredPercentageBountyInitOperation_permissionless = tieredBountyInitOperationBuilder_permissionless(mockLink.address)
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
@@ -246,7 +249,7 @@ describe('DepositManager.sol', () => {
 
 		it('should revert if tiered bounty is already closed', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredPercentageBountyInitOperation);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredPercentageBountyInitOperation_permissionless);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData);

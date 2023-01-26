@@ -5,8 +5,13 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
-const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
+
+const { 
+	Constants, 
+	ongoingBountyInitOperationBuilder,
+	ongoingBountyInitOperationBuilder_noFundingGoal
+} = require('../constants');
 
 describe('OngoingBountyV1.sol', () => {
 	// CONTRACT FACTORIES
@@ -68,8 +73,8 @@ describe('OngoingBountyV1.sol', () => {
 		// ONGOIN CONTRACT
 		ongoingContract = await OngoingBountyV1.deploy();
 		await ongoingContract.deployed();
-		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
-		ongoingContractInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParamsFundingGoalBounty];
+		
+		ongoingContractInitOperation = ongoingBountyInitOperationBuilder(mockLink.address)
 		initializationTimestamp = await setNextBlockTimestamp();
 		await ongoingContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, ongoingContractInitOperation);
 
@@ -87,8 +92,8 @@ describe('OngoingBountyV1.sol', () => {
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
 		ongoingContract_noFundingGoal = await OngoingBountyV1.deploy();
 		await ongoingContract_noFundingGoal.deployed();
-		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', false, ethers.constants.AddressZero, '0', true, true, true, Constants.mockOpenQId, "", ""]);
-		const ongoingBountyNoFundingGoalInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
+
+		const ongoingBountyNoFundingGoalInitOperation = ongoingBountyInitOperationBuilder_noFundingGoal(mockLink.address)
 		initializationTimestampOngoingNoFundingGoal = await setNextBlockTimestamp();
 		await ongoingContract_noFundingGoal.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, ongoingBountyNoFundingGoalInitOperation);
 	});
@@ -108,10 +113,11 @@ describe('OngoingBountyV1.sol', () => {
 			await expect(await ongoingContract.hasFundingGoal()).equals(true);
 			await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
 			await expect(await ongoingContract.fundingGoal()).equals(100);
-			await expect(await ongoingContract.invoiceRequired()).equals(true);
-			await expect(await ongoingContract.kycRequired()).equals(true);
 			await expect(await ongoingContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
-			await expect(await ongoingContract.supportingDocumentsRequired()).equals(true);
+
+			await expect(await ongoingContract.invoiceRequired()).equals(false);
+			await expect(await ongoingContract.kycRequired()).equals(false);
+			await expect(await ongoingContract.supportingDocumentsRequired()).equals(false);
 		});
 
 		it('should revert if bountyId is empty', async () => {

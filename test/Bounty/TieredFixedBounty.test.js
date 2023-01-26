@@ -5,8 +5,12 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
-const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
+
+const { 
+	Constants,
+	tieredFixedBountyInitOperationBuilder
+} = require('../constants');
 
 describe('TieredFixedBountyV1.sol', () => {
 	// CONTRACT FACTORIES
@@ -66,8 +70,7 @@ describe('TieredFixedBountyV1.sol', () => {
 		tieredFixedContract = await TieredFixedBountyV1.deploy();
 		await tieredFixedContract.deployed();
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], mockLink.address, true, true, true, Constants.mockOpenQId, "", ""]);
-		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
 
 		initializationTimestampTiered = await setNextBlockTimestamp();
 		await tieredFixedContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
@@ -103,7 +106,6 @@ describe('TieredFixedBountyV1.sol', () => {
 		it('should init with tiered correct metadata', async () => {
 			const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
 			const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
-
 
 			await expect(await tieredFixedContract.bountyId()).equals(Constants.bountyId);
 			await expect(await tieredFixedContract.issuer()).equals(owner.address);

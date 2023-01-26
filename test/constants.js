@@ -56,10 +56,28 @@ const ongoingBountyInitOperationBuilder = (tokenAddress) => {
 	return ongoingBountyInitOperationComplete;
 };
 
+const ongoingBountyInitOperationBuilder_noFundingGoal = (tokenAddress) => {
+	const abiEncodedParams = abiCoder.encode(
+		['address','uint256','bool','address','uint256','bool','bool','bool','string','string','string'],
+		[tokenAddress, Constants.volume, false, ethers.constants.AddressZero, 0, false, false, false, Constants.mockOpenQId, Constants.alternativeName, Constants.alternativeLogo]
+	);
+	const ongoingBountyInitOperationComplete = [Constants.ONGOING_CONTRACT, abiEncodedParams];
+	return ongoingBountyInitOperationComplete;
+};
+
 const tieredBountyInitOperationBuilder = (tokenAddress) => {
 	const tieredAbiEncodedParams = abiCoder.encode(
 		['uint256[]','bool','address','uint256','bool','bool','bool','string','string','string'],
 		[[60, 30, 10], true, tokenAddress, Constants.volume, true, true, true, Constants.mockOpenQId, Constants.alternativeName, Constants.alternativeLogo]
+	);
+	const tieredPercentageBountyInitOperationComplete = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
+	return tieredPercentageBountyInitOperationComplete;
+};
+
+const tieredBountyInitOperationBuilder_noFundingGoal = () => {
+	const tieredAbiEncodedParams = abiCoder.encode(
+		['uint256[]','bool','address','uint256','bool','bool','bool','string','string','string'],
+		[[60, 30, 10], false, ethers.constants.AddressZero, 0, true, true, true, Constants.mockOpenQId, Constants.alternativeName, Constants.alternativeLogo]
 	);
 	const tieredPercentageBountyInitOperationComplete = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
 	return tieredPercentageBountyInitOperationComplete;
@@ -149,5 +167,7 @@ module.exports = {
 	setInvoiceCompleteData_atomic,
 	setSupportingDocumentsComplete_atomic,
 	tieredBountyInitOperationBuilder_permissionless,
-	tieredFixedBountyInitOperationBuilder_permissionless
+	tieredFixedBountyInitOperationBuilder_permissionless,
+	ongoingBountyInitOperationBuilder_noFundingGoal,
+	tieredBountyInitOperationBuilder_noFundingGoal
 };

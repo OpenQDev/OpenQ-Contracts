@@ -4,7 +4,7 @@ const { BigNumber } = require('@ethersproject/bignumber');
 const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
-const Constants = require('./constants');
+const { Constants } = require('./constants');
 
 describe('OpenQTokenWhitelist.sol', () => {
 	let owner;

@@ -15,7 +15,8 @@ const {
 	ongoingBountyInitOperationBuilder,
 	tieredBountyInitOperationBuilder,
 	tieredFixedBountyInitOperationBuilder,
-	tieredBountyInitOperation_not100
+	tieredBountyInitOperation_not100,
+	tieredBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
 describe('OpenQ.sol', () => {
@@ -41,6 +42,7 @@ describe('OpenQ.sol', () => {
   let atomicBountyInitOperationPermissioned
   let ongoingBountyInitOperation
   let tieredBountyInitOperation
+  let tieredBountyInitOperation_permissionless
   let tieredBountyInitOperationNot100
   let tieredFixedBountyInitOperation
 
@@ -198,6 +200,7 @@ describe('OpenQ.sol', () => {
     tieredBountyInitOperation = tieredBountyInitOperationBuilder(mockLink.address)
     tieredBountyInitOperationNot100 = tieredBountyInitOperation_not100(mockLink.address)
     tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
+		tieredBountyInitOperation_permissionless = tieredBountyInitOperationBuilder_permissionless(mockLink.address)
 
     abiEncodedSingleCloserData = abiCoder.encode(
       ['address', 'string', 'address', 'string'],
@@ -680,7 +683,7 @@ describe('OpenQ.sol', () => {
       await openQProxy.mintBounty(
         Constants.bountyId,
         Constants.organization,
-        tieredBountyInitOperation
+        tieredBountyInitOperation_permissionless
       )
       const bountyAddress = await openQProxy.bountyIdToAddress(
         Constants.bountyId

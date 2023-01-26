@@ -5,8 +5,20 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
-const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
+
+const { 
+	Constants, 
+	tieredBountyInitOperationBuilder,
+	tieredFixedBountyInitOperationBuilder,
+	tieredBountyInitOperation_not100,
+	setInvoiceCompleteData_tiered,
+	setSupportingDocumentsComplete_tiered,
+	setInvoiceCompleteData_atomic,
+	setSupportingDocumentsComplete_atomic,
+	tieredBountyInitOperationBuilder_permissionless,
+	tieredFixedBountyInitOperationBuilder_permissionless
+} = require('../constants');
 
 describe('TieredBountyCore.sol', () => {
 	// CONTRACT FACTORIES
@@ -67,8 +79,7 @@ describe('TieredBountyCore.sol', () => {
 		tieredFixedContract = await TieredFixedBountyV1.deploy();
 		await tieredFixedContract.deployed();
 
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], mockLink.address, true, true, true, Constants.mockOpenQId, "", ""]);
-		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder_permissionless(mockLink.address)
 
 		initializationTimestampTiered = await setNextBlockTimestamp();
 		await tieredFixedContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation);
@@ -173,23 +184,19 @@ describe('TieredBountyCore.sol', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
-
-			let setInvoiceCompleteData = abiCoder.encode(['uint256', 'bool'], [0, true]);
 			
 			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setInvoiceComplete(setInvoiceCompleteData)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredFixedContract.connect(notOwner).setInvoiceComplete(setInvoiceCompleteData_tiered(0, true))).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set invoiceComplete for given tier', async () => {
-			let setInvoiceCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-			let setInvoiceCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
 			// ASSUME
 			expect(await tieredFixedContract.invoiceComplete(0)).to.equal(false)
 			expect(await tieredFixedContract.invoiceComplete(1)).to.equal(false)
 			
 			// ACT
-			await tieredFixedContract.setInvoiceComplete(setInvoiceCompleteData_1);
-			await tieredFixedContract.setInvoiceComplete(setInvoiceCompleteData_2);
+			await tieredFixedContract.setInvoiceComplete(setInvoiceCompleteData_tiered(0, true));
+			await tieredFixedContract.setInvoiceComplete(setInvoiceCompleteData_tiered(1, true));
 
 			// ASSERT
 			expect(await tieredFixedContract.invoiceComplete(0)).to.equal(true)
@@ -202,23 +209,18 @@ describe('TieredBountyCore.sol', () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
 
-			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-
 			// ASSERT
-			await expect(tieredFixedContract.connect(notOwner).setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_1)).to.be.revertedWith('Method is only callable by OpenQ');
+			await expect(tieredFixedContract.connect(notOwner).setSupportingDocumentsComplete(setSupportingDocumentsComplete_tiered(0, true))).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
 		it('should set supportingDocumentsComplete', async () => {
-			let setSupportingDocumentsCompleteData_1 = abiCoder.encode(['uint256', 'bool'], [0, true]);
-			let setSupportingDocumentsCompleteData_2 = abiCoder.encode(['uint256', 'bool'], [1, true]);
-
 			// ASSUME
 			expect(await tieredFixedContract.supportingDocumentsComplete(0)).to.equal(false)
 			expect(await tieredFixedContract.supportingDocumentsComplete(1)).to.equal(false)
 			
 			// ACT
-			await tieredFixedContract.setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_1);
-			await tieredFixedContract.setSupportingDocumentsComplete(setSupportingDocumentsCompleteData_2);
+			await tieredFixedContract.setSupportingDocumentsComplete(setSupportingDocumentsComplete_tiered(0, true));
+			await tieredFixedContract.setSupportingDocumentsComplete(setSupportingDocumentsComplete_tiered(1, true));
 
 			// ASSERT
 			expect(await tieredFixedContract.supportingDocumentsComplete(0)).to.equal(true)

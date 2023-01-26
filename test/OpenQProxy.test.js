@@ -4,7 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
-const Constants = require('./constants');
+const { Constants } = require('./constants');
 
 describe('OpenQProxy', () => {
 	let openQImplementation;

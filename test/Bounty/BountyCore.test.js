@@ -5,8 +5,14 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
-const Constants = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
+
+const { 
+	Constants, 
+	atomicBountyInitOperation_fundingGoal, 
+	atomicBountyInitOperation_noFundingGoal, 
+	atomicBountyInitOperation_permissioned
+} = require('../constants');
 
 describe('BountyCore.sol', () => {
 	// CONTRACT FACTORIES
@@ -27,10 +33,6 @@ describe('BountyCore.sol', () => {
 
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	
-	const mockId = "mockId";
-	const organization = "mockOrg";
-	const mockOpenQId = "mockOpenQId";
 
 	// INITIALIZATION OPERATIONS
 	let atomicBountyInitOperation;
@@ -71,10 +73,10 @@ describe('BountyCore.sol', () => {
 		// ATOMIC CONTRACT W/ FUNDING GOAL
 		atomicContract = await AtomicBountyV1.deploy();
 		await atomicContract.deployed();
-		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
-		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
+
+		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
 		initializationTimestamp = await setNextBlockTimestamp();
-		await atomicContract.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
+		await atomicContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
 		await mockNft.approve(atomicContract.address, 0);
 		await mockNft.approve(atomicContract.address, 1);
@@ -90,10 +92,10 @@ describe('BountyCore.sol', () => {
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
 		atomicContract_noFundingGoal = await AtomicBountyV1.deploy();
 		await atomicContract_noFundingGoal.deployed();
-		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [false, ethers.constants.AddressZero, 0, true, true, true, mockOpenQId, "", ""]);
-		atomicBountyNoFundingGoalInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
+
+		atomicBountyNoFundingGoalInitOperation = atomicBountyInitOperation_noFundingGoal()
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
-		await atomicContract_noFundingGoal.initialize(mockId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
+		await atomicContract_noFundingGoal.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
 	});
 
 	describe('receiveFunds', () => {
@@ -103,7 +105,7 @@ describe('BountyCore.sol', () => {
 				const [, , , , notDepositManager] = await ethers.getSigners();
 
 				// ASSERT
-				await expect(atomicContract.connect(notDepositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays)).to.be.revertedWith('DepositManagerOwnable: caller is not the current OpenQ Deposit Manager');
+				await expect(atomicContract.connect(notDepositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays)).to.be.revertedWith('DepositManagerOwnable: caller is not the current OpenQ Deposit Manager');
 			});
 
 			it('should revert if no volume is sent', async () => {
@@ -117,7 +119,7 @@ describe('BountyCore.sol', () => {
 			});
 
 			it('should revert if expiration is negative', async () => {
-				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
+				await expect(atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, 0)).to.be.revertedWith('EXPIRATION_NOT_GREATER_THAN_ZERO');
 			});
 
 			it('should revert if bounty is closed', async () => {
@@ -132,32 +134,32 @@ describe('BountyCore.sol', () => {
 		describe('DEPOSIT INITIALIZATION', () => {
 			it(`should initialize token deposit data with correct metadata`, async () => {
 				// ARRANGE
-				const depositId = generateDepositId(mockId, 0);
+				const depositId = generateDepositId(Constants.bountyId, 0);
 				const expectedTimestamp = await setNextBlockTimestamp();
 
 				// ACT
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays);
 
 				// ASSERT
 				expect(await atomicContract.funder(depositId)).to.equal(owner.address);
 				expect(await atomicContract.tokenAddress(depositId)).to.equal(mockLink.address);
-				expect(await atomicContract.volume(depositId)).to.equal(100);
+				expect(await atomicContract.volume(depositId)).to.equal(Constants.volume);
 				expect(await atomicContract.expiration(depositId)).to.equal(Constants.thirtyDays);
 				expect(await atomicContract.isNFT(depositId)).to.equal(false);
 				expect(await atomicContract.depositTime(depositId)).to.equal(expectedTimestamp);
 			});
 
 			it('should create a globally unique deposit id across all bounties', async () => {
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays);
 				const deposits = await atomicContract.getDeposits();
 				const depositId = deposits[0];
 
 				const newBounty = await AtomicBountyV1.deploy();
 				await newBounty.deployed();
-				await newBounty.initialize('other-mock-id', owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
+				await newBounty.initialize('other-mock-id', owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
 				await mockLink.approve(newBounty.address, 20000);
-				await newBounty.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
+				await newBounty.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays);
 				const newDeposits = await newBounty.getDeposits();
 				const newDepositId = newDeposits[0];
 
@@ -168,8 +170,8 @@ describe('BountyCore.sol', () => {
 		describe('TOKEN ADDRESSES', () => {
 			it('should add funding address to token address set', async () => {
 				// ACT
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
-				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 100, Constants.thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays);
+				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays);
 
 				const tokenAddresses = await atomicContract.getTokenAddresses();
 				expect(tokenAddresses.length).to.equal(1);
@@ -191,12 +193,9 @@ describe('BountyCore.sol', () => {
 					expect(initialIssueMockLinkBalance).to.equal('0');
 					expect(initialIssueMockDaiBalance).to.equal('0');
 
-					// ARRANGE
-					const value = 100;
-
 					// ACT
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, value, Constants.thirtyDays);
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, value, Constants.thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, Constants.volume, Constants.thirtyDays);
 
 					// ASSERT
 					const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -224,12 +223,9 @@ describe('BountyCore.sol', () => {
 					expect(initialIssueMockLinkBalance).to.equal('0');
 					expect(initialIssueMockDaiBalance).to.equal('0');
 
-					// ARRANGE
-					const value = 100;
-
 					// ACT
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, value, Constants.thirtyDays);
-					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, value, Constants.thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, Constants.volume, Constants.thirtyDays);
+					await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, Constants.volume, Constants.thirtyDays);
 
 					// ASSERT
 					const funderMockLinkBalance = (await mockDai.balanceOf(owner.address)).toString();
@@ -274,7 +270,7 @@ describe('BountyCore.sol', () => {
 				const volume = 100;
 
 				// ASSUME
-				const linkDepositId = generateDepositId(mockId, 0);
+				const linkDepositId = generateDepositId(Constants.bountyId, 0);
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 10000);
 
 				// ACT
@@ -288,15 +284,15 @@ describe('BountyCore.sol', () => {
 				const volume = 100;
 
 				// ASSUME
-				const linkDepositId = generateDepositId(mockId, 0);
+				const linkDepositId = generateDepositId(Constants.bountyId, 0);
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
 				expect(await atomicContract.refunded(linkDepositId)).to.equal(false);
 
-				const daiDepositId = generateDepositId(mockId, 1);
+				const daiDepositId = generateDepositId(Constants.bountyId, 1);
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, 1);
 				expect(await atomicContract.refunded(daiDepositId)).to.equal(false);
 
-				const protocolDepositId = generateDepositId(mockId, 2);
+				const protocolDepositId = generateDepositId(Constants.bountyId, 2);
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
 				expect(await atomicContract.refunded(protocolDepositId)).to.equal(false);
 
@@ -317,13 +313,13 @@ describe('BountyCore.sol', () => {
 				// ARRANGE
 				const volume = 100;
 
-				const linkDepositId = generateDepositId(mockId, 0);
+				const linkDepositId = generateDepositId(Constants.bountyId, 0);
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
 
-				const daiDepositId = generateDepositId(mockId, 1);
+				const daiDepositId = generateDepositId(Constants.bountyId, 1);
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, mockDai.address, volume, 1);
 
-				const protocolDepositId = generateDepositId(mockId, 2);
+				const protocolDepositId = generateDepositId(Constants.bountyId, 2);
 				await atomicContract.connect(depositManager).receiveFunds(owner.address, ethers.constants.AddressZero, volume, 1, { value: volume });
 
 				// ASSUME
@@ -361,7 +357,7 @@ describe('BountyCore.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 				// ARRANGE
-				const depositId = generateDepositId(mockId, 0);
+				const depositId = generateDepositId(Constants.bountyId, 0);
 				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, []);
 
 				// ASSUME
@@ -382,7 +378,7 @@ describe('BountyCore.sol', () => {
 			const volume = 100;
 
 			// ASSUME
-			const linkDepositId = generateDepositId(mockId, 0);
+			const linkDepositId = generateDepositId(Constants.bountyId, 0);
 			await atomicContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, volume, 1);
 
 			// ACT
@@ -399,7 +395,6 @@ describe('BountyCore.sol', () => {
 			it('should revert if not called by Claim Manager contract', async () => {
 				// ARRANGE
 				const [, , , , , notClaimManager] = await ethers.getSigners();
-				const value = 10000;
 				let issueWithNonOwnerAccount = atomicContract.connect(notClaimManager);
 
 				// ASSERT
@@ -413,7 +408,7 @@ describe('BountyCore.sol', () => {
 				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 
 				// ARRANGE
-				const depositId = generateDepositId(mockId, 0);
+				const depositId = generateDepositId(Constants.bountyId, 0);
 				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, []);
 
 				// ASSUME
@@ -468,13 +463,13 @@ describe('BountyCore.sol', () => {
 
 		it('should set kycRequired', async () => {
 			// ASSUME
-			expect(await atomicContract.supportingDocumentsRequired()).to.equal(true)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(false)
 			
 			// ACT
-			await atomicContract.setSupportingDocumentsRequired(false);
+			await atomicContract.setSupportingDocumentsRequired(true);
 
 			// ASSERT
-			expect(await atomicContract.supportingDocumentsRequired()).to.equal(false)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(true)
 		})
 	})
 
@@ -489,13 +484,13 @@ describe('BountyCore.sol', () => {
 
 		it('should set invoiceRequired', async () => {
 			// ASSUME
-			expect(await atomicContract.invoiceRequired()).to.equal(true)
+			expect(await atomicContract.invoiceRequired()).to.equal(false)
 			
 			// ACT
-			await atomicContract.setInvoiceRequired(false);
+			await atomicContract.setInvoiceRequired(true);
 
 			// ASSERT
-			expect(await atomicContract.invoiceRequired()).to.equal(false)
+			expect(await atomicContract.invoiceRequired()).to.equal(true)
 		})
 	})
 
@@ -510,13 +505,13 @@ describe('BountyCore.sol', () => {
 
 		it('should set supportingDocuments', async () => {
 			// ASSUME
-			expect(await atomicContract.supportingDocumentsRequired()).to.equal(true)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(false)
 			
 			// ACT
-			await atomicContract.setSupportingDocumentsRequired(false);
+			await atomicContract.setSupportingDocumentsRequired(true);
 
 			// ASSERT
-			expect(await atomicContract.supportingDocumentsRequired()).to.equal(false)
+			expect(await atomicContract.supportingDocumentsRequired()).to.equal(true)
 		})
 	})
 
