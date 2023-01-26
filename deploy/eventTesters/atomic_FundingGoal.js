@@ -4,9 +4,8 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env.contracts')
 
 let abiCoder = new ethers.utils.AbiCoder;
 
-console.log(process.env.MOCK_LINK_TOKEN_ADDRESS);
 const initializationSchema = ['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'];
-const initializationData = [true, '0x5FbDB2315678afecb367f032d93F642f64180aa3', 100, true, true, true, 'po', 'po', 'po'];
+const initializationData = [true, '0x5fbdb2315678afecb367f032d93f642f64180aa3', 100, true, true, true, 'po', 'po', 'po'];
 
 ///---------ATOMIC NO FUNDING--------///
 const abiEncodedParamsAtomic = abiCoder.encode(initializationSchema, initializationData);

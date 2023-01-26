@@ -8,6 +8,7 @@ const ongoing_FundingGoal = require('./ongoing_FundingGoal');
 const ongoing_NoFundingGoal = require('./ongoing_NoFundingGoal');
 const tieredPercentage_FundingGoal = require('./tieredPercentage_FundingGoal');
 const tieredPercentage_NoFundingGoal = require('./tieredPercentage_NoFundingGoal');
+const tieredFixed = require('./tieredFixed');
 
 async function deployOpenQ() {
 	const OpenQ = await ethers.getContractFactory('OpenQV1');
@@ -16,7 +17,7 @@ async function deployOpenQ() {
 	const openQ = await OpenQ.attach(process.env.OPENQ_PROXY_ADDRESS);
 
 	const id = (Math.random(1)*100).toString();
-	const txn = await openQ.mintBounty(id, 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', tieredPercentage_NoFundingGoal);
+	const txn = await openQ.mintBounty(id, 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', tieredFixed);
 	const receipt = await txn.wait();
 	const bountyCreatedEvent = receipt.events.find(eventObj => eventObj.event === 'BountyCreated');
 	console.log(bountyCreatedEvent);
