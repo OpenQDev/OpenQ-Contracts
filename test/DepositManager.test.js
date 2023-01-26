@@ -7,7 +7,16 @@ const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
-const Constants = require('./constants');
+const { 
+	Constants, 
+	atomicBountyInitOperation_fundingGoal, 
+	atomicBountyInitOperation_noFundingGoal, 
+	atomicBountyInitOperation_permissioned,
+	ongoingBountyInitOperationBuilder,
+	tieredBountyInitOperationBuilder,
+	tieredFixedBountyInitOperationBuilder,
+	tieredBountyInitOperation_not100
+} = require('./constants');
 
 describe('DepositManager.sol', () => {
 	// MOCK ASSETS
@@ -168,17 +177,10 @@ describe('DepositManager.sol', () => {
 		
 		funderUuidEncoded = abiCoder.encode(["string"], [Constants.funderUuid]);
 
-		const atomicBountyAbiEncodedParams = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
-		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, atomicBountyAbiEncodedParams];
-
-		const abiEncodedParams = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
-		ongoingBountyInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParams];
-
-		const tieredAbiEncodedParams = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[60, 30, 10], true, mockLink.address, 1000, true, true, true, Constants.mockOpenQId, "", ""]);
-		tieredPercentageBountyInitOperation = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
-
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, Constants.mockOpenQId, "", ""]);
-		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
+		ongoingBountyInitOperation = ongoingBountyInitOperationBuilder(mockLink.address)
+		tieredPercentageBountyInitOperation = tieredBountyInitOperationBuilder(mockLink.address)
+		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);

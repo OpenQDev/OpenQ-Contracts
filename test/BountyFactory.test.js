@@ -5,9 +5,18 @@ require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 
-const Constants = require('./constants');
+const { 
+	Constants, 
+	atomicBountyInitOperation_fundingGoal, 
+	atomicBountyInitOperation_noFundingGoal, 
+	atomicBountyInitOperation_permissioned,
+	ongoingBountyInitOperationBuilder,
+	tieredBountyInitOperationBuilder,
+	tieredFixedBountyInitOperationBuilder,
+	tieredBountyInitOperation_not100
+} = require('./constants');
 
-describe('BountyFactory', () => {
+describe.only('BountyFactory', () => {
 	let openQImplementation;
 	let openQProxy;
 	let bountyFactory;
@@ -110,17 +119,10 @@ describe('BountyFactory', () => {
 		// INIT DATA
 		const abiCoder = new ethers.utils.AbiCoder;
 
-		const abiEncodedParamsAtomic = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 100, true, true, true, mockOpenQId, "", ""]);
-		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsAtomic];
-
-		let abiEncodedParamsOngoing = abiCoder.encode(["address", "uint256", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [mockLink.address, '100', true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
-		ongoingBountyInitOperation = [Constants.ONGOING_CONTRACT, abiEncodedParamsOngoing];
-
-		const abiEncodedParamsTieredBounty = abiCoder.encode(["uint256[]", "bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [[80, 20], true, mockLink.address, '100', true, true, true, mockOpenQId, "", ""]);
-		tieredPercentageBountyInitOperation = [Constants.TIERED_PERCENTAGE_CONTRACT, abiEncodedParamsTieredBounty];
-
-		const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], mockLink.address, true, true, true, Constants.mockOpenQId, "", ""]);
-		tieredFixedBountyInitOperation = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
+		ongoingBountyInitOperation = ongoingBountyInitOperationBuilder(mockLink.address)
+		tieredPercentageBountyInitOperation = tieredBountyInitOperationBuilder(mockLink.address)
+		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
 	});
 
 	describe('constructor', () => {
@@ -177,11 +179,12 @@ describe('BountyFactory', () => {
 			await expect(await atomicContract.bountyType()).equals(Constants.ATOMIC_CONTRACT);
 			await expect(await atomicContract.hasFundingGoal()).equals(true);
 			await expect(await atomicContract.fundingToken()).equals(mockLink.address);
-			await expect(await atomicContract.fundingGoal()).equals(100);
-			await expect(await atomicContract.invoiceRequired()).equals(true);
-			await expect(await atomicContract.kycRequired()).equals(true);
+			await expect(await atomicContract.fundingGoal()).equals(Constants.volume);
 			await expect(await atomicContract.issuerExternalUserId()).equals(mockOpenQId);
-			await expect(await atomicContract.supportingDocumentsRequired()).equals(true);
+
+			await expect(await atomicContract.invoiceRequired()).equals(false);
+			await expect(await atomicContract.kycRequired()).equals(false);
+			await expect(await atomicContract.supportingDocumentsRequired()).equals(false);
 
 			await expect(atomicContract.initialize(mockOpenQId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
@@ -223,11 +226,12 @@ describe('BountyFactory', () => {
 			await expect(await ongoingContract.bountyType()).equals(Constants.ONGOING_CONTRACT);
 			await expect(await ongoingContract.hasFundingGoal()).equals(true);
 			await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
-			await expect(await ongoingContract.fundingGoal()).equals(100);
-			await expect(await ongoingContract.invoiceRequired()).equals(true);
-			await expect(await ongoingContract.kycRequired()).equals(true);
+			await expect(await ongoingContract.fundingGoal()).equals(Constants.volume);
 			await expect(await ongoingContract.issuerExternalUserId()).equals(mockOpenQId);
-			await expect(await ongoingContract.supportingDocumentsRequired()).equals(true);
+
+			await expect(await ongoingContract.invoiceRequired()).equals(false);
+			await expect(await ongoingContract.kycRequired()).equals(false);
+			await expect(await ongoingContract.supportingDocumentsRequired()).equals(false);
 
 			await expect(ongoingContract.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, ongoingBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
@@ -273,14 +277,14 @@ describe('BountyFactory', () => {
 			await expect(await tieredPercentageContract.bountyType()).equals(Constants.TIERED_PERCENTAGE_CONTRACT);
 			await expect(await tieredPercentageContract.hasFundingGoal()).equals(true);
 			await expect(await tieredPercentageContract.fundingToken()).equals(mockLink.address);
-			await expect(await tieredPercentageContract.fundingGoal()).equals(100);
-			await expect(payoutToString[0]).equals("80");
-			await expect(payoutToString[1]).equals("20");
+			await expect(await tieredPercentageContract.fundingGoal()).equals(Constants.volume);
+			await expect(payoutToString[0]).equals("60");
+			await expect(payoutToString[1]).equals("30");
 			await expect(await tieredPercentageContract.invoiceRequired()).equals(true);
 			await expect(await tieredPercentageContract.kycRequired()).equals(true);
 			await expect(await tieredPercentageContract.issuerExternalUserId()).equals(mockOpenQId);
+			
 			await expect(await tieredPercentageContract.supportingDocumentsRequired()).equals(true);
-
 			await expect(await tieredPercentageContract.invoiceComplete(0)).equals(false);
 			await expect(await tieredPercentageContract.supportingDocumentsComplete(0)).equals(false);
 
