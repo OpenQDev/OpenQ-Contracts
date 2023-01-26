@@ -27,6 +27,8 @@ interface IOngoingBounty is IBountyCore {
     /// @param _closer Address of the closer
     function closeOngoing(address _closer) external;
 
+    function getClaimIds() external returns (bytes32[] memory);
+
     // PUBLIC GETTERS
     function payoutTokenAddress() external view returns (address);
 

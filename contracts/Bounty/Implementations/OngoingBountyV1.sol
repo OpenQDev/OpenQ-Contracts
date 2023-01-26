@@ -214,6 +214,10 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         return abi.encode(true);
     }
 
+    function getClaimIds() public returns (bytes32[] memory) {
+        return claimIds;
+    }
+
     /// @notice Generates a unique claimant ID from user and asset
     function _generateClaimId(
         string memory claimant,
