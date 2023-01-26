@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import '../Storage/ClaimManagerStorage.sol';
 import '../../Bounty/Interfaces/IAtomicBounty.sol';
 import '../../Bounty/Interfaces/ITieredBounty.sol';
+import '../../Bounty/Interfaces/IOngoingBounty.sol';
 
 /// @title ClaimManagerV1
 /// @author FlacoJones
@@ -122,75 +123,50 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         );
     }
 
-    function _eligibleToClaimAtomicBounty(IAtomicBounty bounty) internal {
-        if (bounty.invoiceRequired()) {
-            bool _invoiceComplete = abi.decode(
-                bounty.getInvoiceComplete(),
-                (bool)
-            );
-            require(_invoiceComplete, Errors.INVOICE_NOT_COMPLETE);
-        }
-
-        if (bounty.kycRequired()) {
-            require(hasKYC(msg.sender), Errors.ADDRESS_LACKS_KYC);
-        }
-
-        if (bounty.supportingDocumentsRequired()) {
-            bool _supportingDocumentsComplete = abi.decode(
-                bounty.getSupportingDocumentsComplete(),
-                (bool)
-            );
-            require(
-                _supportingDocumentsComplete,
-                Errors.SUPPORTING_DOCS_NOT_COMPLETE
-            );
-        }
-    }
-
     /// @notice Claim method for AtomicBounty
-    /// @param bounty The payout address of the bounty
+    /// @param _bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
     /// @dev See IAtomicBounty
     function _claimAtomicBounty(
-        IAtomicBounty bounty,
+        IAtomicBounty _bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
-        _eligibleToClaimAtomicBounty(bounty);
+        _eligibleToClaimAtomicBounty(_bounty, _closer);
 
-        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-            uint256 volume = bounty.claimBalance(
+        for (uint256 i = 0; i < _bounty.getTokenAddresses().length; i++) {
+            uint256 volume = _bounty.claimBalance(
                 _closer,
-                bounty.getTokenAddresses()[i]
+                _bounty.getTokenAddresses()[i]
             );
 
             emit TokenBalanceClaimed(
-                bounty.bountyId(),
-                address(bounty),
-                bounty.organization(),
+                _bounty.bountyId(),
+                address(_bounty),
+                _bounty.organization(),
                 _closer,
                 block.timestamp,
-                bounty.getTokenAddresses()[i],
+                _bounty.getTokenAddresses()[i],
                 volume,
-                bounty.bountyType(),
+                _bounty.bountyType(),
                 _closerData,
                 VERSION_1
             );
         }
 
-        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
-            bounty.claimNft(_closer, bounty.nftDeposits(i));
+        for (uint256 i = 0; i < _bounty.getNftDeposits().length; i++) {
+            _bounty.claimNft(_closer, _bounty.nftDeposits(i));
 
             emit NFTClaimed(
-                bounty.bountyId(),
-                address(bounty),
-                bounty.organization(),
+                _bounty.bountyId(),
+                address(_bounty),
+                _bounty.organization(),
                 _closer,
                 block.timestamp,
-                bounty.tokenAddress(bounty.nftDeposits(i)),
-                bounty.tokenId(bounty.nftDeposits(i)),
-                bounty.bountyType(),
+                _bounty.tokenAddress(_bounty.nftDeposits(i)),
+                _bounty.tokenId(_bounty.nftDeposits(i)),
+                _bounty.bountyType(),
                 _closerData,
                 VERSION_1
             );
@@ -198,54 +174,32 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     }
 
     /// @notice Claim method for OngoingBounty
-    /// @param bounty The payout address of the bounty
+    /// @param _bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
     /// @dev see IBountyCore.claimOngoingPayout.(_closerData) for _closerData ABI encoding schema
     function _claimOngoingBounty(
-        IBounty bounty,
+        IOngoingBounty _bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
-        (address tokenAddress, uint256 volume) = bounty.claimOngoingPayout(
+        (address tokenAddress, uint256 volume) = _bounty.claimOngoingPayout(
             _closer,
             _closerData
         );
 
         emit TokenBalanceClaimed(
-            bounty.bountyId(),
-            address(bounty),
-            bounty.organization(),
+            _bounty.bountyId(),
+            address(_bounty),
+            _bounty.organization(),
             _closer,
             block.timestamp,
             tokenAddress,
             volume,
-            bounty.bountyType(),
+            _bounty.bountyType(),
             _closerData,
             VERSION_1
         );
-    }
-
-    function _eligibleToClaimTier(ITieredBounty _bounty, uint256 _tier)
-        internal
-    {
-        if (_bounty.invoiceRequired()) {
-            require(
-                _bounty.invoiceComplete(_tier),
-                Errors.INVOICE_NOT_COMPLETE
-            );
-        }
-
-        if (_bounty.supportingDocumentsRequired()) {
-            require(
-                _bounty.supportingDocumentsComplete(_tier),
-                Errors.SUPPORTING_DOCS_NOT_COMPLETE
-            );
-        }
-
-        if (_bounty.kycRequired()) {
-            require(hasKYC(msg.sender), Errors.ADDRESS_LACKS_KYC);
-        }
     }
 
     /// @notice Claim method for TieredPercentageBounty
@@ -262,9 +216,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             (address, string, address, string, uint256)
         );
 
-        _eligibleToClaimTier(_bounty, _tier);
-
-        require(!_bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
+        _eligibleToClaimTier(_bounty, _tier, _closer);
 
         if (_bounty.status() == 0) {
             _bounty.closeCompetition();
@@ -339,9 +291,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             (address, string, address, string, uint256)
         );
 
-        _eligibleToClaimTier(_bounty, _tier);
-
-        require(!_bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
+        _eligibleToClaimTier(_bounty, _tier, _closer);
 
         if (_bounty.status() == 0) {
             _bounty.closeCompetition();
@@ -445,5 +395,59 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @return True if address is KYC with KYC DAO, false otherwise
     function hasKYC(address _address) public view returns (bool) {
         return kyc.hasValidToken(_address);
+    }
+
+    function _eligibleToClaimTier(
+        ITieredBounty _bounty,
+        uint256 _tier,
+        address _closer
+    ) internal view {
+        require(!_bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
+
+        if (_bounty.invoiceRequired()) {
+            require(
+                _bounty.invoiceComplete(_tier),
+                Errors.INVOICE_NOT_COMPLETE
+            );
+        }
+
+        if (_bounty.supportingDocumentsRequired()) {
+            require(
+                _bounty.supportingDocumentsComplete(_tier),
+                Errors.SUPPORTING_DOCS_NOT_COMPLETE
+            );
+        }
+
+        if (_bounty.kycRequired()) {
+            require(hasKYC(_closer), Errors.ADDRESS_LACKS_KYC);
+        }
+    }
+
+    function _eligibleToClaimAtomicBounty(IAtomicBounty bounty, address _closer)
+        internal
+        view
+    {
+        if (bounty.invoiceRequired()) {
+            bool _invoiceComplete = abi.decode(
+                bounty.getInvoiceComplete(),
+                (bool)
+            );
+            require(_invoiceComplete, Errors.INVOICE_NOT_COMPLETE);
+        }
+
+        if (bounty.supportingDocumentsRequired()) {
+            bool _supportingDocumentsComplete = abi.decode(
+                bounty.getSupportingDocumentsComplete(),
+                (bool)
+            );
+            require(
+                _supportingDocumentsComplete,
+                Errors.SUPPORTING_DOCS_NOT_COMPLETE
+            );
+        }
+
+        if (bounty.kycRequired()) {
+            require(hasKYC(_closer), Errors.ADDRESS_LACKS_KYC);
+        }
     }
 }
