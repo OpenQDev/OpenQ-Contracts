@@ -5,10 +5,10 @@ const { ethers } = require("hardhat");
 const truffleAssert = require('truffle-assertions');
 require('@nomiclabs/hardhat-waffle');
 
-const Constants = require('../constants');
+const { Constants, atomicBountyInitOperation_fundingGoal, atomicBountyInitOperation_noFundingGoal, atomicBountyInitOperation_permissioned } = require('../constants');
 const { generateDepositId, generateClaimantId } = require('../utils');
 
-describe('AtomicBountyV1.sol', () => {
+describe.only('AtomicBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let AtomicBountyV1;
 
@@ -68,8 +68,8 @@ describe('AtomicBountyV1.sol', () => {
 		// ATOMIC CONTRACT W/ FUNDING GOAL
 		atomicContract = await AtomicBountyV1.deploy();
 		await atomicContract.deployed();
-		let abiEncodedParamsFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [true, mockLink.address, 100, true, true, true, Constants.mockOpenQId, "", ""]);
-		atomicBountyInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsFundingGoalBounty];
+
+		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
 		initializationTimestamp = await setNextBlockTimestamp();
 		await atomicContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
@@ -87,9 +87,10 @@ describe('AtomicBountyV1.sol', () => {
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
 		atomicContract_noFundingGoal = await AtomicBountyV1.deploy();
 		await atomicContract_noFundingGoal.deployed();
-		let abiEncodedParamsNoFundingGoalBounty = abiCoder.encode(["bool", "address", "uint256", "bool", "bool", "bool", "string", "string", "string"], [false, ethers.constants.AddressZero, 0, true, true, true, Constants.mockOpenQId, "", ""]);
-		atomicBountyNoFundingGoalInitOperation = [Constants.ATOMIC_CONTRACT, abiEncodedParamsNoFundingGoalBounty];
+
+		atomicBountyNoFundingGoalInitOperation = atomicBountyInitOperation_noFundingGoal();
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
+
 		await atomicContract_noFundingGoal.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyNoFundingGoalInitOperation);
 	});
 
@@ -108,10 +109,11 @@ describe('AtomicBountyV1.sol', () => {
 			await expect(await atomicContract.hasFundingGoal()).equals(true);
 			await expect(await atomicContract.fundingToken()).equals(mockLink.address);
 			await expect(await atomicContract.fundingGoal()).equals(100);
-			await expect(await atomicContract.invoiceRequired()).equals(true);
-			await expect(await atomicContract.kycRequired()).equals(true);
 			await expect(await atomicContract.issuerExternalUserId()).equals(Constants.mockOpenQId);
-			await expect(await atomicContract.supportingDocumentsRequired()).equals(true);
+
+			await expect(await atomicContract.invoiceRequired()).equals(false);
+			await expect(await atomicContract.kycRequired()).equals(false);
+			await expect(await atomicContract.supportingDocumentsRequired()).equals(false);
 		});
 
 		it('should revert if bountyId is empty', async () => {

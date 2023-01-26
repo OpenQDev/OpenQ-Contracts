@@ -9,7 +9,7 @@ const { generateDepositId, generateClaimantId } = require('./utils');
 const { messagePrefix } = require('@ethersproject/hash');
 const Constants = require('./constants');
 
-describe.only('ClaimManager.sol', () => {
+describe('ClaimManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -866,7 +866,7 @@ describe.only('ClaimManager.sol', () => {
 	});
 
 	describe('tierClaimed', () => {
-		it.only('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
+		it('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredPercentageBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
