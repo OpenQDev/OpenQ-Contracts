@@ -113,9 +113,10 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
             (address, string, address, string)
         );
 
-        bytes32 _claimantId = _generateClaimantId(claimant, claimantAsset);
+        bytes32 _claimId = _generateClaimId(claimant, claimantAsset);
 
-        claimantId[_claimantId] = true;
+        claimId[_claimId] = true;
+        claimIds.push(_claimId);
 
         _transferToken(payoutTokenAddress, payoutVolume, _payoutAddress);
         return (payoutTokenAddress, payoutVolume);
@@ -211,5 +212,13 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
 
     function getInvoiceComplete() external view returns (bytes memory) {
         return abi.encode(true);
+    }
+
+    /// @notice Generates a unique claimant ID from user and asset
+    function _generateClaimId(
+        string memory claimant,
+        string memory claimantAsset
+    ) internal pure virtual returns (bytes32) {
+        return keccak256(abi.encode(claimant, claimantAsset));
     }
 }

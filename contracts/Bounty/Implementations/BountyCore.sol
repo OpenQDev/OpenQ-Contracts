@@ -268,14 +268,6 @@ abstract contract BountyCore is BountyStorageCore {
         return keccak256(abi.encode(bountyId, deposits.length));
     }
 
-    /// @notice Generates a unique claimant ID from user and asset
-    function _generateClaimantId(
-        string memory claimant,
-        string memory claimantAsset
-    ) internal pure virtual returns (bytes32) {
-        return keccak256(abi.encode(claimant, claimantAsset));
-    }
-
     /// TRANSFER HELPERS
 
     /// @notice Returns token balance for both ERC20 or protocol token

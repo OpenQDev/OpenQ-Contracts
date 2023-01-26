@@ -436,8 +436,8 @@ contract OpenQV1 is OpenQStorageV1 {
         string calldata _claimantAsset
     ) external view returns (bool) {
         IBounty bounty = getBounty(_bountyId);
-        bytes32 claimantId = keccak256(abi.encode(_claimant, _claimantAsset));
-        bool _ongoingClaimed = bounty.claimantId(claimantId);
+        bytes32 claimId = keccak256(abi.encode(_claimant, _claimantAsset));
+        bool _ongoingClaimed = bounty.claimId(claimId);
         return _ongoingClaimed;
     }
 

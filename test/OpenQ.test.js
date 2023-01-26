@@ -969,13 +969,13 @@ describe('OpenQ.sol', () => {
         Constants.funderUuid
       )
 
-      let claimantId = generateClaimantId(
+      let claimId = generateClaimantId(
         'FlacoJones',
         'https://github.com/OpenQDev/OpenQ-Frontend/pull/398'
       )
 
       // ASSUME
-      let ongoingClaimed = await bounty.claimantId(claimantId)
+      let ongoingClaimed = await bounty.claimId(claimId)
       expect(ongoingClaimed).to.equal(false)
 
       // ACT
@@ -985,7 +985,7 @@ describe('OpenQ.sol', () => {
         .claimBounty(bountyAddress, owner.address, abiEncodedOngoingCloserData)
 
       // // ASSERT
-      ongoingClaimed = await bounty.claimantId(claimantId)
+      ongoingClaimed = await bounty.claimId(claimId)
       expect(ongoingClaimed).to.equal(true)
     })
   })
@@ -1375,7 +1375,7 @@ describe('OpenQ.sol', () => {
       })
     })
 
-    describe('ATOMIC', () => {
+    describe.only('ATOMIC', () => {
       it('should emit an SupportingDocumentsCompleteSet event with a boolean of supportingDocumentsComplete', async () => {
         // ARRANGE
         await openQProxy.mintBounty(
@@ -1414,6 +1414,46 @@ describe('OpenQ.sol', () => {
           )
       })
     })
+
+		describe('ONGOING', () => {
+			it('should emit an SupportingDocumentsCompleteSet event with a boolean of supportingDocumentsComplete', async () => {
+        // ARRANGE
+        await openQProxy.mintBounty(
+          Constants.bountyId,
+          Constants.organization,
+          atomicBountyInitOperation
+        )
+        const bountyAddress = await openQProxy.bountyIdToAddress(
+          Constants.bountyId
+        )
+        const bounty = await AtomicBountyV1.attach(bountyAddress)
+
+        let setSupportingDocumentsCompleteData_1 = abiCoder.encode(
+          ['bool'],
+          [true]
+        )
+
+        const supportingDocumentsCompleteArrayData = abiCoder.encode(
+          ['bool'],
+          [true]
+        )
+
+        // ACT/ASSERT
+        await expect(
+          await openQProxy.setSupportingDocumentsComplete(
+            Constants.bountyId,
+            setSupportingDocumentsCompleteData_1
+          )
+        )
+          .to.emit(openQProxy, 'SupportingDocumentsCompleteSet')
+          .withArgs(
+            bountyAddress,
+            Constants.ATOMIC_CONTRACT,
+            supportingDocumentsCompleteArrayData,
+            Constants.VERSION_1
+          )
+      })
+		})
   })
 
   describe('setInvoiceComplete', () => {

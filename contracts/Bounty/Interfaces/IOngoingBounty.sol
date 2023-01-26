@@ -32,5 +32,5 @@ interface IOngoingBounty is IBountyCore {
 
     function payoutVolume() external view returns (uint256);
 
-    function claimantId(bytes32) external view returns (bool);
+    function claimId(bytes32) external view returns (bool);
 }

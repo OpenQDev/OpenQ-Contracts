@@ -906,10 +906,10 @@ describe('ClaimManager.sol', () => {
 			await mockLink.approve(bountyAddress, 10000000);
 			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, mockFunderUuid);
 
-			let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
+			let claimId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
 
 			// ASSUME
-			let ongoingClaimed = await bounty.claimantId(claimantId);
+			let ongoingClaimed = await bounty.claimId(claimId);
 			expect(ongoingClaimed).to.equal(false);
 
 			// ACT
@@ -917,7 +917,7 @@ describe('ClaimManager.sol', () => {
 			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedOngoingCloserData);
 
 			// // ASSERT
-			ongoingClaimed = await bounty.claimantId(claimantId);
+			ongoingClaimed = await bounty.claimId(claimId);
 			expect(ongoingClaimed).to.equal(true);
 		});
 	});

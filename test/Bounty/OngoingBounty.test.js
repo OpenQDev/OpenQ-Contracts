@@ -234,21 +234,21 @@ describe('OngoingBountyV1.sol', () => {
 			expect(newBountyMockLinkBalance2).to.equal('100');
 		});
 
-		it('should set claimantId to true for the claimant and claimant asset', async () => {
+		it('should set claimId to true for the claimant and claimant asset', async () => {
 			// ARRANGE
-			let claimantId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
+			let claimId = generateClaimantId('FlacoJones', "https://github.com/OpenQDev/OpenQ-Frontend/pull/398");
 			await ongoingContract.connect(depositManager).receiveFunds(owner.address, mockLink.address, 10000000, Constants.thirtyDays);
 
 
 			// ASSUME
-			let claimantIdClaimed = await ongoingContract.claimantId(claimantId);
+			let claimantIdClaimed = await ongoingContract.claimId(claimId);
 			expect(claimantIdClaimed).to.equal(false);
 
 			// ACT
 			await ongoingContract.connect(claimManager).claimOngoingPayout(owner.address, closerData);
 
 			// ASSERT
-			claimantIdClaimed = await ongoingContract.claimantId(claimantId);
+			claimantIdClaimed = await ongoingContract.claimId(claimId);
 			expect(claimantIdClaimed).to.equal(true);
 		});
 
@@ -330,7 +330,7 @@ describe('OngoingBountyV1.sol', () => {
 			await expect(ongoingContract.connect(notOwner).setInvoiceComplete(setInvoiceCompleteData)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set invoiceComplete for given claimantId', async () => {
+		it('should set invoiceComplete for given claimId', async () => {
 			const claimId = generateClaimantId(Constants.mockOpenQId, Constants.mockClaimantAsset)
 			let setInvoiceCompleteData = abiCoder.encode(["bytes32", "bool"], [claimId, true]);
 			
@@ -357,7 +357,7 @@ describe('OngoingBountyV1.sol', () => {
 			await expect(ongoingContract.connect(notOwner).setSupportingDocumentsComplete(setSupportingDocumentsCompleteData)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set supportingDocumentsComplete for given claimantId', async () => {
+		it('should set supportingDocumentsComplete for given claimId', async () => {
 			const claimId = generateClaimantId(Constants.mockOpenQId, Constants.mockClaimantAsset)
 			let setSupportingDocumentsCompleteData = abiCoder.encode(["bytes32", "bool"], [claimId, true]);
 

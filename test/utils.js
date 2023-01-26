@@ -10,8 +10,8 @@ function generateDepositId(bountyId, depositCount) {
 function generateClaimantId(claimant, claimantAsset) {
 	const abiCoder = new ethers.utils.AbiCoder;
 	const abiEncodedParams = abiCoder.encode(['string', 'string'], [claimant, claimantAsset]);
-	const claimantId = ethers.utils.keccak256(abiEncodedParams);
-	return claimantId;
+	const claimId = ethers.utils.keccak256(abiEncodedParams);
+	return claimId;
 }
 
 module.exports = { generateDepositId, generateClaimantId };
