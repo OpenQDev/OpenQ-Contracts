@@ -1265,7 +1265,7 @@ describe('OpenQ.sol', () => {
     })
   })
 
-  describe.only('setSupportingDocumentsComplete', () => {
+  describe('setSupportingDocumentsComplete', () => {
     describe('TIERED', () => {
       it('should set setSupportingDocumentsComplete', async () => {
         // ARRANGE
@@ -1986,7 +1986,7 @@ describe('OpenQ.sol', () => {
           .associateExternalIdToAddress(exampleGithubId, owner.address)
       )
         .to.emit(openQProxy, 'ExternalUserIdAssociatedWithAddress')
-        .withArgs(exampleGithubId, owner.address, [], Constants.VERSION_1)
+        .withArgs(exampleGithubId, owner.address, "", ethers.constants.AddressZero, [], Constants.VERSION_1)
     })
   })
 })

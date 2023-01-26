@@ -466,13 +466,13 @@ contract OpenQV1 is OpenQStorageV1 {
         address _associatedAddress
     ) external onlyOracle {
         // Clear previous addres<=>off-chain identity associations
-        string memory currentExternalUserId = addressToExternalUserId[
+        string memory formerExternalUserId = addressToExternalUserId[
             _associatedAddress
         ];
-        address currentAddress = externalUserIdToAddress[_externalUserId];
+        address formerAddress = externalUserIdToAddress[_externalUserId];
 
-        externalUserIdToAddress[currentExternalUserId] = address(0);
-        addressToExternalUserId[currentAddress] = '';
+        externalUserIdToAddress[formerExternalUserId] = address(0);
+        addressToExternalUserId[formerAddress] = '';
 
         externalUserIdToAddress[_externalUserId] = _associatedAddress;
         addressToExternalUserId[_associatedAddress] = _externalUserId;
@@ -480,8 +480,8 @@ contract OpenQV1 is OpenQStorageV1 {
         emit ExternalUserIdAssociatedWithAddress(
             _externalUserId,
             _associatedAddress,
-            currentExternalUserId,
-            currentAddress,
+            formerExternalUserId,
+            formerAddress,
             new bytes(0),
             VERSION_1
         );
