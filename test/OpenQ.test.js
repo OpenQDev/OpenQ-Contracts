@@ -1375,7 +1375,7 @@ describe('OpenQ.sol', () => {
       })
     })
 
-    describe.only('ATOMIC', () => {
+    describe('ATOMIC', () => {
       it('should emit an SupportingDocumentsCompleteSet event with a boolean of supportingDocumentsComplete', async () => {
         // ARRANGE
         await openQProxy.mintBounty(

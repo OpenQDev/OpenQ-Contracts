@@ -937,33 +937,22 @@ describe('ClaimManager.sol', () => {
 		});
 	});
 
-	describe('permissionedClaimTieredBounty', () => {
-		it('should revert if caller is lacks KYC', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(bountyId, organization, tieredPercentageBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-
-			// ASSERT
-			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('ADDRESS_LACKS_KYC');
-		});
+	describe.only('permissionedClaimTieredBounty', () => {
 
 		it('should revert if caller lacks associated address to their uuid', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, organization, tieredPercentageBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
-
-			await mockKyc.setIsValid(true)
 
 			// ASSERT
 			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
 		});
 
-		it('should revert if caller lacks associated address to their uuid', async () => {
+		it('should revert if claimant not tier winner', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(bountyId, organization, tieredPercentageBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
 
-			await mockKyc.setIsValid(true)
 			await openQProxy.connect(oracle).associateExternalIdToAddress(mockOpenQId, owner.address)
 
 			// ASSERT
@@ -996,6 +985,22 @@ describe('ClaimManager.sol', () => {
 			
 
 			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('SUPPORTING_DOCS_NOT_COMPLETE');
+		});
+
+		it('should revert if caller is lacks KYC', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(bountyId, organization, tieredPercentageBountyInitOperation);
+			const bountyAddress = await openQProxy.bountyIdToAddress(bountyId);
+
+			let setInvoiceCompleteData = abiCoder.encode(['uint256', 'bool'], [0, true]);
+			let setSupportingDocumentsCompleteData = abiCoder.encode(['uint256', 'bool'], [0, true]);
+			await openQProxy.connect(oracle).associateExternalIdToAddress(mockOpenQId, owner.address)
+			await openQProxy.setTierWinner(bountyId, 0, mockOpenQId)
+			await openQProxy.setInvoiceComplete(bountyId, setInvoiceCompleteData)
+			await openQProxy.setSupportingDocumentsComplete(bountyId, setSupportingDocumentsCompleteData)
+
+			// ASSERT
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('ADDRESS_LACKS_KYC');
 		});
 
 		it('should transfer tier to closer - TIERED', async () => {

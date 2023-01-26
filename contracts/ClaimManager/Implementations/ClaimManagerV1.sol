@@ -2,6 +2,8 @@
 pragma solidity 0.8.17;
 
 import '../Storage/ClaimManagerStorage.sol';
+import '../../Bounty/Interfaces/IAtomicBounty.sol';
+import '../../Bounty/Interfaces/ITieredBounty.sol';
 
 /// @title ClaimManagerV1
 /// @author FlacoJones
@@ -92,8 +94,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             msg.sender
         );
 
-        require(hasKYC(msg.sender), Errors.ADDRESS_LACKS_KYC);
-
         require(
             keccak256(abi.encodePacked(closer)) !=
                 keccak256(abi.encodePacked('')),
@@ -104,13 +104,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             keccak256(abi.encode(closer)) ==
                 keccak256(abi.encode(bounty.tierWinners(_tier))),
             Errors.CLAIMANT_NOT_TIER_WINNER
-        );
-
-        require(bounty.invoiceComplete(_tier), Errors.INVOICE_NOT_COMPLETE);
-
-        require(
-            bounty.supportingDocumentsComplete(_tier),
-            Errors.SUPPORTING_DOCS_NOT_COMPLETE
         );
 
         if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
@@ -129,16 +122,43 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         );
     }
 
+    function _eligibleToClaimAtomicBounty(IAtomicBounty bounty) internal {
+        if (bounty.invoiceRequired()) {
+            bool _invoiceComplete = abi.decode(
+                bounty.getInvoiceComplete(),
+                (bool)
+            );
+            require(_invoiceComplete, Errors.INVOICE_NOT_COMPLETE);
+        }
+
+        if (bounty.kycRequired()) {
+            require(hasKYC(msg.sender), Errors.ADDRESS_LACKS_KYC);
+        }
+
+        if (bounty.supportingDocumentsRequired()) {
+            bool _supportingDocumentsComplete = abi.decode(
+                bounty.getSupportingDocumentsComplete(),
+                (bool)
+            );
+            require(
+                _supportingDocumentsComplete,
+                Errors.SUPPORTING_DOCS_NOT_COMPLETE
+            );
+        }
+    }
+
     /// @notice Claim method for AtomicBounty
     /// @param bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
     /// @dev See IAtomicBounty
     function _claimAtomicBounty(
-        IBounty bounty,
+        IAtomicBounty bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
+        _eligibleToClaimAtomicBounty(bounty);
+
         for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
             uint256 volume = bounty.claimBalance(
                 _closer,
@@ -206,6 +226,28 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         );
     }
 
+    function _eligibleToClaimTier(ITieredBounty _bounty, uint256 _tier)
+        internal
+    {
+        if (_bounty.invoiceRequired()) {
+            require(
+                _bounty.invoiceComplete(_tier),
+                Errors.INVOICE_NOT_COMPLETE
+            );
+        }
+
+        if (_bounty.supportingDocumentsRequired()) {
+            require(
+                _bounty.supportingDocumentsComplete(_tier),
+                Errors.SUPPORTING_DOCS_NOT_COMPLETE
+            );
+        }
+
+        if (_bounty.kycRequired()) {
+            require(hasKYC(msg.sender), Errors.ADDRESS_LACKS_KYC);
+        }
+    }
+
     /// @notice Claim method for TieredPercentageBounty
     /// @param bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
@@ -219,6 +261,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             _closerData,
             (address, string, address, string, uint256)
         );
+
+        _eligibleToClaimTier(bounty, _tier);
 
         require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
 
@@ -294,6 +338,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             _closerData,
             (address, string, address, string, uint256)
         );
+
+        _eligibleToClaimTier(bounty, _tier);
 
         require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
 
