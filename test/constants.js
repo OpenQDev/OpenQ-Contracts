@@ -65,6 +65,15 @@ const tieredBountyInitOperationBuilder = (tokenAddress) => {
 	return tieredPercentageBountyInitOperationComplete;
 };
 
+const tieredBountyInitOperationBuilder_permissionless = (tokenAddress) => {
+	const tieredAbiEncodedParams = abiCoder.encode(
+		['uint256[]','bool','address','uint256','bool','bool','bool','string','string','string'],
+		[[60, 30, 10], true, tokenAddress, Constants.volume, false, false, false, Constants.mockOpenQId, Constants.alternativeName, Constants.alternativeLogo]
+	);
+	const tieredPercentageBountyInitOperationComplete = [Constants.TIERED_PERCENTAGE_CONTRACT, tieredAbiEncodedParams];
+	return tieredPercentageBountyInitOperationComplete;
+};
+
 const tieredBountyInitOperation_not100 = (tokenAddress) => {
 	const tieredAbiEncodedParamsNot100 = abiCoder.encode(
 		['uint256[]','bool','address','uint256','bool','bool','bool','string','string','string'],
@@ -83,6 +92,49 @@ const tieredFixedBountyInitOperationBuilder = (tokenAddress) => {
 	return tieredPercentageBountyInitOperationComplete;
 };
 
+const tieredFixedBountyInitOperationBuilder_permissionless = (tokenAddress) => {
+	const abiEncodedParamsTieredFixedBounty = abiCoder.encode(
+		['uint256[]','address','bool','bool','bool','string','string','string'],
+		[[80, 20],tokenAddress,false,false,false,Constants.mockOpenQId,Constants.alternativeName,Constants.alternativeLogo]
+	);
+	const tieredPercentageBountyInitOperationComplete = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+	return tieredPercentageBountyInitOperationComplete;
+};
+
+const setInvoiceCompleteData_tiered = (tier, invoiceComplete) => {
+	return abiCoder.encode(
+		['uint256', 'bool'],
+		[tier, invoiceComplete]
+	);
+};
+
+const setSupportingDocumentsComplete_tiered = (tier, supportingDocumentsComplete) => {
+	const encoded = abiCoder.encode(
+		['uint256', 'bool'],
+		[tier, supportingDocumentsComplete]
+	);
+
+	return encoded;
+};
+
+const setSupportingDocumentsComplete_atomic = (supportingDocumentsComplete) => {
+	const encoded = abiCoder.encode(
+		['bool'],
+		[supportingDocumentsComplete]
+	);
+
+	return encoded;
+};
+
+const setInvoiceCompleteData_atomic = (invoiceComplete) => {
+	const encoded = abiCoder.encode(
+		['bool'],
+		[invoiceComplete]
+	);
+
+	return encoded;
+};
+
 module.exports = { 
 	Constants, 
 	atomicBountyInitOperation_fundingGoal, 
@@ -91,5 +143,11 @@ module.exports = {
 	ongoingBountyInitOperationBuilder,
 	tieredBountyInitOperationBuilder,
 	tieredFixedBountyInitOperationBuilder,
-	tieredBountyInitOperation_not100
+	tieredBountyInitOperation_not100,
+	setInvoiceCompleteData_tiered,
+	setSupportingDocumentsComplete_tiered,
+	setInvoiceCompleteData_atomic,
+	setSupportingDocumentsComplete_atomic,
+	tieredBountyInitOperationBuilder_permissionless,
+	tieredFixedBountyInitOperationBuilder_permissionless
 };
