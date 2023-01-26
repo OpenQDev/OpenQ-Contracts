@@ -249,11 +249,11 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     }
 
     /// @notice Claim method for TieredPercentageBounty
-    /// @param bounty The payout address of the bounty
+    /// @param _bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
     function _claimTieredPercentageBounty(
-        IBounty bounty,
+        IBounty _bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -262,75 +262,75 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             (address, string, address, string, uint256)
         );
 
-        _eligibleToClaimTier(bounty, _tier);
+        _eligibleToClaimTier(_bounty, _tier);
 
-        require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
+        require(!_bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
 
-        if (bounty.status() == 0) {
-            bounty.closeCompetition();
+        if (_bounty.status() == 0) {
+            _bounty.closeCompetition();
 
             emit BountyClosed(
-                bounty.bountyId(),
-                address(bounty),
-                bounty.organization(),
+                _bounty.bountyId(),
+                address(_bounty),
+                _bounty.organization(),
                 address(0),
                 block.timestamp,
-                bounty.bountyType(),
+                _bounty.bountyType(),
                 new bytes(0),
                 VERSION_1
             );
         }
 
-        for (uint256 i = 0; i < bounty.getTokenAddresses().length; i++) {
-            uint256 volume = bounty.claimTiered(
+        for (uint256 i = 0; i < _bounty.getTokenAddresses().length; i++) {
+            uint256 volume = _bounty.claimTiered(
                 _closer,
                 _tier,
-                bounty.getTokenAddresses()[i]
+                _bounty.getTokenAddresses()[i]
             );
 
             emit TokenBalanceClaimed(
-                bounty.bountyId(),
-                address(bounty),
-                bounty.organization(),
+                _bounty.bountyId(),
+                address(_bounty),
+                _bounty.organization(),
                 _closer,
                 block.timestamp,
-                bounty.getTokenAddresses()[i],
+                _bounty.getTokenAddresses()[i],
                 volume,
-                bounty.bountyType(),
+                _bounty.bountyType(),
                 _closerData,
                 VERSION_1
             );
         }
 
-        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
-            bytes32 _depositId = bounty.nftDeposits(i);
-            if (bounty.tier(_depositId) == _tier) {
-                bounty.claimNft(_closer, _depositId);
+        for (uint256 i = 0; i < _bounty.getNftDeposits().length; i++) {
+            bytes32 _depositId = _bounty.nftDeposits(i);
+            if (_bounty.tier(_depositId) == _tier) {
+                _bounty.claimNft(_closer, _depositId);
 
                 emit NFTClaimed(
-                    bounty.bountyId(),
-                    address(bounty),
-                    bounty.organization(),
+                    _bounty.bountyId(),
+                    address(_bounty),
+                    _bounty.organization(),
                     _closer,
                     block.timestamp,
-                    bounty.tokenAddress(_depositId),
-                    bounty.tokenId(_depositId),
-                    bounty.bountyType(),
+                    _bounty.tokenAddress(_depositId),
+                    _bounty.tokenId(_depositId),
+                    _bounty.bountyType(),
                     _closerData,
                     VERSION_1
                 );
             }
         }
 
-        bounty.setTierClaimed(_tier);
+        _bounty.setTierClaimed(_tier);
     }
 
     /// @notice Claim method for TieredFixedBounty
-    /// @param bounty The payout address of the bounty
+    /// @param _bounty The payout address of the bounty
     /// @param _closer The payout address of the claimant
     /// @param _closerData ABI Encoded data associated with this claim
     function _claimTieredFixedBounty(
-        IBounty bounty,
+        IBounty _bounty,
         address _closer,
         bytes calldata _closerData
     ) internal {
@@ -339,61 +339,61 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             (address, string, address, string, uint256)
         );
 
-        _eligibleToClaimTier(bounty, _tier);
+        _eligibleToClaimTier(_bounty, _tier);
 
-        require(!bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
+        require(!_bounty.tierClaimed(_tier), Errors.TIER_ALREADY_CLAIMED);
 
-        if (bounty.status() == 0) {
-            bounty.closeCompetition();
+        if (_bounty.status() == 0) {
+            _bounty.closeCompetition();
 
             emit BountyClosed(
-                bounty.bountyId(),
-                address(bounty),
-                bounty.organization(),
+                _bounty.bountyId(),
+                address(_bounty),
+                _bounty.organization(),
                 address(0),
                 block.timestamp,
-                bounty.bountyType(),
+                _bounty.bountyType(),
                 new bytes(0),
                 VERSION_1
             );
         }
 
-        uint256 volume = bounty.claimTieredFixed(_closer, _tier);
+        uint256 volume = _bounty.claimTieredFixed(_closer, _tier);
 
         emit TokenBalanceClaimed(
-            bounty.bountyId(),
-            address(bounty),
-            bounty.organization(),
+            _bounty.bountyId(),
+            address(_bounty),
+            _bounty.organization(),
             _closer,
             block.timestamp,
-            bounty.payoutTokenAddress(),
+            _bounty.payoutTokenAddress(),
             volume,
-            bounty.bountyType(),
+            _bounty.bountyType(),
             _closerData,
             VERSION_1
         );
 
-        for (uint256 i = 0; i < bounty.getNftDeposits().length; i++) {
-            bytes32 _depositId = bounty.nftDeposits(i);
-            if (bounty.tier(_depositId) == _tier) {
-                bounty.claimNft(_closer, _depositId);
+        for (uint256 i = 0; i < _bounty.getNftDeposits().length; i++) {
+            bytes32 _depositId = _bounty.nftDeposits(i);
+            if (_bounty.tier(_depositId) == _tier) {
+                _bounty.claimNft(_closer, _depositId);
 
                 emit NFTClaimed(
-                    bounty.bountyId(),
-                    address(bounty),
-                    bounty.organization(),
+                    _bounty.bountyId(),
+                    address(_bounty),
+                    _bounty.organization(),
                     _closer,
                     block.timestamp,
-                    bounty.tokenAddress(_depositId),
-                    bounty.tokenId(_depositId),
-                    bounty.bountyType(),
+                    _bounty.tokenAddress(_depositId),
+                    _bounty.tokenId(_depositId),
+                    _bounty.bountyType(),
                     _closerData,
                     VERSION_1
                 );
             }
         }
 
-        bounty.setTierClaimed(_tier);
+        _bounty.setTierClaimed(_tier);
     }
 
     /// @notice Checks if bounty associated with _bountyId is open
