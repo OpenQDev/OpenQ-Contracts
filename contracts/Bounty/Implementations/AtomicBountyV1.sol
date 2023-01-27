@@ -116,25 +116,6 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         closerData = _closerData;
     }
 
-    /// @notice Whether or not invoice has been completed
-    /// @param _data ABI encoded data
-    /// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
-    function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
-        bool _invoiceComplete = abi.decode(_data, (bool));
-        invoiceComplete = _invoiceComplete;
-    }
-
-    /// @notice Whether or not supporting documents have been completed
-    /// @param _data ABI encoded data
-    /// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
-    function setSupportingDocumentsComplete(bytes calldata _data)
-        external
-        onlyOpenQ
-    {
-        bool _supportingDocumentsComplete = abi.decode(_data, (bool));
-        supportingDocumentsComplete = _supportingDocumentsComplete;
-    }
-
     /// @notice Receives an NFT for this contract
     /// @param _sender Sender of the NFT
     /// @param _tokenAddress NFT token address
@@ -168,6 +149,25 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         nftDeposits.push(depositId);
 
         return depositId;
+    }
+
+    /// @notice Whether or not invoice has been completed
+    /// @param _data ABI encoded data
+    /// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
+    function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
+        bool _invoiceComplete = abi.decode(_data, (bool));
+        invoiceComplete = _invoiceComplete;
+    }
+
+    /// @notice Whether or not supporting documents have been completed
+    /// @param _data ABI encoded data
+    /// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
+    function setSupportingDocumentsComplete(bytes calldata _data)
+        external
+        onlyOpenQ
+    {
+        bool _supportingDocumentsComplete = abi.decode(_data, (bool));
+        supportingDocumentsComplete = _supportingDocumentsComplete;
     }
 
     /// @notice Returns whether or not invoice is completed

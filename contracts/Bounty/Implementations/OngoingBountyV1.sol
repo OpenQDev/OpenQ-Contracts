@@ -89,17 +89,6 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         issuerExternalUserId = _issuerExternalUserId;
     }
 
-    /// @notice Sets the payout for an ongoing bounty
-    /// @param _payoutTokenAddress Sets payout token address
-    /// @param _payoutVolume Sets payout token volume
-    function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
-        external
-        onlyOpenQ
-    {
-        payoutTokenAddress = _payoutTokenAddress;
-        payoutVolume = _payoutVolume;
-    }
-
     /// @notice Transfers a payout amount of an ongoing bounty to claimant for claimant asset
     /// @param _payoutAddress The destination address for the funds
     /// @param _closerData ABI-encoded data of the claimant and claimant asset
@@ -135,33 +124,6 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         bountyClosedTime = block.timestamp;
     }
 
-    /// @notice Whether or not invoice has been completed
-    /// @param _data ABI encoded data
-    /// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
-    function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
-        (bytes32 _claimId, bool _invoiceComplete) = abi.decode(
-            _data,
-            (bytes32, bool)
-        );
-        invoiceComplete[_claimId] = _invoiceComplete;
-        invoiceCompleteClaimIds.push(_claimId);
-    }
-
-    /// @notice Whether or not supporting documents have been completed
-    /// @param _data ABI encoded data
-    /// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
-    function setSupportingDocumentsComplete(bytes calldata _data)
-        external
-        onlyOpenQ
-    {
-        (bytes32 _claimId, bool _supportingDocumentsComplete) = abi.decode(
-            _data,
-            (bytes32, bool)
-        );
-        supportingDocumentsComplete[_claimId] = _supportingDocumentsComplete;
-        supportingDocumentsCompleteClaimIds.push(_claimId);
-    }
-
     /// @notice Receives an NFT for this contract
     /// @param _sender Sender of the NFT
     /// @param _tokenAddress NFT token address
@@ -195,6 +157,44 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         nftDeposits.push(depositId);
 
         return depositId;
+    }
+
+    /// @notice Sets the payout for an ongoing bounty
+    /// @param _payoutTokenAddress Sets payout token address
+    /// @param _payoutVolume Sets payout token volume
+    function setPayout(address _payoutTokenAddress, uint256 _payoutVolume)
+        external
+        onlyOpenQ
+    {
+        payoutTokenAddress = _payoutTokenAddress;
+        payoutVolume = _payoutVolume;
+    }
+
+    /// @notice Whether or not invoice has been completed
+    /// @param _data ABI encoded data
+    /// @dev see IBountyCore.setInvoiceComplete.(_data) for _data ABI encoding schema
+    function setInvoiceComplete(bytes calldata _data) external onlyOpenQ {
+        (bytes32 _claimId, bool _invoiceComplete) = abi.decode(
+            _data,
+            (bytes32, bool)
+        );
+        invoiceComplete[_claimId] = _invoiceComplete;
+        invoiceCompleteClaimIds.push(_claimId);
+    }
+
+    /// @notice Whether or not supporting documents have been completed
+    /// @param _data ABI encoded data
+    /// @dev see IBountyCore.setSupportingDocumentsComplete.(_data) for _data ABI encoding schema
+    function setSupportingDocumentsComplete(bytes calldata _data)
+        external
+        onlyOpenQ
+    {
+        (bytes32 _claimId, bool _supportingDocumentsComplete) = abi.decode(
+            _data,
+            (bytes32, bool)
+        );
+        supportingDocumentsComplete[_claimId] = _supportingDocumentsComplete;
+        supportingDocumentsCompleteClaimIds.push(_claimId);
     }
 
     /// @notice Returns the claimIds which have completed supporting documents
