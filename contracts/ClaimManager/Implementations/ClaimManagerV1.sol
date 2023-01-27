@@ -58,10 +58,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 VERSION_1
             );
         } else if (_bountyType == OpenQDefinitions.ONGOING) {
-            require(
-                bounty.status() == OpenQDefinitions.OPEN,
-                Errors.CONTRACT_IS_NOT_CLAIMABLE
-            );
             _claimOngoingBounty(bounty, _closer, _closerData);
         } else if (_bountyType == OpenQDefinitions.TIERED) {
             _claimTieredPercentageBounty(bounty, _closer, _closerData);
@@ -183,6 +179,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         address _closer,
         bytes calldata _closerData
     ) internal {
+        _eligibleToClaimOngoingBounty(_bounty, _closer, _closerData);
+
         (address tokenAddress, uint256 volume) = _bounty.claimOngoingPayout(
             _closer,
             _closerData
@@ -442,6 +440,37 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             );
             require(
                 _supportingDocumentsComplete,
+                Errors.SUPPORTING_DOCS_NOT_COMPLETE
+            );
+        }
+
+        if (bounty.kycRequired()) {
+            require(hasKYC(_closer), Errors.ADDRESS_LACKS_KYC);
+        }
+    }
+
+    function _eligibleToClaimOngoingBounty(
+        IOngoingBounty bounty,
+        address _closer,
+        bytes memory _closerData
+    ) internal view {
+        require(
+            bounty.status() == OpenQDefinitions.OPEN,
+            Errors.CONTRACT_IS_NOT_CLAIMABLE
+        );
+
+        bytes32 claimId = abi.decode(_closerData, (bytes32));
+
+        if (bounty.invoiceRequired()) {
+            require(
+                bounty.invoiceComplete(claimId),
+                Errors.INVOICE_NOT_COMPLETE
+            );
+        }
+
+        if (bounty.supportingDocumentsRequired()) {
+            require(
+                bounty.supportingDocumentsComplete(claimId),
                 Errors.SUPPORTING_DOCS_NOT_COMPLETE
             );
         }

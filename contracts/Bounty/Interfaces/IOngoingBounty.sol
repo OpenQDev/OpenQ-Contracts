@@ -35,4 +35,16 @@ interface IOngoingBounty is IBountyCore {
     function payoutVolume() external view returns (uint256);
 
     function claimId(bytes32) external view returns (bool);
+
+    // Quick lookup
+    function invoiceComplete(bytes32) external view returns (bool);
+
+    function supportingDocumentsComplete(bytes32) external view returns (bool);
+
+    function supportingDocumentsCompleteClaimIds()
+        external
+        view
+        returns (bytes32[] memory);
+
+    function invoiceCompleteClaimIds() external view returns (bytes32[] memory);
 }
