@@ -113,7 +113,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
             (address, string, address, string)
         );
 
-        bytes32 _claimId = _generateClaimId(claimant, claimantAsset);
+        bytes32 _claimId = generateClaimId(claimant, claimantAsset);
 
         claimId[_claimId] = true;
         claimIds.push(_claimId);
@@ -227,10 +227,10 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
     }
 
     /// @notice Generates a unique claimant ID from user and asset
-    function _generateClaimId(
+    function generateClaimId(
         string memory claimant,
         string memory claimantAsset
-    ) internal pure virtual returns (bytes32) {
+    ) public pure virtual returns (bytes32) {
         return keccak256(abi.encode(claimant, claimantAsset));
     }
 }
