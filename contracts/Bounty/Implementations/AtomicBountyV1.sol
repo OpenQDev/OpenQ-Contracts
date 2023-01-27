@@ -5,7 +5,7 @@ import '../Storage/AtomicBountyStorage.sol';
 
 /// @title AtomicBountyV1
 /// @author FlacoJones
-/// @notice Bounty implementation for single contributor, single payout scenarios (e.g. 500 USDC for work completion)
+/// @notice Bounty implementation for single contributor, single payout scenarios (e.g. 500 USDC for a single work completion)
 /// @dev AtomicBountyV1 -> AtomicBountyStorageV1 -> BountyCore -> BountyStorageCore -> Core Dependencies (OZ + Custom)
 /// @dev Do not add any new storage variables here. Put them in a AtomicBountyStorageV# and release new implementation
 contract AtomicBountyV1 is AtomicBountyStorageV1 {
@@ -172,12 +172,14 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
 
     /// @notice Returns whether or not invoice is completed
     /// @return True if completed, false otherwise
+    /// @dev We return from all getInvoiceComplete as bytes to accomodate different return types
     function getInvoiceComplete() external view returns (bytes memory) {
         return abi.encode(invoiceComplete);
     }
 
     /// @notice Returns whether or not supporting documents have been completed
     /// @return True if completed, false otherwise
+    /// @dev We return from all IBountyCore.getSupportingDocumentsComplete() as bytes to accomodate different return types
     function getSupportingDocumentsComplete()
         external
         view

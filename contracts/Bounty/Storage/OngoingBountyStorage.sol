@@ -21,6 +21,12 @@ abstract contract OngoingBountyStorageV1 is BountyCore {
     // Keys of claims, can be used off-chain as an iterable to determine completed payouts
     bytes32[] public claimIds;
 
+    // Quick lookup
     mapping(bytes32 => bool) public invoiceComplete;
+
     mapping(bytes32 => bool) public supportingDocumentsComplete;
+
+    bytes32[] public supportingDocumentsCompleteClaimIds;
+
+    bytes32[] public invoiceCompleteClaimIds;
 }

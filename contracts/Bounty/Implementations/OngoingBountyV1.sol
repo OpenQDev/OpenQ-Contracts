@@ -144,6 +144,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
             (bytes32, bool)
         );
         invoiceComplete[_claimId] = _invoiceComplete;
+        invoiceCompleteClaimIds.push(_claimId);
     }
 
     /// @notice Whether or not supporting documents have been completed
@@ -158,6 +159,7 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
             (bytes32, bool)
         );
         supportingDocumentsComplete[_claimId] = _supportingDocumentsComplete;
+        supportingDocumentsCompleteClaimIds.push(_claimId);
     }
 
     /// @notice Receives an NFT for this contract
@@ -202,19 +204,25 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         );
     }
 
+    /// @notice Returns the claimIds which have completed supporting documents
+    /// @return Documents the return variables of a contract’s function state variable
+    /// @dev We return from all IBountyCore.getSupportingDocumentsComplete() as bytes to accomodate different return types
     function getSupportingDocumentsComplete()
         external
         view
         returns (bytes memory)
     {
-        return abi.encode(true);
+        return abi.encode(supportingDocumentsCompleteClaimIds);
     }
 
+    /// @notice Returns the claimIds which have completed supporting documents
+    /// @return Documents the return variables of a contract’s function state variable
+    /// @dev We return from all IBountyCore.getInvoiceComplete() as bytes to accomodate different return types
     function getInvoiceComplete() external view returns (bytes memory) {
-        return abi.encode(true);
+        return abi.encode(invoiceCompleteClaimIds);
     }
 
-    function getClaimIds() public returns (bytes32[] memory) {
+    function getClaimIds() public view returns (bytes32[] memory) {
         return claimIds;
     }
 
