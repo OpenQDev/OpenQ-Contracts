@@ -27,7 +27,6 @@ describe('AtomicBountyV1.sol', () => {
 
 	// CONSTANTS
 	let closerData = abiCoder.encode(['address', 'string', 'address', 'string'], [ethers.constants.AddressZero, "FlacoJones", ethers.constants.AddressZero, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-	
 
 	// INITIALIZATION OPERATIONS
 	let atomicBountyInitOperation;

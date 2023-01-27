@@ -103,6 +103,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
     /// @notice Returns array of invoice complete
     /// @return An array of the booleans for each tier, true or false for if invoices have been completed for that tier
     /// @dev We return from all IBountyCore.getSupportingDocumentsComplete() as bytes to accomodate different return types
+    /// @dev _data (bool[])
+    /// @dev _data (invoiceComplete)
     function getInvoiceComplete() external view returns (bytes memory) {
         return abi.encode(invoiceComplete);
     }
@@ -110,6 +112,8 @@ abstract contract TieredBountyCore is TieredBountyStorageCore {
     /// @notice Returns array of supporting documents complete
     /// @return An array of the booleans for each tier, true or false for if supporting documents have been completed for that tier
     /// @dev We return from all IBountyCore.getSupportingDocumentsComplete() as bytes to accomodate different return types
+    /// @dev _data (bool[])
+    /// @dev _data (supportingDocumentsComplete)
     function getSupportingDocumentsComplete()
         external
         view

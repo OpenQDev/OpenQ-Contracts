@@ -36,14 +36,10 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         IBounty bounty = IBounty(payable(_bountyAddress));
         uint256 _bountyType = bounty.bountyType();
 
-        // Decode to ensure data meets closerData schema before emitting any events
-        abi.decode(_closerData, (address, string, address, string, uint256));
-
         if (_bountyType == OpenQDefinitions.ATOMIC) {
-            require(
-                bounty.status() == OpenQDefinitions.OPEN,
-                Errors.CONTRACT_IS_NOT_CLAIMABLE
-            );
+            // Decode to ensure data meets closerData schema before emitting any events
+            abi.decode(_closerData, (address, string, address, string));
+
             _claimAtomicBounty(bounty, _closer, _closerData);
             bounty.close(_closer, _closerData);
 
@@ -395,6 +391,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         return kyc.hasValidToken(_address);
     }
 
+    /// @notice Runs all require statements to determine if the claimant can claim the specified tier on the tiered bounty
     function _eligibleToClaimTier(
         ITieredBounty _bounty,
         uint256 _tier,
@@ -421,10 +418,16 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         }
     }
 
+    /// @notice Runs all require statements to determine if the claimant can claim the atomic bounty
     function _eligibleToClaimAtomicBounty(IAtomicBounty bounty, address _closer)
         internal
         view
     {
+        require(
+            bounty.status() == OpenQDefinitions.OPEN,
+            Errors.CONTRACT_IS_NOT_CLAIMABLE
+        );
+
         if (bounty.invoiceRequired()) {
             bool _invoiceComplete = abi.decode(
                 bounty.getInvoiceComplete(),
@@ -449,6 +452,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         }
     }
 
+    /// @notice Runs all require statements to determine if the claimant can claim an ongoing bounty payout
     function _eligibleToClaimOngoingBounty(
         IOngoingBounty bounty,
         address _closer,
@@ -459,7 +463,12 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             Errors.CONTRACT_IS_NOT_CLAIMABLE
         );
 
-        bytes32 claimId = abi.decode(_closerData, (bytes32));
+        (, string memory claimant, , string memory claimantAsset) = abi.decode(
+            _closerData,
+            (address, string, address, string)
+        );
+
+        bytes32 claimId = bounty.generateClaimId(claimant, claimantAsset);
 
         if (bounty.invoiceRequired()) {
             require(

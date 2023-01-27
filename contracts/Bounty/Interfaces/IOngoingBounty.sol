@@ -29,14 +29,11 @@ interface IOngoingBounty is IBountyCore {
 
     function getClaimIds() external returns (bytes32[] memory);
 
-    // PUBLIC GETTERS
-    function payoutTokenAddress() external view returns (address);
+    function generateClaimId(
+        string memory claimant,
+        string memory claimantAsset
+    ) external pure returns (bytes32);
 
-    function payoutVolume() external view returns (uint256);
-
-    function claimId(bytes32) external view returns (bool);
-
-    // Quick lookup
     function invoiceComplete(bytes32) external view returns (bool);
 
     function supportingDocumentsComplete(bytes32) external view returns (bool);
@@ -47,4 +44,11 @@ interface IOngoingBounty is IBountyCore {
         returns (bytes32[] memory);
 
     function invoiceCompleteClaimIds() external view returns (bytes32[] memory);
+
+    // PUBLIC GETTERS
+    function payoutTokenAddress() external view returns (address);
+
+    function payoutVolume() external view returns (uint256);
+
+    function claimId(bytes32) external view returns (bool);
 }

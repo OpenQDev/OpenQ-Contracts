@@ -197,16 +197,11 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         return depositId;
     }
 
-    /// @notice receive() method to accept protocol tokens
-    receive() external payable {
-        revert(
-            'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'
-        );
-    }
-
     /// @notice Returns the claimIds which have completed supporting documents
     /// @return Documents the return variables of a contract’s function state variable
     /// @dev We return from all IBountyCore.getSupportingDocumentsComplete() as bytes to accomodate different return types
+    /// @dev _data (bytes32[])
+    /// @dev _data (supportingDocumentsCompleteClaimIds)
     function getSupportingDocumentsComplete()
         external
         view
@@ -218,10 +213,14 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
     /// @notice Returns the claimIds which have completed supporting documents
     /// @return Documents the return variables of a contract’s function state variable
     /// @dev We return from all IBountyCore.getInvoiceComplete() as bytes to accomodate different return types
+    /// @dev _data (bytes32[])
+    /// @dev _data (invoiceCompleteClaimIds)
     function getInvoiceComplete() external view returns (bytes memory) {
         return abi.encode(invoiceCompleteClaimIds);
     }
 
+    /// @notice Returns all claimIds
+    /// @return Array of bytes32 claim ids
     function getClaimIds() public view returns (bytes32[] memory) {
         return claimIds;
     }
@@ -232,5 +231,12 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         string memory claimantAsset
     ) public pure virtual returns (bytes32) {
         return keccak256(abi.encode(claimant, claimantAsset));
+    }
+
+    /// @notice receive() method to accept protocol tokens
+    receive() external payable {
+        revert(
+            'Cannot send Ether directly to boutny contract. Please use the BountyV1.receiveFunds() method.'
+        );
     }
 }

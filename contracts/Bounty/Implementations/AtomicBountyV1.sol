@@ -173,6 +173,8 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
     /// @notice Returns whether or not invoice is completed
     /// @return True if completed, false otherwise
     /// @dev We return from all getInvoiceComplete as bytes to accomodate different return types
+    /// @dev _data (bool)
+    /// @dev _data (invoiceComplete)
     function getInvoiceComplete() external view returns (bytes memory) {
         return abi.encode(invoiceComplete);
     }
@@ -180,6 +182,8 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
     /// @notice Returns whether or not supporting documents have been completed
     /// @return True if completed, false otherwise
     /// @dev We return from all IBountyCore.getSupportingDocumentsComplete() as bytes to accomodate different return types
+    /// @dev _data (bool)
+    /// @dev _data (supportingDocumentsComplete)
     function getSupportingDocumentsComplete()
         external
         view

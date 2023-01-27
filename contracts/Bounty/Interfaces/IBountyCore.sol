@@ -127,11 +127,15 @@ interface IBountyCore {
     /// @dev _data (ONGOING): (bytes32,bool):(claimId, supportingDocumentsComplete)
     function setSupportingDocumentsComplete(bytes calldata _data) external;
 
+    /// @notice Generic method that returns the ABI encoded supporting documents completion data from all bounty types
+    /// @dev See the getSupportingDocumentsComplete defined on each bounty type to see the encoding
     function getSupportingDocumentsComplete()
         external
         view
         returns (bytes memory);
 
+    /// @notice Generic method that returns the ABI encoded invoice completion data from all bounty types
+    /// @dev See the getInvoiceComplete defined on each bounty type to see the encoding
     function getInvoiceComplete() external view returns (bytes memory);
 
     /// @notice Returns token balance for both ERC20 or protocol token
