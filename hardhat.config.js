@@ -7,6 +7,7 @@ require('solidity-docgen');
 require('hardhat-tracer');
 require('dotenv').config();
 require('@typechain/hardhat');
+require('solidity-coverage');
 
 module.exports = (function () {
 	let chainId = process.env.CHAIN_ID;
@@ -24,6 +25,7 @@ module.exports = (function () {
 							runs: 100,
 						},
 					},
+					paths: ['./contracts', './mocks']
 				},
 				{
 					version: '0.8.17',
@@ -33,6 +35,7 @@ module.exports = (function () {
 							runs: 100,
 						},
 					},
+					paths: ['./contracts', './mocks']
 				}
 			],
 		},
