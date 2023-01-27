@@ -62,7 +62,7 @@ contract BountyFactory is OnlyOpenQ {
             beaconProxy = atomicBountyBeacon;
         } else if (operationType == OpenQDefinitions.ONGOING) {
             beaconProxy = ongoingBountyBeacon;
-        } else if (operationType == OpenQDefinitions.TIERED) {
+        } else if (operationType == OpenQDefinitions.TIERED_PERCENTAGE) {
             beaconProxy = tieredPercentageBountyBeacon;
         } else if (operationType == OpenQDefinitions.TIERED_FIXED) {
             beaconProxy = tieredFixedBountyBeacon;

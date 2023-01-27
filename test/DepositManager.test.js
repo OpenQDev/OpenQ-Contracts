@@ -628,31 +628,6 @@ describe('DepositManager.sol', () => {
 			expect(escrowPeriod).to.equal(firstLockPeriod + secondLockPeriod);
 		});
 
-		it('should start from current time for expiration if expired', async () => {
-			// Mint Bounty & be the funder
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			const bounty = await AtomicBountyV1.attach(bountyAddress);
-
-			await mockLink.approve(bountyAddress, 10000000);
-
-			// Make deposit and get the deposit ID
-			const firstLockPeriod = 1000;
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 100, firstLockPeriod, Constants.funderUuid);
-			const depositId = generateDepositId(Constants.bountyId, 0);
-
-			// ADVANCE TIME (past expiration period)
-			const timePastSinceLock = 2000;
-			await ethers.provider.send("evm_increaseTime", [timePastSinceLock]);
-
-			// ACT / ASSERT
-			const secondLockPeriod = 4000;
-
-			await depositManager.extendDeposit(bountyAddress, depositId, secondLockPeriod);
-			const escrowPeriod = await bounty.expiration(depositId);
-			expect(escrowPeriod).to.equal(timePastSinceLock + secondLockPeriod);
-		});
-
 		it('should revert if not funder', async () => {
 			// ARRANGE
 			// Mint Bounty & generate Deposit

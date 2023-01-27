@@ -18,11 +18,6 @@ You can read all about how OpenQ works from the user's perspective by reading ou
 
 https://docs.openq.dev
 
-## Trusted Services
-
-- Assume OpenQ Oracles are trusted
-- Assume KYC DAO is secure, and only has NFTs for addresses which have undergone their KYC process
-
 ## Technical Background
 
 Blockchain: `Polygon Mainnet`
@@ -33,11 +28,16 @@ Language: `solidity 0.8.17`
 
 Includes:
 
-- All contracts in `/contracts`, excluding the `Mocks` directory
+- All contracts in `/contracts`, **EXCLUDING** the `Mocks` directory
 
 Excludes:
 
 - Any off-chain services, like our oracles
+
+## Trusted Services
+
+- Assume OpenQ Oracles are trusted
+- Assume KYC DAO is secure, and only has NFTs for addresses which have undergone their KYC process
 
 ## Architecture Overview
 
@@ -80,7 +80,7 @@ The names for those four types are:
 
 - `ATOMIC`: These are fixed-price, single contributor contracts
 - `ONGOING`: These are fixed-price, multiple contributors can claim, all receiving the same amount
-- `TIERED`: A crowdfundable, percentage based payout for each tier (1st, 2nd, 3rd)
+- `TIERED_PERCENTAGE`: A crowdfundable, percentage based payout for each tier (1st, 2nd, 3rd)
 - `TIERED_FIXED`: Competitions with fixed price payouts for each tier (1st, 2nd, 3rd)
 
 ### Minting a Bounty

@@ -55,7 +55,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             );
         } else if (_bountyType == OpenQDefinitions.ONGOING) {
             _claimOngoingBounty(bounty, _closer, _closerData);
-        } else if (_bountyType == OpenQDefinitions.TIERED) {
+        } else if (_bountyType == OpenQDefinitions.TIERED_PERCENTAGE) {
             _claimTieredPercentageBounty(bounty, _closer, _closerData);
         } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
             _claimTieredFixedBounty(bounty, _closer, _closerData);
@@ -101,7 +101,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
 
         if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
             _claimTieredFixedBounty(bounty, msg.sender, _closerData);
-        } else if (bounty.bountyType() == OpenQDefinitions.TIERED) {
+        } else if (bounty.bountyType() == OpenQDefinitions.TIERED_PERCENTAGE) {
             _claimTieredPercentageBounty(bounty, msg.sender, _closerData);
         } else {
             revert(Errors.NOT_A_COMPETITION_CONTRACT);
@@ -355,7 +355,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         if (
             _bountyType == OpenQDefinitions.ATOMIC ||
             _bountyType == OpenQDefinitions.ONGOING ||
-            _bountyType == OpenQDefinitions.TIERED ||
+            _bountyType == OpenQDefinitions.TIERED_PERCENTAGE ||
             _bountyType == OpenQDefinitions.TIERED_FIXED
         ) {
             return status == 0;

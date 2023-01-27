@@ -22,7 +22,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for TIERED PERCENTAGE
+    /// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for TIERED PERCENTAGE
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -81,7 +81,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
         require(sum == 100, Errors.PAYOUT_SCHEDULE_MUST_ADD_TO_100);
         payoutSchedule = _payoutSchedule;
 
-        bountyType = OpenQDefinitions.TIERED;
+        bountyType = OpenQDefinitions.TIERED_PERCENTAGE;
         hasFundingGoal = _hasFundingGoal;
         fundingToken = _fundingToken;
         fundingGoal = _fundingGoal;
@@ -107,7 +107,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
         address _tokenAddress
     ) external onlyClaimManager nonReentrant returns (uint256) {
         require(
-            bountyType == OpenQDefinitions.TIERED,
+            bountyType == OpenQDefinitions.TIERED_PERCENTAGE,
             Errors.NOT_A_TIERED_BOUNTY
         );
         require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
@@ -143,7 +143,7 @@ contract TieredPercentageBountyV1 is TieredPercentageBountyStorageV1 {
         onlyOpenQ
     {
         require(
-            bountyType == OpenQDefinitions.TIERED,
+            bountyType == OpenQDefinitions.TIERED_PERCENTAGE,
             Errors.NOT_A_TIERED_BOUNTY
         );
         uint256 sum;
