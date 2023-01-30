@@ -13,4 +13,4 @@ CMD curl --connect-timeout 5 \
 	--retry-delay 0 \
 	--retry-max-time 40 \
 	'http://ethnode:8545' \
-	&& yarn deploy-contracts:docker
+	&& yarn deploy:docker
