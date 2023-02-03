@@ -237,6 +237,7 @@ async function deployContracts() {
 	console.log(`Setting BountyFactory on OpenQV1 to ${claimManagerProxy.address}...`);
 	await openQProxy.setClaimManager(claimManagerProxy.address);
 	await claimManagerProxy.setOpenQ(openQProxy.address);
+	await claimManagerProxy.setKyc(0x205E10d3c4C87E26eB66B1B270b71b7708494dB9);
 	await optionalSleep(10000);
 	console.log(`ClaimManager successfully set on OpenQV1 to ${claimManagerProxy.address}`);
 
