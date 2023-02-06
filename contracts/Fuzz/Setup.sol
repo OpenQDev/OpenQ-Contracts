@@ -13,23 +13,14 @@ import '../Bounty/Implementations/TieredFixedBountyV1.sol';
 import '../ClaimManager/Implementations/ClaimManagerV1.sol';
 import '../DepositManager/Implementations/DepositManagerV1.sol';
 import '../TokenWhitelist/OpenQTokenWhitelist.sol';
-
-// Use this to get a constant User address
-contract Users {
-    function proxy(address target, bytes memory data)
-        public
-        returns (bool success, bytes memory returnData)
-    {
-        return target.call(data);
-    }
-
-    // (bool success, ) = user.proxy(address(openQ), abi.encodeWithSelector(openQ.mintBounty.selector, ...args));
-
-    // for overloaded overrides
-    // bytes4(keccak256("mint(address)"))
-}
+import './Users.sol';
 
 contract Setup {
+    AtomicBountyV1 atomicBounty;
+    OngoingBountyV1 ongoingBounty;
+    TieredPercentageBountyV1 tieredPercentageBounty;
+    TieredFixedBountyV1 tieredFixedBounty;
+
     event DebugBytes(bytes _bytes);
     event DebugAddress(address _address);
     event DebugUint256(uint256 _uint256);
@@ -37,8 +28,9 @@ contract Setup {
     OpenQV1 openQ;
     ClaimManagerV1 claimManager;
     DepositManagerV1 depositManager;
+    BountyFactory bountyFactory;
 
-    bool completed;
+    bool bountiesDeployed;
 
     // Simulated EOAs
     Users owner;
@@ -82,14 +74,12 @@ contract Setup {
         openQ.initialize();
 
         // DEPLOY BOUNTY FACTORY
-        address bountyFactory = address(
-            new BountyFactory(
-                address(openQ),
-                atomicBountyBeacon,
-                ongoingBountyBeacon,
-                tieredPercentageBountyBeacon,
-                tieredFixedBountyBeacon
-            )
+        bountyFactory = new BountyFactory(
+            address(openQ),
+            atomicBountyBeacon,
+            ongoingBountyBeacon,
+            tieredPercentageBountyBeacon,
+            tieredFixedBountyBeacon
         );
 
         // DEPLOY AND INITIALIZE CLAIM MANAGER
@@ -115,20 +105,152 @@ contract Setup {
         // DEPLOY OPENQTOKENWHITELIST
         address openQTokenWhiteList = address(new OpenQTokenWhitelist(5));
 
-        openQ.setBountyFactory(bountyFactory);
+        openQ.setBountyFactory(address(bountyFactory));
         openQ.setClaimManager(address(claimManager));
         openQ.setDepositManager(address(depositManager));
+        openQ.transferOracle(address(oracle));
 
         depositManager.setTokenWhitelist(openQTokenWhiteList);
 
         claimManager.setKyc(address(0));
     }
 
-    // function _init() internal {
-    //     completed = true;
-    // }
+    // make a private setUp method and call if not completed, so this won't be called by fuzzr
+    function deployBounties() internal {
+        //************************* Mint Atomic Bounty *************************/
+        bytes memory initDataAtomic = abi.encode(
+            true,
+            address(0),
+            100,
+            true,
+            true,
+            true,
+            '_issuerExternalUserId',
+            'alternativeName',
+            'alternativeLogo'
+        );
+
+        (bool successAtomic, bytes memory resultAtomic) = minter.proxy(
+            address(openQ),
+            abi.encodeWithSelector(
+                openQ.mintBounty.selector,
+                'atomicBountyId',
+                'atomicOrganization',
+                OpenQDefinitions.InitOperation(0, initDataAtomic)
+            )
+        );
+        require(successAtomic);
+
+        address atomicBountyAddress = abi.decode(resultAtomic, (address));
+        atomicBounty = AtomicBountyV1(payable(atomicBountyAddress));
+
+        //************************* Mint Ongoing Bounty *************************/
+        bytes memory initDataOngoing = abi.encode(
+            address(0),
+            10,
+            true,
+            address(0),
+            100,
+            true,
+            true,
+            true,
+            '_issuerExternalUserId',
+            'alternativeName',
+            'alternativeLogo'
+        );
+
+        (bool successOngoing, bytes memory resultOngoing) = minter.proxy(
+            address(openQ),
+            abi.encodeWithSelector(
+                openQ.mintBounty.selector,
+                'OngoingBountyId',
+                'OngoingOrganization',
+                OpenQDefinitions.InitOperation(1, initDataOngoing)
+            )
+        );
+        require(successOngoing);
+
+        address ongoingBountyAddress = abi.decode(resultOngoing, (address));
+        ongoingBounty = OngoingBountyV1(payable(ongoingBountyAddress));
+
+        //************************* Mint Tiered Percentage Bounty *************************/
+        bytes memory initDataTieredPercentage = abi.encode(
+            [100, 20, 30],
+            true,
+            address(0),
+            1000,
+            true,
+            true,
+            true,
+            '_issuerExternalUserId',
+            'alternativeName',
+            'alternativeLogo'
+        );
+
+        (
+            bool successTieredPercentage,
+            bytes memory resultTieredPercentage
+        ) = minter.proxy(
+                address(openQ),
+                abi.encodeWithSelector(
+                    openQ.mintBounty.selector,
+                    'TieredBountyId',
+                    'TieredOrganization',
+                    OpenQDefinitions.InitOperation(2, initDataTieredPercentage)
+                )
+            );
+        require(successTieredPercentage);
+
+        address tieredPercentageBountyAddress = abi.decode(
+            resultTieredPercentage,
+            (address)
+        );
+        tieredPercentageBounty = TieredPercentageBountyV1(
+            payable(tieredPercentageBountyAddress)
+        );
+
+        //************************* Mint Tiered Fixed Bounty *************************/
+        bytes memory initDataTieredFixed = abi.encode(
+            [20, 10, 2],
+            address(0),
+            true,
+            true,
+            true,
+            '_issuerExternalUserId',
+            'alternativeName',
+            'alternativeLogo'
+        );
+
+        (bool successTieredFixed, bytes memory resultTieredFixed) = minter
+            .proxy(
+                address(openQ),
+                abi.encodeWithSelector(
+                    openQ.mintBounty.selector,
+                    'TieredFixedBountyId',
+                    'TieredFixedOrganization',
+                    OpenQDefinitions.InitOperation(3, initDataTieredFixed)
+                )
+            );
+        require(successTieredFixed);
+
+        address tieredFixedBountyAddress = abi.decode(
+            resultTieredFixed,
+            (address)
+        );
+        tieredFixedBounty = TieredFixedBountyV1(
+            payable(tieredFixedBountyAddress)
+        );
+
+        bountiesDeployed = true;
+    }
 
     // bind _number to [0, UPPER_BOUND) (0 inclusive, UPPER_BOUND exclusive)
+
+    /// @notice Returns a number bound between [0, UPPER_BOUND) (0 inclusive, UPPER_BOUND exclusive) using _number as seed
+    /// @dev Useful for scoping input to a certain range, e.g. for bounty types [0, 5)
+    /// @param _number the seed coming from some random source
+    /// @param UPPER_BOUND the OPEN (up to but not including) upper bound of the range
+    /// @return A number between between [0, UPPER_BOUND)
     function bind(uint256 _number, uint256 UPPER_BOUND)
         public
         pure
@@ -136,6 +258,8 @@ contract Setup {
     {
         return _number % UPPER_BOUND;
     }
+
+    // assert that something never succeeds with assert(!success) on low-level call
 }
 
 // no codepath exists which can lower the bounty's balance of ERC20 or protocol tokens EXCEPT claimBounty, permissionClaimTieredBounty, or refundDeposit
