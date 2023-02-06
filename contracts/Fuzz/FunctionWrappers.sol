@@ -29,4 +29,14 @@ contract FunctionWrappers is Setup {
         require(_newDepositManager != address(0), 'No zero address');
         openQ.setDepositManager(_newDepositManager);
     }
+
+    function _upgradeTo(address _newImplementation) public {
+        require(_newImplementation != address(0), 'No zero address');
+        openQ.upgradeTo(_newImplementation);
+    }
+
+    function _setTokenWhitelist(address _newTokenWhitelist) public {
+        require(_newTokenWhitelist != address(0), 'No zero address');
+        depositManager.setTokenWhitelist(_newTokenWhitelist);
+    }
 }

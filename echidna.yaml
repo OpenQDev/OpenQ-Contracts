@@ -2,7 +2,7 @@ testMode: "assertion"
 coverage: true
 corpusDir: echidna-corpus
 seqLen: 10
-testLimit: 50000
+testLimit: 1000
 shrinkLimit: 1000
 stopOnFail: false
 

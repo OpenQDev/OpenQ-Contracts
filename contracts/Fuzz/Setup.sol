@@ -16,11 +16,6 @@ import '../TokenWhitelist/OpenQTokenWhitelist.sol';
 import './Users.sol';
 
 contract Setup {
-    AtomicBountyV1 atomicBounty;
-    OngoingBountyV1 ongoingBounty;
-    TieredPercentageBountyV1 tieredPercentageBounty;
-    TieredFixedBountyV1 tieredFixedBounty;
-
     event DebugBytes(bytes _bytes);
     event DebugAddress(address _address);
     event DebugUint256(uint256 _uint256);
@@ -29,13 +24,20 @@ contract Setup {
     ClaimManagerV1 claimManager;
     DepositManagerV1 depositManager;
     BountyFactory bountyFactory;
+    address openQImplementation;
+    address openQTokenWhiteList;
 
-    bool bountiesDeployed;
+    AtomicBountyV1 atomicBounty;
+    OngoingBountyV1 ongoingBounty;
+    TieredPercentageBountyV1 tieredPercentageBounty;
+    TieredFixedBountyV1 tieredFixedBounty;
 
     // Simulated EOAs
     Users owner;
     Users oracle;
     Users minter;
+
+    bool bountiesDeployed;
 
     constructor() {
         // CREATE USER PROXIES (SIMULATES AND EOA)
@@ -64,7 +66,7 @@ contract Setup {
         );
 
         // DEPLOY AND INITIALIZE OPENQ IMPLEMENTATION AND PROXY
-        address openQImplementation = address(new OpenQV1());
+        openQImplementation = address(new OpenQV1());
 
         address openQProxy = address(
             new OpenQProxy(openQImplementation, new bytes(0))
@@ -103,7 +105,7 @@ contract Setup {
         depositManager.initialize();
 
         // DEPLOY OPENQTOKENWHITELIST
-        address openQTokenWhiteList = address(new OpenQTokenWhitelist(5));
+        openQTokenWhiteList = address(new OpenQTokenWhitelist(5));
 
         openQ.setBountyFactory(address(bountyFactory));
         openQ.setClaimManager(address(claimManager));

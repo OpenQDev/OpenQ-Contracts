@@ -5,7 +5,7 @@ import './FunctionWrappers.sol';
 
 contract OpenQV1FuzzTest is FunctionWrappers {
     constructor() {
-        openQ.renounceOwnership();
+        // openQ.renounceOwnership();
     }
 
     /// @notice Checks that no codepath exists that can change oracle BESIDES transferOracle()
@@ -15,19 +15,19 @@ contract OpenQV1FuzzTest is FunctionWrappers {
     }
 
     /// @notice Checks that no codepath exists that can change oracle BESIDES owner calling setBountyFactory()
-    /// @dev Renounce ownership, and oracle should never be able to be transferred again
+    /// @dev Renounce ownership in constructor, and setBountyFactory should become inaccessible
     function assert_cannot_set_bounty_factory() public view {
         assert(address(openQ.bountyFactory()) == address(bountyFactory));
     }
 
     /// @notice Checks that no codepath exists that can change oracle BESIDES owner calling setClaimManager()
-    /// @dev Renounce ownership, and oracle should never be able to be transferred again
+    /// @dev Renounce ownership in constructor, and setClaimManager should become inaccessible
     function assert_cannot_set_claim_manager() public view {
         assert(openQ.claimManager() == address(claimManager));
     }
 
     /// @notice Checks that no codepath exists that can change oracle BESIDES owner calling setDepositManager()
-    /// @dev Renounce ownership, and oracle should never be able to be transferred again
+    /// @dev Renounce ownership in constructor, and setDepositManager should become inaccessible
     function assert_cannot_set_deposit_manager() public view {
         assert(openQ.depositManager() == address(depositManager));
     }
@@ -39,5 +39,11 @@ contract OpenQV1FuzzTest is FunctionWrappers {
             abi.encodeWithSignature('initialize()')
         );
         assert(!success);
+    }
+
+    /// @notice Checks that no codepath exists that can upgrade implementation BESIDES owner calling upgradeTo()
+    /// @dev Renounce ownership in constructor, and upgradeTo should become inaccessible
+    function assert_cannot_call_upgrade_to() public view {
+        assert(openQ.getImplementation() == openQImplementation);
     }
 }

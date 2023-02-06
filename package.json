@@ -34,7 +34,10 @@
 		"deploy-bounties:localhost": "hardhat run --network localhost deploy/deploy_bounties.js",
 		"fund-bounties:localhost": "hardhat run --network localhost deploy/fund_bounties.js",
 		"slither": "slither . --exclude-dependencies",
-		"echidna": "echidna-test . --contract OpenQV1FuzzTest --config echidna.yaml"
+		"echidna:openq": "echidna-test . --contract OpenQV1FuzzTest --config echidna.yaml",
+		"echidna:bounty": "echidna-test . --contract BountyFuzzTest --config echidna.yaml",
+		"echidna:deposit": "echidna-test . --contract DepositManagerV1FuzzTest --config echidna.yaml",
+		"echidna:claim": "echidna-test . --contract ClaimManagerV1FuzzTest --config echidna.yaml"
 	},
 	"dependencies": {
 		"@nomiclabs/hardhat-ethers": "2.2.1",
