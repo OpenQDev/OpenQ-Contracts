@@ -33,7 +33,8 @@
 		"configure-whitelist:localhost": "hardhat run --network localhost deploy/configure-whitelist.js",
 		"deploy-bounties:localhost": "hardhat run --network localhost deploy/deploy_bounties.js",
 		"fund-bounties:localhost": "hardhat run --network localhost deploy/fund_bounties.js",
-		"slither": "slither . --exclude-dependencies"
+		"slither": "slither . --exclude-dependencies",
+		"echidna": "echidna-test . --contract OpenQV1FuzzTest --config echidna.yaml"
 	},
 	"dependencies": {
 		"@nomiclabs/hardhat-ethers": "2.2.1",

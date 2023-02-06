@@ -1,0 +1,12 @@
+testMode: "assertion"
+coverage: true
+corpusDir: echidna-corpus
+seqLen: 10
+testLimit: 5000
+shrinkLimit: 1000
+
+cryticArgs: # If we add more dependencies they will need to be added as symlinks here!
+  [
+    '--solc-remaps',
+    '@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/ @openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/',
+  ]

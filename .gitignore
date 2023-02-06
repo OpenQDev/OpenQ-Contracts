@@ -26,3 +26,5 @@ contracts/.deps
 
 coverage/
 coverage.json
+crytic-export/
+echidna-corpus/

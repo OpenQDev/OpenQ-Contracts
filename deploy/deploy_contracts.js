@@ -46,7 +46,7 @@ async function deployContracts() {
 	console.log('DEPLOYING OPENQ MAIN CONTRACT');
 	console.log('------------------------------------------');
 
-	console.log('Deploying OpenQV2 (Implementation)...');
+	console.log('Deploying OpenQV1 (Implementation)...');
 	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV1');
 	const openQImplementationV2 = await OpenQImplementationV2.deploy();
 	await openQImplementationV2.deployed();
