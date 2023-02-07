@@ -5,12 +5,17 @@ const { openQIssueIds, otherOrgIssueIds, otherOrgIssueOwners } = require('./gitH
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 // Fill this up with mock data
-const { boolean, uint256, string } = require('./fuzz_data.json');
+const { boolean, uint256, string, address } = require('./fuzz_data.json');
 
-// 
-function getRandomElement(array) {
-	return array[Math.floor(Math.random() * array.length)];
-}
+// This adds it to the array prototype so you can call it like boolean.random()
+Array.prototype.random = function() {
+	return this[Math.floor(Math.random() * this.length)];
+};
+
+// This adds a method to bound the scope of input as needed. May come in handy like uint256.random().limitToRange(5) for bounty type
+Number.prototype.limitToRange = function(upperBoundExclusive) {
+	return Math.min(Math.max(this, 0), upperBoundExclusive);
+};
 
 async function deployBounties() {
 	console.log('\n------------------------------------------');
@@ -25,7 +30,9 @@ async function deployBounties() {
 	let abiCoder = new ethers.utils.AbiCoder;
 
 	// ATOMIC CONTRACT                              
-	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], [false, ethers.constants.AddressZero, 0, true, true, true, 'po', 'po', 'po']);
+	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(
+		['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], 
+		[boolean.random(), address.random(), 0, boolean.random(), boolean.random(), boolean.random(), string.random(), string.random(), string.random()]);
 	let atomicBountyNoFundingGoalInitOperation = [0, abiEncodedParamsAtomicNoFundingGoal];
 	
 	const abiEncodedParamsAtomic = abiCoder.encode(['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], [true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true, true, 'po', 'po', 'po']);
