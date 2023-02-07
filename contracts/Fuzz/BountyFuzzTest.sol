@@ -19,4 +19,6 @@ contract BountyFuzzTest is FunctionWrappers {
         assert(tieredFixedBounty.issuer() == address(minter));
         assert(tieredPercentageBounty.issuer() == address(minter));
     }
+
+    // fundBountyToken always leads to higher balance
 }

@@ -1,0 +1,5 @@
+{
+	"boolean": [true, false],
+	"uint256": [100, 10],
+	"string": ["foo", "bar"]
+}

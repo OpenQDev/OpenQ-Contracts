@@ -5,7 +5,7 @@ import './FunctionWrappers.sol';
 
 contract OpenQV1FuzzTest is FunctionWrappers {
     constructor() {
-        // openQ.renounceOwnership();
+        openQ.renounceOwnership();
     }
 
     /// @notice Checks that no codepath exists that can change oracle BESIDES transferOracle()

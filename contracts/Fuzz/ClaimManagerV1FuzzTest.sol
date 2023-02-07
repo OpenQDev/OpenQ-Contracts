@@ -10,8 +10,8 @@ contract ClaimManagerV1FuzzTest is FunctionWrappers {
 
     /// @notice Checks that no codepath exists that can change oracle BESIDES transferOracle()
     /// @dev Renounce ownership, and oracle should never be able to be transferred again
-    function assert_cannot_set_token_whitelist() public view {
-        assert(address(claimManager.oracle()) == address(oracle));
+    function assert_cannot_transfer_oracle() public view {
+        assert(claimManager.oracle() == address(oracle));
     }
 
     /// @notice Checks that no codepath exists that can call initialize after initialization

@@ -32,6 +32,11 @@ contract Setup {
     TieredPercentageBountyV1 tieredPercentageBounty;
     TieredFixedBountyV1 tieredFixedBounty;
 
+    string atomicBountyId = 'atomicBountyId';
+    string ongoingBountyId = 'ongoingBountyId';
+    string tieredBountyId = 'tieredBountyId';
+    string tieredFixedBountyId = 'tieredFixedBountyId';
+
     // Simulated EOAs
     Users owner;
     Users oracle;
@@ -136,7 +141,7 @@ contract Setup {
             address(openQ),
             abi.encodeWithSelector(
                 openQ.mintBounty.selector,
-                'atomicBountyId',
+                atomicBountyId,
                 'atomicOrganization',
                 OpenQDefinitions.InitOperation(0, initDataAtomic)
             )
@@ -165,7 +170,7 @@ contract Setup {
             address(openQ),
             abi.encodeWithSelector(
                 openQ.mintBounty.selector,
-                'OngoingBountyId',
+                ongoingBountyId,
                 'OngoingOrganization',
                 OpenQDefinitions.InitOperation(1, initDataOngoing)
             )
@@ -196,7 +201,7 @@ contract Setup {
                 address(openQ),
                 abi.encodeWithSelector(
                     openQ.mintBounty.selector,
-                    'TieredBountyId',
+                    tieredBountyId,
                     'TieredOrganization',
                     OpenQDefinitions.InitOperation(2, initDataTieredPercentage)
                 )
@@ -228,7 +233,7 @@ contract Setup {
                 address(openQ),
                 abi.encodeWithSelector(
                     openQ.mintBounty.selector,
-                    'TieredFixedBountyId',
+                    tieredFixedBountyId,
                     'TieredFixedOrganization',
                     OpenQDefinitions.InitOperation(3, initDataTieredFixed)
                 )

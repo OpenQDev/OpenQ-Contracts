@@ -10,6 +10,7 @@ import './Setup.sol';
 contract FunctionWrappers is Setup {
     constructor() {}
 
+    //************************* OPENQ *************************/
     function _transferOracle(address _newOracle) public {
         require(_newOracle != address(0), 'No zero address');
         openQ.transferOracle(_newOracle);
@@ -30,13 +31,30 @@ contract FunctionWrappers is Setup {
         openQ.setDepositManager(_newDepositManager);
     }
 
-    function _upgradeTo(address _newImplementation) public {
+    function _upgradeToOpenQ(address _newImplementation) public {
         require(_newImplementation != address(0), 'No zero address');
         openQ.upgradeTo(_newImplementation);
     }
 
+    //************************* DEPOSIT MANAGER *************************/
     function _setTokenWhitelist(address _newTokenWhitelist) public {
         require(_newTokenWhitelist != address(0), 'No zero address');
         depositManager.setTokenWhitelist(_newTokenWhitelist);
+    }
+
+    function _upgradeToDepositManager(address _newImplementation) public {
+        require(_newImplementation != address(0), 'No zero address');
+        depositManager.upgradeTo(_newImplementation);
+    }
+
+    //************************* CLAIM MANAGER *************************/
+    function _upgradeToClaimManager(address _newImplementation) public {
+        require(_newImplementation != address(0), 'No zero address');
+        claimManager.upgradeTo(_newImplementation);
+    }
+
+    function _setOpenQ(address _newOpenQ) public {
+        require(_newOpenQ != address(0), 'No zero address');
+        claimManager.setOpenQ(_newOpenQ);
     }
 }
