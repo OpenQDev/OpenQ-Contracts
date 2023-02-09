@@ -1,15 +1,19 @@
 const { ethers, network } = require('hardhat');
 const { optionalSleep } = require('./utils');
 const path = require('path');
-const { openQIssueIds, otherOrgIssueIds, otherOrgIssueOwners } = require('./gitHubIssueIds.json');
+const { allOrgs, allIds } = require('./gitHubIssueIds.json');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') });
 
 // Fill this up with mock data
-const { boolean, uint256, string, address } = require('./fuzz_data.json');
+const { boolean, uint256, string, address, tieredPercentage_payoutSchedule } = require('./fuzz_data.json');
 
 // This adds it to the array prototype so you can call it like boolean.random()
 Array.prototype.random = function() {
 	return this[Math.floor(Math.random() * this.length)];
+};
+
+const getRandomBountyType = () => {
+	return Math.floor(Math.random() * 4);
 };
 
 // This adds a method to bound the scope of input as needed. May come in handy like uint256.random().limitToRange(5) for bounty type
@@ -29,108 +33,43 @@ async function deployBounties() {
 	// PREPARE INITIALIZATION DATA
 	let abiCoder = new ethers.utils.AbiCoder;
 
-	// ATOMIC CONTRACT                              
-	const abiEncodedParamsAtomicNoFundingGoal = abiCoder.encode(
-		['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], 
-		[boolean.random(), address.random(), 0, boolean.random(), boolean.random(), boolean.random(), string.random(), string.random(), string.random()]);
-	let atomicBountyNoFundingGoalInitOperation = [0, abiEncodedParamsAtomicNoFundingGoal];
-	
-	const abiEncodedParamsAtomic = abiCoder.encode(['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], [true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true, true, 'po', 'po', 'po']);
-	let atomicBountyInitOperation = [0, abiEncodedParamsAtomic];
-
-	// ONGOING
-
-	const abiEncodedParamsOngoing = abiCoder.encode(['address', 'uint256', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100', true, process.env.MOCK_LINK_TOKEN_ADDRESS, '1000', true, true, true, '', '', '']);
-	let ongoingBountyInitOperation = [1, abiEncodedParamsOngoing];
-
-	const abiEncodedParamsOngoingNoFundingGoal = abiCoder.encode(['address', 'uint256', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [process.env.MOCK_LINK_TOKEN_ADDRESS, '100', false, ethers.constants.AddressZero, 0, true, true, true, '', '', '']);
-	let ongoingBountyNoFundingGoalInitOperation = [1, abiEncodedParamsOngoingNoFundingGoal];
-
-	// CONTEST
-	const abiEncodedParamsContestPercentage = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[70, 20, 10], true, process.env.MOCK_LINK_TOKEN_ADDRESS, 100, true, true, true, '', '', '']);
-	let contestPercentageInitOperation = [2, abiEncodedParamsContestPercentage];
-
-	const abiEncodedParamsContestPercentageNoFundingGoal = abiCoder.encode(['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[70, 20, 10], false, ethers.constants.AddressZero, 0, true, true, true, '', '', '']);
-	let contestPercentageNoFundingGoalInitOperation = [2, abiEncodedParamsContestPercentageNoFundingGoal];
-
-	const abiEncodedParamsTieredFixedBounty = abiCoder.encode(['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], [[80, 20], process.env.MOCK_LINK_TOKEN_ADDRESS, true, true, true, '', '', '']);
-	let tieredFixedBountyInitOperation = [3, abiEncodedParamsTieredFixedBounty];
-
-	// DEPLOY CONTRACTS
-
-
 	// ATOMIC CONTRACT
-	console.log('Minting Atomic Contract with no funding goal...');
-	await openQ.mintBounty(openQIssueIds[0], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', atomicBountyNoFundingGoalInitOperation);
-	await optionalSleep(10000);
-	console.log('Atomic Contract with no funding goal deployed!');
+	for (let i=0; i < allIds.length; i++) {
+		const githubId = allIds[i];
+		const orgId = allOrgs[i];
 
-	console.log('Minting Atomic Contract with funding goal...');
-	await openQ.mintBounty(openQIssueIds[1], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', atomicBountyInitOperation);
-	await optionalSleep(10000);
-	console.log('Atomic Contract with funding goal deployed!');
+		const bountyType = getRandomBountyType();
+		let initOperation;
+
+		if (bountyType == 0) {
+			const abiEncodedParamsAtomic = abiCoder.encode(
+				['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'], 
+				[boolean.random(), address.random(), uint256.random(), boolean.random(), boolean.random(), boolean.random(), string.random(), string.random(), string.random()]);
+			initOperation = [0, abiEncodedParamsAtomic];
+		} else if (bountyType == 1) {
+			const abiEncodedParamsOngoing = abiCoder.encode(
+				['address', 'uint256', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], 
+				[address.random(), uint256.random(), true, address.random(), uint256.random(), boolean.random(), boolean.random(), boolean.random(), string.random(), string.random(), string.random()]);
+			initOperation = [1, abiEncodedParamsOngoing];
+		} else if (bountyType == 2) {
+			const abiEncodedParamsContestPercentage = abiCoder.encode(
+				['uint256[]', 'bool', 'address', 'uint256', 'bool', 'bool', 'bool', 'string', 'string', 'string'], 
+				[tieredPercentage_payoutSchedule.random(), boolean.random(), address.random(), uint256.random(), boolean.random(), boolean.random(), boolean.random(), string.random(), string.random(), string.random()]);
+			initOperation = [2, abiEncodedParamsContestPercentage];
+		} else if (bountyType == 3) {
+			const abiEncodedParamsTieredFixedBounty = abiCoder.encode(
+				['uint256[]', 'address', 'bool', 'bool', 'bool', 'string', 'string', 'string'], 
+				[[uint256.random(), uint256.random()], address.random(), boolean.random(), boolean.random(), boolean.random(), string.random(), string.random(), string.random()]);
+			initOperation = [3, abiEncodedParamsTieredFixedBounty];
+		} else {
+			throw new Error('Unknown Bounty Type');
+		}
 	
-	console.log('Minting Atomic Contract with no funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[0], otherOrgIssueOwners[0], atomicBountyNoFundingGoalInitOperation);
-	await optionalSleep(10000);
-	console.log('Atomic Contract with no funding goal deployed!');
-
-	console.log('Minting Atomic Contract with funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[1], otherOrgIssueOwners[1], atomicBountyInitOperation);
-	await optionalSleep(10000);
-	console.log('Atomic Contract with funding goal deployed!');
-
-	// ONGOING
-	console.log('Minting Ongoing contract with no funding goal...');
-	await openQ.mintBounty(openQIssueIds[2], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyNoFundingGoalInitOperation);
-	await optionalSleep(10000);
-	console.log('Ongoing contract with no funding goal deployed!');
-
-	console.log('Minting Ongoing contract with no funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[2], otherOrgIssueOwners[2], ongoingBountyNoFundingGoalInitOperation);
-	await optionalSleep(10000);
-	console.log('Ongoing contract with no funding goal deployed!');
-
-	console.log('Minting Ongoing contract with funding goal...');
-	await openQ.mintBounty(openQIssueIds[3], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', ongoingBountyInitOperation);
-	await optionalSleep(10000);
-	console.log('Ongoing contract with funding goal deployed!');
-
-	console.log('Minting Ongoing contract with funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[3], otherOrgIssueOwners[3], ongoingBountyInitOperation);
-	await optionalSleep(10000);
-	console.log('Ongoing contract with funding goal deployed!');
-
-	// CONTEST
-	console.log('Minting Contest percentage contract with funding goal...');
-	await openQ.mintBounty(openQIssueIds[4], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageInitOperation);
-	await optionalSleep(10000);
-	console.log('Contest percentage contract with funding goal deployed!');
-
-	console.log('Minting Contest percentage contract with funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[4], otherOrgIssueOwners[4], contestPercentageInitOperation);
-	await optionalSleep(10000);
-	console.log('Contest percentage contract with funding goal deployed!');
-
-	console.log('Minting Contest percentage contract with no funding goal...');
-	await openQ.mintBounty(openQIssueIds[5], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', contestPercentageNoFundingGoalInitOperation);
-	await optionalSleep(10000);
-	console.log('Contest percentage contract with no  funding goal deployed!');
-
-	console.log('Minting Contest percentage contract with no funding goal...');
-	await openQ.mintBounty(otherOrgIssueIds[5], otherOrgIssueOwners[5], contestPercentageNoFundingGoalInitOperation);
-	await optionalSleep(10000);
-	console.log('Contest percentage contract with no  funding goal deployed!');
-
-	console.log('Minting Contest fixed contract...');
-	await openQ.mintBounty(openQIssueIds[6], 'MDEyOk9yZ2FuaXphdGlvbjc3NDAyNTM4', tieredFixedBountyInitOperation);
-	await optionalSleep(10000);
-	console.log('Minting Contest fixed contract deployed!');
-
-	console.log('Minting Contest fixed contract...');
-	await openQ.mintBounty(otherOrgIssueIds[6], otherOrgIssueOwners[6], tieredFixedBountyInitOperation);
-	await optionalSleep(10000);
-	console.log('Minting Contest fixed contract deployed!');
+		console.log(`Minting bounty type ${bountyType}...`);
+		await openQ.mintBounty(githubId, orgId, initOperation);
+		await optionalSleep(10000);
+		console.log('Contract deployed!');
+	}
 
 	console.log('\nBounties Deployed Successfully!');
 }

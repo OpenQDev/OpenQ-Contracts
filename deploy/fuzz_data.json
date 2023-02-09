@@ -1,6 +1,7 @@
 {
 	"boolean": [true, false],
 	"uint256": [100, 10],
+	"tieredPercentage_payoutSchedule": [[0,0,0], [100,0,0], [50,30,20]],
 	"string": ["foo", "bar", ""],
 	"address": ["0x0000000000000000000000000000000000000000", "0x46e09468616365256F11F4544e65cE0C70ee624b"]
 }

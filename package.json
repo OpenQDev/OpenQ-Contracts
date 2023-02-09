@@ -31,6 +31,7 @@
 		"verify-contracts:polygon": "hardhat run --network polygon deploy/verify_contracts.js",
 		"deploy-contracts:localhost": "hardhat run --network localhost deploy/deploy_contracts.js",
 		"configure-whitelist:localhost": "hardhat run --network localhost deploy/configure-whitelist.js",
+		"deploy-bounties-fuzz:localhost": "hardhat run --network localhost deploy/deploy_bounties_fuzz.js",
 		"deploy-bounties:localhost": "hardhat run --network localhost deploy/deploy_bounties.js",
 		"fund-bounties:localhost": "hardhat run --network localhost deploy/fund_bounties.js",
 		"deploy-bounties-fuzz:docker": "hardhat run --network docker deploy/deploy_bounties_fuzz.js",
