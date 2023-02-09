@@ -14,5 +14,4 @@ CMD curl --connect-timeout 5 \
 	--retry-max-time 40 \
 	'http://ethnode:8545' \
 	&& yarn deploy-contracts:docker \
-	&& yarn configure-whitelist:docker \
-	&& yarn deploy-bounties-fuzz:docker
+	&& yarn configure-whitelist:docker

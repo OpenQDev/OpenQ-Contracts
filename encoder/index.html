@@ -5,7 +5,7 @@
     <form name="inputParamsForm" id="input-params-form">
       <h3>Bounty Type</h3>
 
-      <input type="radio" id="atomic" name="bountyType" value="0" />
+      <input type="radio" id="atomic" name="bountyType" value="0" checked />
       <label for="atomic">Atomic</label><br />
 
       <input type="radio" id="ongoing" name="bountyType" value="1" />
@@ -23,34 +23,55 @@
           type="text"
           id="hasFundingGoal"
           name="hasFundingGoal"
+          value="true"
         /><br /><br />
       </div>
 
       <div id="fundingTokenInput">
         <label for="fundingToken">fundingToken</label>
-        <input type="text" id="fundingToken" name="fundingToken" /><br /><br />
+        <input
+          type="text"
+          id="fundingToken"
+          name="fundingToken"
+          value="0x947F3FC93AB8b74C44F837d3031347DDBb32cf08"
+        /><br /><br />
       </div>
 
       <div id="fundingGoalInput">
         <label for="fundingGoal">fundingGoal</label>
-        <input type="text" id="fundingGoal" name="fundingGoal" /><br /><br />
+        <input
+          type="text"
+          id="fundingGoal"
+          name="fundingGoal"
+          value="100"
+        /><br /><br />
       </div>
 
       <div id="payoutScheduleInput">
         <label for="payoutSchedule">payoutSchedule</label>
-        <input type="text" id="payoutSchedule" name="payoutSchedule" />
+        <input
+          type="text"
+          id="payoutSchedule"
+          name="payoutSchedule"
+          value="[60,30,20]"
+        />
         <br /><br />
       </div>
 
       <div id="payoutTokenAddressInput">
         <label for="payoutTokenAddress">payoutTokenAddress</label>
-        <input type="text" id="payoutTokenAddress" name="payoutTokenAddress" />
+        <input
+          type="text"
+          id="payoutTokenAddress"
+          name="payoutTokenAddress"
+          value="0x947F3FC93AB8b74C44F837d3031347DDBb32cf08"
+        />
         <br /><br />
       </div>
 
       <div id="payoutVolumeInput">
         <label for="payoutVolume">payoutVolume</label>
-        <input type="text" id="payoutVolume" name="payoutVolume" />
+        <input type="text" id="payoutVolume" name="payoutVolume" value="100" />
         <br /><br />
       </div>
 
@@ -60,12 +81,18 @@
           type="text"
           id="invoiceRequired"
           name="invoiceRequired"
+          value="true"
         /><br /><br />
       </div>
 
       <div id="kycRequiredInput">
         <label for="kycRequired">kycRequired</label>
-        <input type="text" id="kycRequired" name="kycRequired" /><br /><br />
+        <input
+          type="text"
+          id="kycRequired"
+          name="kycRequired"
+          value="true"
+        /><br /><br />
       </div>
 
       <div id="supportingDocumentsRequiredInput">
@@ -76,6 +103,7 @@
           type="text"
           id="supportingDocumentsRequired"
           name="supportingDocumentsRequired"
+          value="true"
         /><br /><br />
       </div>
 
@@ -85,6 +113,7 @@
           type="text"
           id="issuerExternalUserId"
           name="issuerExternalUserId"
+          value="issuerExternalUserId"
         /><br /><br />
       </div>
 
@@ -94,6 +123,7 @@
           type="text"
           id="alternativeName"
           name="alternativeName"
+          value="alternativeName"
         /><br /><br />
       </div>
 
@@ -103,12 +133,15 @@
           type="text"
           id="alternativeLogo"
           name="alternativeLogo"
+          value="alternativeLogo"
         /><br /><br />
       </div>
 
       <input type="submit" value="Submit" />
     </form>
-    <p id="encoded-data" style="">DATA</p>
+    <div style="display: block; width: 200px;">
+      <p id="encoded-data" style="width: 50%;">DATA</p>
+    </div>
   </body>
   <script src="index.js"></script>
   <script
@@ -117,6 +150,7 @@
   ></script>
   <script>
     var form = document.getElementById('input-params-form')
+    var currentBountyType = '0'
 
     function handleForm(event) {
       event.preventDefault()
@@ -127,11 +161,75 @@
         return obj
       }, {})
 
-      const { bountyType } = inputs
+      const {
+        hasFundingGoal,
+        fundingToken,
+        fundingGoal,
+        invoiceRequired,
+        kycRequired,
+        supportingDocumentsRequired,
+        issuerExternalUserId,
+        alternativeName,
+        alternativeLogo,
+        payoutSchedule,
+        payoutTokenAddress,
+        payoutVolume,
+      } = inputs
 
-      console.log(bountyType)
+      let encodedData
+      if (currentBountyType == 0) {
+        encodedData = Encoder.atomicEncode(
+          hasFundingGoal,
+          fundingToken,
+          fundingGoal,
+          invoiceRequired,
+          kycRequired,
+          supportingDocumentsRequired,
+          issuerExternalUserId,
+          alternativeName,
+          alternativeLogo
+        )
+      } else if (currentBountyType == 1) {
+        encodedData = Encoder.ongoingEncode(
+          payoutTokenAddress,
+          payoutVolume,
+          hasFundingGoal,
+          fundingToken,
+          fundingGoal,
+          invoiceRequired,
+          kycRequired,
+          supportingDocumentsRequired,
+          issuerExternalUserId,
+          alternativeName,
+          alternativeLogo
+        )
+      } else if (currentBountyType == 2) {
+        encodedData = Encoder.tieredPercentageEncode(
+          payoutSchedule,
+          hasFundingGoal,
+          fundingToken,
+          fundingGoal,
+          invoiceRequired,
+          kycRequired,
+          supportingDocumentsRequired,
+          issuerExternalUserId,
+          alternativeName,
+          alternativeLogo
+        )
+      } else {
+        encodedData = Encoder.tieredFixedEncode(
+          payoutSchedule,
+          payoutTokenAddress,
+          invoiceRequired,
+          kycRequired,
+          supportingDocumentsRequired,
+          issuerExternalUserId,
+          alternativeName,
+          alternativeLogo
+        )
+      }
 
-      document.getElementById('encoded-data').innerHTML = bountyType
+      document.getElementById('encoded-data').innerHTML = encodedData
     }
 
     form.addEventListener('submit', handleForm)
@@ -140,12 +238,13 @@
     var prev = null
     for (var i = 0; i < rad.length; i++) {
       rad[i].addEventListener('change', function () {
-        const currentBountyType = this.value
+        currentBountyType = this.value
         if (currentBountyType == 0) {
           // HIDE
           document.getElementById('payoutScheduleInput').style.display = 'none'
           document.getElementById('payoutTokenAddressInput').style.display =
             'none'
+          document.getElementById('payoutVolumeInput').style.display = 'none'
 
           // SHOW
           document.getElementById('hasFundingGoalInput').style.display = 'block'
@@ -178,6 +277,7 @@
           document.getElementById('hasFundingGoalInput').style.display = 'none'
           document.getElementById('fundingTokenInput').style.display = 'none'
           document.getElementById('fundingGoalInput').style.display = 'none'
+          document.getElementById('payoutVolumeInput').style.display = 'none'
 
           // SHOW
           document.getElementById('payoutTokenAddressInput').style.display =
