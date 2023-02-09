@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "chainId": "137",
+  "createdAt": 1675969017837,
+  "meta": {
+    "name": "OpenQ Batcher - USDC Approve",
+    "description": "",
+    "txBuilderVersion": "1.13.2",
+    "createdFromSafeAddress": "0xBCb0a2D4e644F294849D7792f2A077F9349b155F",
+    "createdFromOwnerAddress": "",
+    "checksum": "0xafd0704294a3e344204b3cb4c5c8e8d29701ddb7b67326302c43554eee93aaa6"
+  },
+  "transactions": [
+    {
+      "to": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "address", "name": "spender", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "approve",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "spender": "0x947F3FC93AB8b74C44F837d3031347DDBb32cf08",
+        "amount": "1000000000000000000"
+      }
+    }
+  ]
+}

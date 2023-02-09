@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "chainId": "137",
+  "createdAt": 1675968271055,
+  "meta": {
+    "name": "OpenQ Batcher - Accept W8",
+    "description": "",
+    "txBuilderVersion": "1.13.2",
+    "createdFromSafeAddress": "0xBCb0a2D4e644F294849D7792f2A077F9349b155F",
+    "createdFromOwnerAddress": "",
+    "checksum": "0x0c65b0e6717c2372943f0515f3277882d603c23a5974db44fdf395b928d2b94e"
+  },
+  "transactions": [
+    {
+      "to": "0x4209D2f8E36E544eA6904Ad80758e1cD8Df77d13",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "string", "name": "_bountyId", "type": "string" },
+          { "internalType": "bytes", "name": "_data", "type": "bytes" }
+        ],
+        "name": "setSupportingDocumentsComplete",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_bountyId": "\"mockBountyId\"",
+        "_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+      }
+    }
+  ]
+}

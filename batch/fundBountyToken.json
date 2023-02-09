@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "chainId": "137",
+  "createdAt": 1675968830233,
+  "meta": {
+    "name": "OpenQ Batcher - Fund Bounty",
+    "description": "",
+    "txBuilderVersion": "1.13.2",
+    "createdFromSafeAddress": "0xBCb0a2D4e644F294849D7792f2A077F9349b155F",
+    "createdFromOwnerAddress": "",
+    "checksum": "0x6986887333308954c7e932c8cba69a376643eae019072c82e7e01fee510a31e3"
+  },
+  "transactions": [
+    {
+      "to": "0x8A238A4cc866f83D50c0b4f5fDdbFD32332F8AD3",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_bountyAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_tokenAddress",
+            "type": "address"
+          },
+          { "internalType": "uint256", "name": "_volume", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "_expiration",
+            "type": "uint256"
+          },
+          { "internalType": "string", "name": "funderUuid", "type": "string" }
+        ],
+        "name": "fundBountyToken",
+        "payable": true
+      },
+      "contractInputsValues": {
+        "_bountyAddress": "0x1abcD810374b2C0fCDD11cFA280Df9dA7970da4e",
+        "_tokenAddress": "0x947F3FC93AB8b74C44F837d3031347DDBb32cf08",
+        "_volume": "1000000000000000000",
+        "_expiration": "1675968802",
+        "funderUuid": "\"funderUuid\""
+      }
+    }
+  ]
+}

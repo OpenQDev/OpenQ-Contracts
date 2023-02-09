@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "chainId": "137",
+  "createdAt": 1675968654080,
+  "meta": {
+    "name": "OpenQ Batcher - Set Payout Schedule",
+    "description": "",
+    "txBuilderVersion": "1.13.2",
+    "createdFromSafeAddress": "0xBCb0a2D4e644F294849D7792f2A077F9349b155F",
+    "createdFromOwnerAddress": "",
+    "checksum": "0x8baddc1826bb3b4985ca806b11cd9bc88e492e350ebb98e9db66693de033a197"
+  },
+  "transactions": [
+    {
+      "to": "0x4209D2f8E36E544eA6904Ad80758e1cD8Df77d13",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "string", "name": "_bountyId", "type": "string" },
+          {
+            "internalType": "uint256[]",
+            "name": "_payoutSchedule",
+            "type": "uint256[]"
+          }
+        ],
+        "name": "setPayoutSchedule",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_bountyId": "\"mockBountyId\"",
+        "_payoutSchedule": "[100,200,50]"
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "chainId": "137",
+  "createdAt": 1675968568429,
+  "meta": {
+    "name": "OpenQ Batcher - Set Tier Winner",
+    "description": "",
+    "txBuilderVersion": "1.13.2",
+    "createdFromSafeAddress": "0xBCb0a2D4e644F294849D7792f2A077F9349b155F",
+    "createdFromOwnerAddress": "",
+    "checksum": "0x7da81cf72af844376055a93f15fe2a6743136bcb16d1dc4bbc90f074038a0313"
+  },
+  "transactions": [
+    {
+      "to": "0x4209D2f8E36E544eA6904Ad80758e1cD8Df77d13",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "string", "name": "_bountyId", "type": "string" },
+          { "internalType": "uint256", "name": "_tier", "type": "uint256" },
+          { "internalType": "string", "name": "_winner", "type": "string" }
+        ],
+        "name": "setTierWinner",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_bountyId": "\"bountyId\"",
+        "_tier": "0",
+        "_winner": "\"winnerUUID\""
+      }
+    }
+  ]
+}

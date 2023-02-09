@@ -1,0 +1,1 @@
+# Batch Transaction JSON Templates for Gnosis Safe Transaction Builder
