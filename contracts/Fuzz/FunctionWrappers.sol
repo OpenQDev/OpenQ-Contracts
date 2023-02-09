@@ -36,6 +36,24 @@ contract FunctionWrappers is Setup {
         openQ.upgradeTo(_newImplementation);
     }
 
+    function _setSupportingDocumentsComplete() public {
+        if (!bountiesDeployed) deployBounties();
+
+        openQ.setSupportingDocumentsComplete(atomicBountyId, abi.encode(true));
+        openQ.setSupportingDocumentsComplete(
+            ongoingBountyId,
+            abi.encode('foo', true)
+        );
+        openQ.setSupportingDocumentsComplete(
+            tieredBountyId,
+            abi.encode(0, true)
+        );
+        openQ.setSupportingDocumentsComplete(
+            tieredFixedBountyId,
+            abi.encode(0, true)
+        );
+    }
+
     //************************* DEPOSIT MANAGER *************************/
     function _setTokenWhitelist(address _newTokenWhitelist) public {
         require(_newTokenWhitelist != address(0), 'No zero address');
