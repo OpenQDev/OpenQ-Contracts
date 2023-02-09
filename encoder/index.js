@@ -1,8 +1,5 @@
-const { ethers } = require('hardhat');
-
-let abiCoder = new ethers.utils.AbiCoder;
-
 const atomicEncode = (hasFundingGoal, fundingGoalTokenAddress, fundingGoalVolume, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo) => {
+	let abiCoder = new ethers.utils.AbiCoder;
 	const initializationSchema = ['bool', 'address', 'uint256' , 'bool' , 'bool', 'bool' , 'string', 'string' , 'string'];
 	const initializationData = [hasFundingGoal, fundingGoalTokenAddress, fundingGoalVolume, invoiceRequired, kycRequired, supportingDocumentsRequired, issuerExternalUserId, alternativeName, alternativeLogo];
 	return abiCoder.encode(initializationSchema, initializationData);

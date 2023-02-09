@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>OpenQ ABI Encoder</h1>
+    <form id="input-params-form">
+      <h3>Bounty Type</h3>
+
+      <input type="radio" id="atomic" name="bounty-type" value="0" />
+      <label for="atomic">Atomic</label><br />
+
+      <input type="radio" id="ongoing" name="bounty-type" value="1" />
+      <label for="ongoing">Ongoing</label><br />
+
+      <input type="radio" id="tiered-percentage" name="bounty-type" value="2" />
+      <label for="tiered-percentage">Tiered Percentage</label><br />
+
+      <input type="radio" id="tiered-fixed" name="bounty-type" value="3" />
+      <label for="tiered-fixed">Tiered Fixed</label><br /><br />
+
+      <label for="hasFundingGoal">hasFundingGoal</label>
+      <input
+        type="text"
+        id="hasFundingGoal"
+        name="hasFundingGoal"
+      /><br /><br />
+
+      <label for="fundingToken">fundingToken</label>
+      <input type="text" id="fundingToken" name="fundingToken" /><br /><br />
+
+      <label for="fundingGoal">fundingGoal</label>
+      <input type="text" id="fundingGoal" name="fundingGoal" /><br /><br />
+
+      <label for="invoiceRequired">invoiceRequired</label>
+      <input
+        type="text"
+        id="invoiceRequired"
+        name="invoiceRequired"
+      /><br /><br />
+
+      <label for="kycRequired">kycRequired</label>
+      <input type="text" id="kycRequired" name="kycRequired" /><br /><br />
+
+      <label for="supportingDocumentsRequired"
+        >supportingDocumentsRequired</label
+      >
+      <input
+        type="text"
+        id="supportingDocumentsRequired"
+        name="supportingDocumentsRequired"
+      /><br /><br />
+
+      <label for="issuerExternalUserId">issuerExternalUserId</label>
+      <input
+        type="text"
+        id="issuerExternalUserId"
+        name="issuerExternalUserId"
+      /><br /><br />
+
+      <label for="alternativeName">alternativeName</label>
+      <input
+        type="text"
+        id="alternativeName"
+        name="alternativeName"
+      /><br /><br />
+
+      <label for="alternativeLogo">alternativeLogo</label>
+      <input
+        type="text"
+        id="alternativeLogo"
+        name="alternativeLogo"
+      /><br /><br />
+
+      <input type="submit" value="Submit" />
+    </form>
+    <p id="encoded-data" style="">DATA</p>
+  </body>
+  <script src="index.js"></script>
+  <script
+    src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+    type="application/javascript"
+  ></script>
+  <script>
+    var form = document.getElementById('input-params-form')
+
+    function handleForm(event) {
+      event.preventDefault()
+    }
+    form.addEventListener('submit', handleForm)
+
+    document.getElementById('encoded-data').innerHTML = Encoder.atomicEncode(
+      true,
+      '0x5fbdb2315678afecb367f032d93f642f64180aa3',
+      100,
+      true,
+      true,
+      true,
+      'po',
+      'po',
+      'po'
+    )
+  </script>
+</html>
