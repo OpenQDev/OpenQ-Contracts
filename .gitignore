@@ -13,6 +13,9 @@ mcore*/
 
 generated/
 
+crytic-export/
+echidna-corpus/
+
 **/artifacts
 **/.deps
 .env
