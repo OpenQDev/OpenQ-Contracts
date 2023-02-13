@@ -41,7 +41,7 @@
 		"chai": "4.3.7",
 		"dotenv": "16.0.0",
 		"ethereum-waffle": "3.4.0",
-		"ethers": "5.6.4",
+		"ethers": "5.7.2",
 		"fs": "0.0.1-security",
 		"graphql": "16.5.0",
 		"hardhat": "2.12.4",
