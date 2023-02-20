@@ -4,6 +4,7 @@ const { expect } = require('chai');
 require('@nomiclabs/hardhat-waffle');
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
+const { Constants } = require('./constants');
 
 describe('OpenQProxy', () => {
 	let openQImplementation;
@@ -19,7 +20,7 @@ describe('OpenQProxy', () => {
 	let BountyFactory;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV3');
+		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
 		OpenQTokenWhitelist = await hre.ethers.getContractFactory('OpenQTokenWhitelist');
 		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
 		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
@@ -74,7 +75,7 @@ describe('OpenQProxy', () => {
 			// ASSUME
 			expect(await openQProxy.getImplementation()).equals(openQImplementation.address);
 
-			const OpenQ = await hre.ethers.getContractFactory('OpenQV3');
+			const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
 			newOpenQ = await OpenQ.deploy();
 			await newOpenQ.deployed();
 

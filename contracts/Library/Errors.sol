@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.16;
+pragma solidity 0.8.17;
 
+/// @title Errors
+/// @author FlacoJones
+/// @notice Revert message constants
 library Errors {
     string constant BOUNTY_ALREADY_EXISTS = 'BOUNTY_ALREADY_EXISTS';
     string constant CALLER_NOT_ISSUER = 'CALLER_NOT_ISSUER';
+    string constant CALLER_NOT_ISSUER_OR_ORACLE = 'CALLER_NOT_ISSUER_OR_ORACLE';
     string constant CONTRACT_NOT_CLOSED = 'CONTRACT_NOT_CLOSED';
     string constant CONTRACT_ALREADY_CLOSED = 'CONTRACT_ALREADY_CLOSED';
     string constant TOKEN_NOT_ACCEPTED = 'TOKEN_NOT_ACCEPTED';
@@ -26,6 +30,15 @@ library Errors {
     string constant CONTRACT_IS_NOT_CLAIMABLE = 'CONTRACT_IS_NOT_CLAIMABLE';
     string constant TOO_MANY_TOKEN_ADDRESSES = 'TOO_MANY_TOKEN_ADDRESSES';
     string constant NO_ASSOCIATED_ADDRESS = 'NO_ASSOCIATED_ADDRESS';
+    string constant ADDRESS_LACKS_KYC = 'ADDRESS_LACKS_KYC';
+    string constant TOKEN_NOT_ALREADY_WHITELISTED =
+        'TOKEN_NOT_ALREADY_WHITELISTED';
+    string constant TOKEN_ALREADY_WHITELISTED = 'TOKEN_ALREADY_WHITELISTED';
+    string constant CLAIMANT_NOT_TIER_WINNER = 'CLAIMANT_NOT_TIER_WINNER';
+    string constant INVOICE_NOT_COMPLETE = 'INVOICE_NOT_COMPLETE';
+    string constant UNKNOWN_BOUNTY_TYPE = 'UNKNOWN_BOUNTY_TYPE';
+    string constant SUPPORTING_DOCS_NOT_COMPLETE =
+        'SUPPORTING_DOCS_NOT_COMPLETE';
     string constant EXPIRATION_NOT_GREATER_THAN_ZERO =
         'EXPIRATION_NOT_GREATER_THAN_ZERO';
     string constant PAYOUT_SCHEDULE_MUST_ADD_TO_100 =

@@ -13,6 +13,9 @@ mcore*/
 
 generated/
 
+crytic-export/
+echidna-corpus/
+
 **/artifacts
 **/.deps
 .env
@@ -23,3 +26,6 @@ generated/
 .openzeppelin/**
 
 contracts/.deps
+
+coverage/
+coverage.json

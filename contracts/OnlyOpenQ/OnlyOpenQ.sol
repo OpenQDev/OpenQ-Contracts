@@ -1,43 +1,27 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.16;
+pragma solidity 0.8.17;
 
-/**
- * @dev Third party imports
- */
 import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
 
-/**
- * @title OnlyOpenQ
- * @dev Restricts access for method calls to OpenQProxy address
- */
+/// @title OnlyOpenQ
+/// @author FlacoJones
+/// @notice Ownable-style contract to restrict access for method calls exclusively to the OpenQProxy address
 abstract contract OnlyOpenQ is ContextUpgradeable {
-    /**
-     * INITIALIZATION
-     */
-
-    /**
-     * @dev OpenQProxy address
-     */
+    /// @notice OpenQProxy address
     address private _openQ;
 
-    /**
-     * @dev Initializes contract with OpenQProxy address
-     * @param initalOpenQ The OpenQProxy address
-     */
-    function __OnlyOpenQ_init(address initalOpenQ) internal {
-        _openQ = initalOpenQ;
+    /// @notice Initializes contract with OpenQProxy address
+    /// @param _initalOpenQ The OpenQProxy address
+    function __OnlyOpenQ_init(address _initalOpenQ) internal {
+        _openQ = _initalOpenQ;
     }
 
-    /**
-     * @dev Getter for the current OpenQProxy address
-     */
+    /// @notice Getter for the current OpenQProxy address
     function openQ() public view returns (address) {
         return _openQ;
     }
 
-    /**
-     * @dev Modifier to restrict access of methods to OpenQProxy address
-     */
+    /// @notice Modifier to restrict access of methods to OpenQProxy address
     modifier onlyOpenQ() {
         require(_msgSender() == _openQ, 'Method is only callable by OpenQ');
         _;
