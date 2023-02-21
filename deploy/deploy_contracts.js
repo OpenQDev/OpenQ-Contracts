@@ -46,7 +46,7 @@ async function deployContracts() {
 	console.log('DEPLOYING OPENQ MAIN CONTRACT');
 	console.log('------------------------------------------');
 
-	console.log('Deploying OpenQV2 (Implementation)...');
+	console.log('Deploying OpenQV1 (Implementation)...');
 	const OpenQImplementationV2 = await ethers.getContractFactory('OpenQV1');
 	const openQImplementationV2 = await OpenQImplementationV2.deploy();
 	await openQImplementationV2.deployed();
@@ -258,10 +258,14 @@ DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
 OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
 ATOMIC_BOUNTY_BEACON_ADDRESS=${atomicBountyBeacon.address}
 ONGOING_BOUNTY_BEACON_ADDRESS=${ongoingBountyBeacon.address}
-TIERED_BOUNTY_BEACON_ADDRESS=${tieredBountyBeacon.address}
+TIERED_PERCENTAGE_BOUNTY_BEACON_ADDRESS=${tieredBountyBeacon.address}
 TIERED_FIXED_BOUNTY_BEACON_ADDRESS=${tieredFixedBountyBeacon.address}
 OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
 OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
+ATOMIC_BOUNTY_IMPLEMENTATION=${atomicBountyV1.address}
+ONGOING_BOUNTY_IMPLEMENTATION=${ongoingBountyV1.address}
+TIERED_PERCENTAGE_BOUNTY_IMPLEMENTATION=${tieredPercentageBountyV1.address}
+TIERED_FIXED_BOUNTY_IMPLEMENTATION=${tieredFixedBountyV1.address}
 MOCK_LINK_TOKEN_ADDRESS=${mockLink.address}
 MOCK_DAI_TOKEN_ADDRESS=${mockDai.address}
 MOCK_NFT_TOKEN_ADDRESS=${mockNFT.address}
@@ -275,8 +279,16 @@ CLAIM_MANAGER_IMPLEMENTATION_ADDRESS=${claimManagerV1.address}
 DEPOSIT_MANAGER_PROXY_ADDRESS=${depositManagerProxy.address}
 DEPOSIT_MANAGER_IMPLEMENTATION_ADDRESS=${depositManager.address}
 OPENQ_BOUNTY_FACTORY_ADDRESS=${bountyFactory.address}
+ATOMIC_BOUNTY_BEACON_ADDRESS=${atomicBountyBeacon.address}
+ONGOING_BOUNTY_BEACON_ADDRESS=${ongoingBountyBeacon.address}
+TIERED_PERCENTAGE_BOUNTY_BEACON_ADDRESS=${tieredBountyBeacon.address}
+TIERED_FIXED_BOUNTY_BEACON_ADDRESS=${tieredFixedBountyBeacon.address}
 OPENQ_TOKEN_WHITELIST_ADDRESS=${openQTokenWhitelist.address}
 OPENQ_DEPLOY_BLOCK_NUMBER=${deployBlockNumber}
+ATOMIC_BOUNTY_IMPLEMENTATION=${atomicBountyV1.address}
+ONGOING_BOUNTY_IMPLEMENTATION=${ongoingBountyV1.address}
+TIERED_PERCENTAGE_BOUNTY_IMPLEMENTATION=${tieredPercentageBountyV1.address}
+TIERED_FIXED_BOUNTY_IMPLEMENTATION=${tieredFixedBountyV1.address}
 MOCK_LINK_TOKEN_ADDRESS=0x326C977E6efc84E512bB9C30f76E30c160eD06FB
 MOCK_DAI_TOKEN_ADDRESS=0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1
 MOCK_NFT_TOKEN_ADDRESS=0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1
