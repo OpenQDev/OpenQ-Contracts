@@ -32,9 +32,9 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('\nVerifying BountyV1');
+		console.log('\nVerifying ClaimManager');
 		await hre.run('verify:verify', {
-			address: process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS,
+			address: process.env.CLAIM_MANAGER_IMPLEMENTATION_ADDRESS,
 		});
 	} catch (error) {
 		console.log(error);
@@ -50,20 +50,86 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('\nVerifying ClaimManager');
+		console.log('\nVerifying AtomicBountyV1');
 		await hre.run('verify:verify', {
-			address: process.env.CLAIM_MANAGER_IMPLEMENTATION_ADDRESS,
+			address: process.env.ATOMIC_BOUNTY_IMPLEMENTATION,
 		});
 	} catch (error) {
 		console.log(error);
 	}
 
 	try {
-		console.log('\nVerifying BountyBeacon');
+		console.log('\nVerifying OngoingBountyV1');
 		await hre.run('verify:verify', {
-			address: process.env.BOUNTY_BEACON_ADDRESS,
+			address: process.env.ONGOING_BOUNTY_IMPLEMENTATION,
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying TieredPercentageBountyV1');
+		await hre.run('verify:verify', {
+			address: process.env.TIERED_FIXED_BOUNTY_IMPLEMENTATION,
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying TieredFixedBountyV1');
+		await hre.run('verify:verify', {
+			address: process.env.TIERED_FIXED_BOUNTY_IMPLEMENTATION,
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying AtomicBountyBeacon');
+		await hre.run('verify:verify', {
+			address: process.env.ATOMIC_BOUNTY_BEACON_ADDRESS,
 			constructorArguments: [
-				process.env.OPENQ_BOUNTY_IMPLEMENTATION_ADDRESS
+				process.env.ATOMIC_BOUNTY_IMPLEMENTATION
+			],
+			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying OngoingBountyBeacon');
+		await hre.run('verify:verify', {
+			address: process.env.ONGOING_BOUNTY_BEACON_ADDRESS,
+			constructorArguments: [
+				process.env.ONGOING_BOUNTY_IMPLEMENTATION
+			],
+			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying TieredPercentageBountyBeacon');
+		await hre.run('verify:verify', {
+			address: process.env.TIERED_PERCENTAGE_BOUNTY_BEACON_ADDRESS,
+			constructorArguments: [
+				process.env.TIERED_PERCENTAGE_BOUNTY_IMPLEMENTATION
+			],
+			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
+		});
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		console.log('\nVerifying TieredFixedBountyBeacon');
+		await hre.run('verify:verify', {
+			address: process.env.TIERED_FIXED_BOUNTY_BEACON_ADDRESS,
+			constructorArguments: [
+				process.env.TIERED_FIXED_BOUNTY_IMPLEMENTATION
 			],
 			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
 		});
@@ -77,14 +143,10 @@ async function verifyContracts() {
 			address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
 			constructorArguments: [
 				process.env.OPENQ_PROXY_ADDRESS,
-				address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
-				constructorArguments: [
-					process.env.OPENQ_PROXY_ADDRESS,
-					process.env.ATOMIC_BOUNTY_BEACON_ADDRESS,
-					process.env.ONGOING_BOUNTY_BEACON_ADDRESS,
-					process.env.TIERED_BOUNTY_BEACON_ADDRESS,
-					process.env.TIERED_FIXED_BOUNTY_BEACON_ADDRESS
-				]
+				process.env.ATOMIC_BOUNTY_BEACON_ADDRESS,
+				process.env.ONGOING_BOUNTY_BEACON_ADDRESS,
+				process.env.TIERED_PERCENTAGE_BOUNTY_BEACON_ADDRESS,
+				process.env.TIERED_FIXED_BOUNTY_BEACON_ADDRESS
 			]
 		});
 	} catch (error) {
@@ -96,7 +158,7 @@ async function verifyContracts() {
 		await hre.run('verify:verify', {
 			address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS,
 			constructorArguments: [
-				20
+				5
 			]
 		});
 	} catch (error) {
