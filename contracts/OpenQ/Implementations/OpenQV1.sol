@@ -11,8 +11,9 @@ contract OpenQV1 is OpenQStorageV1 {
     constructor() {}
 
     /// @notice Initializes the OpenQ implementation with necessary storage variables like owner
-    function initialize() external initializer onlyProxy {
+    function initialize(address _initialOracle) external initializer onlyProxy {
         __Ownable_init();
+        __Oraclize_init(_initialOracle);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
     }
@@ -323,46 +324,6 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /// @notice Closes and ongoing bounty
-    /// @param _bountyId The ongoing bounty to close
-    function closeOngoing(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
-        require(
-            bountyType(_bountyId) == OpenQDefinitions.ONGOING,
-            Errors.NOT_AN_ONGOING_CONTRACT
-        );
-
-        IBounty bounty = IBounty(payable(bountyIdToAddress[_bountyId]));
-
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-
-        bounty.closeOngoing(msg.sender);
-
-        emit BountyClosed(
-            _bountyId,
-            bountyIdToAddress[_bountyId],
-            bounty.organization(),
-            address(0),
-            block.timestamp,
-            bounty.bountyType(),
-            new bytes(0),
-            VERSION_1
-        );
-    }
-
-    /// @notice Checks if bounty associated with _bountyId is open
-    /// @param _bountyId The bounty id
-    /// @return True if _bountyId is associated with an open bounty, false otherwise
-    function bountyIsOpen(string calldata _bountyId)
-        public
-        view
-        returns (bool)
-    {
-        IBounty bounty = getBounty(_bountyId);
-        bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
-        return isOpen;
-    }
-
     /// @notice Returns the bountyType of the bounty (Single(0), Ongoing(1), Tiered(2), or Tiered Fixed(3))
     /// @param _bountyId The bounty id
     /// @return bountyType - See OpenQDefinitions.sol for values
@@ -423,22 +384,6 @@ contract OpenQV1 is OpenQStorageV1 {
         address bountyAddress = bountyIdToAddress[_bountyId];
         IBounty bounty = IBounty(bountyAddress);
         return bounty;
-    }
-
-    /// @notice Determines whether or not a given submission by claimant has already been used for a claim
-    /// @param _bountyId The bounty id
-    /// @param _claimant The external user id to check
-    /// @param _claimantAsset The external id of the claimant's asset to check
-    /// @return True if claimed, false otherwise
-    function ongoingClaimed(
-        string calldata _bountyId,
-        string calldata _claimant,
-        string calldata _claimantAsset
-    ) external view returns (bool) {
-        IBounty bounty = getBounty(_bountyId);
-        bytes32 claimId = keccak256(abi.encode(_claimant, _claimantAsset));
-        bool _ongoingClaimed = bounty.claimId(claimId);
-        return _ongoingClaimed;
     }
 
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades

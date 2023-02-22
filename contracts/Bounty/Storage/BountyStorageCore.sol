@@ -48,11 +48,9 @@ abstract contract BountyStorageCore is
     mapping(bytes32 => address) public payoutAddress;
     mapping(bytes32 => uint256) public tokenId;
     mapping(bytes32 => uint256) public expiration;
-    mapping(bytes32 => bool) public isNFT;
 
     /// @notice Array of depositIds
     bytes32[] public deposits;
-    bytes32[] public nftDeposits;
 
     /// @notice Set of unique token address
     EnumerableSetUpgradeable.AddressSet internal tokenAddresses;

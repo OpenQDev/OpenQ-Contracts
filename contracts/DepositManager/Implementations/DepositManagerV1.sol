@@ -42,14 +42,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     ) external payable onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
-        if (!isWhitelisted(_tokenAddress)) {
-            require(
-                !tokenAddressLimitReached(_bountyAddress),
-                Errors.TOO_MANY_TOKEN_ADDRESSES
-            );
-        }
-
-        require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
+        require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
             value: msg.value
@@ -100,48 +94,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
             newExpiration,
             0,
             new bytes(0),
-            VERSION_1
-        );
-    }
-
-    /// @notice Transfers NFT from msg.sender to bounty address
-    /// @param _bountyAddress The address of the bounty to fund
-    /// @param _tokenAddress The ERC721 token address of the NFT
-    /// @param _tokenId The tokenId of the NFT to transfer
-    /// @param _expiration The duration until the deposit becomes refundable
-    /// @param _data The tier of the NFT (not relevant for non-tiered bounties)
-    function fundBountyNFT(
-        address _bountyAddress,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration,
-        bytes calldata _data
-    ) external onlyProxy {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-
-        require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
-        require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
-
-        bytes32 depositId = bounty.receiveNft(
-            msg.sender,
-            _tokenAddress,
-            _tokenId,
-            _expiration,
-            _data
-        );
-
-        emit NFTDepositReceived(
-            depositId,
-            _bountyAddress,
-            bounty.bountyId(),
-            bounty.organization(),
-            _tokenAddress,
-            block.timestamp,
-            msg.sender,
-            _expiration,
-            _tokenId,
-            0,
-            _data,
             VERSION_1
         );
     }
@@ -199,21 +151,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     /// @return True if _tokenAddress is whitelisted, false otherwise
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
-    }
-
-    /// @notice Returns true if the total number of unique tokens deposited on then bounty is greater than the OpenQWhitelist TOKEN_ADDRESS_LIMIT
-    /// @param _bountyAddress Address of bounty
-    /// @return True if the token address limit has been reached
-    function tokenAddressLimitReached(address _bountyAddress)
-        public
-        view
-        returns (bool)
-    {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-
-        return
-            bounty.getTokenAddressesCount() >=
-            openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
     }
 
     /// @notice Checks if bounty associated with _bountyId is open

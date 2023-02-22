@@ -149,10 +149,6 @@ interface IBountyCore {
     /// @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
     function getTokenAddresses() external view returns (address[] memory);
 
-    /// @notice Returns an array of ONLY NFT deposits for this bounty
-    /// @return nftDeposits The array of NFT deposits
-    function getNftDeposits() external view returns (bytes32[] memory);
-
     /// @notice Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
     /// @param _depositId The depositId that determines which token is being looked at
     /// @return uint256
@@ -198,8 +194,6 @@ interface IBountyCore {
     function isNFT(bytes32) external view returns (bool);
 
     function deposits(uint256) external view returns (bytes32);
-
-    function nftDeposits(uint256) external view returns (bytes32);
 
     function closerData() external view returns (bytes memory);
 

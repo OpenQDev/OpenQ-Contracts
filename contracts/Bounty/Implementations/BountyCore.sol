@@ -304,12 +304,6 @@ abstract contract BountyCore is BountyStorageCore {
         return deposits;
     }
 
-    /// @notice Returns an array of ONLY NFT deposits for this bounty
-    /// @return nftDeposits The array of NFT deposits
-    function getNftDeposits() external view virtual returns (bytes32[] memory) {
-        return nftDeposits;
-    }
-
     /// @notice Returns an array of all ERC20 token addresses which have funded this bounty
     /// @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
     function getTokenAddresses()
