@@ -49,7 +49,6 @@ abstract contract BountyCore is BountyStorageCore {
         volume[depositId] = volumeReceived;
         depositTime[depositId] = block.timestamp;
         expiration[depositId] = _expiration;
-        isNFT[depositId] = false;
 
         deposits.push(depositId);
         tokenAddresses.add(_tokenAddress);
@@ -77,12 +76,6 @@ abstract contract BountyCore is BountyStorageCore {
 
         if (tokenAddress[_depositId] == address(0)) {
             _transferProtocolToken(funder[_depositId], _volume);
-        } else if (isNFT[_depositId]) {
-            _transferNft(
-                tokenAddress[_depositId],
-                funder[_depositId],
-                tokenId[_depositId]
-            );
         } else {
             _transferERC20(
                 tokenAddress[_depositId],

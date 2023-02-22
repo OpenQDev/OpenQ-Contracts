@@ -120,6 +120,23 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
 
         address depToken = bounty.tokenAddress(_depositId);
 
+        /**
+				Deposit 1: 300 (expired, NOT locked)
+				Deposit 2: 200 (not-expired, locked)
+				
+				Claim 1: 200
+
+				Token Balance: 300 (200 taken in a Claim)
+				Locked Funds: 200 (only Deposit 2)
+				Available Funds: (Token Balance) - (Locked Funds) = 100
+				
+				Refund expired Deposit 1 for 300
+				
+				300 (deposit volume) IS NOT less than 100 (available funds), therefore volume = 100
+
+				Ergo the refunder will only be transferred 100, not the 300 still available on the bounty and equal to the deposit
+				 */
+
         uint256 availableFunds = bounty.getTokenBalance(depToken) -
             bounty.getLockedFunds(depToken);
 
@@ -151,15 +168,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     /// @return True if _tokenAddress is whitelisted, false otherwise
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
-    }
-
-    /// @notice Checks if bounty associated with _bountyId is open
-    /// @param _bountyAddress Address of bounty
-    /// @return bool True if _bountyId is associated with an open bounty
-    function bountyIsOpen(address _bountyAddress) public view returns (bool) {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-        bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
-        return isOpen;
     }
 
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades

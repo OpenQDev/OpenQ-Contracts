@@ -51,24 +51,6 @@ interface IBountyCore {
         uint256 _expiration
     ) external payable returns (bytes32, uint256);
 
-    /// @notice Receives an NFT for this contract
-    /// @param _sender Sender of the NFT
-    /// @param _tokenAddress NFT token address
-    /// @param _tokenId NFT token id
-    /// @param _expiration How long before this deposit becomes refundable
-    /// @param _data ABI encoded data (unused in this case)
-    /// @return bytes32 the deposit id
-    /// @dev _data (TIERED): (uint256):(tier)
-    /// @dev _data (ATOMIC): empty bytes array
-    /// @dev _data (ONGOING): empty bytes array
-    function receiveNft(
-        address _sender,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration,
-        bytes calldata _data
-    ) external returns (bytes32);
-
     /// @notice Transfers volume of deposit or NFT of deposit from bounty to funder
     /// @param _depositId The deposit to refund
     /// @param _funder The initial funder of the deposit
@@ -190,8 +172,6 @@ interface IBountyCore {
     function tokenId(bytes32) external view returns (uint256);
 
     function expiration(bytes32) external view returns (uint256);
-
-    function isNFT(bytes32) external view returns (bool);
 
     function deposits(uint256) external view returns (bytes32);
 

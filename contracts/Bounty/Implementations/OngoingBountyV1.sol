@@ -124,41 +124,6 @@ contract OngoingBountyV1 is OngoingBountyStorageV1 {
         bountyClosedTime = block.timestamp;
     }
 
-    /// @notice Receives an NFT for this contract
-    /// @param _sender Sender of the NFT
-    /// @param _tokenAddress NFT token address
-    /// @param _tokenId NFT token id
-    /// @param _expiration How long before this deposit becomes refundable
-    /// @return bytes32 the deposit id
-    function receiveNft(
-        address _sender,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration,
-        bytes calldata
-    ) external onlyDepositManager nonReentrant returns (bytes32) {
-        require(
-            nftDeposits.length < nftDepositLimit,
-            Errors.NFT_DEPOSIT_LIMIT_REACHED
-        );
-        require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
-        _receiveNft(_tokenAddress, _sender, _tokenId);
-
-        bytes32 depositId = _generateDepositId();
-
-        funder[depositId] = _sender;
-        tokenAddress[depositId] = _tokenAddress;
-        depositTime[depositId] = block.timestamp;
-        tokenId[depositId] = _tokenId;
-        expiration[depositId] = _expiration;
-        isNFT[depositId] = true;
-
-        deposits.push(depositId);
-        nftDeposits.push(depositId);
-
-        return depositId;
-    }
-
     /// @notice Sets the payout for an ongoing bounty
     /// @param _payoutTokenAddress Sets payout token address
     /// @param _payoutVolume Sets payout token volume
