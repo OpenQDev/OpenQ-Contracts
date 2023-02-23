@@ -121,6 +121,12 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         address depToken = bounty.tokenAddress(_depositId);
 
         /**
+				THIS IS MADE ALL COMPLEX BECAUSE OF CROWDFUNDING, I.E. ONLY LETTING FUNDER 1 REFUND THE AMOUNT THEY HAVE ACCESS TO!
+
+				If all the deposits are from the same person, we can simply refund as much as possible given the remaining unclaimed token balance
+
+				Flawed Example 1: Available Funds is incorrectly low since claims are not subtracted from locked deposits (deposits whose actual volume may no longer exist)
+
 				Deposit 1: 300 (expired, NOT locked)
 				Deposit 2: 200 (not-expired, locked)
 				
@@ -132,19 +138,58 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
 				
 				Refund expired Deposit 1 for 300
 				
-				300 (deposit volume) IS NOT less than 100 (available funds), therefore volume = 100
+				300 (Deposit 1 volume) IS NOT less than 100 (Available Funds), therefore volume = 100 (Available Funds)
 
-				Ergo the refunder will only be transferred 100, not the 300 still available on the bounty and equal to the deposit
+				Ergo the refunder will only be transferred 100, not the 300 still available on the bounty's token balance
+
+				To remediate this, we must keep an increasing claimVolume and subtract this from sum of locked deposits' volumes
 				 */
 
-        uint256 availableFunds = bounty.getTokenBalance(depToken) -
-            bounty.getLockedFunds(depToken);
+        /**
+				Flawed Example 2 - If Deposit volume is greater than Token Balance, a negative value is set for volume
+
+				Deposit 1: 300 (expired, NOT locked)
+				Deposit 2: 200 (not-expired, locked)
+				
+				Claim 1: 400
+
+				Token Balance: 100 (400 taken in a Claim)
+				Locked Funds: 200 (only Deposit 2)
+				Available Funds: (Token Balance) - (Locked Funds) = -100
+				
+				Refund expired Deposit 1 for 300
+				
+				300 (Deposit 1 volume) IS NOT less than -100 (Available Funds), therefore volume = -100 (Available Funds)
+
+				Cannot transfer a negative number for funds
+				 */
+
+        /**
+				Problem even after subtracting claims
+
+				Deposit 1: 200 (expired, NOT locked)
+				Deposit 2: 300 (not-expired, locked)
+				
+				Claim 1: 400
+
+				Token Balance: 100 (400 taken in a Claim)
+				Locked Funds: -100 (only Deposit 2 minus Claim 1)
+				Available Funds: (Token Balance) - (Locked Funds) = 200
+				
+				Refund expired Deposit 1 for 200
+
+				Deposit 1 (200) == Available Funds (200) HOWEVER, the Token Balance is insufficient after the 400 claim
+
+				I think we need an additional boolean check to transfer the remaining 
+				 */
+        uint256 depositVolume = bounty.volume(_depositId);
+        uint256 tokenBalance = bounty.getTokenBalance(depToken);
 
         uint256 volume;
-        if (bounty.volume(_depositId) <= availableFunds) {
-            volume = bounty.volume(_depositId);
-        } else {
-            volume = availableFunds;
+        if (depositVolume <= tokenBalance) {
+            volume = depositVolume;
+        } else 
+            volume = tokenBalance;
         }
 
         bounty.refundDeposit(_depositId, msg.sender, volume);

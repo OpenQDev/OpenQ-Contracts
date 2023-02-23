@@ -52,6 +52,9 @@ abstract contract BountyStorageCore is
     /// @notice Array of depositIds
     bytes32[] public deposits;
 
+    /// @notice Array of claim amounts
+    uint256 public volumeClaimed;
+
     /// @notice Set of unique token address
     EnumerableSetUpgradeable.AddressSet internal tokenAddresses;
 

@@ -173,6 +173,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         }
 
         uint256 volume = _bounty.claimTieredFixed(_closer, _tier);
+        _bounty.claimVolume += volume;
 
         emit TokenBalanceClaimed(
             _bounty.bountyId(),

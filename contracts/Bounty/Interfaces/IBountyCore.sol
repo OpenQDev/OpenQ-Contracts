@@ -143,6 +143,8 @@ interface IBountyCore {
     // PUBLIC GETTERS
     function bountyId() external view returns (string memory);
 
+    function claimVolume() external view returns (uint256);
+
     function bountyCreatedTime() external view returns (uint256);
 
     function bountyClosedTime() external view returns (uint256);
