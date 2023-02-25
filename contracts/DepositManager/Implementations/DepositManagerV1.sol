@@ -43,12 +43,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     ) external payable onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
-        if (!isWhitelisted(_tokenAddress)) {
-            require(
-                !tokenAddressLimitReached(_bountyAddress),
-                Errors.TOO_MANY_TOKEN_ADDRESSES
-            );
-        }
+        require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
 
         require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
 
