@@ -16,7 +16,7 @@ const {
   tieredFixedBountyInitOperationBuilder_permissionless,
 } = require('./constants');
 
-describe('OpenQ.sol', () => {
+describe.only('OpenQ.sol', () => {
   // MOCK ASSETS
   let openQProxy
   let openQImplementation
@@ -127,7 +127,7 @@ describe('OpenQ.sol', () => {
     mockNft = await MockNft.deploy()
     await mockNft.deployed()
 
-    openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5)
+    openQTokenWhitelist = await OpenQTokenWhitelist.deploy()
     await openQTokenWhitelist.deployed()
 
     await openQTokenWhitelist.addToken(mockLink.address)
