@@ -15,7 +15,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -192,7 +192,7 @@ describe('DepositManager.sol', () => {
 
 			// ARRANGE
 			const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-			const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);
+			const openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
 			await openQTokenWhitelist.deployed();
 
 			// ACT

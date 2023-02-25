@@ -16,7 +16,7 @@ const {
   tieredFixedBountyInitOperationBuilder_permissionless,
 } = require('./constants');
 
-describe.only('OpenQ.sol', () => {
+describe('OpenQ.sol', () => {
   // MOCK ASSETS
   let openQProxy
   let openQImplementation
