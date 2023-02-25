@@ -6,7 +6,7 @@ const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 const { Constants } = require('./constants');
 
-describe.only('OpenQTokenWhitelist.sol', () => {
+describe('OpenQTokenWhitelist.sol', () => {
 	let owner;
 	let notOwner;
 	let mockLink;
