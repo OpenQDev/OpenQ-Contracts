@@ -45,8 +45,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
 
-        require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
-
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
             value: msg.value
         }(msg.sender, _tokenAddress, _volume, _expiration);
