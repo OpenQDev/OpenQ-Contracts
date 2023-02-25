@@ -9,14 +9,11 @@ const { generateDepositId, generateClaimantId } = require('../utils');
 
 const { 
 	Constants, 
-	tieredBountyInitOperationBuilder,
 	tieredFixedBountyInitOperationBuilder,
-	tieredBountyInitOperation_not100,
 	setInvoiceCompleteData_tiered,
 	setSupportingDocumentsComplete_tiered,
 	setInvoiceCompleteData_atomic,
 	setSupportingDocumentsComplete_atomic,
-	tieredBountyInitOperationBuilder_permissionless,
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('../constants');
 

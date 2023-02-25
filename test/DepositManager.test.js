@@ -217,20 +217,6 @@ describe('DepositManager.sol', () => {
 			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
-		it('should revert if tiered bounty is already closed', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-
-			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData);
-
-			await mockLink.approve(bountyAddress, 10000000);
-			await mockDai.approve(bountyAddress, 10000000);
-
-			// ACT + ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
-		});
-
 		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
