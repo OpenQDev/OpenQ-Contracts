@@ -197,21 +197,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
     }
 
-    /// @notice Returns true if the total number of unique tokens deposited on then bounty is greater than the OpenQWhitelist TOKEN_ADDRESS_LIMIT
-    /// @param _bountyAddress Address of bounty
-    /// @return True if the token address limit has been reached
-    function tokenAddressLimitReached(address _bountyAddress)
-        public
-        view
-        returns (bool)
-    {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-
-        return
-            bounty.getTokenAddressesCount() >=
-            openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
-    }
-
     /// @notice Checks if bounty associated with _bountyId is open
     /// @param _bountyAddress Address of bounty
     /// @return bool True if _bountyId is associated with an open bounty
