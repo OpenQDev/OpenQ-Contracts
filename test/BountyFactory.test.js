@@ -14,7 +14,7 @@ const {
 	tieredBountyInitOperation_not100
 } = require('./constants');
 
-describe.only('BountyFactory', () => {
+describe('BountyFactory', () => {
 	let openQImplementation;
 	let openQProxy;
 	let bountyFactory;

@@ -115,8 +115,8 @@ const tieredFixedBountyInitOperationBuilder_permissionless = (tokenAddress) => {
 		['uint256[]','address','bool','bool','bool','string','string','string'],
 		[[80, 20],tokenAddress,false,false,false,Constants.mockOpenQId,Constants.alternativeName,Constants.alternativeLogo]
 	);
-	const tieredPercentageBountyInitOperationComplete = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
-	return tieredPercentageBountyInitOperationComplete;
+	const tieredFixedBountyInitOperationComplete = [Constants.TIERED_FIXED_CONTRACT, abiEncodedParamsTieredFixedBounty];
+	return tieredFixedBountyInitOperationComplete;
 };
 
 const setInvoiceCompleteData_tiered = (tier, invoiceComplete) => {
