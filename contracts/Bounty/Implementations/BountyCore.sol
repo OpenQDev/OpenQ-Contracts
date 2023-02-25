@@ -49,7 +49,6 @@ abstract contract BountyCore is BountyStorageCore {
         volume[depositId] = volumeReceived;
         depositTime[depositId] = block.timestamp;
         expiration[depositId] = _expiration;
-        isNFT[depositId] = false;
 
         deposits.push(depositId);
         tokenAddresses.add(_tokenAddress);
@@ -57,10 +56,10 @@ abstract contract BountyCore is BountyStorageCore {
         return (depositId, volumeReceived);
     }
 
-    /// @notice Transfers volume of deposit or NFT of deposit from bounty to funder
+    /// @notice Transfers volume of deposit from bounty to funder
     /// @param _depositId The deposit to refund
     /// @param _funder The initial funder of the deposit
-    /// @param _volume The volume to be refunded (only relevant if deposit is not an NFT, otherwise is zero)
+    /// @param _volume The volume to be refunded
     function refundDeposit(
         bytes32 _depositId,
         address _funder,
@@ -77,12 +76,6 @@ abstract contract BountyCore is BountyStorageCore {
 
         if (tokenAddress[_depositId] == address(0)) {
             _transferProtocolToken(funder[_depositId], _volume);
-        } else if (isNFT[_depositId]) {
-            _transferNft(
-                tokenAddress[_depositId],
-                funder[_depositId],
-                tokenId[_depositId]
-            );
         } else {
             _transferERC20(
                 tokenAddress[_depositId],
@@ -117,22 +110,6 @@ abstract contract BountyCore is BountyStorageCore {
         }
 
         return expiration[_depositId];
-    }
-
-    /// @notice Transfers NFT from bounty address to _payoutAddress
-    /// @param _payoutAddress The destination address for the NFT
-    /// @param _depositId The payout address of the bounty
-    function claimNft(address _payoutAddress, bytes32 _depositId)
-        external
-        virtual
-        onlyClaimManager
-        nonReentrant
-    {
-        _transferNft(
-            tokenAddress[_depositId],
-            _payoutAddress,
-            tokenId[_depositId]
-        );
     }
 
     /// @notice Sets the funding goal
@@ -237,32 +214,6 @@ abstract contract BountyCore is BountyStorageCore {
         payable(_payoutAddress).sendValue(_volume);
     }
 
-    /// @notice Receives NFT of _tokenId on _tokenAddress from _funder to bounty address
-    /// @param _tokenAddress The ERC721 token address
-    /// @param _sender The sender of the NFT
-    /// @param _tokenId The tokenId
-    function _receiveNft(
-        address _tokenAddress,
-        address _sender,
-        uint256 _tokenId
-    ) internal virtual {
-        IERC721Upgradeable nft = IERC721Upgradeable(_tokenAddress);
-        nft.safeTransferFrom(_sender, address(this), _tokenId);
-    }
-
-    /// @notice Transfers NFT of _tokenId on _tokenAddress from bounty address to _payoutAddress
-    /// @param _tokenAddress The ERC721 token address
-    /// @param _payoutAddress The sender of the NFT
-    /// @param _tokenId The tokenId
-    function _transferNft(
-        address _tokenAddress,
-        address _payoutAddress,
-        uint256 _tokenId
-    ) internal virtual {
-        IERC721Upgradeable nft = IERC721Upgradeable(_tokenAddress);
-        nft.safeTransferFrom(address(this), _payoutAddress, _tokenId);
-    }
-
     /// @notice Generates a unique deposit ID from bountyId and the current length of deposits
     function _generateDepositId() internal view virtual returns (bytes32) {
         return keccak256(abi.encode(bountyId, deposits.length));
@@ -298,16 +249,10 @@ abstract contract BountyCore is BountyStorageCore {
         return token.balanceOf(address(this));
     }
 
-    /// @notice Returns an array of all deposits (ERC20, protocol token, and NFT) for this bounty
-    /// @return deposits The array of deposits including ERC20, protocol token, and NFT
+    /// @notice Returns an array of all deposits for this bounty
+    /// @return deposits The array of deposits including ERC20 and protocol token
     function getDeposits() external view virtual returns (bytes32[] memory) {
         return deposits;
-    }
-
-    /// @notice Returns an array of ONLY NFT deposits for this bounty
-    /// @return nftDeposits The array of NFT deposits
-    function getNftDeposits() external view virtual returns (bytes32[] memory) {
-        return nftDeposits;
     }
 
     /// @notice Returns an array of all ERC20 token addresses which have funded this bounty
