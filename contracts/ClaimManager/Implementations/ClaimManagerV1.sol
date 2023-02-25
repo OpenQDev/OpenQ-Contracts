@@ -4,7 +4,6 @@ pragma solidity 0.8.17;
 import '../Storage/ClaimManagerStorage.sol';
 import '../../Bounty/Interfaces/IAtomicBounty.sol';
 import '../../Bounty/Interfaces/ITieredBounty.sol';
-import '../../Bounty/Interfaces/IOngoingBounty.sol';
 
 /// @title ClaimManagerV1
 /// @author FlacoJones
@@ -53,10 +52,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 _closerData,
                 VERSION_1
             );
-        } else if (_bountyType == OpenQDefinitions.ONGOING) {
-            _claimOngoingBounty(bounty, _closer, _closerData);
-        } else if (_bountyType == OpenQDefinitions.TIERED_PERCENTAGE) {
-            _claimTieredPercentageBounty(bounty, _closer, _closerData);
         } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
             _claimTieredFixedBounty(bounty, _closer, _closerData);
         } else {
@@ -101,8 +96,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
 
         if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
             _claimTieredFixedBounty(bounty, msg.sender, _closerData);
-        } else if (bounty.bountyType() == OpenQDefinitions.TIERED_PERCENTAGE) {
-            _claimTieredPercentageBounty(bounty, msg.sender, _closerData);
         } else {
             revert(Errors.NOT_A_COMPETITION_CONTRACT);
         }
@@ -163,112 +156,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 VERSION_1
             );
         }
-    }
-
-    /// @notice Claim method for OngoingBounty
-    /// @param _bounty The payout address of the bounty
-    /// @param _closer The payout address of the claimant
-    /// @param _closerData ABI Encoded data associated with this claim
-    /// @dev see IBountyCore.claimOngoingPayout.(_closerData) for _closerData ABI encoding schema
-    function _claimOngoingBounty(
-        IOngoingBounty _bounty,
-        address _closer,
-        bytes calldata _closerData
-    ) internal {
-        _eligibleToClaimOngoingBounty(_bounty, _closer, _closerData);
-
-        (address tokenAddress, uint256 volume) = _bounty.claimOngoingPayout(
-            _closer,
-            _closerData
-        );
-
-        emit TokenBalanceClaimed(
-            _bounty.bountyId(),
-            address(_bounty),
-            _bounty.organization(),
-            _closer,
-            block.timestamp,
-            tokenAddress,
-            volume,
-            _bounty.bountyType(),
-            _closerData,
-            VERSION_1
-        );
-    }
-
-    /// @notice Claim method for TieredPercentageBounty
-    /// @param _bounty The payout address of the bounty
-    /// @param _closer The payout address of the claimant
-    /// @param _closerData ABI Encoded data associated with this claim
-    function _claimTieredPercentageBounty(
-        IBounty _bounty,
-        address _closer,
-        bytes calldata _closerData
-    ) internal {
-        (, , , , uint256 _tier) = abi.decode(
-            _closerData,
-            (address, string, address, string, uint256)
-        );
-
-        _eligibleToClaimTier(_bounty, _tier, _closer);
-
-        if (_bounty.status() == 0) {
-            _bounty.closeCompetition();
-
-            emit BountyClosed(
-                _bounty.bountyId(),
-                address(_bounty),
-                _bounty.organization(),
-                address(0),
-                block.timestamp,
-                _bounty.bountyType(),
-                new bytes(0),
-                VERSION_1
-            );
-        }
-
-        for (uint256 i = 0; i < _bounty.getTokenAddresses().length; i++) {
-            uint256 volume = _bounty.claimTiered(
-                _closer,
-                _tier,
-                _bounty.getTokenAddresses()[i]
-            );
-
-            emit TokenBalanceClaimed(
-                _bounty.bountyId(),
-                address(_bounty),
-                _bounty.organization(),
-                _closer,
-                block.timestamp,
-                _bounty.getTokenAddresses()[i],
-                volume,
-                _bounty.bountyType(),
-                _closerData,
-                VERSION_1
-            );
-        }
-
-        for (uint256 i = 0; i < _bounty.getNftDeposits().length; i++) {
-            bytes32 _depositId = _bounty.nftDeposits(i);
-            if (_bounty.tier(_depositId) == _tier) {
-                _bounty.claimNft(_closer, _depositId);
-
-                emit NFTClaimed(
-                    _bounty.bountyId(),
-                    address(_bounty),
-                    _bounty.organization(),
-                    _closer,
-                    block.timestamp,
-                    _bounty.tokenAddress(_depositId),
-                    _bounty.tokenId(_depositId),
-                    _bounty.bountyType(),
-                    _closerData,
-                    VERSION_1
-                );
-            }
-        }
-
-        _bounty.setTierClaimed(_tier);
     }
 
     /// @notice Claim method for TieredFixedBounty
@@ -338,30 +225,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         }
 
         _bounty.setTierClaimed(_tier);
-    }
-
-    /// @notice Checks if bounty associated with _bountyId is open
-    /// @return bool True if _bountyId is associated with an open bounty
-    function bountyIsClaimable(address _bountyAddress)
-        public
-        view
-        returns (bool)
-    {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-
-        uint256 status = bounty.status();
-        uint256 _bountyType = bounty.bountyType();
-
-        if (
-            _bountyType == OpenQDefinitions.ATOMIC ||
-            _bountyType == OpenQDefinitions.ONGOING ||
-            _bountyType == OpenQDefinitions.TIERED_PERCENTAGE ||
-            _bountyType == OpenQDefinitions.TIERED_FIXED
-        ) {
-            return status == 0;
-        } else {
-            return status == 1;
-        }
     }
 
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
@@ -443,43 +306,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             );
             require(
                 _supportingDocumentsComplete,
-                Errors.SUPPORTING_DOCS_NOT_COMPLETE
-            );
-        }
-
-        if (bounty.kycRequired()) {
-            require(hasKYC(_closer), Errors.ADDRESS_LACKS_KYC);
-        }
-    }
-
-    /// @notice Runs all require statements to determine if the claimant can claim an ongoing bounty payout
-    function _eligibleToClaimOngoingBounty(
-        IOngoingBounty bounty,
-        address _closer,
-        bytes memory _closerData
-    ) internal view {
-        require(
-            bounty.status() == OpenQDefinitions.OPEN,
-            Errors.CONTRACT_IS_NOT_CLAIMABLE
-        );
-
-        (, string memory claimant, , string memory claimantAsset) = abi.decode(
-            _closerData,
-            (address, string, address, string)
-        );
-
-        bytes32 claimId = bounty.generateClaimId(claimant, claimantAsset);
-
-        if (bounty.invoiceRequired()) {
-            require(
-                bounty.invoiceComplete(claimId),
-                Errors.INVOICE_NOT_COMPLETE
-            );
-        }
-
-        if (bounty.supportingDocumentsRequired()) {
-            require(
-                bounty.supportingDocumentsComplete(claimId),
                 Errors.SUPPORTING_DOCS_NOT_COMPLETE
             );
         }

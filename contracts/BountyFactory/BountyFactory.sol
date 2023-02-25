@@ -13,28 +13,20 @@ import '../Library/Errors.sol';
 contract BountyFactory is OnlyOpenQ {
     /// @notice The address of the UpgradeableBeacon holding the current bounty implementation
     address public immutable atomicBountyBeacon;
-    address public immutable ongoingBountyBeacon;
-    address public immutable tieredPercentageBountyBeacon;
     address public immutable tieredFixedBountyBeacon;
 
     /// @notice Deploys and initializes a new BeaconProxy with implementation pulled from the appropriate BountyBeacon
     /// @param _openQ The OpenQProxy address, used to initialize OnlyOpenQ
     /// @param _atomicBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Atomic contracts
-    /// @param _ongoingBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Ongoing contracts
-    /// @param _tieredPercentageBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Tiered contracts
     /// @param _tieredFixedBountyBeacon The UpgradeableBeacon "BountyBeacon" address for Tiered Fixed contracts
     constructor(
         address _openQ,
         address _atomicBountyBeacon,
-        address _ongoingBountyBeacon,
-        address _tieredPercentageBountyBeacon,
         address _tieredFixedBountyBeacon
     ) {
         __OnlyOpenQ_init(_openQ);
 
         atomicBountyBeacon = _atomicBountyBeacon;
-        ongoingBountyBeacon = _ongoingBountyBeacon;
-        tieredPercentageBountyBeacon = _tieredPercentageBountyBeacon;
         tieredFixedBountyBeacon = _tieredFixedBountyBeacon;
     }
 
@@ -60,10 +52,6 @@ contract BountyFactory is OnlyOpenQ {
 
         if (operationType == OpenQDefinitions.ATOMIC) {
             beaconProxy = atomicBountyBeacon;
-        } else if (operationType == OpenQDefinitions.ONGOING) {
-            beaconProxy = ongoingBountyBeacon;
-        } else if (operationType == OpenQDefinitions.TIERED_PERCENTAGE) {
-            beaconProxy = tieredPercentageBountyBeacon;
         } else if (operationType == OpenQDefinitions.TIERED_FIXED) {
             beaconProxy = tieredFixedBountyBeacon;
         } else {

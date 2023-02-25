@@ -16,8 +16,6 @@ library OpenQDefinitions {
 
     /// @notice Bounty types
     uint32 internal constant ATOMIC = 0;
-    uint32 internal constant ONGOING = 1;
-    uint32 internal constant TIERED_PERCENTAGE = 2;
     uint32 internal constant TIERED_FIXED = 3;
 
     uint32 internal constant OPEN = 0;
