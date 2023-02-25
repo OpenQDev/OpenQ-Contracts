@@ -153,15 +153,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
     }
 
-    /// @notice Checks if bounty associated with _bountyId is open
-    /// @param _bountyAddress Address of bounty
-    /// @return bool True if _bountyId is associated with an open bounty
-    function bountyIsOpen(address _bountyAddress) public view returns (bool) {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-        bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
-        return isOpen;
-    }
-
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
     function _authorizeUpgrade(address) internal override onlyOwner {}
 }
