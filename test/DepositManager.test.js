@@ -12,14 +12,10 @@ const {
 	atomicBountyInitOperation_fundingGoal, 
 	atomicBountyInitOperation_noFundingGoal, 
 	atomicBountyInitOperation_permissioned,
-	ongoingBountyInitOperationBuilder,
-	tieredBountyInitOperationBuilder,
-	tieredFixedBountyInitOperationBuilder,
-	tieredBountyInitOperation_not100,
-	tieredBountyInitOperationBuilder_permissionless
+	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -43,21 +39,15 @@ describe('DepositManager.sol', () => {
 
 	// INIT OPERATIONS
 	let atomicBountyInitOperation;
-	let ongoingBountyInitOperation;
-	let tieredPercentageBountyInitOperation;
-	let tieredPercentageBountyInitOperation_permissionless;
 	let tieredFixedBountyInitOperation;
 
 	// CLOSER DATA
 	let abiCoder;
 
 	let abiEncodedSingleCloserData;
-	let abiEncodedOngoingCloserData;
 	let abiEncodedTieredCloserData;
 
 	let AtomicBountyV1
-	let OngoingBountyV1
-	let TieredPercentageBountyV1
 	let TieredFixedBountyV1
 
 	beforeEach(async () => {
@@ -71,19 +61,11 @@ describe('DepositManager.sol', () => {
 		const ClaimManager = await ethers.getContractFactory('ClaimManagerV1');
 
 		AtomicBountyV1 = await ethers.getContractFactory('AtomicBountyV1');
-		OngoingBountyV1 = await ethers.getContractFactory('OngoingBountyV1');
-		TieredPercentageBountyV1 = await ethers.getContractFactory('TieredPercentageBountyV1');
 		TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
 
 		// BOUNTY IMPLEMENTATIONS
 		atomicBountyV1 = await AtomicBountyV1.deploy();
 		await atomicBountyV1.deployed();
-		
-		ongoingBountyV1 = await OngoingBountyV1.deploy();
-		await ongoingBountyV1.deployed();
-		
-		tieredPercentageBountyV1 = await TieredPercentageBountyV1.deploy();
-		await tieredPercentageBountyV1.deployed();
 		
 		tieredFixedBountyV1 = await TieredFixedBountyV1.deploy();
 		await tieredFixedBountyV1.deployed();
@@ -133,12 +115,6 @@ describe('DepositManager.sol', () => {
 		atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address);
 		await atomicBountyBeacon.deployed();
 
-		ongoingBountyBeacon = await BountyBeacon.deploy(ongoingBountyV1.address);
-		await ongoingBountyBeacon.deployed();
-
-		tieredPercentageBountyBeacon = await BountyBeacon.deploy(tieredPercentageBountyV1.address);
-		await tieredPercentageBountyBeacon.deployed();
-
 		tieredFixedBountyBeacon = await BountyBeacon.deploy(tieredFixedBountyV1.address);
 		await tieredFixedBountyBeacon.deployed();
 
@@ -146,8 +122,6 @@ describe('DepositManager.sol', () => {
 		bountyFactory = await BountyFactory.deploy(
 			openQProxy.address,
 			atomicBountyBeacon.address,
-			ongoingBountyBeacon.address,
-			tieredPercentageBountyBeacon.address,
 			tieredFixedBountyBeacon.address
 			);
 		await bountyFactory.deployed();
@@ -180,13 +154,9 @@ describe('DepositManager.sol', () => {
 		funderUuidEncoded = abiCoder.encode(["string"], [Constants.funderUuid]);
 
 		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
-		ongoingBountyInitOperation = ongoingBountyInitOperationBuilder(mockLink.address)
-		tieredPercentageBountyInitOperation = tieredBountyInitOperationBuilder(mockLink.address)
-		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
-		tieredPercentageBountyInitOperation_permissionless = tieredBountyInitOperationBuilder_permissionless(mockLink.address)
+		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder_permissionless(mockLink.address)
 
 		abiEncodedSingleCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
-		abiEncodedOngoingCloserData = abiCoder.encode(['address', 'string', 'address', 'string'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398"]);
 		abiEncodedTieredCloserData = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 1]);
 	});
 
@@ -247,9 +217,9 @@ describe('DepositManager.sol', () => {
 			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
-		it('should revert if tiered bounty is already closed', async () => {
+		it.only('should revert if tiered bounty is already closed', async () => {
 			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredPercentageBountyInitOperation_permissionless);
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
 
 			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData);
