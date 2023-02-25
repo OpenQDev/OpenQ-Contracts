@@ -15,7 +15,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe.only('DepositManager.sol', () => {
+describe('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -217,7 +217,7 @@ describe.only('DepositManager.sol', () => {
 			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
-		it.only('should revert if tiered bounty is already closed', async () => {
+		it('should revert if tiered bounty is already closed', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
