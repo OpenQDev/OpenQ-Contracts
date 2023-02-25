@@ -17,7 +17,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('../constants');
 
-describe.only('TieredBountyCore.sol', () => {
+describe('TieredBountyCore.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 

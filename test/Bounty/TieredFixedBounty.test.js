@@ -24,7 +24,6 @@ describe('TieredFixedBountyV1.sol', () => {
 	// MOCK ASSETS
 	let mockLink;
 	let mockDai;
-	let mockNft;
 
 	// UTILS
 	let abiCoder = new ethers.utils.AbiCoder;
@@ -45,7 +44,6 @@ describe('TieredFixedBountyV1.sol', () => {
 		TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
-		const MockNft = await ethers.getContractFactory('MockNft');
 
 		[owner, claimManager, depositManager] = await ethers.getSigners();
 
@@ -55,16 +53,6 @@ describe('TieredFixedBountyV1.sol', () => {
 
 		mockDai = await MockDai.deploy();
 		await mockDai.deployed();
-
-		mockNft = await MockNft.deploy();
-		await mockNft.deployed();
-
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
 
 		// TIERED BOUNTY
 		tieredFixedContract = await TieredFixedBountyV1.deploy();
@@ -78,10 +66,6 @@ describe('TieredFixedBountyV1.sol', () => {
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(tieredFixedContract.address, 10000000);
 		await mockDai.approve(tieredFixedContract.address, 10000000);
-		
-		await mockNft.approve(tieredFixedContract.address, 0);
-		await mockNft.approve(tieredFixedContract.address, 1);
-		await mockNft.approve(tieredFixedContract.address, 2);
 	});
 
 	describe('initializer', () => {
