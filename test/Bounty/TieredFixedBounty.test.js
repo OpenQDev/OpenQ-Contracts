@@ -12,7 +12,7 @@ const {
 	tieredFixedBountyInitOperationBuilder
 } = require('../constants');
 
-describe('TieredFixedBountyV1.sol', () => {
+describe.only('TieredFixedBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 	let TieredFixedBountyProxy;
@@ -191,7 +191,7 @@ describe('TieredFixedBountyV1.sol', () => {
 		});
 	});
 
-	describe('setPayoutSchedule', () => {
+	describe.only('setPayoutScheduleFied', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
@@ -208,7 +208,7 @@ describe('TieredFixedBountyV1.sol', () => {
 			await expect(tieredFixedContract.connect(notOwner).setPayoutScheduleFixed([100, 20], mockLink.address)).to.be.revertedWith('Method is only callable by OpenQ');
 		});
 
-		it('should set payout schedule', async () => {
+		it('should set payout schedule - INCREASE NUMBER OF TIERS', async () => {
 			// ASSUME
 			let initialPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
 			let payoutToString = initialPayoutSchedule.map(thing => thing.toString());
@@ -224,6 +224,22 @@ describe('TieredFixedBountyV1.sol', () => {
 			expect(payoutToString[0]).to.equal('70');
 			expect(payoutToString[1]).to.equal('20');
 			expect(payoutToString[2]).to.equal('10');
+		});
+
+		it('should set payout schedule - DECREASE NUMBER OF TIERS', async () => {
+			// ASSUME
+			let initialPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
+			let payoutToString = initialPayoutSchedule.map(thing => thing.toString());
+			expect(payoutToString[0]).to.equal('80');
+			expect(payoutToString[1]).to.equal('20');
+
+			// ACT
+			await tieredFixedContract.setPayoutScheduleFixed([70], mockLink.address);
+
+			// ASSERT
+			let expectedPayoutSchedule = await tieredFixedContract.getPayoutSchedule();
+			payoutToString = expectedPayoutSchedule.map(thing => thing.toString());
+			expect(payoutToString[0]).to.equal('70');
 		});
 	});
 
