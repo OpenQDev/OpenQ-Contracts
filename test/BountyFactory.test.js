@@ -14,7 +14,7 @@ const {
 	tieredBountyInitOperation_not100
 } = require('./constants');
 
-describe('BountyFactory', () => {
+describe.only('BountyFactory', () => {
 	let openQImplementation;
 	let openQProxy;
 	let bountyFactory;
@@ -83,9 +83,6 @@ describe('BountyFactory', () => {
 		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
-		// Initialize the OpenQProxy
-		await openQProxy.initialize(oracle.address);
-
 		// Deploy BountyFactory
 		bountyFactory = await BountyFactory.deploy(
 			openQProxy.address,
@@ -93,6 +90,9 @@ describe('BountyFactory', () => {
 			tieredFixedBountyBeacon.address
 			);
 		await bountyFactory.deployed();
+
+		// Initialize the OpenQProxy
+		await openQProxy.initialize(oracle.address, bountyFactory.address, owner.address, owner.address);
 		
 		// INIT DATA
 		const abiCoder = new ethers.utils.AbiCoder;
