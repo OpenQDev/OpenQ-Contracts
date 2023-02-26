@@ -16,10 +16,17 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @notice Initializes the ClaimManager implementation with oracle address
     /// @param _oracle The address of the oracle authorized to call onlyOracle methods (e.g. claimBounty)
     /// @dev Can only be called once thanks to initializer (https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializers)
-    function initialize(address _oracle) external initializer onlyProxy {
+    function initialize(
+        address _oracle,
+        address _openQ,
+        address _kyc
+    ) external initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Oraclize_init(_oracle);
+
+        openQ = _openQ;
+        kyc = _kyc;
     }
 
     /// @notice Calls appropriate claim method based on bounty type
@@ -206,13 +213,13 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     /// @notice Sets the KYC DAO contract address
     /// @param _kyc The KYC DAO contract address
     function setKyc(address _kyc) external onlyProxy onlyOwner {
-        kyc = IKycValidity(_kyc);
+        kyc = _kyc;
     }
 
     /// @notice Checks the current KYC DAO contract address (kyc)to see if user has a valid KYC NFT or not
     /// @return True if address is KYC with KYC DAO, false otherwise
     function hasKYC(address _address) public view returns (bool) {
-        return kyc.hasValidToken(_address);
+        return IKycValidity(kyc).hasValidToken(_address);
     }
 
     /// @notice Runs all require statements to determine if the claimant can claim the specified tier on the tiered bounty

@@ -24,5 +24,5 @@ abstract contract ClaimManagerStorageV1 is
 {
     uint256 public constant VERSION_1 = 1;
     address public openQ;
-    IKycValidity public kyc;
+    address public kyc;
 }

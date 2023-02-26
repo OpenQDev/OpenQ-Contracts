@@ -13,9 +13,15 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
 
     /// @notice Initializes the DepositManager implementation
     /// @notice Can only be called once thanks to initializer (https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializers)
-    function initialize() external initializer {
+    function initialize(address _openQ, address _openQTokenWhitelist)
+        external
+        initializer
+    {
         __Ownable_init();
         __UUPSUpgradeable_init();
+
+        openQ = _openQ;
+        openQTokenWhitelist = _openQTokenWhitelist;
     }
 
     /// @notice Sets openQTokenWhitelist address
@@ -25,7 +31,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         onlyOwner
         onlyProxy
     {
-        openQTokenWhitelist = OpenQTokenWhitelist(_openQTokenWhitelist);
+        openQTokenWhitelist = _openQTokenWhitelist;
     }
 
     /// @notice Transfers protocol token or ERC20 from msg.sender to bounty address
@@ -151,7 +157,15 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     /// @param _tokenAddress The token address in question
     /// @return True if _tokenAddress is whitelisted, false otherwise
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
-        return openQTokenWhitelist.isWhitelisted(_tokenAddress);
+        return
+            OpenQTokenWhitelist(openQTokenWhitelist).isWhitelisted(
+                _tokenAddress
+            );
+    }
+
+    /// @notice Sets the OpenQProxy address used for checking IOpenQ(openQ).addressToExternalUserId
+    function setOpenQ(address _openQ) external onlyProxy onlyOwner {
+        openQ = _openQ;
     }
 
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
