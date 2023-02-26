@@ -31,7 +31,6 @@ abstract contract BountyCore is BountyStorageCore {
         nonReentrant
         returns (bytes32, uint256)
     {
-        require(_volume != 0, Errors.ZERO_VOLUME_SENT);
         require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
         require(status == OpenQDefinitions.OPEN, Errors.CONTRACT_IS_CLOSED);
 
@@ -46,6 +45,7 @@ abstract contract BountyCore is BountyStorageCore {
             }
             volumeReceived = _receiveERC20(_tokenAddress, _funder, _volume);
         }
+        require(volumeReceived != 0, Errors.ZERO_VOLUME_SENT);
 
         funder[depositId] = _funder;
         tokenAddress[depositId] = _tokenAddress;
