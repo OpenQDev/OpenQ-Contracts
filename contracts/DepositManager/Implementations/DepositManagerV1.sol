@@ -16,6 +16,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     function initialize(address _openQ, address _openQTokenWhitelist)
         external
         initializer
+        onlyProxy
     {
         __Ownable_init();
         __UUPSUpgradeable_init();
