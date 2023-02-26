@@ -11,6 +11,8 @@ interface IOpenQ {
 
     function addressToExternalUserId(address) external returns (string memory);
 
+    function bountyAddressToBountyId(address) external returns (string memory);
+
     event TierClaimed(
         address bountyAddress,
         address claimant,

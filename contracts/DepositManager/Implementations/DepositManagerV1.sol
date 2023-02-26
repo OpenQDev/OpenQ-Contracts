@@ -50,6 +50,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     ) external payable onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
+
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
@@ -87,6 +89,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     ) external onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
+
         require(
             bounty.funder(_depositId) == msg.sender,
             Errors.CALLER_NOT_FUNDER
@@ -115,6 +119,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         onlyProxy
     {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -152,6 +158,16 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
             new bytes(0),
             VERSION_1
         );
+    }
+
+    function bountyExists(address _bountyAddress) internal returns (bool) {
+        string memory bountyId = IOpenQ(openQ).bountyAddressToBountyId(
+            _bountyAddress
+        );
+
+        bytes32 emptyString = keccak256(abi.encodePacked(''));
+
+        return keccak256(abi.encodePacked(bountyId)) != emptyString;
     }
 
     /// @notice Checks if _tokenAddress is whitelisted
