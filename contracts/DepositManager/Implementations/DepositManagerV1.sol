@@ -56,6 +56,13 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
 
+        if (bounty.bountyType() == OpenQDefinitions.TIERED_FIXED) {
+            require(
+                _tokenAddress == bounty.payoutTokenAddress(),
+                Errors.TOKEN_NOT_ACCEPTED
+            );
+        }
+
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
             value: msg.value
         }(msg.sender, _tokenAddress, _volume, _expiration);

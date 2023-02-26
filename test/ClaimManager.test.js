@@ -413,9 +413,7 @@ describe('ClaimManager.sol', () => {
 					const payoutAmount = (proportion / 100) * volume;
 
 					await mockLink.approve(bountyAddress, 10000000);
-					await mockDai.approve(bountyAddress, 10000000);
 					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, Constants.funderUuid);
-					await depositManager.fundBountyToken(bountyAddress, mockDai.address, volume, 1, Constants.funderUuid);
 
 					const expectedTimestamp = await setNextBlockTimestamp();
 					// ACT
