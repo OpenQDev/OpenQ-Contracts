@@ -15,7 +15,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;

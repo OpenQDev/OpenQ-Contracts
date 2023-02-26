@@ -9,9 +9,7 @@ import 'hardhat/console.sol';
 /// @notice Manager contract for depositing protocol, ERC-20, and ERC-721 on bounty contracts
 /// @notice Emitter of all deposit-related events
 contract DepositManagerV1 is DepositManagerStorageV1 {
-    constructor() {
-        _disableInitializers();
-    }
+    constructor() {}
 
     /// @notice Initializes the DepositManager implementation
     /// @notice Can only be called once thanks to initializer (https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializers)

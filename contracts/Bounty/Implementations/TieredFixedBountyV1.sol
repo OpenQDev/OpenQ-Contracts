@@ -13,9 +13,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
-    constructor() {
-        _disableInitializers();
-    }
+    constructor() {}
 
     /// @notice Initializes a bounty proxy with initial state
     /// @param _bountyId The unique bounty identifier
