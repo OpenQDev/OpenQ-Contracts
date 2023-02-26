@@ -2,13 +2,15 @@
 pragma solidity 0.8.17;
 
 import '../Storage/DepositManagerStorage.sol';
-import 'hardhat/console.sol';
+import '../../Library/ASCIIUtils.sol';
 
 /// @title DepositManagerV1
 /// @author FlacoJones
 /// @notice Manager contract for depositing protocol, ERC-20, and ERC-721 on bounty contracts
 /// @notice Emitter of all deposit-related events
 contract DepositManagerV1 is DepositManagerStorageV1 {
+    using ASCIIUtils for string;
+
     constructor() {
         _disableInitializers();
     }
@@ -51,6 +53,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         string memory funderUuid
     ) external payable onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(funderUuid.isAscii(), Errors.INVALID_STRING);
 
         require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
 

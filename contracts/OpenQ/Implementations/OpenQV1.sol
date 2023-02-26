@@ -2,12 +2,15 @@
 pragma solidity 0.8.17;
 
 import '../Storage/OpenQStorage.sol';
+import '../../Library/ASCIIUtils.sol';
 
 /// @title OpenQV1
 /// @author FlacoJones
 /// @notice Main administrative contract for all bounty operations
 /// @dev Do not add any new storage variables here. Put them in a OpenQStorageV# and release new implementation
 contract OpenQV1 is OpenQStorageV1 {
+    using ASCIIUtils for string;
+
     constructor() {
         _disableInitializers();
     }
@@ -45,8 +48,9 @@ contract OpenQV1 is OpenQStorageV1 {
             Errors.BOUNTY_ALREADY_EXISTS
         );
 
-        require(asciiStringValidation(_bountyId), Errors.INVALID_STRING);
-        require(asciiStringValidation(_organization), Errors.INVALID_STRING);
+        require(_bountyId.isAscii(), Errors.INVALID_STRING);
+
+        require(_organization.isAscii(), Errors.INVALID_STRING);
 
         address bountyAddress = BountyFactory(bountyFactory).mintBounty(
             _bountyId,
@@ -398,26 +402,5 @@ contract OpenQV1 is OpenQStorageV1 {
             new bytes(0),
             VERSION_1
         );
-    }
-
-    function asciiStringValidation(string calldata str)
-        public
-        pure
-        returns (bool)
-    {
-        bytes memory b = bytes(str);
-
-        for (uint256 i; i < b.length; i++) {
-            bytes1 char = b[i];
-
-            if (
-                !(char >= 0x30 && char <= 0x39) && //9-0
-                !(char >= 0x41 && char <= 0x5A) && //A-Z
-                !(char >= 0x61 && char <= 0x7A) && //a-z
-                !(char == 0x2E) //.
-            ) return false;
-        }
-
-        return true;
     }
 }
