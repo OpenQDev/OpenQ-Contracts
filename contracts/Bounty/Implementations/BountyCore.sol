@@ -38,6 +38,7 @@ abstract contract BountyCore is BountyStorageCore {
 
         uint256 volumeReceived;
         if (_tokenAddress == address(0)) {
+            require(msg.value != 0, Errors.ZERO_VOLUME_SENT);
             volumeReceived = msg.value;
         } else {
             if (msg.value != 0) {
