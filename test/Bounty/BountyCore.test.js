@@ -14,7 +14,7 @@ const {
 	atomicBountyInitOperation_permissioned
 } = require('../constants');
 
-describe.only('BountyCore.sol', () => {
+describe('BountyCore.sol', () => {
 	// CONTRACT FACTORIES
 	let AtomicBountyV1;
 

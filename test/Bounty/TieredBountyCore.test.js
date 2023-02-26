@@ -20,6 +20,10 @@ const {
 describe('TieredBountyCore.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
+	let TieredFixedBountyProxy;
+
+	// IMPLEMNETATION
+	let tieredFixedContractImplementation;
 
 	// ACCOUNTS
 	let owner;
@@ -61,8 +65,13 @@ describe('TieredBountyCore.sol', () => {
 		await mockDai.deployed();
 
 		// TIERED BOUNTY
-		tieredFixedContract = await TieredFixedBountyV1.deploy();
-		await tieredFixedContract.deployed();
+		tieredFixedContractImplementation = await TieredFixedBountyV1.deploy();
+		await tieredFixedContractImplementation.deployed();
+
+		TieredFixedBountyProxy = await ethers.getContractFactory('OpenQProxy');
+		let tieredFixedBountyProxy = await TieredFixedBountyProxy.deploy(tieredFixedContractImplementation.address, []);
+		await tieredFixedBountyProxy.deployed();
+		tieredFixedContract = await TieredFixedBountyV1.attach(tieredFixedBountyProxy.address);
 
 		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder_permissionless(mockLink.address)
 
