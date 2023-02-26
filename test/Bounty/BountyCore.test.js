@@ -14,7 +14,7 @@ const {
 	atomicBountyInitOperation_permissioned
 } = require('../constants');
 
-describe('BountyCore.sol', () => {
+describe.only('BountyCore.sol', () => {
 	// CONTRACT FACTORIES
 	let AtomicBountyV1;
 
@@ -59,8 +59,13 @@ describe('BountyCore.sol', () => {
 		await mockDai.deployed();
 
 		// ATOMIC CONTRACT W/ FUNDING GOAL
-		atomicContract = await AtomicBountyV1.deploy();
-		await atomicContract.deployed();
+		atomicContractImplementation = await AtomicBountyV1.deploy();
+		await atomicContractImplementation.deployed();
+		
+		AtomicBountyProxy = await ethers.getContractFactory('OpenQProxy');
+		let atomicContractProxy = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+		await atomicContractProxy.deployed();
+		atomicContract = await AtomicBountyV1.attach(atomicContractProxy.address);
 
 		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
 		initializationTimestamp = await setNextBlockTimestamp();
@@ -71,8 +76,9 @@ describe('BountyCore.sol', () => {
 		await mockDai.approve(atomicContract.address, 10000000);
 
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
-		atomicContract_noFundingGoal = await AtomicBountyV1.deploy();
-		await atomicContract_noFundingGoal.deployed();
+		let atomicContractProxy_noFundingGoal = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+		await atomicContractProxy_noFundingGoal.deployed();
+		atomicContract_noFundingGoal = await AtomicBountyV1.attach(atomicContractProxy_noFundingGoal.address);
 
 		atomicBountyNoFundingGoalInitOperation = atomicBountyInitOperation_noFundingGoal()
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
@@ -134,8 +140,10 @@ describe('BountyCore.sol', () => {
 				const deposits = await atomicContract.getDeposits();
 				const depositId = deposits[0];
 
-				const newBounty = await AtomicBountyV1.deploy();
-				await newBounty.deployed();
+				let atomicContractProxy = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+				await atomicContractProxy.deployed();
+				let newBounty = await AtomicBountyV1.attach(atomicContractProxy.address);
+
 				await newBounty.initialize('other-mock-id', owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
 				await mockLink.approve(newBounty.address, 20000);
