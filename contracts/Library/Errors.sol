@@ -33,6 +33,7 @@ library Errors {
     string constant TOKEN_NOT_ALREADY_WHITELISTED =
         'TOKEN_NOT_ALREADY_WHITELISTED';
     string constant ETHER_SENT = 'ETHER_SENT';
+    string constant INVALID_STRING = 'INVALID_STRING';
     string constant TOKEN_ALREADY_WHITELISTED = 'TOKEN_ALREADY_WHITELISTED';
     string constant CLAIMANT_NOT_TIER_WINNER = 'CLAIMANT_NOT_TIER_WINNER';
     string constant INVOICE_NOT_COMPLETE = 'INVOICE_NOT_COMPLETE';
