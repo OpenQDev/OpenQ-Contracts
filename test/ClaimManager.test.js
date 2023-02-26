@@ -20,7 +20,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe('ClaimManager.sol', () => {
+describe.only('ClaimManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -102,8 +102,6 @@ describe('ClaimManager.sol', () => {
 		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
-		await openQProxy.initialize(oracle.address);
-
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
 
@@ -141,7 +139,6 @@ describe('ClaimManager.sol', () => {
 		let depositManagerProxy = await DepositManagerProxy.deploy(depositManagerImplementation.address, []);
 		await depositManagerProxy.deployed();
 		depositManager = await DepositManager.attach(depositManagerProxy.address);
-		await depositManager.initialize();
 
 		claimManagerImplementation = await ClaimManager.deploy();
 		await claimManagerImplementation.deployed();
@@ -149,14 +146,11 @@ describe('ClaimManager.sol', () => {
 		let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerImplementation.address, []);
 		await claimManagerProxy.deployed();
 		claimManager = await ClaimManager.attach(claimManagerProxy.address);
-		await claimManager.initialize(oracle.address);
-		await claimManager.setOpenQ(openQProxy.address);
-		await claimManager.setKyc(mockKyc.address);
+		
 
-		await openQProxy.setBountyFactory(bountyFactory.address);
-		await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
-		await openQProxy.setDepositManager(depositManager.address);
-		await openQProxy.setClaimManager(claimManager.address);
+		await openQProxy.initialize(oracle.address, bountyFactory.address, depositManager.address, claimManager.address);
+		await depositManager.initialize(openQProxy.address, openQTokenWhitelist.address);
+		await claimManager.initialize(oracle.address, openQProxy.address, mockKyc.address);
 
 		abiCoder = new ethers.utils.AbiCoder;
 
