@@ -84,7 +84,7 @@ describe('BountyFactory', () => {
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
-		await openQProxy.initialize();
+		await openQProxy.initialize(oracle.address);
 
 		// Deploy BountyFactory
 		bountyFactory = await BountyFactory.deploy(
