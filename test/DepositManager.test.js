@@ -15,7 +15,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe.only('DepositManager.sol', () => {
+describe('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -163,18 +163,21 @@ describe.only('DepositManager.sol', () => {
 
 		it('should revert if not called via delegatecall', async () => {
 			// ACT / ASSERT
-			await depositManagerImplementation.initialize(openQProxy.address, openQTokenWhitelist.address);
 			await expect(depositManagerImplementation.setTokenWhitelist(owner.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
 		it('should set OpenQTokenWhitelist', async () => {
 			// ASSUME
 			const DepositManager = await ethers.getContractFactory('DepositManagerV1');
-			let freshDepositManager = await DepositManager.deploy();
-			await freshDepositManager.deployed();
-			await freshDepositManager.initialize(openQProxy.address, owner.address);
+			const freshDepositManagerImplementation = await DepositManager.deploy();
+			await freshDepositManagerImplementation.deployed();
+			const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy');
+			let freshDepositManagerProxy = await DepositManagerProxy.deploy(freshDepositManagerImplementation.address, []);
+			await freshDepositManagerProxy.deployed();
+			freshDepositManagerProxy = await DepositManager.attach(freshDepositManagerProxy.address);
+			await freshDepositManagerProxy.initialize(openQProxy.address, owner.address);
 
-			expect(await freshDepositManager.openQTokenWhitelist()).equals(owner.address);
+			expect(await freshDepositManagerProxy.openQTokenWhitelist()).equals(owner.address);
 
 			// ARRANGE
 			const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
@@ -182,10 +185,10 @@ describe.only('DepositManager.sol', () => {
 			await openQTokenWhitelist.deployed();
 
 			// ACT
-			await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
+			await freshDepositManagerProxy.setTokenWhitelist(openQTokenWhitelist.address);
 
 			// ASSERT
-			expect(await depositManager.openQTokenWhitelist()).equals(openQTokenWhitelist.address);
+			expect(await freshDepositManagerProxy.openQTokenWhitelist()).equals(openQTokenWhitelist.address);
 		});
 	});
 
