@@ -15,7 +15,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -82,8 +82,6 @@ describe('DepositManager.sol', () => {
 		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
-		await openQProxy.initialize(oracle.address);
-
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
 
@@ -123,7 +121,6 @@ describe('DepositManager.sol', () => {
 		let depositManagerProxy = await DepositManagerProxy.deploy(depositManagerImplementation.address, []);
 		await depositManagerProxy.deployed();
 		depositManager = await DepositManager.attach(depositManagerProxy.address);
-		await depositManager.initialize();
 
 		claimManagerImplementation = await ClaimManager.deploy();
 		await claimManagerImplementation.deployed();
@@ -131,12 +128,10 @@ describe('DepositManager.sol', () => {
 		let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerImplementation.address, []);
 		await claimManagerProxy.deployed();
 		claimManager = await ClaimManager.attach(claimManagerProxy.address);
-		await claimManager.initialize(oracle.address);
-
-		await openQProxy.setBountyFactory(bountyFactory.address);
-		await depositManager.setTokenWhitelist(openQTokenWhitelist.address);
-		await openQProxy.setDepositManager(depositManager.address);
-		await openQProxy.setClaimManager(claimManager.address);
+		
+		await openQProxy.initialize(oracle.address, bountyFactory.address, depositManager.address, claimManager.address);
+		await depositManager.initialize(openQProxy.address, openQTokenWhitelist.address);
+		await claimManager.initialize(oracle.address, openQProxy.address, owner.address);
 
 		abiCoder = new ethers.utils.AbiCoder;
 		
@@ -166,7 +161,7 @@ describe('DepositManager.sol', () => {
 
 		it('should revert if not called via delegatecall', async () => {
 			// ACT / ASSERT
-			await depositManagerImplementation.initialize();
+			await depositManagerImplementation.initialize(openQProxy.address, openQTokenWhitelist.address);
 			await expect(depositManagerImplementation.setTokenWhitelist(owner.address)).to.be.revertedWith('Function must be called through delegatecall');
 		});
 
@@ -175,9 +170,9 @@ describe('DepositManager.sol', () => {
 			const DepositManager = await ethers.getContractFactory('DepositManagerV1');
 			let freshDepositManager = await DepositManager.deploy();
 			await freshDepositManager.deployed();
-			await freshDepositManager.initialize();
+			await freshDepositManager.initialize(openQProxy.address, owner.address);
 
-			expect(await freshDepositManager.openQTokenWhitelist()).equals(ethers.constants.AddressZero);
+			expect(await freshDepositManager.openQTokenWhitelist()).equals(owner.address);
 
 			// ARRANGE
 			const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
