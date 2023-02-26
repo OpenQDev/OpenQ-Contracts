@@ -121,15 +121,14 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         );
 
         address depToken = bounty.tokenAddress(_depositId);
-
-        uint256 availableFunds = bounty.getTokenBalance(depToken) -
-            bounty.getLockedFunds(depToken);
+        uint256 depositVolume = bounty.volume(_depositId);
+        uint256 tokenBalance = bounty.getTokenBalance(depToken);
 
         uint256 volume;
-        if (bounty.volume(_depositId) <= availableFunds) {
-            volume = bounty.volume(_depositId);
+        if (depositVolume <= tokenBalance) {
+            volume = depositVolume;
         } else {
-            volume = availableFunds;
+            volume = tokenBalance;
         }
 
         bounty.refundDeposit(_depositId, msg.sender, volume);
