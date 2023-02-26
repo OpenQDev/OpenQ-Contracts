@@ -15,7 +15,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe.only('DepositManager.sol', () => {
+describe('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -147,6 +147,8 @@ describe.only('DepositManager.sol', () => {
 	describe('initialization', () => {
 		it('should initialize with correct fields', async () => {
 			expect(await depositManager.owner()).equals(owner.address);
+			expect(await depositManager.openQ()).equals(openQProxy.address);
+			expect(await depositManager.openQTokenWhitelist()).equals(openQTokenWhitelist.address);
 		});
 	});
 

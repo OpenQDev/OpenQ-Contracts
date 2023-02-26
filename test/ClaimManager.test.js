@@ -173,7 +173,9 @@ describe('ClaimManager.sol', () => {
 
 	describe('initialization', () => {
 		it('should initialize with correct fields', async () => {
-			expect(await claimManager.oracle()).equals('0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC');
+			expect(await claimManager.oracle()).equals(oracle.address);
+			expect(await claimManager.openQ()).equals(openQProxy.address);
+			expect(await claimManager.kyc()).equals(mockKyc.address);
 		});
 	});
 
