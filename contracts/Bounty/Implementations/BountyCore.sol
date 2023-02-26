@@ -41,6 +41,9 @@ abstract contract BountyCore is BountyStorageCore {
         if (_tokenAddress == address(0)) {
             volumeReceived = msg.value;
         } else {
+            if (msg.value != 0) {
+                revert(Errors.ETHER_SENT);
+            }
             volumeReceived = _receiveERC20(_tokenAddress, _funder, _volume);
         }
 
