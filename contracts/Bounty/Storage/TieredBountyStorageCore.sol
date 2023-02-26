@@ -22,4 +22,6 @@ abstract contract TieredBountyStorageCore is BountyCore {
     bool[] public invoiceComplete;
     bool[] public supportingDocumentsComplete;
     string[] public tierWinners;
+
+    uint256[50] private __gap;
 }

@@ -22,4 +22,6 @@ abstract contract DepositManagerStorageV1 is
     uint256 public constant VERSION_1 = 1;
     address public openQTokenWhitelist;
     address public openQ;
+
+    uint256[50] private __gap;
 }

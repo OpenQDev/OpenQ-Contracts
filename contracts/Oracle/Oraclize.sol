@@ -41,4 +41,6 @@ abstract contract Oraclize is ContextUpgradeable {
         );
         _;
     }
+
+    uint256[50] private __gap;
 }

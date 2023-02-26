@@ -11,4 +11,6 @@ abstract contract AtomicBountyStorageV1 is BountyCore {
     uint256 public constant VERSION_1 = 1;
     bool public invoiceComplete;
     bool public supportingDocumentsComplete;
+
+    uint256[50] private __gap;
 }

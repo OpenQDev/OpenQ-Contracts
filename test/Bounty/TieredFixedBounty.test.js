@@ -12,7 +12,7 @@ const {
 	tieredFixedBountyInitOperationBuilder
 } = require('../constants');
 
-describe.only('TieredFixedBountyV1.sol', () => {
+describe('TieredFixedBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
 	let TieredFixedBountyProxy;
@@ -191,7 +191,7 @@ describe.only('TieredFixedBountyV1.sol', () => {
 		});
 	});
 
-	describe.only('setPayoutScheduleFied', () => {
+	describe('setPayoutScheduleFied', () => {
 		it('should revert if not called by OpenQ contract', async () => {
 			// ARRANGE
 			const [, notOwner] = await ethers.getSigners();
