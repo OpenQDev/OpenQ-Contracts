@@ -186,8 +186,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             _closerData,
             VERSION_1
         );
-
-        _bounty.setTierClaimed(_tier);
     }
 
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades

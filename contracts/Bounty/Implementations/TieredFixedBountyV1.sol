@@ -90,6 +90,8 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         );
         require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
 
+        tierClaimed[_tier] = true;
+
         uint256 claimedBalance = payoutSchedule[_tier];
 
         _transferToken(payoutTokenAddress, claimedBalance, _payoutAddress);
