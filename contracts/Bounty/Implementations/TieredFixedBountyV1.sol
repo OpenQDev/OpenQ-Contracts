@@ -84,7 +84,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         uint256 _expiration
     ) public payable override onlyDepositManager returns (bytes32, uint256) {
         require(_tokenAddress == payoutTokenAddress, Errors.TOKEN_NOT_ACCEPTED);
-        super.receiveFunds(_funder, _tokenAddress, _volume, _expiration);
+        return super.receiveFunds(_funder, _tokenAddress, _volume, _expiration);
     }
 
     /// @notice Transfers the fixed amount of balance associated with the tier
