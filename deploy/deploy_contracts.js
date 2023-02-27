@@ -127,12 +127,6 @@ async function deployContracts() {
 	
 	await depositManagerProxy.initialize(openQProxy.address, openQTokenWhitelist.address);
 
-	console.log('\nConfiguring DepositManager with OpenQTokenWhitelist...');
-	console.log(`Setting OpenQTokenWhitelist on DepositManager to ${openQTokenWhitelist.address}...`);
-	await depositManagerProxy.setTokenWhitelist(openQTokenWhitelist.address);
-	await optionalSleep(10000);
-	console.log(`OpenQTokenWhitelist successfully set on DepositManager to ${openQTokenWhitelist.address}`);
-
 	console.log('Deploying AtomicBountyV1 implementation...');
 	const AtomicBountyV1 = await ethers.getContractFactory('AtomicBountyV1');
 	const atomicBountyV1 = await AtomicBountyV1.deploy();
