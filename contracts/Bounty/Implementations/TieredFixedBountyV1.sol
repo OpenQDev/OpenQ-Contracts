@@ -158,17 +158,20 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
             payoutSchedule.length
         );
 
-        for (uint256 i = 0; i < tierWinners.length; i++) {
+        for (uint256 i = 0; i < newTierWinners.length; i++) {
+            if (i >= tierWinners.length) continue;
             newTierWinners[i] = tierWinners[i];
         }
         tierWinners = newTierWinners;
 
-        for (uint256 i = 0; i < invoiceComplete.length; i++) {
+        for (uint256 i = 0; i < newInvoiceComplete.length; i++) {
+            if (i >= invoiceComplete.length) continue;
             newInvoiceComplete[i] = invoiceComplete[i];
         }
         invoiceComplete = newInvoiceComplete;
 
-        for (uint256 i = 0; i < supportingDocumentsComplete.length; i++) {
+        for (uint256 i = 0; i < newSupportingDocumentsCompleted.length; i++) {
+            if (i >= supportingDocumentsComplete.length) continue;
             newSupportingDocumentsCompleted[i] = supportingDocumentsComplete[i];
         }
         supportingDocumentsComplete = newSupportingDocumentsCompleted;
