@@ -55,8 +55,6 @@ async function deployContracts() {
 	// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 	openQProxy = await OpenQImplementationV2.attach(openQProxy.address);
 
-	await openQProxy.initialize(process.env.ORACLE_ADDRESS);
-
 	console.log('\n------------------------------------------');
 	console.log('DEPLOYING OPENQ CLAIM MANAGER');
 	console.log('------------------------------------------');
@@ -77,10 +75,17 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`Claim Manager Proxy Deployed to ${claimManagerProxy.address} in block number ${deployBlockNumber_claimManagerProxy}\n`);
 
+	console.log('Deploying MockKyc...');
+	const MockKyc = await ethers.getContractFactory('MockKyc');
+	const mockKyc = await MockKyc.deploy();
+	await mockKyc.deployed();
+	await optionalSleep(10000);
+	console.log(`MockKYC Deployed to ${mockKyc.address}\n`);
+
 	// Attach the DepositManager ABI to the OpenQProxy address to send method calls to the delegatecall
 	claimManagerProxy = await ClaimManagerV1.attach(claimManagerProxy.address);
 
-	await claimManagerProxy.initialize(process.env.ORACLE_ADDRESS);
+	await claimManagerProxy.initialize(process.env.ORACLE_ADDRESS, openQProxy.address, mockKyc.address);
 
 	console.log('\n------------------------------------------');
 	console.log('DEPLOYING OPENQ DEPOSIT MANAGER');
@@ -105,14 +110,15 @@ async function deployContracts() {
 	// Attach the DepositManager ABI to the DepositManager proxy address to send method calls to the delegatecall
 	depositManagerProxy = await DepositManager.attach(depositManagerProxy.address);
 
-	await depositManagerProxy.initialize();
-
+	
 	console.log('Deploying OpenQTokenWhitelist...');
 	const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 	const openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
 	await openQTokenWhitelist.deployed();
 	await optionalSleep(10000);
 	console.log(`OpenQTokenWhitelist Deployed to ${openQTokenWhitelist.address}\n`);
+	
+	await depositManagerProxy.initialize(openQProxy.address, openQTokenWhitelist.address);
 
 	console.log('\nConfiguring DepositManager with OpenQTokenWhitelist...');
 	console.log(`Setting OpenQTokenWhitelist on DepositManager to ${openQTokenWhitelist.address}...`);
@@ -160,6 +166,8 @@ async function deployContracts() {
 	await optionalSleep(10000);
 	console.log(`BountyFactory Deployed to ${bountyFactory.address}\n`);
 
+	await openQProxy.initialize(process.env.ORACLE_ADDRESS, bountyFactory.address, depositManagerProxy.address, claimManagerProxy.address);
+
 	console.log('OPENQ ADDRESSES');
 	console.log(`OpenQV1 (Proxy) deployed to: ${openQProxy.address}`);
 	console.log(`OpenQV1 (Implementation) deployed to: ${openQImplementationV2.address}`);
@@ -178,25 +186,6 @@ async function deployContracts() {
 		console.log(`MockDai deployed to: ${mockDai.address}`);
 		console.log(`MockDai (BlackListed) deployed to: ${mockDaiBlacklisted.address}`);
 	}
-
-	console.log('\nConfiguring OpenQV1 with BountyFactory...');
-	console.log(`Setting BountyFactory on OpenQV1 to ${bountyFactory.address}...`);
-	await openQProxy.setBountyFactory(bountyFactory.address);
-	await optionalSleep(10000);
-	console.log(`BountyFactory successfully set on OpenQV1 to ${bountyFactory.address}`);
-
-	console.log('\nConfiguring OpenQV1 with DepositManager...');
-	console.log(`Setting BountyFactory on OpenQV1 to ${depositManagerProxy.address}...`);
-	await openQProxy.setDepositManager(depositManagerProxy.address);
-	await optionalSleep(10000);
-	console.log(`DepositManager successfully set on OpenQV1 to ${depositManagerProxy.address}`);
-
-	console.log('\nConfiguring OpenQV1 with ClaimManager...');
-	console.log(`Setting BountyFactory on OpenQV1 to ${claimManagerProxy.address}...`);
-	await openQProxy.setClaimManager(claimManagerProxy.address);
-	await claimManagerProxy.setOpenQ(openQProxy.address);
-	await optionalSleep(10000);
-	console.log(`ClaimManager successfully set on OpenQV1 to ${claimManagerProxy.address}`);
 
 	console.log('\nContracts deployed and configured successfully!');
 

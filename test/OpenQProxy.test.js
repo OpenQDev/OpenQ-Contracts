@@ -6,7 +6,7 @@ const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 const { Constants } = require('./constants');
 
-describe('OpenQProxy', () => {
+describe.only('OpenQProxy', () => {
 	let openQImplementation;
 	let openQProxy;
 
@@ -21,10 +21,10 @@ describe('OpenQProxy', () => {
 	let BountyFactory;
 
 	beforeEach(async () => {
-		OpenQImplementation = await hre.ethers.getContractFactory('OpenQV1');
-		OpenQTokenWhitelist = await hre.ethers.getContractFactory('OpenQTokenWhitelist');
-		OpenQProxy = await hre.ethers.getContractFactory('OpenQProxy');
-		BountyFactory = await hre.ethers.getContractFactory('BountyFactory');
+		OpenQImplementation = await ethers.getContractFactory('OpenQV1');
+		OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
+		OpenQProxy = await ethers.getContractFactory('OpenQProxy');
+		BountyFactory = await ethers.getContractFactory('BountyFactory');
 
 		[owner, notOwner, oracle] = await ethers.getSigners();
 
@@ -43,7 +43,7 @@ describe('OpenQProxy', () => {
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
-		await openQProxy.initialize(oracle.address);
+		await openQProxy.initialize(oracle.address, owner.address, owner.address, owner.address);
 	});
 
 	describe('constructor', () => {
@@ -76,7 +76,7 @@ describe('OpenQProxy', () => {
 			// ASSUME
 			expect(await openQProxy.getImplementation()).equals(openQImplementation.address);
 
-			const OpenQ = await hre.ethers.getContractFactory('OpenQV1');
+			const OpenQ = await ethers.getContractFactory('OpenQV1');
 			newOpenQ = await OpenQ.deploy();
 			await newOpenQ.deployed();
 
@@ -115,7 +115,7 @@ describe('OpenQProxy', () => {
 
 		it('should set new bounty factory address', async () => {
 			// ASSUME
-			expect(await openQProxy.bountyFactory()).equals(ethers.constants.AddressZero);
+			expect(await openQProxy.bountyFactory()).equals(owner.address);
 
 			// ACT
 			await openQProxy.setBountyFactory(notOwner.address);

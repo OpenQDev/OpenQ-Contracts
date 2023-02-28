@@ -11,11 +11,20 @@ contract OpenQV1 is OpenQStorageV1 {
     constructor() {}
 
     /// @notice Initializes the OpenQ implementation with necessary storage variables like owner
-    function initialize(address _initialOracle) external initializer onlyProxy {
+    function initialize(
+        address _initialOracle,
+        address _bountyFactory,
+        address _depositManager,
+        address _claimManager
+    ) external initializer onlyProxy {
         __Ownable_init();
         __Oraclize_init(_initialOracle);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
+
+        bountyFactory = _bountyFactory;
+        depositManager = _depositManager;
+        claimManager = _claimManager;
     }
 
     /// @notice Mints a new bounty BeaconProxy using BountyFactory
@@ -34,7 +43,7 @@ contract OpenQV1 is OpenQStorageV1 {
             Errors.BOUNTY_ALREADY_EXISTS
         );
 
-        address bountyAddress = bountyFactory.mintBounty(
+        address bountyAddress = BountyFactory(bountyFactory).mintBounty(
             _bountyId,
             msg.sender,
             _organization,
@@ -66,7 +75,7 @@ contract OpenQV1 is OpenQStorageV1 {
         onlyProxy
         onlyOwner
     {
-        bountyFactory = BountyFactory(_bountyFactory);
+        bountyFactory = _bountyFactory;
     }
 
     /// @notice Sets ClaimManager proxy address

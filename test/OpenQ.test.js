@@ -89,8 +89,6 @@ describe('OpenQ.sol', () => {
     // Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
     openQProxy = await OpenQImplementation.attach(openQProxy.address)
 
-    await openQProxy.initialize(oracle.address)
-
     let depositManagerImplementation = await DepositManager.deploy()
     await depositManagerImplementation.deployed()
     const DepositManagerProxy = await ethers.getContractFactory('OpenQProxy')
@@ -100,7 +98,6 @@ describe('OpenQ.sol', () => {
     )
     await depositManagerProxy.deployed()
     depositManager = await DepositManager.attach(depositManagerProxy.address)
-    await depositManager.initialize()
 
     claimManagerImplementation = await ClaimManager.deploy()
     await claimManagerImplementation.deployed()
@@ -111,7 +108,6 @@ describe('OpenQ.sol', () => {
     )
     await claimManagerProxy.deployed()
     claimManager = await ClaimManager.attach(claimManagerProxy.address)
-    await claimManager.initialize(oracle.address)
 
     mockLink = await MockLink.deploy()
     await mockLink.deployed()
@@ -146,10 +142,9 @@ describe('OpenQ.sol', () => {
     )
     await bountyFactory.deployed()
 
-    await openQProxy.setBountyFactory(bountyFactory.address)
-    await depositManager.setTokenWhitelist(openQTokenWhitelist.address)
-    await openQProxy.setDepositManager(depositManager.address)
-    await openQProxy.setClaimManager(claimManager.address)
+    openQProxy.initialize(oracle.address, bountyFactory.address, depositManager.address, claimManager.address)
+    depositManager.initialize(openQProxy.address, openQTokenWhitelist.address)
+    await claimManager.initialize(oracle.address, openQProxy.address, owner.address)
 
     abiCoder = new ethers.utils.AbiCoder()
 
@@ -182,15 +177,24 @@ describe('OpenQ.sol', () => {
   describe('initialization', () => {
     it('should initialize with correct fields', async () => {
       expect(await openQProxy.owner()).equals(
-        '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+        owner.address
       )
       expect(await openQProxy.oracle()).equals(
         oracle.address
       )
+      expect(await openQProxy.bountyFactory()).equals(
+        bountyFactory.address
+      )
+      expect(await openQProxy.depositManager()).equals(
+        depositManager.address
+      )
+      expect(await openQProxy.claimManager()).equals(
+        claimManager.address
+      )
     })
 
     it('should only be initialized once', async () => {
-      await expect(openQProxy.initialize(oracle.address)).to.be.revertedWith(
+      await expect(openQProxy.initialize(oracle.address, bountyFactory.address, depositManager.address, claimManager.address)).to.be.revertedWith(
         'Initializable: contract is already initialized'
       )
     })

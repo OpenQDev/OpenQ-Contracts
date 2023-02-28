@@ -19,5 +19,6 @@ abstract contract DepositManagerStorageV1 is
     UUPSUpgradeable
 {
     uint256 public constant VERSION_1 = 1;
-    OpenQTokenWhitelist public openQTokenWhitelist;
+    address public openQTokenWhitelist;
+    address public openQ;
 }
