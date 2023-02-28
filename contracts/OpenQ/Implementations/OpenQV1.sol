@@ -2,19 +2,34 @@
 pragma solidity 0.8.17;
 
 import '../Storage/OpenQStorage.sol';
+import '../../Library/ASCIIUtils.sol';
 
 /// @title OpenQV1
 /// @author FlacoJones
 /// @notice Main administrative contract for all bounty operations
 /// @dev Do not add any new storage variables here. Put them in a OpenQStorageV# and release new implementation
 contract OpenQV1 is OpenQStorageV1 {
-    constructor() {}
+    using ASCIIUtils for string;
+
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @notice Initializes the OpenQ implementation with necessary storage variables like owner
-    function initialize() external initializer onlyProxy {
+    function initialize(
+        address _initialOracle,
+        address _bountyFactory,
+        address _depositManager,
+        address _claimManager
+    ) external initializer onlyProxy {
         __Ownable_init();
+        __Oraclize_init(_initialOracle);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
+
+        bountyFactory = _bountyFactory;
+        depositManager = _depositManager;
+        claimManager = _claimManager;
     }
 
     /// @notice Mints a new bounty BeaconProxy using BountyFactory
@@ -33,7 +48,11 @@ contract OpenQV1 is OpenQStorageV1 {
             Errors.BOUNTY_ALREADY_EXISTS
         );
 
-        address bountyAddress = bountyFactory.mintBounty(
+        require(_bountyId.isAscii(), Errors.INVALID_STRING);
+
+        require(_organization.isAscii(), Errors.INVALID_STRING);
+
+        address bountyAddress = BountyFactory(bountyFactory).mintBounty(
             _bountyId,
             msg.sender,
             _organization,
@@ -65,7 +84,7 @@ contract OpenQV1 is OpenQStorageV1 {
         onlyProxy
         onlyOwner
     {
-        bountyFactory = BountyFactory(_bountyFactory);
+        bountyFactory = _bountyFactory;
     }
 
     /// @notice Sets ClaimManager proxy address
@@ -249,55 +268,6 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
-    /// @notice Sets payout token address and volume on bounty with id _bountyId
-    /// @param _bountyId The id to update
-    /// @param _payoutToken The token address to be used for the payout
-    /// @param _payoutVolume The volume of token to be used for the payout
-    function setPayout(
-        string calldata _bountyId,
-        address _payoutToken,
-        uint256 _payoutVolume
-    ) external onlyProxy {
-        IBounty bounty = getBounty(_bountyId);
-
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-
-        bounty.setPayout(_payoutToken, _payoutVolume);
-
-        emit PayoutSet(
-            address(bounty),
-            _payoutToken,
-            _payoutVolume,
-            bounty.bountyType(),
-            new bytes(0),
-            VERSION_1
-        );
-    }
-
-    /// @notice Sets payout volume array on percentage tiered bounty with id _bountyId
-    /// @dev There is no tokenAddress needed here - payouts on percentage tiered bounties is a percentage of whatever is deposited on the contract
-    /// @param _bountyId The bounty to update
-    /// @param _payoutSchedule An array of payout volumes for each tier
-    function setPayoutSchedule(
-        string calldata _bountyId,
-        uint256[] calldata _payoutSchedule
-    ) external onlyProxy {
-        IBounty bounty = getBounty(_bountyId);
-
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-
-        bounty.setPayoutSchedule(_payoutSchedule);
-
-        emit PayoutScheduleSet(
-            address(bounty),
-            address(0),
-            _payoutSchedule,
-            bounty.bountyType(),
-            new bytes(0),
-            VERSION_1
-        );
-    }
-
     /// @notice Sets payout volume array on fixed tiered bounty with id _bountyId
     /// @param _bountyId The bounty to update
     /// @param _payoutSchedule An array of payout volumes for each tier
@@ -317,33 +287,6 @@ contract OpenQV1 is OpenQStorageV1 {
             address(bounty),
             _payoutTokenAddress,
             _payoutSchedule,
-            bounty.bountyType(),
-            new bytes(0),
-            VERSION_1
-        );
-    }
-
-    /// @notice Closes and ongoing bounty
-    /// @param _bountyId The ongoing bounty to close
-    function closeOngoing(string calldata _bountyId) external {
-        require(bountyIsOpen(_bountyId), Errors.CONTRACT_ALREADY_CLOSED);
-        require(
-            bountyType(_bountyId) == OpenQDefinitions.ONGOING,
-            Errors.NOT_AN_ONGOING_CONTRACT
-        );
-
-        IBounty bounty = IBounty(payable(bountyIdToAddress[_bountyId]));
-
-        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
-
-        bounty.closeOngoing(msg.sender);
-
-        emit BountyClosed(
-            _bountyId,
-            bountyIdToAddress[_bountyId],
-            bounty.organization(),
-            address(0),
-            block.timestamp,
             bounty.bountyType(),
             new bytes(0),
             VERSION_1
@@ -402,16 +345,6 @@ contract OpenQV1 is OpenQStorageV1 {
         return _tierClaimed;
     }
 
-    /// @notice Determines whether or not an ongoing bounty or tiered bounty have enough funds to cover payouts
-    /// @param _bountyId The bounty id
-    /// @return True if solvent, false otherwise
-    function solvent(string calldata _bountyId) external view returns (bool) {
-        IBounty bounty = getBounty(_bountyId);
-
-        uint256 balance = bounty.getTokenBalance(bounty.payoutTokenAddress());
-        return balance >= bounty.payoutVolume();
-    }
-
     /// @notice Returns an IBounty ABI wrapped arround given bounty address
     /// @param _bountyId The bounty id
     /// @return An IBounty upon which any methods in IBounty can be called
@@ -423,22 +356,6 @@ contract OpenQV1 is OpenQStorageV1 {
         address bountyAddress = bountyIdToAddress[_bountyId];
         IBounty bounty = IBounty(bountyAddress);
         return bounty;
-    }
-
-    /// @notice Determines whether or not a given submission by claimant has already been used for a claim
-    /// @param _bountyId The bounty id
-    /// @param _claimant The external user id to check
-    /// @param _claimantAsset The external id of the claimant's asset to check
-    /// @return True if claimed, false otherwise
-    function ongoingClaimed(
-        string calldata _bountyId,
-        string calldata _claimant,
-        string calldata _claimantAsset
-    ) external view returns (bool) {
-        IBounty bounty = getBounty(_bountyId);
-        bytes32 claimId = keccak256(abi.encode(_claimant, _claimantAsset));
-        bool _ongoingClaimed = bounty.claimId(claimId);
-        return _ongoingClaimed;
     }
 
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades

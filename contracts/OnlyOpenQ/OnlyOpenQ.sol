@@ -26,4 +26,6 @@ abstract contract OnlyOpenQ is ContextUpgradeable {
         require(_msgSender() == _openQ, 'Method is only callable by OpenQ');
         _;
     }
+
+    uint256[50] private __gap;
 }

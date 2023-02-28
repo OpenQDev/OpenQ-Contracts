@@ -4,13 +4,13 @@ pragma solidity 0.8.17;
 import '../KYC/IKycValidity.sol';
 
 contract MockKyc is IKycValidity {
-    bool public isValid;
+		mapping(address => bool) isValid;
 
-    function setIsValid(bool _isValid) external {
-        isValid = _isValid;
+    function setIsValid(address _address) external {
+        isValid[_address] = true;
     }
 
-    function hasValidToken(address) external view returns (bool valid) {
-        return isValid;
+    function hasValidToken(address _address) external view returns (bool valid) {
+        return isValid[_address];
     }
 }

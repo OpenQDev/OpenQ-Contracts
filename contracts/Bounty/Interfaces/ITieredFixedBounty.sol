@@ -22,4 +22,6 @@ interface ITieredFixedBounty is IBountyCore, ITieredBounty {
     function claimTieredFixed(address _payoutAddress, uint256 _tier)
         external
         returns (uint256);
+
+    function payoutTokenAddress() external returns (address);
 }

@@ -144,8 +144,6 @@ async function verifyContracts() {
 			constructorArguments: [
 				process.env.OPENQ_PROXY_ADDRESS,
 				process.env.ATOMIC_BOUNTY_BEACON_ADDRESS,
-				process.env.ONGOING_BOUNTY_BEACON_ADDRESS,
-				process.env.TIERED_PERCENTAGE_BOUNTY_BEACON_ADDRESS,
 				process.env.TIERED_FIXED_BOUNTY_BEACON_ADDRESS
 			]
 		});

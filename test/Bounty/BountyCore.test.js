@@ -26,7 +26,6 @@ describe('BountyCore.sol', () => {
 	// MOCK ASSETS
 	let mockLink;
 	let mockDai;
-	let mockNft;
 
 	// UTILS
 	let abiCoder = new ethers.utils.AbiCoder;
@@ -49,7 +48,6 @@ describe('BountyCore.sol', () => {
 		AtomicBountyV1 = await ethers.getContractFactory('AtomicBountyV1');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
-		const MockNft = await ethers.getContractFactory('MockNft');
 
 		[owner, claimManager, depositManager] = await ethers.getSigners();
 
@@ -60,38 +58,27 @@ describe('BountyCore.sol', () => {
 		mockDai = await MockDai.deploy();
 		await mockDai.deployed();
 
-		mockNft = await MockNft.deploy();
-		await mockNft.deployed();
-
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-
 		// ATOMIC CONTRACT W/ FUNDING GOAL
-		atomicContract = await AtomicBountyV1.deploy();
-		await atomicContract.deployed();
+		atomicContractImplementation = await AtomicBountyV1.deploy();
+		await atomicContractImplementation.deployed();
+		
+		AtomicBountyProxy = await ethers.getContractFactory('OpenQProxy');
+		let atomicContractProxy = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+		await atomicContractProxy.deployed();
+		atomicContract = await AtomicBountyV1.attach(atomicContractProxy.address);
 
 		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
 		initializationTimestamp = await setNextBlockTimestamp();
 		await atomicContract.initialize(Constants.bountyId, owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
-
-		await mockNft.approve(atomicContract.address, 0);
-		await mockNft.approve(atomicContract.address, 1);
-		await mockNft.approve(atomicContract.address, 2);
-		await mockNft.approve(atomicContract.address, 3);
-		await mockNft.approve(atomicContract.address, 4);
-		await mockNft.approve(atomicContract.address, 5);
 
 		// Pre-approve LINK and DAI for transfers during testing
 		await mockLink.approve(atomicContract.address, 10000000);
 		await mockDai.approve(atomicContract.address, 10000000);
 
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
-		atomicContract_noFundingGoal = await AtomicBountyV1.deploy();
-		await atomicContract_noFundingGoal.deployed();
+		let atomicContractProxy_noFundingGoal = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+		await atomicContractProxy_noFundingGoal.deployed();
+		atomicContract_noFundingGoal = await AtomicBountyV1.attach(atomicContractProxy_noFundingGoal.address);
 
 		atomicBountyNoFundingGoalInitOperation = atomicBountyInitOperation_noFundingGoal()
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
@@ -145,7 +132,6 @@ describe('BountyCore.sol', () => {
 				expect(await atomicContract.tokenAddress(depositId)).to.equal(mockLink.address);
 				expect(await atomicContract.volume(depositId)).to.equal(Constants.volume);
 				expect(await atomicContract.expiration(depositId)).to.equal(Constants.thirtyDays);
-				expect(await atomicContract.isNFT(depositId)).to.equal(false);
 				expect(await atomicContract.depositTime(depositId)).to.equal(expectedTimestamp);
 			});
 
@@ -154,8 +140,10 @@ describe('BountyCore.sol', () => {
 				const deposits = await atomicContract.getDeposits();
 				const depositId = deposits[0];
 
-				const newBounty = await AtomicBountyV1.deploy();
-				await newBounty.deployed();
+				let atomicContractProxy = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+				await atomicContractProxy.deployed();
+				let newBounty = await AtomicBountyV1.attach(atomicContractProxy.address);
+
 				await newBounty.initialize('other-mock-id', owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation);
 
 				await mockLink.approve(newBounty.address, 20000);
@@ -351,24 +339,6 @@ describe('BountyCore.sol', () => {
 				expect(newFunderMockLinkBalance).to.equal('10000000000000000000000');
 				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
 			});
-
-			it('should transfer NFT from bounty to sender', async () => {
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-
-				// ARRANGE
-				const depositId = generateDepositId(Constants.bountyId, 0);
-				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, []);
-
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(atomicContract.address);
-
-				// ACT
-				await atomicContract.connect(depositManager).refundDeposit(depositId, owner.address, 0);
-
-				// ASSERT
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-			});
 		});
 	});
 
@@ -387,39 +357,6 @@ describe('BountyCore.sol', () => {
 			// ASSERT
 			// This will fail to revert without a deposit extension. Cannot test the counter case due to the inability to call refund twice, see DEPOSIT_ALREADY_REFUNDED
 			await expect(atomicContract.connect(depositManager).refundDeposit(linkDepositId, owner.address, volume)).to.be.revertedWith('PREMATURE_REFUND_REQUEST');
-		});
-	});
-
-	describe('claimNft', () => {
-		describe('require and revert', () => {
-			it('should revert if not called by Claim Manager contract', async () => {
-				// ARRANGE
-				const [, , , , , notClaimManager] = await ethers.getSigners();
-				let issueWithNonOwnerAccount = atomicContract.connect(notClaimManager);
-
-				// ASSERT
-				await expect(issueWithNonOwnerAccount.claimNft(notClaimManager.address, ethers.utils.formatBytes32String('mockDepositId'))).to.be.revertedWith('ClaimManagerOwnable: caller is not the current OpenQ Claim Manager');
-			});
-		});
-
-		describe('transfer', () => {
-			it('should transfer NFT deposit from bounty contract to claimer', async () => {
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-
-				// ARRANGE
-				const depositId = generateDepositId(Constants.bountyId, 0);
-				await atomicContract.connect(depositManager).receiveNft(owner.address, mockNft.address, 1, 1, []);
-
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(atomicContract.address);
-
-				// ACT
-				await atomicContract.connect(claimManager).claimNft(owner.address, depositId);
-
-				// ASSERT
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-			});
 		});
 	});
 

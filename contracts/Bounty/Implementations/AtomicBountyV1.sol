@@ -13,7 +13,9 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
-    constructor() {}
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @notice Initializes a bounty proxy with initial state
     /// @param _bountyId The unique bounty identifier
@@ -46,7 +48,6 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
-        nftDepositLimit = 5;
 
         (
             bool _hasFundingGoal,
@@ -114,41 +115,6 @@ contract AtomicBountyV1 is AtomicBountyStorageV1 {
         closer = _payoutAddress;
         bountyClosedTime = block.timestamp;
         closerData = _closerData;
-    }
-
-    /// @notice Receives an NFT for this contract
-    /// @param _sender Sender of the NFT
-    /// @param _tokenAddress NFT token address
-    /// @param _tokenId NFT token id
-    /// @param _expiration How long before this deposit becomes refundable
-    /// @return bytes32 the deposit id
-    function receiveNft(
-        address _sender,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration,
-        bytes calldata
-    ) external onlyDepositManager nonReentrant returns (bytes32) {
-        require(
-            nftDeposits.length < nftDepositLimit,
-            Errors.NFT_DEPOSIT_LIMIT_REACHED
-        );
-        require(_expiration > 0, Errors.EXPIRATION_NOT_GREATER_THAN_ZERO);
-        _receiveNft(_tokenAddress, _sender, _tokenId);
-
-        bytes32 depositId = _generateDepositId();
-
-        funder[depositId] = _sender;
-        tokenAddress[depositId] = _tokenAddress;
-        depositTime[depositId] = block.timestamp;
-        tokenId[depositId] = _tokenId;
-        expiration[depositId] = _expiration;
-        isNFT[depositId] = true;
-
-        deposits.push(depositId);
-        nftDeposits.push(depositId);
-
-        return depositId;
     }
 
     /// @notice Whether or not invoice has been completed

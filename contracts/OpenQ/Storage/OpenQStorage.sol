@@ -26,10 +26,12 @@ abstract contract OpenQStorageV1 is
     Oraclize
 {
     uint256 public constant VERSION_1 = 1;
-    BountyFactory public bountyFactory;
+    address public bountyFactory;
     address public claimManager;
     address public depositManager;
     mapping(string => address) public bountyIdToAddress;
     mapping(string => address) public externalUserIdToAddress;
     mapping(address => string) public addressToExternalUserId;
+
+    uint256[50] private __gap;
 }

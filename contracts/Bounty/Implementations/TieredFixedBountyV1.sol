@@ -13,7 +13,9 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
     using AddressUpgradeable for address payable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
-    constructor() {}
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @notice Initializes a bounty proxy with initial state
     /// @param _bountyId The unique bounty identifier
@@ -23,7 +25,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for TIERED FIXED
+    /// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for TIERED FIXED
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -46,7 +48,6 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
-        nftDepositLimit = 5;
 
         (
             uint256[] memory _payoutSchedule,
@@ -59,21 +60,12 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
 
         ) = abi.decode(
                 _operation.data,
-                (
-                    uint256[],
-                    address,
-                    bool,
-                    bool,
-                    bool,
-                    string,
-                    string,
-                    string
-                )
+                (uint256[], address, bool, bool, bool, string, string, string)
             );
 
         bountyType = OpenQDefinitions.TIERED_FIXED;
         payoutSchedule = _payoutSchedule;
-				payoutTokenAddress = _payoutTokenAddress;
+        payoutTokenAddress = _payoutTokenAddress;
         invoiceRequired = _invoiceRequired;
         kycRequired = _kycRequired;
         supportingDocumentsRequired = _supportingDocumentsRequired;
@@ -83,6 +75,16 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         tierWinners = new string[](_payoutSchedule.length);
         invoiceComplete = new bool[](_payoutSchedule.length);
         supportingDocumentsComplete = new bool[](_payoutSchedule.length);
+    }
+
+    function receiveFunds(
+        address _funder,
+        address _tokenAddress,
+        uint256 _volume,
+        uint256 _expiration
+    ) public payable override onlyDepositManager returns (bytes32, uint256) {
+        require(_tokenAddress == payoutTokenAddress, Errors.TOKEN_NOT_ACCEPTED);
+        return super.receiveFunds(_funder, _tokenAddress, _volume, _expiration);
     }
 
     /// @notice Transfers the fixed amount of balance associated with the tier
@@ -99,6 +101,8 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
             Errors.NOT_A_TIERED_FIXED_BOUNTY
         );
         require(!tierClaimed[_tier], Errors.TIER_ALREADY_CLAIMED);
+
+        tierClaimed[_tier] = true;
 
         uint256 claimedBalance = payoutSchedule[_tier];
 
@@ -154,17 +158,20 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
             payoutSchedule.length
         );
 
-        for (uint256 i = 0; i < tierWinners.length; i++) {
+        for (uint256 i = 0; i < newTierWinners.length; i++) {
+            if (i >= tierWinners.length) continue;
             newTierWinners[i] = tierWinners[i];
         }
         tierWinners = newTierWinners;
 
-        for (uint256 i = 0; i < invoiceComplete.length; i++) {
+        for (uint256 i = 0; i < newInvoiceComplete.length; i++) {
+            if (i >= invoiceComplete.length) continue;
             newInvoiceComplete[i] = invoiceComplete[i];
         }
         invoiceComplete = newInvoiceComplete;
 
-        for (uint256 i = 0; i < supportingDocumentsComplete.length; i++) {
+        for (uint256 i = 0; i < newSupportingDocumentsCompleted.length; i++) {
+            if (i >= supportingDocumentsComplete.length) continue;
             newSupportingDocumentsCompleted[i] = supportingDocumentsComplete[i];
         }
         supportingDocumentsComplete = newSupportingDocumentsCompleted;
