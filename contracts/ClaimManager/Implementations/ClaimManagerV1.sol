@@ -139,23 +139,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 VERSION_1
             );
         }
-
-        for (uint256 i = 0; i < _bounty.getNftDeposits().length; i++) {
-            _bounty.claimNft(_closer, _bounty.nftDeposits(i));
-
-            emit NFTClaimed(
-                _bounty.bountyId(),
-                address(_bounty),
-                _bounty.organization(),
-                _closer,
-                block.timestamp,
-                _bounty.tokenAddress(_bounty.nftDeposits(i)),
-                _bounty.tokenId(_bounty.nftDeposits(i)),
-                _bounty.bountyType(),
-                _closerData,
-                VERSION_1
-            );
-        }
     }
 
     /// @notice Claim method for TieredFixedBounty
@@ -203,26 +186,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
             _closerData,
             VERSION_1
         );
-
-        for (uint256 i = 0; i < _bounty.getNftDeposits().length; i++) {
-            bytes32 _depositId = _bounty.nftDeposits(i);
-            if (_bounty.tier(_depositId) == _tier) {
-                _bounty.claimNft(_closer, _depositId);
-
-                emit NFTClaimed(
-                    _bounty.bountyId(),
-                    address(_bounty),
-                    _bounty.organization(),
-                    _closer,
-                    block.timestamp,
-                    _bounty.tokenAddress(_depositId),
-                    _bounty.tokenId(_depositId),
-                    _bounty.bountyType(),
-                    _closerData,
-                    VERSION_1
-                );
-            }
-        }
 
         _bounty.setTierClaimed(_tier);
     }

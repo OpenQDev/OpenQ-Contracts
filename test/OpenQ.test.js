@@ -23,7 +23,6 @@ describe('OpenQ.sol', () => {
   let mockLink
   let mockDai
   let blacklistedMockDai
-  let mockNft
   let openQTokenWhitelist
   let depositManager
   let claimManager
@@ -54,7 +53,6 @@ describe('OpenQ.sol', () => {
     const OpenQProxy = await ethers.getContractFactory('OpenQProxy')
     const MockLink = await ethers.getContractFactory('MockLink')
     const MockDai = await ethers.getContractFactory('MockDai')
-    const MockNft = await ethers.getContractFactory('MockNft')
     const OpenQTokenWhitelist = await ethers.getContractFactory(
       'OpenQTokenWhitelist'
     )
@@ -124,21 +122,12 @@ describe('OpenQ.sol', () => {
     blacklistedMockDai = await MockDai.deploy()
     await blacklistedMockDai.deployed()
 
-    mockNft = await MockNft.deploy()
-    await mockNft.deployed()
-
     openQTokenWhitelist = await OpenQTokenWhitelist.deploy()
     await openQTokenWhitelist.deployed()
 
     await openQTokenWhitelist.addToken(mockLink.address)
     await openQTokenWhitelist.addToken(mockDai.address)
     await openQTokenWhitelist.addToken(ethers.constants.AddressZero)
-    await openQTokenWhitelist.addToken(mockNft.address)
-
-    await mockNft.safeMint(owner.address)
-    await mockNft.safeMint(owner.address)
-    await mockNft.safeMint(owner.address)
-    await mockNft.safeMint(owner.address)
 
     // BOUNTY BEACONS
     atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address)

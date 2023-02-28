@@ -2,12 +2,10 @@
 pragma solidity 0.8.17;
 
 import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol';
 
 import '../../OnlyOpenQ/OnlyOpenQ.sol';
 import '../../ClaimManager/ClaimManagerOwnable.sol';
@@ -24,7 +22,6 @@ import '../Interfaces/IBountyCore.sol';
 abstract contract BountyStorageCore is
     IBountyCore,
     ReentrancyGuardUpgradeable,
-    ERC721HolderUpgradeable,
     OnlyOpenQ,
     ClaimManagerOwnable,
     DepositManagerOwnable
@@ -37,7 +34,6 @@ abstract contract BountyStorageCore is
     string public organization;
     address public closer;
     uint256 public status;
-    uint256 public nftDepositLimit;
 
     /// @notice Deconstructed deposit struct
     mapping(bytes32 => address) public funder;
@@ -48,11 +44,9 @@ abstract contract BountyStorageCore is
     mapping(bytes32 => address) public payoutAddress;
     mapping(bytes32 => uint256) public tokenId;
     mapping(bytes32 => uint256) public expiration;
-    mapping(bytes32 => bool) public isNFT;
 
     /// @notice Array of depositIds
     bytes32[] public deposits;
-    bytes32[] public nftDeposits;
 
     /// @notice Set of unique token address
     EnumerableSetUpgradeable.AddressSet internal tokenAddresses;

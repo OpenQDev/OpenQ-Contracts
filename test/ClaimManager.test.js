@@ -29,7 +29,6 @@ describe('ClaimManager.sol', () => {
 	let mockLink;
 	let mockDai;
 	let blacklistedMockDai;
-	let mockNft;
 	let openQTokenWhitelist;
 	let mockKyc;
 
@@ -71,7 +70,6 @@ describe('ClaimManager.sol', () => {
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
-		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 		const DepositManager = await ethers.getContractFactory('DepositManagerV1');
 		const ClaimManager = await ethers.getContractFactory('ClaimManagerV1');
@@ -116,21 +114,12 @@ describe('ClaimManager.sol', () => {
 		blacklistedMockDai = await MockDai.deploy();
 		await blacklistedMockDai.deployed();
 
-		mockNft = await MockNft.deploy();
-		await mockNft.deployed();
-
 		openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
 		await openQTokenWhitelist.deployed();
 
 		await openQTokenWhitelist.addToken(mockLink.address);
 		await openQTokenWhitelist.addToken(mockDai.address);
 		await openQTokenWhitelist.addToken(ethers.constants.AddressZero);
-		await openQTokenWhitelist.addToken(mockNft.address);
-
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
 
 		// BOUNTY BEACONS
 		atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address);
@@ -358,22 +347,6 @@ describe('ClaimManager.sol', () => {
 					expect(newClaimerMockTokenBalance).to.equal('100');
 					expect(newClaimerFakeTokenBalance).to.equal('100');
 				});
-
-				it('should transfer all NFT assets from bounty contract to claimant', async () => {
-					// ASSUME
-					expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-
-					// ARRANGE
-					await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
-					const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-
-					// ACT
-
-					await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData);
-
-					// ASSERT
-					expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-				});
 			});
 
 			describe('EVENTS', () => {
@@ -398,26 +371,6 @@ describe('ClaimManager.sol', () => {
 						.withArgs(Constants.bountyId, bountyAddress, Constants.organization, owner.address, expectedTimestamp, mockLink.address, volume, 0, abiEncodedSingleCloserData, Constants.VERSION_1)
 						.withArgs(Constants.bountyId, bountyAddress, Constants.organization, owner.address, expectedTimestamp, mockDai.address, volume, 0, abiEncodedSingleCloserData, Constants.VERSION_1)
 						.withArgs(Constants.bountyId, bountyAddress, Constants.organization, owner.address, expectedTimestamp, ethers.constants.AddressZero, volume, 0, abiEncodedSingleCloserData, Constants.VERSION_1);
-				});
-
-				it('should emit an NftClaimed event with correct parameters', async () => {
-					// ARRANGE
-					await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
-					const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-
-					await mockNft.approve(bountyAddress, 1);
-					await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, zeroTier);
-
-					// Closer data for 2nd and 3rd place
-					let abiEncodedTieredCloserDataFirstPlace = abiCoder.encode(['address', 'string', 'address', 'string', 'uint256'], [owner.address, "FlacoJones", owner.address, "https://github.com/OpenQDev/OpenQ-Frontend/pull/398", 0]);
-
-					const expectedTimestamp = await setNextBlockTimestamp();
-
-					// ACT/ASSERT
-
-					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedSingleCloserData))
-						.to.emit(claimManager, 'NFTClaimed')
-						.withArgs(Constants.bountyId, bountyAddress, Constants.organization, owner.address, expectedTimestamp, mockNft.address, 1, 0, abiEncodedSingleCloserData, Constants.VERSION_1);
 				});
 
 				it('should emit a BountyClosed event with correct parameters', async () => {

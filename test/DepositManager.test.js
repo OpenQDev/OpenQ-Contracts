@@ -15,14 +15,13 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe.only('DepositManager.sol', () => {
+describe('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
 	let mockLink;
 	let mockDai;
 	let blacklistedMockDai;
-	let mockNft;
 	let openQTokenWhitelist;
 	let depositManager;
 	let claimManager;
@@ -55,7 +54,6 @@ describe.only('DepositManager.sol', () => {
 		const OpenQProxy = await ethers.getContractFactory('OpenQProxy');
 		const MockLink = await ethers.getContractFactory('MockLink');
 		const MockDai = await ethers.getContractFactory('MockDai');
-		const MockNft = await ethers.getContractFactory('MockNft');
 		const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
 		const DepositManager = await ethers.getContractFactory('DepositManagerV1');
 		const ClaimManager = await ethers.getContractFactory('ClaimManagerV1');
@@ -95,21 +93,12 @@ describe.only('DepositManager.sol', () => {
 		blacklistedMockDai = await MockDai.deploy();
 		await blacklistedMockDai.deployed();
 
-		mockNft = await MockNft.deploy();
-		await mockNft.deployed();
-
 		openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
 		await openQTokenWhitelist.deployed();
 
 		await openQTokenWhitelist.addToken(mockLink.address);
 		await openQTokenWhitelist.addToken(mockDai.address);
 		await openQTokenWhitelist.addToken(ethers.constants.AddressZero);
-		await openQTokenWhitelist.addToken(mockNft.address);
-
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
-		await mockNft.safeMint(owner.address);
 
 		// BOUNTY BEACONS
 		atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address);
@@ -286,40 +275,6 @@ describe.only('DepositManager.sol', () => {
 			expect(bountyFakeTokenBalance).to.equal('100');
 		});
 
-		it('should transfer NFT from sender to bounty', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			await mockNft.approve(bountyAddress, 1);
-
-			// ASSUME
-			expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-
-			// ACT
-			await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0);
-
-			// ASSERT
-			expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
-		});
-
-		it('should emit an NFTDepositReceived event', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			await mockNft.approve(bountyAddress, 1);
-
-			// ASSUME
-			expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-
-			const depositId = generateDepositId(Constants.bountyId, 0);
-			const expectedTimestamp = await setNextBlockTimestamp();
-
-			// ACT/ASSERT
-			await expect(depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0))
-				.to.emit(depositManager, 'NFTDepositReceived')
-				.withArgs(depositId, bountyAddress, Constants.bountyId, Constants.organization, mockNft.address, expectedTimestamp, owner.address, 1, 1, 0, [], Constants.VERSION_1);
-		});
-
 		it('should emit a DepositReceived event with expected bountyId, bounty address, token address, funder, volume, timestamp, depositId, tokenStandard, tokenId, bountyType and data', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
@@ -478,30 +433,6 @@ describe.only('DepositManager.sol', () => {
 				const newFunderFakeTokenBalance = (await mockDai.balanceOf(owner.address)).toString();
 				expect(newFunderMockTokenBalance).to.equal('10000000000000000000000');
 				expect(newFunderFakeTokenBalance).to.equal('10000000000000000000000');
-			});
-
-			it('should transfer NFT from bounty contract to funder', async () => {
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
-
-				// ARRANGE
-				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
-				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-				const bounty = await AtomicBountyV1.attach(bountyAddress);
-
-				await mockNft.approve(bountyAddress, 1);
-
-				const depositId = generateDepositId(Constants.bountyId, 0);
-				await depositManager.fundBountyNFT(bountyAddress, mockNft.address, 1, 1, 0);
-
-				// ASSUME
-				expect(await mockNft.ownerOf(1)).to.equal(bountyAddress);
-
-				// ACT
-				await depositManager.refundDeposit(bountyAddress, depositId);
-
-				// ASSERT
-				expect(await mockNft.ownerOf(1)).to.equal(owner.address);
 			});
 		});
 	});

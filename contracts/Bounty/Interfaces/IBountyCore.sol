@@ -51,28 +51,10 @@ interface IBountyCore {
         uint256 _expiration
     ) external payable returns (bytes32, uint256);
 
-    /// @notice Receives an NFT for this contract
-    /// @param _sender Sender of the NFT
-    /// @param _tokenAddress NFT token address
-    /// @param _tokenId NFT token id
-    /// @param _expiration How long before this deposit becomes refundable
-    /// @param _data ABI encoded data (unused in this case)
-    /// @return bytes32 the deposit id
-    /// @dev _data (TIERED): (uint256):(tier)
-    /// @dev _data (ATOMIC): empty bytes array
-    /// @dev _data (ONGOING): empty bytes array
-    function receiveNft(
-        address _sender,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration,
-        bytes calldata _data
-    ) external returns (bytes32);
-
-    /// @notice Transfers volume of deposit or NFT of deposit from bounty to funder
+    /// @notice Transfers volume of deposit from bounty to funder
     /// @param _depositId The deposit to refund
     /// @param _funder The initial funder of the deposit
-    /// @param _volume The volume to be refunded (only relevant if deposit is not an NFT, otherwise is zero)
+    /// @param _volume The volume to be refunded
     function refundDeposit(
         bytes32 _depositId,
         address _funder,
@@ -88,11 +70,6 @@ interface IBountyCore {
         uint256 _seconds,
         address _funder
     ) external returns (uint256);
-
-    /// @notice Transfers NFT from bounty address to _payoutAddress
-    /// @param _payoutAddress The destination address for the NFT
-    /// @param _depositId The payout address of the bounty
-    function claimNft(address _payoutAddress, bytes32 _depositId) external;
 
     /// @notice Sets the funding goal
     /// @param _fundingToken Token address for funding goal
@@ -149,10 +126,6 @@ interface IBountyCore {
     /// @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
     function getTokenAddresses() external view returns (address[] memory);
 
-    /// @notice Returns an array of ONLY NFT deposits for this bounty
-    /// @return nftDeposits The array of NFT deposits
-    function getNftDeposits() external view returns (bytes32[] memory);
-
     /// @notice Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
     /// @param _depositId The depositId that determines which token is being looked at
     /// @return uint256
@@ -177,8 +150,6 @@ interface IBountyCore {
 
     function status() external view returns (uint256);
 
-    function nftDepositLimit() external view returns (uint256);
-
     function funder(bytes32) external view returns (address);
 
     function tokenAddress(bytes32) external view returns (address);
@@ -195,11 +166,7 @@ interface IBountyCore {
 
     function expiration(bytes32) external view returns (uint256);
 
-    function isNFT(bytes32) external view returns (bool);
-
     function deposits(uint256) external view returns (bytes32);
-
-    function nftDeposits(uint256) external view returns (bytes32);
 
     function closerData() external view returns (bytes memory);
 

@@ -23,7 +23,7 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
     /// @param _claimManager The Claim Manager proxy address
     /// @param _depositManager The Deposit Manager proxy address
     /// @param _operation The ABI encoded data determining the type of bounty being initialized and associated data
-		/// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for TIERED FIXED
+    /// @dev see IBountyCore.initialize.(_operation) for _operation ABI encoding schema for TIERED FIXED
     function initialize(
         string memory _bountyId,
         address _issuer,
@@ -46,7 +46,6 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         issuer = _issuer;
         organization = _organization;
         bountyCreatedTime = block.timestamp;
-        nftDepositLimit = 5;
 
         (
             uint256[] memory _payoutSchedule,
@@ -59,21 +58,12 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
 
         ) = abi.decode(
                 _operation.data,
-                (
-                    uint256[],
-                    address,
-                    bool,
-                    bool,
-                    bool,
-                    string,
-                    string,
-                    string
-                )
+                (uint256[], address, bool, bool, bool, string, string, string)
             );
 
         bountyType = OpenQDefinitions.TIERED_FIXED;
         payoutSchedule = _payoutSchedule;
-				payoutTokenAddress = _payoutTokenAddress;
+        payoutTokenAddress = _payoutTokenAddress;
         invoiceRequired = _invoiceRequired;
         kycRequired = _kycRequired;
         supportingDocumentsRequired = _supportingDocumentsRequired;

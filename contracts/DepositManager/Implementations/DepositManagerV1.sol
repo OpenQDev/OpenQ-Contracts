@@ -100,48 +100,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         );
     }
 
-    /// @notice Transfers NFT from msg.sender to bounty address
-    /// @param _bountyAddress The address of the bounty to fund
-    /// @param _tokenAddress The ERC721 token address of the NFT
-    /// @param _tokenId The tokenId of the NFT to transfer
-    /// @param _expiration The duration until the deposit becomes refundable
-    /// @param _data The tier of the NFT (not relevant for non-tiered bounties)
-    function fundBountyNFT(
-        address _bountyAddress,
-        address _tokenAddress,
-        uint256 _tokenId,
-        uint256 _expiration,
-        bytes calldata _data
-    ) external onlyProxy {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-
-        require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
-        require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
-
-        bytes32 depositId = bounty.receiveNft(
-            msg.sender,
-            _tokenAddress,
-            _tokenId,
-            _expiration,
-            _data
-        );
-
-        emit NFTDepositReceived(
-            depositId,
-            _bountyAddress,
-            bounty.bountyId(),
-            bounty.organization(),
-            _tokenAddress,
-            block.timestamp,
-            msg.sender,
-            _expiration,
-            _tokenId,
-            0,
-            _data,
-            VERSION_1
-        );
-    }
-
     /// @notice Refunds an individual deposit from bountyAddress to sender if expiration time has passed
     /// @param _bountyAddress The address of the bounty that has the deposit to refund
     /// @param _depositId The depositId associated with the deposit being refunded
