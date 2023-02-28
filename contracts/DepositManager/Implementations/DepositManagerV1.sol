@@ -45,8 +45,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
 
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
 
-        require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
-
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
             value: msg.value
         }(msg.sender, _tokenAddress, _volume, _expiration);
@@ -153,15 +151,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     /// @return True if _tokenAddress is whitelisted, false otherwise
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
-    }
-
-    /// @notice Checks if bounty associated with _bountyId is open
-    /// @param _bountyAddress Address of bounty
-    /// @return bool True if _bountyId is associated with an open bounty
-    function bountyIsOpen(address _bountyAddress) public view returns (bool) {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-        bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
-        return isOpen;
     }
 
     /// @notice Override for UUPSUpgradeable._authorizeUpgrade(address newImplementation) to enforce onlyOwner upgrades
