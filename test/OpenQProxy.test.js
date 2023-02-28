@@ -6,7 +6,7 @@ const truffleAssert = require('truffle-assertions');
 const { ethers } = require("hardhat");
 const { Constants } = require('./constants');
 
-describe.only('OpenQProxy', () => {
+describe('OpenQProxy', () => {
 	let openQImplementation;
 	let openQProxy;
 

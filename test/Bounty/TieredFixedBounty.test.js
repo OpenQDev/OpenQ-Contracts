@@ -15,6 +15,10 @@ const {
 describe('TieredFixedBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let TieredFixedBountyV1;
+	let TieredFixedBountyProxy;
+
+	// IMPLEMNETATION
+	let tieredFixedContractImplementation;
 
 	// ACCOUNTS
 	let owner;
@@ -55,8 +59,13 @@ describe('TieredFixedBountyV1.sol', () => {
 		await mockDai.deployed();
 
 		// TIERED BOUNTY
-		tieredFixedContract = await TieredFixedBountyV1.deploy();
-		await tieredFixedContract.deployed();
+		tieredFixedContractImplementation = await TieredFixedBountyV1.deploy();
+		await tieredFixedContractImplementation.deployed();
+
+		TieredFixedBountyProxy = await ethers.getContractFactory('OpenQProxy');
+		let tieredFixedBountyProxy = await TieredFixedBountyProxy.deploy(tieredFixedContractImplementation.address, []);
+		await tieredFixedBountyProxy.deployed();
+		tieredFixedContract = await TieredFixedBountyV1.attach(tieredFixedBountyProxy.address);
 
 		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
 
@@ -71,20 +80,22 @@ describe('TieredFixedBountyV1.sol', () => {
 	describe('initializer', () => {
 		it('should revert if bountyId is empty', async () => {
 			// ARRANGE
-			const TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
-			tieredFixedContract = await TieredFixedBountyV1.deploy();
+			let tieredFixedContractProxy = await TieredFixedBountyProxy.deploy(tieredFixedContractImplementation.address, []);
+			await tieredFixedContractProxy.deployed();
+			let freshTieredFixedContract = await TieredFixedBountyV1.attach(tieredFixedContractProxy.address);
 
 			// ASSERT
-			await expect(tieredFixedContract.initialize("", owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+			await expect(freshTieredFixedContract.initialize("", owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 		});
 
 		it('should revert if organization is empty', async () => {
 			// ARRANGE
-			const TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1');
-			tieredFixedContract = await TieredFixedBountyV1.deploy();
+			let tieredFixedContractProxy = await TieredFixedBountyProxy.deploy(tieredFixedContractImplementation.address, []);
+			await tieredFixedContractProxy.deployed();
+			let freshTieredFixedContract = await TieredFixedBountyV1.attach(tieredFixedContractProxy.address);
 
 			// ASSERT
-			await expect(tieredFixedContract.initialize(Constants.bountyId, owner.address, "", owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+			await expect(freshTieredFixedContract.initialize(Constants.bountyId, owner.address, "", owner.address, claimManager.address, depositManager.address, tieredFixedBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 		});
 
 		it('should init with tiered correct metadata', async () => {

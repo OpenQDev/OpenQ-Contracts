@@ -11,7 +11,9 @@ import '../../Bounty/Interfaces/ITieredBounty.sol';
 /// @dev Emitter of all claim-related events
 /// @dev Some claim methods are onlyOracle protected, others have exclusively on-chain claim criteria
 contract ClaimManagerV1 is ClaimManagerStorageV1 {
-    constructor() {}
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @notice Initializes the ClaimManager implementation with oracle address
     /// @param _oracle The address of the oracle authorized to call onlyOracle methods (e.g. claimBounty)

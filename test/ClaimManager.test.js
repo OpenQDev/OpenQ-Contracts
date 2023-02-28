@@ -146,7 +146,6 @@ describe('ClaimManager.sol', () => {
 		let claimManagerProxy = await ClaimManagerProxy.deploy(claimManagerImplementation.address, []);
 		await claimManagerProxy.deployed();
 		claimManager = await ClaimManager.attach(claimManagerProxy.address);
-		
 
 		await openQProxy.initialize(oracle.address, bountyFactory.address, depositManager.address, claimManager.address);
 		await depositManager.initialize(openQProxy.address, openQTokenWhitelist.address);

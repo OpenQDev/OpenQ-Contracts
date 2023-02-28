@@ -11,6 +11,10 @@ const { generateDepositId, generateClaimantId } = require('../utils');
 describe('AtomicBountyV1.sol', () => {
 	// CONTRACT FACTORIES
 	let AtomicBountyV1;
+	let AtomicBountyProxy;
+
+	// IMPLEMENTATION
+	let atomicContractImplementation
 
 	// ACCOUNTS
 	let owner;
@@ -53,8 +57,13 @@ describe('AtomicBountyV1.sol', () => {
 		await mockDai.deployed();
 
 		// ATOMIC CONTRACT W/ FUNDING GOAL
-		atomicContract = await AtomicBountyV1.deploy();
-		await atomicContract.deployed();
+		atomicContractImplementation = await AtomicBountyV1.deploy();
+		await atomicContractImplementation.deployed();
+		
+		AtomicBountyProxy = await ethers.getContractFactory('OpenQProxy');
+		let atomicContractProxy = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+		await atomicContractProxy.deployed();
+		atomicContract = await AtomicBountyV1.attach(atomicContractProxy.address);
 
 		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
 		initializationTimestamp = await setNextBlockTimestamp();
@@ -65,8 +74,9 @@ describe('AtomicBountyV1.sol', () => {
 		await mockDai.approve(atomicContract.address, 10000000);
 
 		// ATOMIC CONTRACT W/ NO FUNDING GOAL
-		atomicContract_noFundingGoal = await AtomicBountyV1.deploy();
-		await atomicContract_noFundingGoal.deployed();
+		let atomicContractProxy_noFundingGoal = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+		await atomicContractProxy_noFundingGoal.deployed();
+		atomicContract_noFundingGoal = await AtomicBountyV1.attach(atomicContractProxy_noFundingGoal.address);
 
 		atomicBountyNoFundingGoalInitOperation = atomicBountyInitOperation_noFundingGoal();
 		initializationTimestampAtomicNoFundingGoal = await setNextBlockTimestamp();
@@ -98,20 +108,22 @@ describe('AtomicBountyV1.sol', () => {
 
 		it('should revert if bountyId is empty', async () => {
 			// ARRANGE
-			const AtomicBountyV1 = await ethers.getContractFactory('AtomicBountyV1');
-			atomicContract = await AtomicBountyV1.deploy();
+			let atomicContractProxy = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+			await atomicContractProxy.deployed();
+			let freshAtomicContract = await AtomicBountyV1.attach(atomicContractProxy.address);
 
 			// ASSERT
-			await expect(atomicContract.initialize("", owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
+			await expect(freshAtomicContract.initialize("", owner.address, Constants.organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_BOUNTY_ID');
 		});
 
 		it('should revert if organization is empty', async () => {
 			// ARRANGE
-			const AtomicBountyV1 = await ethers.getContractFactory('AtomicBountyV1');
-			atomicContract = await AtomicBountyV1.deploy();
+			let atomicContractProxy = await AtomicBountyProxy.deploy(atomicContractImplementation.address, []);
+			await atomicContractProxy.deployed();
+			let freshAtomicContract = await AtomicBountyV1.attach(atomicContractProxy.address);
 
 			// ASSERT
-			await expect(atomicContract.initialize(Constants.bountyId, owner.address, "", owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
+			await expect(freshAtomicContract.initialize(Constants.bountyId, owner.address, "", owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('NO_EMPTY_ORGANIZATION');
 		});
 	});
 

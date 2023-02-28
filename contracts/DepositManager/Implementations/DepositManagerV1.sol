@@ -9,13 +9,16 @@ import 'hardhat/console.sol';
 /// @notice Manager contract for depositing protocol, ERC-20, and ERC-721 on bounty contracts
 /// @notice Emitter of all deposit-related events
 contract DepositManagerV1 is DepositManagerStorageV1 {
-    constructor() {}
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @notice Initializes the DepositManager implementation
     /// @notice Can only be called once thanks to initializer (https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializers)
     function initialize(address _openQ, address _openQTokenWhitelist)
         external
         initializer
+        onlyProxy
     {
         __Ownable_init();
         __UUPSUpgradeable_init();
@@ -28,8 +31,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     /// @param _openQTokenWhitelist The OpenQTokenWhitelist address
     function setTokenWhitelist(address _openQTokenWhitelist)
         external
-        onlyOwner
         onlyProxy
+        onlyOwner
     {
         openQTokenWhitelist = _openQTokenWhitelist;
     }
@@ -48,6 +51,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         string memory funderUuid
     ) external payable onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
 
@@ -86,6 +91,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     ) external onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
+
         require(
             bounty.funder(_depositId) == msg.sender,
             Errors.CALLER_NOT_FUNDER
@@ -114,6 +121,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
         onlyProxy
     {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
 
         require(
             bounty.funder(_depositId) == msg.sender,
@@ -151,6 +160,16 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
             new bytes(0),
             VERSION_1
         );
+    }
+
+    function bountyExists(address _bountyAddress) internal returns (bool) {
+        string memory bountyId = IOpenQ(openQ).bountyAddressToBountyId(
+            _bountyAddress
+        );
+
+        bytes32 emptyString = keccak256(abi.encodePacked(''));
+
+        return keccak256(abi.encodePacked(bountyId)) != emptyString;
     }
 
     /// @notice Checks if _tokenAddress is whitelisted

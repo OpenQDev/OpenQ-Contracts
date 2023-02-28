@@ -8,7 +8,9 @@ import '../Storage/OpenQStorage.sol';
 /// @notice Main administrative contract for all bounty operations
 /// @dev Do not add any new storage variables here. Put them in a OpenQStorageV# and release new implementation
 contract OpenQV1 is OpenQStorageV1 {
-    constructor() {}
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @notice Initializes the OpenQ implementation with necessary storage variables like owner
     function initialize(
