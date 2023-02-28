@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import '../Storage/DepositManagerStorage.sol';
+import 'hardhat/console.sol';
 
 /// @title DepositManagerV1
 /// @author FlacoJones

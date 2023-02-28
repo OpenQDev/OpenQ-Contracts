@@ -10,8 +10,6 @@ const {
 	atomicBountyInitOperation_fundingGoal, 
 	atomicBountyInitOperation_noFundingGoal, 
 	atomicBountyInitOperation_permissioned,
-	ongoingBountyInitOperationBuilder,
-	tieredBountyInitOperationBuilder,
 	tieredFixedBountyInitOperationBuilder,
 	tieredBountyInitOperation_not100
 } = require('./constants');
@@ -27,8 +25,6 @@ describe('BountyFactory', () => {
 	let OpenQProxy;
 
 	let AtomicBountyV1;
-	let OngoingBountyV1;
-	let TieredPercentageBountyV1;
 	let TieredFixedBountyV1;
 
 	let BountyBeacon;
@@ -41,8 +37,6 @@ describe('BountyFactory', () => {
 	let depositManager;
 
 	let atomicBountyInitOperation;
-	let ongoingBountyInitOperation;
-	let tieredPercentageBountyInitOperation;
 	let tieredFixedBountyInitOperation;
 
 	const mockOpenQId = "mockOpenQId"
@@ -57,8 +51,6 @@ describe('BountyFactory', () => {
 		BountyBeacon = await hre.ethers.getContractFactory('BountyBeacon');
 		
 		AtomicBountyV1 = await hre.ethers.getContractFactory('AtomicBountyV1');
-		OngoingBountyV1 = await hre.ethers.getContractFactory('OngoingBountyV1');
-		TieredPercentageBountyV1 = await hre.ethers.getContractFactory('TieredPercentageBountyV1');
 		TieredFixedBountyV1 = await hre.ethers.getContractFactory('TieredFixedBountyV1');
 
 		[owner, oracle, notOpenQ, claimManager, depositManager] = await ethers.getSigners();
@@ -74,24 +66,12 @@ describe('BountyFactory', () => {
 		atomicBountyV1 = await AtomicBountyV1.deploy();
 		await atomicBountyV1.deployed();
 		
-		ongoingBountyV1 = await OngoingBountyV1.deploy();
-		await ongoingBountyV1.deployed();
-		
-		tieredPercentageBountyV1 = await TieredPercentageBountyV1.deploy();
-		await tieredPercentageBountyV1.deployed();
-		
 		tieredFixedBountyV1 = await TieredFixedBountyV1.deploy();
 		await tieredFixedBountyV1.deployed();
 
 		// BOUNTY BEACONS
 		atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address);
 		await atomicBountyBeacon.deployed();
-
-		ongoingBountyBeacon = await BountyBeacon.deploy(ongoingBountyV1.address);
-		await ongoingBountyBeacon.deployed();
-
-		tieredPercentageBountyBeacon = await BountyBeacon.deploy(tieredPercentageBountyV1.address);
-		await tieredPercentageBountyBeacon.deployed();
 
 		tieredFixedBountyBeacon = await BountyBeacon.deploy(tieredFixedBountyV1.address);
 		await tieredFixedBountyBeacon.deployed();
@@ -110,8 +90,6 @@ describe('BountyFactory', () => {
 		bountyFactory = await BountyFactory.deploy(
 			openQProxy.address,
 			atomicBountyBeacon.address,
-			ongoingBountyBeacon.address,
-			tieredPercentageBountyBeacon.address,
 			tieredFixedBountyBeacon.address
 			);
 		await bountyFactory.deployed();
@@ -120,8 +98,6 @@ describe('BountyFactory', () => {
 		const abiCoder = new ethers.utils.AbiCoder;
 
 		atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
-		ongoingBountyInitOperation = ongoingBountyInitOperationBuilder(mockLink.address)
-		tieredPercentageBountyInitOperation = tieredBountyInitOperationBuilder(mockLink.address)
 		tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
 	});
 
@@ -129,8 +105,6 @@ describe('BountyFactory', () => {
 		it('should initiatlize with correct OpenQ proxy address and BountyBeacon address', async () => {
 			expect(await bountyFactory.openQ()).equals(openQProxy.address);
 			expect(await bountyFactory.atomicBountyBeacon()).equals(atomicBountyBeacon.address);
-			expect(await bountyFactory.ongoingBountyBeacon()).equals(ongoingBountyBeacon.address);
-			expect(await bountyFactory.tieredPercentageBountyBeacon()).equals(tieredPercentageBountyBeacon.address);
 			expect(await bountyFactory.tieredFixedBountyBeacon()).equals(tieredFixedBountyBeacon.address);
 		});
 	});
@@ -147,8 +121,6 @@ describe('BountyFactory', () => {
 			let newBountyFactory = await BountyFactory.deploy(
 				owner.address,
 				atomicBountyBeacon.address,
-				ongoingBountyBeacon.address,
-				tieredPercentageBountyBeacon.address,
 				tieredFixedBountyBeacon.address
 				);
 			await newBountyFactory.deployed();
@@ -189,115 +161,11 @@ describe('BountyFactory', () => {
 			await expect(atomicContract.initialize(mockOpenQId, owner.address, organization, owner.address, claimManager.address, depositManager.address, atomicBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
 		});
 
-		it('should mint a bounty with expected data - ONGOING', async () => {
-			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
-			let newBountyFactory = await BountyFactory.deploy(
-				owner.address,
-				atomicBountyBeacon.address,
-				ongoingBountyBeacon.address,
-				tieredPercentageBountyBeacon.address,
-				tieredFixedBountyBeacon.address
-				);
-			await newBountyFactory.deployed();
-
-			let initializationTimestamp = await setNextBlockTimestamp();
-
-			const txn = await newBountyFactory.mintBounty(
-				mockId,
-				owner.address,
-				organization,
-				claimManager.address,
-				depositManager.address,
-				ongoingBountyInitOperation
-			);
-
-			const receipt = await txn.wait();
-
-			const ongoingContract = await OngoingBountyV1.attach(receipt.events[0].address);
-
-			await expect(await ongoingContract.bountyId()).equals(mockId);
-			await expect(await ongoingContract.issuer()).equals(owner.address);
-			await expect(await ongoingContract.organization()).equals(organization);
-			await expect(await ongoingContract.status()).equals(0);
-			await expect(await ongoingContract.openQ()).equals(owner.address);
-			await expect(await ongoingContract.claimManager()).equals(claimManager.address);
-			await expect(await ongoingContract.depositManager()).equals(depositManager.address);
-			await expect(await ongoingContract.bountyCreatedTime()).equals(initializationTimestamp);
-			await expect(await ongoingContract.bountyType()).equals(Constants.ONGOING_CONTRACT);
-			await expect(await ongoingContract.hasFundingGoal()).equals(true);
-			await expect(await ongoingContract.fundingToken()).equals(mockLink.address);
-			await expect(await ongoingContract.fundingGoal()).equals(Constants.volume);
-			await expect(await ongoingContract.issuerExternalUserId()).equals(mockOpenQId);
-
-			await expect(await ongoingContract.invoiceRequired()).equals(false);
-			await expect(await ongoingContract.kycRequired()).equals(false);
-			await expect(await ongoingContract.supportingDocumentsRequired()).equals(false);
-
-			await expect(ongoingContract.initialize('mock-id', owner.address, 'mock-organization', owner.address, claimManager.address, depositManager.address, ongoingBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
-		});
-
-		it('should mint a bounty with expected data - TIERED PERCENTAGE', async () => {
-			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
-			let newBountyFactory = await BountyFactory.deploy(
-				owner.address,
-				atomicBountyBeacon.address,
-				ongoingBountyBeacon.address,
-				tieredPercentageBountyBeacon.address,
-				tieredFixedBountyBeacon.address
-				);
-			await newBountyFactory.deployed();
-
-			let initializationTimestamp = await setNextBlockTimestamp();
-
-			const txn = await newBountyFactory.mintBounty(
-				mockId,
-				owner.address,
-				organization,
-				claimManager.address,
-				depositManager.address,
-				tieredPercentageBountyInitOperation
-			);
-
-			const receipt = await txn.wait();
-
-			const tieredPercentageContract = await TieredPercentageBountyV1.attach(receipt.events[0].address);
-
-			const actualBountyPayoutSchedule = await tieredPercentageContract.getPayoutSchedule();
-			const payoutToString = actualBountyPayoutSchedule.map(thing => thing.toString());
-
-			await expect(await tieredPercentageContract.bountyId()).equals(mockId);
-			await expect(await tieredPercentageContract.bountyId()).equals(mockId);
-			await expect(await tieredPercentageContract.issuer()).equals(owner.address);
-			await expect(await tieredPercentageContract.organization()).equals(organization);
-			await expect(await tieredPercentageContract.status()).equals(0);
-			await expect(await tieredPercentageContract.openQ()).equals(owner.address);
-			await expect(await tieredPercentageContract.claimManager()).equals(claimManager.address);
-			await expect(await tieredPercentageContract.depositManager()).equals(depositManager.address);
-			await expect(await tieredPercentageContract.bountyCreatedTime()).equals(initializationTimestamp);
-			await expect(await tieredPercentageContract.bountyType()).equals(Constants.TIERED_PERCENTAGE_CONTRACT);
-			await expect(await tieredPercentageContract.hasFundingGoal()).equals(true);
-			await expect(await tieredPercentageContract.fundingToken()).equals(mockLink.address);
-			await expect(await tieredPercentageContract.fundingGoal()).equals(Constants.volume);
-			await expect(payoutToString[0]).equals("60");
-			await expect(payoutToString[1]).equals("30");
-			await expect(await tieredPercentageContract.invoiceRequired()).equals(true);
-			await expect(await tieredPercentageContract.kycRequired()).equals(true);
-			await expect(await tieredPercentageContract.issuerExternalUserId()).equals(mockOpenQId);
-			
-			await expect(await tieredPercentageContract.supportingDocumentsRequired()).equals(true);
-			await expect(await tieredPercentageContract.invoiceComplete(0)).equals(false);
-			await expect(await tieredPercentageContract.supportingDocumentsComplete(0)).equals(false);
-
-			await expect(tieredPercentageContract.initialize(mockOpenQId, owner.address, organization, owner.address, claimManager.address, depositManager.address, tieredPercentageBountyInitOperation)).to.be.revertedWith('Initializable: contract is already initialized');
-		});
-
 		it('should mint a bounty with expected data - TIERED FIXED', async () => {
 			// Must redeploy and pretend that owner account is OpenQ in order to call BountyFactory.mintBounty
 			let newBountyFactory = await BountyFactory.deploy(
 				owner.address,
 				atomicBountyBeacon.address,
-				ongoingBountyBeacon.address,
-				tieredPercentageBountyBeacon.address,
 				tieredFixedBountyBeacon.address
 				);
 			await newBountyFactory.deployed();
@@ -348,8 +216,6 @@ describe('BountyFactory', () => {
 						let newBountyFactory = await BountyFactory.deploy(
 							owner.address,
 							atomicBountyBeacon.address,
-							ongoingBountyBeacon.address,
-							tieredPercentageBountyBeacon.address,
 							tieredFixedBountyBeacon.address
 							);
 						await newBountyFactory.deployed();

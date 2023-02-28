@@ -12,11 +12,8 @@ const {
 	atomicBountyInitOperation_fundingGoal, 
 	atomicBountyInitOperation_noFundingGoal, 
 	atomicBountyInitOperation_permissioned,
-	ongoingBountyInitOperationBuilder,
-	tieredBountyInitOperationBuilder,
 	tieredFixedBountyInitOperationBuilder,
-	tieredBountyInitOperation_not100,
-	tieredBountyInitOperationBuilder_permissionless
+  tieredFixedBountyInitOperationBuilder_permissionless,
 } = require('./constants');
 
 describe('OpenQ.sol', () => {
@@ -40,10 +37,6 @@ describe('OpenQ.sol', () => {
   // INIT OPERATIONS
   let atomicBountyInitOperation
   let atomicBountyInitOperationPermissioned
-  let ongoingBountyInitOperation
-  let tieredBountyInitOperation
-  let tieredBountyInitOperation_permissionless
-  let tieredBountyInitOperationNot100
   let tieredFixedBountyInitOperation
 
   // CLOSER DATA
@@ -51,12 +44,9 @@ describe('OpenQ.sol', () => {
 
   let abiEncodedSingleCloserData
   let abiEncodedOngoingCloserData
-  let abiEncodedTieredCloserData
   let abiEncodedTieredFixedCloserData
 
   let AtomicBountyV1
-  let OngoingBountyV1
-  let TieredPercentageBountyV1
   let TieredFixedBountyV1
 
   beforeEach(async () => {
@@ -72,21 +62,11 @@ describe('OpenQ.sol', () => {
     const ClaimManager = await ethers.getContractFactory('ClaimManagerV1')
 
     AtomicBountyV1 = await ethers.getContractFactory('AtomicBountyV1')
-    OngoingBountyV1 = await ethers.getContractFactory('OngoingBountyV1')
-    TieredPercentageBountyV1 = await ethers.getContractFactory(
-      'TieredPercentageBountyV1'
-    )
     TieredFixedBountyV1 = await ethers.getContractFactory('TieredFixedBountyV1')
 
     // BOUNTY IMPLEMENTATIONS
     atomicBountyV1 = await AtomicBountyV1.deploy()
     await atomicBountyV1.deployed()
-
-    ongoingBountyV1 = await OngoingBountyV1.deploy()
-    await ongoingBountyV1.deployed()
-
-    tieredPercentageBountyV1 = await TieredPercentageBountyV1.deploy()
-    await tieredPercentageBountyV1.deployed()
 
     tieredFixedBountyV1 = await TieredFixedBountyV1.deploy()
     await tieredFixedBountyV1.deployed()
@@ -164,14 +144,6 @@ describe('OpenQ.sol', () => {
     atomicBountyBeacon = await BountyBeacon.deploy(atomicBountyV1.address)
     await atomicBountyBeacon.deployed()
 
-    ongoingBountyBeacon = await BountyBeacon.deploy(ongoingBountyV1.address)
-    await ongoingBountyBeacon.deployed()
-
-    tieredPercentageBountyBeacon = await BountyBeacon.deploy(
-      tieredPercentageBountyV1.address
-    )
-    await tieredPercentageBountyBeacon.deployed()
-
     tieredFixedBountyBeacon = await BountyBeacon.deploy(
       tieredFixedBountyV1.address
     )
@@ -181,8 +153,6 @@ describe('OpenQ.sol', () => {
     bountyFactory = await BountyFactory.deploy(
       openQProxy.address,
       atomicBountyBeacon.address,
-      ongoingBountyBeacon.address,
-      tieredPercentageBountyBeacon.address,
       tieredFixedBountyBeacon.address
     )
     await bountyFactory.deployed()
@@ -196,11 +166,8 @@ describe('OpenQ.sol', () => {
     abiCoder = new ethers.utils.AbiCoder()
 
     atomicBountyInitOperation = atomicBountyInitOperation_fundingGoal(mockLink.address)
-    ongoingBountyInitOperation = ongoingBountyInitOperationBuilder(mockLink.address)
-    tieredBountyInitOperation = tieredBountyInitOperationBuilder(mockLink.address)
-    tieredBountyInitOperationNot100 = tieredBountyInitOperation_not100(mockLink.address)
     tieredFixedBountyInitOperation = tieredFixedBountyInitOperationBuilder(mockLink.address)
-		tieredBountyInitOperation_permissionless = tieredBountyInitOperationBuilder_permissionless(mockLink.address)
+    tieredFixedBountyInitOperation_permissionless = tieredFixedBountyInitOperationBuilder_permissionless(mockLink.address)
 
     abiEncodedSingleCloserData = abiCoder.encode(
       ['address', 'string', 'address', 'string'],
@@ -211,25 +178,7 @@ describe('OpenQ.sol', () => {
         'https://github.com/OpenQDev/OpenQ-Frontend/pull/398',
       ]
     )
-    abiEncodedOngoingCloserData = abiCoder.encode(
-      ['address', 'string', 'address', 'string'],
-      [
-        owner.address,
-        'FlacoJones',
-        owner.address,
-        'https://github.com/OpenQDev/OpenQ-Frontend/pull/398',
-      ]
-    )
-    abiEncodedTieredCloserData = abiCoder.encode(
-      ['address', 'string', 'address', 'string', 'uint256'],
-      [
-        owner.address,
-        'FlacoJones',
-        owner.address,
-        'https://github.com/OpenQDev/OpenQ-Frontend/pull/398',
-        1,
-      ]
-    )
+
     abiEncodedTieredFixedCloserData = abiCoder.encode(
       ['address', 'string', 'address', 'string', 'uint256'],
       [
@@ -376,97 +325,6 @@ describe('OpenQ.sol', () => {
       })
     })
 
-    describe('ONGOING', () => {
-      it('should deploy a new bounty contract with expected initial metadata', async () => {
-        // ACT
-        let initializationTimestamp = await setNextBlockTimestamp()
-        await openQProxy.mintBounty(
-          Constants.bountyId,
-          Constants.organization,
-          ongoingBountyInitOperation
-        )
-
-				const bountyIsOpen = await openQProxy.bountyIsOpen(Constants.bountyId)
-
-				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
-        const ongoingContract = await OngoingBountyV1.attach(bountyAddress)
-
-        await expect(await ongoingContract.bountyId()).equals(Constants.bountyId)
-        await expect(await ongoingContract.issuer()).equals(owner.address)
-        await expect(await ongoingContract.organization()).equals(Constants.organization)
-        await expect(await ongoingContract.status()).equals(0)
-        await expect(await ongoingContract.openQ()).equals(openQProxy.address)
-        await expect(await ongoingContract.claimManager()).equals(claimManager.address)
-        await expect(await ongoingContract.depositManager()).equals(depositManager.address)
-        await expect(await ongoingContract.bountyCreatedTime()).equals(initializationTimestamp)
-        await expect(await ongoingContract.bountyType()).equals(Constants.ONGOING_CONTRACT)
-        await expect(await ongoingContract.hasFundingGoal()).equals(true)
-        await expect(await ongoingContract.fundingToken()).equals(mockLink.address)
-        await expect(await ongoingContract.payoutTokenAddress()).equals(mockLink.address)
-        await expect(await ongoingContract.payoutVolume()).equals(Constants.volume)
-        await expect(await ongoingContract.fundingGoal()).equals(Constants.volume)
-        await expect(await ongoingContract.issuerExternalUserId()).equals(Constants.mockOpenQId)
-				await expect(await ongoingContract.invoiceRequired()).equals(false)
-        await expect(await ongoingContract.kycRequired()).equals(false)
-        await expect(await ongoingContract.supportingDocumentsRequired()).equals(false)
-      })
-    })
-
-    describe('TIERED', () => {
-      it('should correctly init bountyType and payout schedule', async () => {
-        // ARRANGE
-        let initializationTimestamp = await setNextBlockTimestamp()
-
-        // ACT
-        await openQProxy.mintBounty(
-          Constants.bountyId,
-          Constants.organization,
-          tieredBountyInitOperation
-        )
-
-        const bountyIsOpen = await openQProxy.bountyIsOpen(Constants.bountyId)
-        const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
-
-        const tieredPercentageContract = await TieredPercentageBountyV1.attach(bountyAddress)
-
-        const actualBountyPayoutSchedule = await tieredPercentageContract.getPayoutSchedule()
-        const payoutToString = actualBountyPayoutSchedule.map((thing) => thing.toString())
-
-        await expect(await tieredPercentageContract.bountyId()).equals(Constants.bountyId)
-        await expect(await tieredPercentageContract.issuer()).equals(owner.address)
-        await expect(await tieredPercentageContract.organization()).equals(Constants.organization)
-        await expect(await tieredPercentageContract.status()).equals(0)
-        await expect(await tieredPercentageContract.openQ()).equals(openQProxy.address)
-        await expect(await tieredPercentageContract.claimManager()).equals(claimManager.address)
-        await expect(await tieredPercentageContract.depositManager()).equals(depositManager.address)
-        await expect(await tieredPercentageContract.bountyCreatedTime()).equals(initializationTimestamp)
-        await expect(await tieredPercentageContract.bountyType()).equals(Constants.TIERED_PERCENTAGE_CONTRACT)
-        await expect(await tieredPercentageContract.hasFundingGoal()).equals(true)
-        await expect(await tieredPercentageContract.fundingToken()).equals(mockLink.address)
-        await expect(await tieredPercentageContract.fundingGoal()).equals(Constants.volume)
-        await expect(payoutToString[0]).equals('60')
-        await expect(payoutToString[1]).equals('30')
-        await expect(await tieredPercentageContract.issuerExternalUserId()).equals(Constants.mockOpenQId)
-				
-        await expect(await tieredPercentageContract.supportingDocumentsRequired()).equals(true)
-        await expect(await tieredPercentageContract.invoiceRequired()).equals(true)
-				await expect(await tieredPercentageContract.kycRequired()).equals(true)
-
-        await expect(await tieredPercentageContract.invoiceComplete(0)).equals(false)
-        await expect(await tieredPercentageContract.supportingDocumentsComplete(0)).equals(false)
-      })
-
-      it('should revert if payout schedule does not add to 100', async () => {
-        await expect(
-          openQProxy.mintBounty(
-            Constants.bountyId,
-            Constants.organization,
-            tieredBountyInitOperationNot100
-          )
-        ).to.be.revertedWith('PAYOUT_SCHEDULE_MUST_ADD_TO_100')
-      })
-    })
-
     describe('TIERED FIXED', () => {
       it('should correctly init bountyType and payout schedule', async () => {
         // ARRANGE
@@ -511,184 +369,18 @@ describe('OpenQ.sol', () => {
     })
   })
 
-  describe('solvent', () => {
-    it('should return TRUE for solvent ongoing contracts', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      await mockLink.approve(bountyAddress, 10000000)
-      await depositManager.fundBountyToken(
-        bountyAddress,
-        mockLink.address,
-        10000000,
-        1,
-        Constants.funderUuid
-      )
-
-      const solvent = await openQProxy.solvent(Constants.bountyId)
-      expect(solvent).to.equal(true)
-    })
-
-    it('should return FALSE for insolvent ongoing contracts', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      const solvent = await openQProxy.solvent(Constants.bountyId)
-      expect(solvent).to.equal(false)
-    })
-  })
-
-  describe('closeOngoing', () => {
-    it('should close ongoing', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      // ASSUME
-      let status = await bounty.status()
-      expect(status).to.equal(0)
-
-      // ACT
-      await openQProxy.closeOngoing(Constants.bountyId)
-
-      // ASSERT
-      status = await bounty.status()
-      expect(status).to.equal(1)
-    })
-
-    it('should revert if not ongoing', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        atomicBountyInitOperation
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await AtomicBountyV1.attach(bountyAddress)
-
-      // ASSUME
-      let status = await bounty.status()
-      expect(status).to.equal(0)
-
-      // ASSERT
-      await expect(
-        openQProxy.closeOngoing(Constants.bountyId)
-      ).to.be.revertedWith('NOT_AN_ONGOING_CONTRACT')
-    })
-
-    it('should revert if already closed', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      // ASSUME
-      let status = await bounty.status()
-      expect(status).to.equal(0)
-      await openQProxy.closeOngoing(Constants.bountyId)
-
-      // ASSERT
-      await expect(
-        openQProxy.closeOngoing(Constants.bountyId)
-      ).to.be.revertedWith('CONTRACT_ALREADY_CLOSED')
-    })
-
-    it('should revert if caller not issuer', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      // ASSUME
-      let status = await bounty.status()
-      expect(status).to.equal(0)
-
-      // ASSERT
-      await expect(
-        openQProxy.connect(notIssuer).closeOngoing(Constants.bountyId)
-      ).to.be.revertedWith('CALLER_NOT_ISSUER')
-    })
-
-    it('should emit BountyClosed', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      // ASSUME
-      let status = await bounty.status()
-      expect(status).to.equal(0)
-
-      const expectedTimestamp = await setNextBlockTimestamp()
-      // ACT
-      await expect(openQProxy.closeOngoing(Constants.bountyId))
-        .to.emit(openQProxy, 'BountyClosed')
-        .withArgs(
-          Constants.bountyId,
-          anyValue,
-          Constants.organization,
-          ethers.constants.AddressZero,
-          expectedTimestamp,
-          1,
-          [],
-          Constants.VERSION_1
-        )
-    })
-  })
-
   describe('tierClaimed', () => {
     it('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
       // ARRANGE
       await openQProxy.mintBounty(
         Constants.bountyId,
         Constants.organization,
-        tieredBountyInitOperation_permissionless
+        tieredFixedBountyInitOperation_permissionless
       )
       const bountyAddress = await openQProxy.bountyIdToAddress(
         Constants.bountyId
       )
-      const bounty = await TieredPercentageBountyV1.attach(bountyAddress)
+      const bounty = await TieredFixedBountyV1.attach(bountyAddress)
 
       await mockLink.approve(bountyAddress, 10000000)
       await depositManager.fundBountyToken(
@@ -707,54 +399,11 @@ describe('OpenQ.sol', () => {
 
       await claimManager
         .connect(oracle)
-        .claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData)
+        .claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData)
 
       // ASSERT
       tierClaimed = await openQProxy.tierClaimed(Constants.bountyId, 1)
       expect(tierClaimed).to.equal(true)
-    })
-  })
-
-  describe('ongoingClaimed', () => {
-    it('should return FALSE if ongoing claimant is not claimed, TRUE if it is claimed', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      await mockLink.approve(bountyAddress, 10000000)
-      await depositManager.fundBountyToken(
-        bountyAddress,
-        mockLink.address,
-        10000000,
-        1,
-        Constants.funderUuid
-      )
-
-      let claimId = generateClaimantId(
-        'FlacoJones',
-        'https://github.com/OpenQDev/OpenQ-Frontend/pull/398'
-      )
-
-      // ASSUME
-      let ongoingClaimed = await bounty.claimId(claimId)
-      expect(ongoingClaimed).to.equal(false)
-
-      // ACT
-
-      await claimManager
-        .connect(oracle)
-        .claimBounty(bountyAddress, owner.address, abiEncodedOngoingCloserData)
-
-      // // ASSERT
-      ongoingClaimed = await bounty.claimId(claimId)
-      expect(ongoingClaimed).to.equal(true)
     })
   })
 
@@ -1171,46 +820,6 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
           )
       })
     })
-
-		describe('ONGOING', () => {
-			it('should emit an SupportingDocumentsCompleteSet event with a boolean of supportingDocumentsComplete', async () => {
-        // ARRANGE
-        await openQProxy.mintBounty(
-          Constants.bountyId,
-          Constants.organization,
-          atomicBountyInitOperation
-        )
-        const bountyAddress = await openQProxy.bountyIdToAddress(
-          Constants.bountyId
-        )
-        const bounty = await AtomicBountyV1.attach(bountyAddress)
-
-        let setSupportingDocumentsCompleteData_1 = abiCoder.encode(
-          ['bool'],
-          [true]
-        )
-
-        const supportingDocumentsCompleteArrayData = abiCoder.encode(
-          ['bool'],
-          [true]
-        )
-
-        // ACT/ASSERT
-        await expect(
-          await openQProxy.setSupportingDocumentsComplete(
-            Constants.bountyId,
-            setSupportingDocumentsCompleteData_1
-          )
-        )
-          .to.emit(openQProxy, 'SupportingDocumentsCompleteSet')
-          .withArgs(
-            bountyAddress,
-            Constants.ATOMIC_CONTRACT,
-            supportingDocumentsCompleteArrayData,
-            Constants.VERSION_1
-          )
-      })
-		})
   })
 
   describe('setInvoiceComplete', () => {
@@ -1433,146 +1042,6 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
           Constants.mockOpenQId
         )
       ).to.be.revertedWith('CALLER_NOT_ISSUER')
-    })
-  })
-
-  describe('setPayout', () => {
-    it('should set payout', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      // ACT
-      await openQProxy.setPayout(Constants.bountyId, mockDai.address, Constants.volume)
-
-      // ASSERT
-      let payoutTokenAddress = await bounty.payoutTokenAddress()
-      let payoutVolume = await bounty.payoutVolume()
-
-      expect(payoutTokenAddress).to.equal(mockDai.address)
-      expect(payoutVolume).to.equal(Constants.volume)
-    })
-
-    it('should emit a PayoutSet event', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
-      const bounty = await OngoingBountyV1.attach(bountyAddress)
-
-      // ACT/ASSERT
-      await expect(
-        await openQProxy.setPayout(Constants.bountyId, mockDai.address, Constants.volume)
-      )
-        .to.emit(openQProxy, 'PayoutSet')
-        .withArgs(
-          bountyAddress,
-          mockDai.address,
-          Constants.volume,
-          Constants.ONGOING_CONTRACT,
-          [],
-          Constants.VERSION_1
-        )
-    })
-
-    it('should revert if not called by issuer', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        ongoingBountyInitOperation
-      )
-      const notOwnerContract = openQProxy.connect(oracle)
-
-      // ACT/ASSERT
-      await expect(
-        notOwnerContract.setPayout(Constants.bountyId, mockDai.address, Constants.volume)
-      ).to.be.revertedWith('CALLER_NOT_ISSUER')
-    })
-  })
-
-  describe('setPayoutSchedule', () => {
-    it('should revert if payout schedule does not add to 100', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        tieredBountyInitOperation
-      )
-      // ACT/ASSERT
-      await expect(
-        openQProxy.setPayoutSchedule(Constants.bountyId, [20, 23, 43])
-      ).to.be.revertedWith('PAYOUT_SCHEDULE_MUST_ADD_TO_100')
-    })
-
-    it('should revert if caller is not issuer', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        tieredBountyInitOperation
-      )
-      // ACT/ASSERT
-      await expect(
-        openQProxy
-          .connect(notIssuer)
-          .setPayoutSchedule(Constants.bountyId, [20, 23, 43])
-      ).to.be.revertedWith('CALLER_NOT_ISSUER')
-    })
-
-    it('should set payout schedule', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        tieredBountyInitOperation
-      )
-const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
-      const bounty = await TieredPercentageBountyV1.attach(bountyAddress)
-
-      // ACT
-      await openQProxy.setPayoutSchedule(Constants.bountyId, [70, 20, 10])
-
-      // ASSERT
-      const payoutSchedule = await bounty.getPayoutSchedule()
-      const payoutToString = payoutSchedule.map((thing) =>
-        parseInt(thing.toString())
-      )
-      expect(payoutToString[0]).to.equal(70)
-      expect(payoutToString[1]).to.equal(20)
-      expect(payoutToString[2]).to.equal(10)
-    })
-
-    it('should emit PayoutScheduleSet event', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        tieredBountyInitOperation
-      )
-const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
-      const bounty = await TieredPercentageBountyV1.attach(bountyAddress)
-
-      await expect(
-        openQProxy.setPayoutSchedule(Constants.bountyId, [70, 20, 10])
-      )
-        .to.emit(openQProxy, 'PayoutScheduleSet')
-        .withArgs(
-          bountyAddress,
-          ethers.constants.AddressZero,
-          [70, 20, 10],
-          2,
-          [],
-          Constants.VERSION_1
-        )
     })
   })
 
