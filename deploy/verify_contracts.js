@@ -77,7 +77,8 @@ async function verifyContracts() {
 			address: process.env.OPENQ_BOUNTY_FACTORY_ADDRESS,
 			constructorArguments: [
 				process.env.OPENQ_PROXY_ADDRESS,
-				process.env.BOUNTY_BEACON_ADDRESS
+				process.env.ATOMIC_BOUNTY_BEACON_ADDRESS,
+				process.env.TIERED_FIXED_BOUNTY_BEACON_ADDRESS
 			]
 		});
 	} catch (error) {

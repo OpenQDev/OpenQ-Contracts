@@ -56,6 +56,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
 
         require(funderUuid.isAscii(), Errors.INVALID_STRING);
 
+        require(_expiration <= type(uint128).max);
+
         require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
