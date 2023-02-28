@@ -126,11 +126,6 @@ interface IBountyCore {
     /// @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
     function getTokenAddresses() external view returns (address[] memory);
 
-    /// @notice Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
-    /// @param _depositId The depositId that determines which token is being looked at
-    /// @return uint256
-    function getLockedFunds(address _depositId) external view returns (uint256);
-
     /// @notice Returns the total number of unique tokens deposited on the bounty
     /// @return tokenAddressesCount The length of the array of all ERC20 token addresses which have funded this bounty
     function getTokenAddressesCount() external view returns (uint256);

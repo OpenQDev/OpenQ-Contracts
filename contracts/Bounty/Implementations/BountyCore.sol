@@ -271,28 +271,4 @@ abstract contract BountyCore is BountyStorageCore {
     function getTokenAddressesCount() external view virtual returns (uint256) {
         return tokenAddresses.values().length;
     }
-
-    /// @notice Returns the amount of locked tokens (of a specific token) on a bounty address, only available for claims but not for refunds
-    /// @param _depositId The depositId that determines which token is being looked at
-    /// @return uint256
-    function getLockedFunds(address _depositId)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
-        uint256 lockedFunds;
-        bytes32[] memory depList = this.getDeposits();
-        for (uint256 i = 0; i < depList.length; i++) {
-            if (
-                block.timestamp <
-                depositTime[depList[i]] + expiration[depList[i]] &&
-                tokenAddress[depList[i]] == _depositId
-            ) {
-                lockedFunds += volume[depList[i]];
-            }
-        }
-
-        return lockedFunds;
-    }
 }
