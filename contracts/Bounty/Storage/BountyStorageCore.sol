@@ -65,4 +65,6 @@ abstract contract BountyStorageCore is
     bool public kycRequired;
     bool public supportingDocumentsRequired;
     string public issuerExternalUserId;
+
+    uint256[50] private __gap;
 }

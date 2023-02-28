@@ -34,4 +34,6 @@ abstract contract ClaimManagerOwnable is ContextUpgradeable {
         );
         _;
     }
+
+    uint256[50] private __gap;
 }
