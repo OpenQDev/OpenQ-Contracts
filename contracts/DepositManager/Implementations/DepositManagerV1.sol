@@ -43,6 +43,8 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     ) external payable onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+
         require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
 
         (bytes32 depositId, uint256 volumeReceived) = bounty.receiveFunds{
