@@ -77,6 +77,16 @@ contract TieredFixedBountyV1 is TieredFixedBountyStorageV1 {
         supportingDocumentsComplete = new bool[](_payoutSchedule.length);
     }
 
+    function receiveFunds(
+        address _funder,
+        address _tokenAddress,
+        uint256 _volume,
+        uint256 _expiration
+    ) public payable override onlyDepositManager returns (bytes32, uint256) {
+        require(_tokenAddress == payoutTokenAddress, Errors.TOKEN_NOT_ACCEPTED);
+        super.receiveFunds(_funder, _tokenAddress, _volume, _expiration);
+    }
+
     /// @notice Transfers the fixed amount of balance associated with the tier
     /// @param _payoutAddress The destination address for the fund
     /// @param _tier The ordinal of the claimant (e.g. 1st place, 2nd place)

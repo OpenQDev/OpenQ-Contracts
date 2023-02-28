@@ -24,7 +24,7 @@ abstract contract BountyCore is BountyStorageCore {
         uint256 _volume,
         uint256 _expiration
     )
-        external
+        public
         payable
         virtual
         onlyDepositManager
