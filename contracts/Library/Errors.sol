@@ -32,6 +32,7 @@ library Errors {
     string constant ADDRESS_LACKS_KYC = 'ADDRESS_LACKS_KYC';
     string constant TOKEN_NOT_ALREADY_WHITELISTED =
         'TOKEN_NOT_ALREADY_WHITELISTED';
+    string constant ETHER_SENT = 'ETHER_SENT';
     string constant TOKEN_ALREADY_WHITELISTED = 'TOKEN_ALREADY_WHITELISTED';
     string constant CLAIMANT_NOT_TIER_WINNER = 'CLAIMANT_NOT_TIER_WINNER';
     string constant INVOICE_NOT_COMPLETE = 'INVOICE_NOT_COMPLETE';
