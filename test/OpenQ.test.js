@@ -254,6 +254,25 @@ describe('OpenQ.sol', () => {
         ).to.be.revertedWith('BOUNTY_ALREADY_EXISTS')
       })
 
+      it('should revert if bountyId or organizationId has non-ASCII chars', async () => {
+        // ASSERT
+        await expect(
+          openQProxy.mintBounty(
+            "ZZ\x00Z",
+            Constants.organization,
+            atomicBountyInitOperation
+          )
+        ).to.be.revertedWith('INVALID_STRING')
+
+        await expect(
+          openQProxy.mintBounty(
+            Constants.bountyId,
+            "ZZ\x00Z",
+            atomicBountyInitOperation
+          )
+        ).to.be.revertedWith('INVALID_STRING')
+      })
+
       it('should store bountyId to bountyAddress', async () => {
         // ACT
         await openQProxy.mintBounty(
