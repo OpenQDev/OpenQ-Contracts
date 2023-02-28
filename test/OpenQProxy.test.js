@@ -12,6 +12,7 @@ describe('OpenQProxy', () => {
 
 	let owner;
 	let notOwner;
+	let oracle;
 	let randomContractUpgradeAddress;
 
 	let OpenQImplementation;
@@ -42,7 +43,7 @@ describe('OpenQProxy', () => {
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
 		// Initialize the OpenQProxy
-		await openQProxy.initialize();
+		await openQProxy.initialize(oracle.address);
 	});
 
 	describe('constructor', () => {

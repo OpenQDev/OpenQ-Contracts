@@ -89,7 +89,7 @@ describe('OpenQ.sol', () => {
     // Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
     openQProxy = await OpenQImplementation.attach(openQProxy.address)
 
-    await openQProxy.initialize()
+    await openQProxy.initialize(oracle.address)
 
     let depositManagerImplementation = await DepositManager.deploy()
     await depositManagerImplementation.deployed()
@@ -147,7 +147,6 @@ describe('OpenQ.sol', () => {
     await bountyFactory.deployed()
 
     await openQProxy.setBountyFactory(bountyFactory.address)
-    await openQProxy.transferOracle(oracle.address)
     await depositManager.setTokenWhitelist(openQTokenWhitelist.address)
     await openQProxy.setDepositManager(depositManager.address)
     await openQProxy.setClaimManager(claimManager.address)
@@ -185,10 +184,13 @@ describe('OpenQ.sol', () => {
       expect(await openQProxy.owner()).equals(
         '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
       )
+      expect(await openQProxy.oracle()).equals(
+        oracle.address
+      )
     })
 
     it('should only be initialized once', async () => {
-      await expect(openQProxy.initialize()).to.be.revertedWith(
+      await expect(openQProxy.initialize(oracle.address)).to.be.revertedWith(
         'Initializable: contract is already initialized'
       )
     })

@@ -11,8 +11,9 @@ contract OpenQV1 is OpenQStorageV1 {
     constructor() {}
 
     /// @notice Initializes the OpenQ implementation with necessary storage variables like owner
-    function initialize() external initializer onlyProxy {
+    function initialize(address _initialOracle) external initializer onlyProxy {
         __Ownable_init();
+        __Oraclize_init(_initialOracle);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
     }

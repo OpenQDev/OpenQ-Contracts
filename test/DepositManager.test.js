@@ -82,7 +82,7 @@ describe('DepositManager.sol', () => {
 		// Attach the OpenQV1 ABI to the OpenQProxy address to send method calls to the delegatecall
 		openQProxy = await OpenQImplementation.attach(openQProxy.address);
 
-		await openQProxy.initialize();
+		await openQProxy.initialize(oracle.address);
 
 		mockLink = await MockLink.deploy();
 		await mockLink.deployed();
