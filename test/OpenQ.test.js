@@ -127,7 +127,7 @@ describe('OpenQ.sol', () => {
     mockNft = await MockNft.deploy()
     await mockNft.deployed()
 
-    openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5)
+    openQTokenWhitelist = await OpenQTokenWhitelist.deploy()
     await openQTokenWhitelist.deployed()
 
     await openQTokenWhitelist.addToken(mockLink.address)

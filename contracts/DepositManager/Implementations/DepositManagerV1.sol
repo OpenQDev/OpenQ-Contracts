@@ -43,12 +43,7 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     ) external payable onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
-        if (!isWhitelisted(_tokenAddress)) {
-            require(
-                !tokenAddressLimitReached(_bountyAddress),
-                Errors.TOO_MANY_TOKEN_ADDRESSES
-            );
-        }
+        require(isWhitelisted(_tokenAddress), Errors.TOKEN_NOT_ACCEPTED);
 
         require(bountyIsOpen(_bountyAddress), Errors.CONTRACT_ALREADY_CLOSED);
 
@@ -200,21 +195,6 @@ contract DepositManagerV1 is DepositManagerStorageV1 {
     /// @return True if _tokenAddress is whitelisted, false otherwise
     function isWhitelisted(address _tokenAddress) public view returns (bool) {
         return openQTokenWhitelist.isWhitelisted(_tokenAddress);
-    }
-
-    /// @notice Returns true if the total number of unique tokens deposited on then bounty is greater than the OpenQWhitelist TOKEN_ADDRESS_LIMIT
-    /// @param _bountyAddress Address of bounty
-    /// @return True if the token address limit has been reached
-    function tokenAddressLimitReached(address _bountyAddress)
-        public
-        view
-        returns (bool)
-    {
-        IBounty bounty = IBounty(payable(_bountyAddress));
-
-        return
-            bounty.getTokenAddressesCount() >=
-            openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
     }
 
     /// @notice Checks if bounty associated with _bountyId is open

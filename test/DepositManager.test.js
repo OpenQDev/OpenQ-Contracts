@@ -15,7 +15,7 @@ const {
 	tieredFixedBountyInitOperationBuilder_permissionless
 } = require('./constants');
 
-describe('DepositManager.sol', () => {
+describe.only('DepositManager.sol', () => {
 	// MOCK ASSETS
 	let openQProxy;
 	let openQImplementation;
@@ -98,7 +98,7 @@ describe('DepositManager.sol', () => {
 		mockNft = await MockNft.deploy();
 		await mockNft.deployed();
 
-		openQTokenWhitelist = await OpenQTokenWhitelist.deploy(5);
+		openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
 		await openQTokenWhitelist.deployed();
 
 		await openQTokenWhitelist.addToken(mockLink.address);
@@ -192,7 +192,7 @@ describe('DepositManager.sol', () => {
 
 			// ARRANGE
 			const OpenQTokenWhitelist = await ethers.getContractFactory('OpenQTokenWhitelist');
-			const openQTokenWhitelist = await OpenQTokenWhitelist.deploy(20);
+			const openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
 			await openQTokenWhitelist.deployed();
 
 			// ACT
@@ -217,7 +217,7 @@ describe('DepositManager.sol', () => {
 			await expect(depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('CONTRACT_ALREADY_CLOSED');
 		});
 
-		it('should revert if funded with a non-whitelisted token and bounty is at funded token address capacity', async () => {
+		it('should revert if funded with a non-whitelisted token', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
 
@@ -226,31 +226,10 @@ describe('DepositManager.sol', () => {
 			await blacklistedMockDai.approve(bountyAddress, 10000000);
 			await mockLink.approve(bountyAddress, 10000000);
 
-			// set lower capacity for token
-			await openQTokenWhitelist.setTokenAddressLimit(1);
-
 			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid);
 
 			// ACT + ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, blacklistedMockDai.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
-		});
-
-		it('should ALLOW funding with whitelisted token EVEN IF bounty is at funded token address capacity', async () => {
-			// ARRANGE
-			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, atomicBountyInitOperation);
-
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-
-			await mockDai.approve(bountyAddress, 10000000);
-			await mockLink.approve(bountyAddress, 10000000);
-
-			// set lower capacity for token
-			await openQTokenWhitelist.setTokenAddressLimit(1);
-
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid);
-
-			// ACT + ASSERT
-			await expect(depositManager.fundBountyToken(bountyAddress, mockDai.address, 10000000, 1, Constants.funderUuid)).to.not.be.revertedWith('TOO_MANY_TOKEN_ADDRESSES');
+			await expect(depositManager.fundBountyToken(bountyAddress, blacklistedMockDai.address, 10000000, 1, Constants.funderUuid)).to.be.revertedWith('TOKEN_NOT_ACCEPTED');
 		});
 
 		it('should set funder to msg.sender', async () => {

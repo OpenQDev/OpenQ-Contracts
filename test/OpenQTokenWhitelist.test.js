@@ -20,7 +20,7 @@ describe('OpenQTokenWhitelist.sol', () => {
 
 		[owner, notOwner] = await ethers.getSigners();
 
-		openQTokenWhitelist = await OpenQTokenWhitelist.deploy(2);
+		openQTokenWhitelist = await OpenQTokenWhitelist.deploy();
 		await openQTokenWhitelist.deployed();
 
 		mockLink = await MockLink.deploy();
@@ -31,11 +31,6 @@ describe('OpenQTokenWhitelist.sol', () => {
 	});
 
 	describe('OpenQTokenWhitelist methods', () => {
-		it('initializes', async () => {
-			const totalTokenAddresses = await openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
-			expect(totalTokenAddresses).to.equal(2);
-		});
-
 		it('can add token', async () => {
 			// ASSUME
 			let mockLinkWhitelist = await openQTokenWhitelist.isWhitelisted(mockLink.address);
@@ -89,19 +84,6 @@ describe('OpenQTokenWhitelist.sol', () => {
 			expect(tokenCount).to.equal(0);
 		});
 
-		it('increases token address limit', async () => {
-			// ASSUME
-			let tokenAddressLimit = await openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
-			expect(tokenAddressLimit).to.equal(2);
-
-			// ACT
-			await openQTokenWhitelist.setTokenAddressLimit(5);
-
-			// ASSERT
-			tokenAddressLimit = await openQTokenWhitelist.TOKEN_ADDRESS_LIMIT();
-			expect(tokenAddressLimit).to.equal(5);
-		});
-
 		it('add and remove token is idempotent', async () => {
 			// ARRANGE
 			await openQTokenWhitelist.addToken(mockLink.address);
@@ -116,7 +98,6 @@ describe('OpenQTokenWhitelist.sol', () => {
 			// ACT/ASSERT
 			await expect(openQTokenWhitelist.connect(notOwner).addToken(mockLink.address)).to.revertedWith('Ownable: caller is not the owner');
 			await expect(openQTokenWhitelist.connect(notOwner).removeToken(mockLink.address)).to.revertedWith('Ownable: caller is not the owner');
-			await expect(openQTokenWhitelist.connect(notOwner).setTokenAddressLimit(5)).to.revertedWith('Ownable: caller is not the owner');
 		});
 	});
 });
