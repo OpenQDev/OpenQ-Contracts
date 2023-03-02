@@ -492,6 +492,21 @@ describe('ClaimManager.sol', () => {
 			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
 		});
 
+		it.only('should revert if paused', async () => {
+			// ARRANGE
+			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation_permissioned);
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+
+			await claimManager.pause();
+
+			// ASSERT
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('Pausable: paused');
+
+			await claimManager.unpause();
+
+			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
+		});
+
 		it('should revert if claimant not tier winner', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation_permissioned);
