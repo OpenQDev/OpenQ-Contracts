@@ -492,7 +492,7 @@ describe('ClaimManager.sol', () => {
 			await expect(claimManager.permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace)).to.be.revertedWith('NO_ASSOCIATED_ADDRESS');
 		});
 
-		it.only('should revert if paused', async () => {
+		it('should revert if paused', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation_permissioned);
 			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);

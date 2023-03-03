@@ -5,7 +5,6 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env.contracts') })
 
 // Array of all supported tokens
 const polygonMainnetTokens = require('../constants/polygon-mainnet-tokens.json');
-const mumbaiTokens = require('../constants/polygon-mumbai-tokens.json');
 const localTokens = require('../constants/local-tokens.json');
 
 async function configureWhitelist() {
@@ -20,9 +19,6 @@ async function configureWhitelist() {
 		break;
 	case 'localhost':
 		tokenMetadata = localTokens;
-		break;
-	case 'mumbai':
-		tokenMetadata = mumbaiTokens;
 		break;
 	case 'polygon':
 		tokenMetadata = polygonMainnetTokens;
