@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 
 import '../Interfaces/IClaimManager.sol';
 import '../../OpenQ/Interfaces/IOpenQ.sol';
@@ -20,6 +21,7 @@ abstract contract ClaimManagerStorageV1 is
     IClaimManager,
     Oraclize,
     OwnableUpgradeable,
+    PausableUpgradeable,
     UUPSUpgradeable
 {
     uint256 public constant VERSION_1 = 1;

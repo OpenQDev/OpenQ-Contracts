@@ -26,6 +26,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Oraclize_init(_oracle);
+        __Pausable_init();
 
         openQ = _openQ;
         kyc = _kyc;
@@ -79,7 +80,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     function permissionedClaimTieredBounty(
         address _bountyAddress,
         bytes calldata _closerData
-    ) external onlyProxy {
+    ) external onlyProxy whenNotPaused {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
         (, , , , uint256 _tier) = abi.decode(
@@ -283,5 +284,13 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         if (bounty.kycRequired()) {
             require(hasKYC(_closer), Errors.ADDRESS_LACKS_KYC);
         }
+    }
+
+    function pause() external onlyOwner whenNotPaused {
+        _pause();
+    }
+
+    function unpause() external onlyOwner whenPaused {
+        _unpause();
     }
 }
