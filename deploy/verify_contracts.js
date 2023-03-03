@@ -59,24 +59,6 @@ async function verifyContracts() {
 	}
 
 	try {
-		console.log('\nVerifying OngoingBountyV1');
-		await hre.run('verify:verify', {
-			address: process.env.ONGOING_BOUNTY_IMPLEMENTATION,
-		});
-	} catch (error) {
-		console.log(error);
-	}
-
-	try {
-		console.log('\nVerifying TieredPercentageBountyV1');
-		await hre.run('verify:verify', {
-			address: process.env.TIERED_FIXED_BOUNTY_IMPLEMENTATION,
-		});
-	} catch (error) {
-		console.log(error);
-	}
-
-	try {
 		console.log('\nVerifying TieredFixedBountyV1');
 		await hre.run('verify:verify', {
 			address: process.env.TIERED_FIXED_BOUNTY_IMPLEMENTATION,
@@ -91,32 +73,6 @@ async function verifyContracts() {
 			address: process.env.ATOMIC_BOUNTY_BEACON_ADDRESS,
 			constructorArguments: [
 				process.env.ATOMIC_BOUNTY_IMPLEMENTATION
-			],
-			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
-		});
-	} catch (error) {
-		console.log(error);
-	}
-
-	try {
-		console.log('\nVerifying OngoingBountyBeacon');
-		await hre.run('verify:verify', {
-			address: process.env.ONGOING_BOUNTY_BEACON_ADDRESS,
-			constructorArguments: [
-				process.env.ONGOING_BOUNTY_IMPLEMENTATION
-			],
-			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
-		});
-	} catch (error) {
-		console.log(error);
-	}
-
-	try {
-		console.log('\nVerifying TieredPercentageBountyBeacon');
-		await hre.run('verify:verify', {
-			address: process.env.TIERED_PERCENTAGE_BOUNTY_BEACON_ADDRESS,
-			constructorArguments: [
-				process.env.TIERED_PERCENTAGE_BOUNTY_IMPLEMENTATION
 			],
 			contract: 'contracts/Bounty/Proxy/BountyBeacon.sol:BountyBeacon'
 		});
@@ -154,10 +110,7 @@ async function verifyContracts() {
 	try {
 		console.log('\nVerifying OpenQTokenWhitelist');
 		await hre.run('verify:verify', {
-			address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS,
-			constructorArguments: [
-				5
-			]
+			address: process.env.OPENQ_TOKEN_WHITELIST_ADDRESS
 		});
 	} catch (error) {
 		console.log(error);
