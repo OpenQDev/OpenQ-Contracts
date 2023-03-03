@@ -37,8 +37,6 @@ async function configureWhitelist() {
 		await openQTokenWhitelist.addToken(token.address);
 	}
 
-	await openQTokenWhitelist.addToken(process.env.MOCK_NFT_TOKEN_ADDRESS);
-
 	console.log('OpenQTokenWhitelist successfully configured with default tokens');
 }
 

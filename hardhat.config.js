@@ -57,7 +57,8 @@ module.exports = (function () {
 			polygon: {
 				url: process.env.PROVIDER_URL,
 				accounts: [process.env.CLIENT, process.env.CONTRIBUTOR],
-				chainId: chainIdInt
+				chainId: chainIdInt,
+				gasPrice: 250000000000
 			},
 		},
 		etherscan: {
