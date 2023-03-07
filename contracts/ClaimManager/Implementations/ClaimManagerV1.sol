@@ -43,6 +43,9 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         bytes calldata _closerData
     ) external onlyOracle onlyProxy {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
+
         uint256 _bountyType = bounty.bountyType();
 
         if (_bountyType == OpenQDefinitions.ATOMIC) {
@@ -82,6 +85,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         bytes calldata _closerData
     ) external onlyProxy whenNotPaused {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
 
         (, , , , uint256 _tier) = abi.decode(
             _closerData,
@@ -253,10 +258,10 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     }
 
     /// @notice Runs all require statements to determine if the claimant can claim the atomic bounty
-    function _eligibleToClaimAtomicBounty(IAtomicBounty bounty, address _closer)
-        internal
-        view
-    {
+    function _eligibleToClaimAtomicBounty(
+        IAtomicBounty bounty,
+        address _closer
+    ) internal view {
         require(
             bounty.status() == OpenQDefinitions.OPEN,
             Errors.CONTRACT_IS_NOT_CLAIMABLE
@@ -284,6 +289,16 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         if (bounty.kycRequired()) {
             require(hasKYC(_closer), Errors.ADDRESS_LACKS_KYC);
         }
+    }
+
+    function bountyExists(address _bountyAddress) internal returns (bool) {
+        string memory bountyId = IOpenQ(openQ).bountyAddressToBountyId(
+            _bountyAddress
+        );
+
+        bytes32 emptyString = keccak256(abi.encodePacked(''));
+
+        return keccak256(abi.encodePacked(bountyId)) != emptyString;
     }
 
     function pause() external onlyOwner whenNotPaused {
