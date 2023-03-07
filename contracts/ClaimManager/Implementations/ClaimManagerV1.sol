@@ -301,11 +301,11 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         return keccak256(abi.encodePacked(bountyId)) != emptyString;
     }
 
-    function pause() external onlyOwner whenNotPaused {
+    function pause() external onlyProxy onlyOwner whenNotPaused {
         _pause();
     }
 
-    function unpause() external onlyOwner whenPaused {
+    function unpause() external onlyProxy onlyOwner whenPaused {
         _unpause();
     }
 }
