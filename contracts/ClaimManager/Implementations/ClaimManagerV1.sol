@@ -65,8 +65,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 _closerData,
                 VERSION_1
             );
-        } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixedBounty(bounty, _closer, _closerData);
         } else {
             revert(Errors.UNKNOWN_BOUNTY_TYPE);
         }
