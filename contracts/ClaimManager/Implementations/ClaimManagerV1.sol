@@ -41,8 +41,11 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         address _bountyAddress,
         address _closer,
         bytes calldata _closerData
-    ) external onlyOracle onlyProxy {
+    ) external onlyOracle onlyProxy whenNotPaused {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
+
         uint256 _bountyType = bounty.bountyType();
 
         if (_bountyType == OpenQDefinitions.ATOMIC) {
@@ -62,8 +65,6 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
                 _closerData,
                 VERSION_1
             );
-        } else if (_bountyType == OpenQDefinitions.TIERED_FIXED) {
-            _claimTieredFixedBounty(bounty, _closer, _closerData);
         } else {
             revert(Errors.UNKNOWN_BOUNTY_TYPE);
         }
@@ -82,6 +83,8 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         bytes calldata _closerData
     ) external onlyProxy whenNotPaused {
         IBounty bounty = IBounty(payable(_bountyAddress));
+
+        require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
 
         (, , , , uint256 _tier) = abi.decode(
             _closerData,
@@ -253,10 +256,10 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
     }
 
     /// @notice Runs all require statements to determine if the claimant can claim the atomic bounty
-    function _eligibleToClaimAtomicBounty(IAtomicBounty bounty, address _closer)
-        internal
-        view
-    {
+    function _eligibleToClaimAtomicBounty(
+        IAtomicBounty bounty,
+        address _closer
+    ) internal view {
         require(
             bounty.status() == OpenQDefinitions.OPEN,
             Errors.CONTRACT_IS_NOT_CLAIMABLE
@@ -286,11 +289,21 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         }
     }
 
-    function pause() external onlyOwner whenNotPaused {
+    function bountyExists(address _bountyAddress) internal returns (bool) {
+        string memory bountyId = IOpenQ(openQ).bountyAddressToBountyId(
+            _bountyAddress
+        );
+
+        bytes32 emptyString = keccak256(abi.encodePacked(''));
+
+        return keccak256(abi.encodePacked(bountyId)) != emptyString;
+    }
+
+    function pause() external onlyProxy onlyOwner whenNotPaused {
         _pause();
     }
 
-    function unpause() external onlyOwner whenPaused {
+    function unpause() external onlyProxy onlyOwner whenPaused {
         _unpause();
     }
 }
