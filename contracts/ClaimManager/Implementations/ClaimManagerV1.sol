@@ -41,7 +41,7 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         address _bountyAddress,
         address _closer,
         bytes calldata _closerData
-    ) external onlyOracle onlyProxy {
+    ) external onlyOracle onlyProxy whenNotPaused {
         IBounty bounty = IBounty(payable(_bountyAddress));
 
         require(bountyExists(_bountyAddress), Errors.NO_EMPTY_BOUNTY_ID);
