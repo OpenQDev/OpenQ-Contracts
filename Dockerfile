@@ -4,7 +4,7 @@ WORKDIR /app
 RUN apk update && apk upgrade && \
 	apk add --no-cache bash git curl
 COPY package.json .
-RUN yarn
+RUN yarn global add hardhat
 COPY . .
 CMD curl --connect-timeout 5 \
 	--retry-connrefused \
