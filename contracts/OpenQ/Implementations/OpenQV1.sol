@@ -115,6 +115,16 @@ contract OpenQV1 is OpenQStorageV1 {
         depositManager = _depositManager;
     }
 
+    function batchSetTierWinner(
+        string[] calldata _bountyIds,
+        uint256[] calldata _tiers,
+        string[] calldata _winners
+    ) external nonReentrant onlyProxy {
+        for (uint i = 0; i < _bountyIds.length; i++) {
+            this.setTierWinner(_bountyIds[i], _tiers[i], _winners[i]);
+        }
+    }
+
     /// @notice Sets a winner for a particular tier
     /// @param _bountyId The bounty id
     /// @param _tier The tier they won
@@ -228,6 +238,15 @@ contract OpenQV1 is OpenQStorageV1 {
         );
     }
 
+    function batchSetInvoiceComplete(
+        string[] calldata _bountyIds,
+        bytes[] calldata _data
+    ) external nonReentrant onlyProxy {
+        for (uint i = 0; i < _bountyIds.length; i++) {
+            this.setInvoiceComplete(_bountyIds[i], _data[i]);
+        }
+    }
+
     /// @notice Sets invoiceComplete on bounty with id _bountyId
     /// @param _bountyId The id to update
     /// @param _data ABI encoded data (A simple bool for AtomicContract, a (string, bool) of claimId for Ongoing, and a (uint256, bool) for TieredBounty to specify the tier it was completed for)
@@ -250,6 +269,15 @@ contract OpenQV1 is OpenQStorageV1 {
             bounty.getInvoiceComplete(),
             VERSION_1
         );
+    }
+
+    function batchSetSupportingDocumentsComplete(
+        string[] calldata _bountyIds,
+        bytes[] calldata _data
+    ) external nonReentrant onlyProxy {
+        for (uint i = 0; i < _bountyIds.length; i++) {
+            this.setSupportingDocumentsComplete(_bountyIds[i], _data[i]);
+        }
     }
 
     /// @notice Sets supportingDocumentsComplete on bounty with id _bountyId
