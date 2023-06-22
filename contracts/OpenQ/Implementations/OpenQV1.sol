@@ -32,6 +32,20 @@ contract OpenQV1 is OpenQStorageV1 {
         claimManager = _claimManager;
     }
 
+    function batchMintBounty(
+        string[] calldata _bountyIds,
+        string[] calldata _organizations,
+        OpenQDefinitions.InitOperation[] memory _initOperations
+    ) external nonReentrant onlyProxy {
+        for (uint i = 0; i < _bountyIds.length; i++) {
+            this.mintBounty(
+                _bountyIds[i],
+                _organizations[i],
+                _initOperations[i]
+            );
+        }
+    }
+
     /// @notice Mints a new bounty BeaconProxy using BountyFactory
     /// @param _bountyId A unique string to identify a bounty
     /// @param _organization The ID of the organization which owns the bounty
@@ -79,31 +93,25 @@ contract OpenQV1 is OpenQStorageV1 {
 
     /// @notice Sets the BountyFactory
     /// @param _bountyFactory The BountyFactory address
-    function setBountyFactory(address _bountyFactory)
-        external
-        onlyProxy
-        onlyOwner
-    {
+    function setBountyFactory(
+        address _bountyFactory
+    ) external onlyProxy onlyOwner {
         bountyFactory = _bountyFactory;
     }
 
     /// @notice Sets ClaimManager proxy address
     /// @param _claimManager The ClaimManager address
-    function setClaimManager(address _claimManager)
-        external
-        onlyProxy
-        onlyOwner
-    {
+    function setClaimManager(
+        address _claimManager
+    ) external onlyProxy onlyOwner {
         claimManager = _claimManager;
     }
 
     /// @notice Sets DepositManager proxy address
     /// @param _depositManager The DepositManager address
-    function setDepositManager(address _depositManager)
-        external
-        onlyProxy
-        onlyOwner
-    {
+    function setDepositManager(
+        address _depositManager
+    ) external onlyProxy onlyOwner {
         depositManager = _depositManager;
     }
 
@@ -157,10 +165,10 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @notice Sets kycRequired on bounty with id _bountyId
     /// @param _bountyId The id to update
     /// @param _kycRequired Whether or not KYC is required for a bounty
-    function setKycRequired(string calldata _bountyId, bool _kycRequired)
-        external
-        onlyProxy
-    {
+    function setKycRequired(
+        string calldata _bountyId,
+        bool _kycRequired
+    ) external onlyProxy {
         IBounty bounty = getBounty(_bountyId);
 
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
@@ -223,10 +231,10 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @notice Sets invoiceComplete on bounty with id _bountyId
     /// @param _bountyId The id to update
     /// @param _data ABI encoded data (A simple bool for AtomicContract, a (string, bool) of claimId for Ongoing, and a (uint256, bool) for TieredBounty to specify the tier it was completed for)
-    function setInvoiceComplete(string calldata _bountyId, bytes calldata _data)
-        external
-        onlyProxy
-    {
+    function setInvoiceComplete(
+        string calldata _bountyId,
+        bytes calldata _data
+    ) external onlyProxy {
         IBounty bounty = getBounty(_bountyId);
 
         require(
@@ -296,11 +304,9 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @notice Checks if bounty associated with _bountyId is open
     /// @param _bountyId The bounty id
     /// @return True if _bountyId is associated with an open bounty, false otherwise
-    function bountyIsOpen(string calldata _bountyId)
-        public
-        view
-        returns (bool)
-    {
+    function bountyIsOpen(
+        string calldata _bountyId
+    ) public view returns (bool) {
         IBounty bounty = getBounty(_bountyId);
         bool isOpen = bounty.status() == OpenQDefinitions.OPEN;
         return isOpen;
@@ -309,11 +315,9 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @notice Returns the bountyType of the bounty (Single(0), Ongoing(1), Tiered(2), or Tiered Fixed(3))
     /// @param _bountyId The bounty id
     /// @return bountyType - See OpenQDefinitions.sol for values
-    function bountyType(string calldata _bountyId)
-        public
-        view
-        returns (uint256)
-    {
+    function bountyType(
+        string calldata _bountyId
+    ) public view returns (uint256) {
         IBounty bounty = getBounty(_bountyId);
         uint256 _bountyType = bounty.bountyType();
         return _bountyType;
@@ -322,11 +326,9 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @notice Retrieves bountyId from a bounty's address
     /// @param _bountyAddress The bounty address
     /// @return string The bounty id associated with _bountyAddress
-    function bountyAddressToBountyId(address _bountyAddress)
-        external
-        view
-        returns (string memory)
-    {
+    function bountyAddressToBountyId(
+        address _bountyAddress
+    ) external view returns (string memory) {
         IBounty bounty = IBounty(payable(_bountyAddress));
         return bounty.bountyId();
     }
@@ -335,11 +337,10 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @param _bountyId The bounty id
     /// @param _tier The tier to check
     /// @return True if claimed, false otherwise
-    function tierClaimed(string calldata _bountyId, uint256 _tier)
-        external
-        view
-        returns (bool)
-    {
+    function tierClaimed(
+        string calldata _bountyId,
+        uint256 _tier
+    ) external view returns (bool) {
         IBounty bounty = getBounty(_bountyId);
         bool _tierClaimed = bounty.tierClaimed(_tier);
         return _tierClaimed;
@@ -348,11 +349,9 @@ contract OpenQV1 is OpenQStorageV1 {
     /// @notice Returns an IBounty ABI wrapped arround given bounty address
     /// @param _bountyId The bounty id
     /// @return An IBounty upon which any methods in IBounty can be called
-    function getBounty(string calldata _bountyId)
-        internal
-        view
-        returns (IBounty)
-    {
+    function getBounty(
+        string calldata _bountyId
+    ) internal view returns (IBounty) {
         address bountyAddress = bountyIdToAddress[_bountyId];
         IBounty bounty = IBounty(bountyAddress);
         return bounty;
