@@ -763,7 +763,7 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
         expect(await bounty.supportingDocumentsComplete(1)).to.equal(true)
       })
 
-      it('should emit an setSupportingDocumentsComplete event', async () => {
+      it.only('should emit an setSupportingDocumentsComplete event', async () => {
         // ARRANGE
         await openQProxy.mintBounty(
           Constants.bountyId,
@@ -779,6 +779,18 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
           ['uint256', 'bool'],
           [0, true]
         )
+
+        let setSupportingDocumentsCompleteDataEvent = abiCoder.encode(
+          ['string', 'uint256', 'bool'],
+          [Constants.mockOpenQId, 0, true]
+        )
+
+				await openQProxy.setTierWinner(
+					Constants.bountyId,
+					0,
+					Constants.mockOpenQId
+				);
+
         const supportingDocumentsCompleteArrayData = abiCoder.encode(
           ['bool[]'],
           [[true, false]]
@@ -795,7 +807,7 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
           .withArgs(
             bountyAddress,
             Constants.TIERED_FIXED_CONTRACT,
-            supportingDocumentsCompleteArrayData,
+            setSupportingDocumentsCompleteDataEvent,
             Constants.VERSION_1
           )
       })
@@ -1096,7 +1108,7 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
   })
 
 	describe('setTierWinner', () => {
-    it.only('should set tier winner', async () => {
+    it('should set tier winner', async () => {
       // ARRANGE
       await openQProxy.mintBounty(
         Constants.bountyId,

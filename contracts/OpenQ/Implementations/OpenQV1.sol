@@ -138,7 +138,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit TierWinnerSelected(
             address(bounty),
             bounty.getTierWinners(),
-            new bytes(0),
+            abi.encode(_bountyId, _winner, _tier),
             VERSION_1
         );
     }
@@ -262,7 +262,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit InvoiceCompleteSet(
             address(bounty),
             bounty.bountyType(),
-            bounty.getInvoiceComplete(),
+            _data,
             VERSION_1
         );
     }
@@ -292,10 +292,17 @@ contract OpenQV1 is OpenQStorageV1 {
 
         bounty.setSupportingDocumentsComplete(_data);
 
+        (uint256 _tier, bool _supportingDocumentsComplete) = abi.decode(
+            _data,
+            (uint256, bool)
+        );
+
+        string memory _winner = bounty.getTierWinners()[_tier];
+
         emit SupportingDocumentsCompleteSet(
             address(bounty),
             bounty.bountyType(),
-            bounty.getSupportingDocumentsComplete(),
+            abi.encode(_winner, _tier, _supportingDocumentsComplete),
             VERSION_1
         );
     }
