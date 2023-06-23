@@ -50,7 +50,7 @@
     "fs": "0.0.1-security",
     "graphql": "16.5.0",
     "hardhat": "^2.16.0",
-    "hardhat-contract-sizer": "2.6.1",
+    "hardhat-contract-sizer": "2.10.0",
     "hardhat-gas-reporter": "1.0.9",
     "hardhat-tracer": "1.2.1",
     "path": "0.12.7",
