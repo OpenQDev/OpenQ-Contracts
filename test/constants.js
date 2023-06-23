@@ -9,6 +9,7 @@ const Constants = {
 	mockOpenQId: 'mockOpenQId',
 	mockId: 'mockId',
 	bountyId: 'bountyId',
+	bountyId2: 'bountyId2',
 	organization: 'mockOrganization',
 	funderUuid: 'mock-funder-uuid',
 	mockClaimantAsset: 'https://github.com/OpenQDev/OpenQ-Frontend/pull/398',

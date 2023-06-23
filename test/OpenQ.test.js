@@ -37,6 +37,7 @@ describe('OpenQ.sol', () => {
   let atomicBountyInitOperation
   let atomicBountyInitOperationPermissioned
   let tieredFixedBountyInitOperation
+	let tieredFixedBountyInitOperation_permissionless
 
   // CLOSER DATA
   let abiCoder
@@ -379,6 +380,79 @@ describe('OpenQ.sol', () => {
 
         await expect(await tieredFixedContract.invoiceComplete(0)).equals(false)
         await expect(await tieredFixedContract.supportingDocumentsComplete(0)).equals(false)
+      })
+    })
+  })
+
+  describe('mintBounty', () => {
+    describe('TIERED FIXED', () => {
+      it.only('should correctly init bountyType and payout schedule', async () => {
+        // ARRANGE
+        let initializationTimestamp = await setNextBlockTimestamp()
+
+        // ACT
+				await openQProxy.batchMintBounty(
+					[Constants.bountyId, Constants.bountyId2],
+					[Constants.organization, Constants.organization],
+					[tieredFixedBountyInitOperation, tieredFixedBountyInitOperation_permissionless]
+				)
+
+        const bountyIsOpen = await openQProxy.bountyIsOpen(Constants.bountyId)
+        
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
+        const bountyAddress2 = await openQProxy.bountyIdToAddress(Constants.bountyId2)
+
+        const tieredFixedContract = await TieredFixedBountyV1.attach(bountyAddress)
+        const tieredFixedContract2 = await TieredFixedBountyV1.attach(bountyAddress2)
+
+        const actualBountyPayoutSchedule = await tieredFixedContract.getPayoutSchedule()
+        const payoutToString = actualBountyPayoutSchedule.map((thing) =>thing.toString())
+
+				const actualBountyPayoutSchedule2 = await tieredFixedContract2.getPayoutSchedule()
+        const payoutToString2 = actualBountyPayoutSchedule2.map((thing) =>thing.toString())
+
+        await expect(await tieredFixedContract.bountyId()).equals(Constants.bountyId)
+        await expect(await tieredFixedContract.issuer()).equals(owner.address)
+        await expect(await tieredFixedContract.organization()).equals(Constants.organization)
+        await expect(await tieredFixedContract.status()).equals(0)
+        await expect(await tieredFixedContract.openQ()).equals(openQProxy.address)
+        await expect(await tieredFixedContract.claimManager()).equals(claimManager.address)
+        await expect(await tieredFixedContract.depositManager()).equals(depositManager.address)
+        await expect(await tieredFixedContract.bountyCreatedTime()).equals(initializationTimestamp)
+        await expect(await tieredFixedContract.bountyType()).equals(Constants.TIERED_FIXED_CONTRACT)
+        await expect(await tieredFixedContract.payoutTokenAddress()).equals(mockLink.address)
+        await expect(payoutToString[0]).equals('80')
+        await expect(payoutToString[1]).equals('20')
+        await expect(await tieredFixedContract.issuerExternalUserId()).equals(Constants.mockOpenQId)
+        
+				await expect(await tieredFixedContract.supportingDocumentsRequired()).equals(true)
+        await expect(await tieredFixedContract.invoiceRequired()).equals(true)
+        await expect(await tieredFixedContract.kycRequired()).equals(true)
+
+        await expect(await tieredFixedContract.invoiceComplete(0)).equals(false)
+        await expect(await tieredFixedContract.supportingDocumentsComplete(0)).equals(false)
+
+				// BOUNTY 2
+				await expect(await tieredFixedContract2.bountyId()).equals(Constants.bountyId2)
+        await expect(await tieredFixedContract2.issuer()).equals(owner.address)
+        await expect(await tieredFixedContract2.organization()).equals(Constants.organization)
+        await expect(await tieredFixedContract2.status()).equals(0)
+        await expect(await tieredFixedContract2.openQ()).equals(openQProxy.address)
+        await expect(await tieredFixedContract2.claimManager()).equals(claimManager.address)
+        await expect(await tieredFixedContract2.depositManager()).equals(depositManager.address)
+        await expect(await tieredFixedContract2.bountyCreatedTime()).equals(initializationTimestamp)
+        await expect(await tieredFixedContract2.bountyType()).equals(Constants.TIERED_FIXED_CONTRACT)
+        await expect(await tieredFixedContract2.payoutTokenAddress()).equals(mockLink.address)
+        await expect(payoutToString2[0]).equals('80')
+        await expect(payoutToString2[1]).equals('20')
+        await expect(await tieredFixedContract2.issuerExternalUserId()).equals(Constants.mockOpenQId)
+        
+				await expect(await tieredFixedContract2.supportingDocumentsRequired()).equals(false)
+        await expect(await tieredFixedContract2.invoiceRequired()).equals(false)
+        await expect(await tieredFixedContract2.kycRequired()).equals(false)
+
+        await expect(await tieredFixedContract2.invoiceComplete(0)).equals(false)
+        await expect(await tieredFixedContract2.supportingDocumentsComplete(0)).equals(false)
       })
     })
   })

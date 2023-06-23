@@ -36,13 +36,9 @@ contract OpenQV1 is OpenQStorageV1 {
         string[] calldata _bountyIds,
         string[] calldata _organizations,
         OpenQDefinitions.InitOperation[] memory _initOperations
-    ) external nonReentrant onlyProxy {
+    ) external onlyProxy {
         for (uint i = 0; i < _bountyIds.length; i++) {
-            this.mintBounty(
-                _bountyIds[i],
-                _organizations[i],
-                _initOperations[i]
-            );
+            mintBounty(_bountyIds[i], _organizations[i], _initOperations[i]);
         }
     }
 
@@ -56,7 +52,7 @@ contract OpenQV1 is OpenQStorageV1 {
         string calldata _bountyId,
         string calldata _organization,
         OpenQDefinitions.InitOperation memory _initOperation
-    ) external nonReentrant onlyProxy returns (address) {
+    ) public nonReentrant onlyProxy returns (address) {
         require(
             bountyIdToAddress[_bountyId] == address(0),
             Errors.BOUNTY_ALREADY_EXISTS
