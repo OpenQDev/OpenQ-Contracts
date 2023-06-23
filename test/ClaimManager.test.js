@@ -384,45 +384,44 @@ describe('ClaimManager.sol', () => {
 		});
 
 		describe('TIERED FIXED', () => {
-			describe('REVERTS', () => {
-				it('should revert if tier is already claimed', async () => {
-					// ARRANGE
-					await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation_permissionless);
-					const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-
-					await mockLink.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid);
-
-					claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData);
-
-					// ACT/ASSERT
-					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData)).to.be.revertedWith('TIER_ALREADY_CLAIMED');
-				});
-			});
 
 			describe('EVENTS', () => {
 				it('should emit BountyClosed event', async () => {
 					// ARRANGE
-					await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation_permissionless);
-					const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+								// ARRANGE
+				await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation_permissionless);
 
-					const volume = 1000;
-					const bounty = TieredFixedBountyV1.attach(bountyAddress);
-					const payoutSchedule = await bounty.getPayoutSchedule();
-					const proportion = payoutSchedule[1].toString();
-					const payoutAmount = (proportion / 100) * volume;
+				const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+				const volume = 100;
 
-					await mockLink.approve(bountyAddress, 10000000);
-					await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, Constants.funderUuid);
+				// ACT
+				await mockLink.approve(bountyAddress, 10000000);
+				await mockDai.approve(bountyAddress, 10000000);
 
-					const expectedTimestamp = await setNextBlockTimestamp();
-					// ACT
-					// ASSERT
+				await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, Constants.funderUuid);
 
-					await expect(claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData))
-						.to.emit(claimManager, 'BountyClosed')
-						.withArgs(Constants.bountyId, bountyAddress, Constants.organization, ethers.constants.AddressZero, expectedTimestamp, 3, '0x', Constants.VERSION_1);
-				});
+				// ASSUME
+				const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+				expect(bountyMockLinkTokenBalance).to.equal('100');
+
+				const claimantMockTokenBalance = (await mockLink.balanceOf(claimant.address)).toString();
+				expect(claimantMockTokenBalance).to.equal('0');
+
+			// ARRANGE
+			// Set Permissions
+			await mockKyc.setIsValid(claimant.address)
+			await openQProxy.connect(oracle).associateExternalIdToAddress(Constants.mockOpenQId, claimant.address)
+			await openQProxy.setTierWinner(Constants.bountyId, 0, Constants.mockOpenQId)
+			await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_tiered(0, true))
+			await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsComplete_tiered(0, true))
+
+				const expectedTimestamp = await setNextBlockTimestamp();
+
+			// ACT
+			await expect(claimManager.connect(claimant).permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace))
+					.to.emit(claimManager, 'BountyClosed')
+					.withArgs(Constants.bountyId, bountyAddress, Constants.organization, ethers.constants.AddressZero, expectedTimestamp, 3, "0x", Constants.VERSION_1);
+			});
 			});
 		});
 
@@ -447,21 +446,40 @@ describe('ClaimManager.sol', () => {
 		it('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
 			// ARRANGE
 			await openQProxy.mintBounty(Constants.bountyId, Constants.organization, tieredFixedBountyInitOperation_permissionless);
-			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
-			const bounty = await TieredFixedBountyV1.attach(bountyAddress);
-
-			await mockLink.approve(bountyAddress, 10000000);
-			await depositManager.fundBountyToken(bountyAddress, mockLink.address, 10000000, 1, Constants.funderUuid);
 
 			// ASSUME
 			let tierClaimed = await openQProxy.tierClaimed(Constants.bountyId, 1);
 			expect(tierClaimed).to.equal(false);
 
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId);
+			const volume = 100;
+
 			// ACT
-			await claimManager.connect(oracle).claimBounty(bountyAddress, owner.address, abiEncodedTieredCloserData);
+			await mockLink.approve(bountyAddress, 10000000);
+			await mockDai.approve(bountyAddress, 10000000);
+
+			await depositManager.fundBountyToken(bountyAddress, mockLink.address, volume, 1, Constants.funderUuid);
+
+			// ASSUME
+			const bountyMockLinkTokenBalance = (await mockLink.balanceOf(bountyAddress)).toString();
+			expect(bountyMockLinkTokenBalance).to.equal('100');
+
+			const claimantMockTokenBalance = (await mockLink.balanceOf(claimant.address)).toString();
+			expect(claimantMockTokenBalance).to.equal('0');
+
+			// ARRANGE
+			// Set Permissions
+			await mockKyc.setIsValid(claimant.address)
+			await openQProxy.connect(oracle).associateExternalIdToAddress(Constants.mockOpenQId, claimant.address)
+			await openQProxy.setTierWinner(Constants.bountyId, 0, Constants.mockOpenQId)
+			await openQProxy.setInvoiceComplete(Constants.bountyId, setInvoiceCompleteData_tiered(0, true))
+			await openQProxy.setSupportingDocumentsComplete(Constants.bountyId, setSupportingDocumentsComplete_tiered(0, true))
+
+			// ACT
+			await claimManager.connect(claimant).permissionedClaimTieredBounty(bountyAddress, abiEncodedTieredCloserDataFirstPlace);
 
 			// // // ASSERT
-			tierClaimed = await openQProxy.tierClaimed(Constants.bountyId, 1);
+			tierClaimed = await openQProxy.tierClaimed(Constants.bountyId, 0);
 			expect(tierClaimed).to.equal(true);
 		});
 	});

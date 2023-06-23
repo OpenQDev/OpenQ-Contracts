@@ -383,44 +383,6 @@ describe('OpenQ.sol', () => {
     })
   })
 
-  describe('tierClaimed', () => {
-    it('should return FALSE if tier not claimed, TRUE if already claimed', async () => {
-      // ARRANGE
-      await openQProxy.mintBounty(
-        Constants.bountyId,
-        Constants.organization,
-        tieredFixedBountyInitOperation_permissionless
-      )
-      const bountyAddress = await openQProxy.bountyIdToAddress(
-        Constants.bountyId
-      )
-      const bounty = await TieredFixedBountyV1.attach(bountyAddress)
-
-      await mockLink.approve(bountyAddress, 10000000)
-      await depositManager.fundBountyToken(
-        bountyAddress,
-        mockLink.address,
-        10000000,
-        1,
-        Constants.funderUuid
-      )
-
-      // ASSUME
-      let tierClaimed = await openQProxy.tierClaimed(Constants.bountyId, 1)
-      expect(tierClaimed).to.equal(false)
-
-      // ACT
-
-      await claimManager
-        .connect(oracle)
-        .claimBounty(bountyAddress, owner.address, abiEncodedTieredFixedCloserData)
-
-      // ASSERT
-      tierClaimed = await openQProxy.tierClaimed(Constants.bountyId, 1)
-      expect(tierClaimed).to.equal(true)
-    })
-  })
-
   describe('setFundingGoal', () => {
     it('should set funding goal', async () => {
       // ARRANGE
