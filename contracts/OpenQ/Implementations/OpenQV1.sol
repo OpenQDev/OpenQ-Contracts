@@ -117,7 +117,7 @@ contract OpenQV1 is OpenQStorageV1 {
         string[] calldata _winners
     ) external nonReentrant onlyProxy {
         for (uint i = 0; i < _bountyIds.length; i++) {
-            this.setTierWinner(_bountyIds[i], _tiers[i], _winners[i]);
+            setTierWinner(_bountyIds[i], _tiers[i], _winners[i]);
         }
     }
 
@@ -130,7 +130,7 @@ contract OpenQV1 is OpenQStorageV1 {
         string calldata _bountyId,
         uint256 _tier,
         string calldata _winner
-    ) external {
+    ) public {
         IBounty bounty = getBounty(_bountyId);
         require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
         bounty.setTierWinner(_winner, _tier);
@@ -239,7 +239,7 @@ contract OpenQV1 is OpenQStorageV1 {
         bytes[] calldata _data
     ) external nonReentrant onlyProxy {
         for (uint i = 0; i < _bountyIds.length; i++) {
-            this.setInvoiceComplete(_bountyIds[i], _data[i]);
+            setInvoiceComplete(_bountyIds[i], _data[i]);
         }
     }
 
@@ -249,7 +249,7 @@ contract OpenQV1 is OpenQStorageV1 {
     function setInvoiceComplete(
         string calldata _bountyId,
         bytes calldata _data
-    ) external onlyProxy {
+    ) public onlyProxy {
         IBounty bounty = getBounty(_bountyId);
 
         require(
@@ -272,7 +272,7 @@ contract OpenQV1 is OpenQStorageV1 {
         bytes[] calldata _data
     ) external nonReentrant onlyProxy {
         for (uint i = 0; i < _bountyIds.length; i++) {
-            this.setSupportingDocumentsComplete(_bountyIds[i], _data[i]);
+            setSupportingDocumentsComplete(_bountyIds[i], _data[i]);
         }
     }
 
@@ -282,7 +282,7 @@ contract OpenQV1 is OpenQStorageV1 {
     function setSupportingDocumentsComplete(
         string calldata _bountyId,
         bytes calldata _data
-    ) external onlyProxy {
+    ) public onlyProxy {
         IBounty bounty = getBounty(_bountyId);
 
         require(

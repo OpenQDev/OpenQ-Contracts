@@ -386,7 +386,7 @@ describe('OpenQ.sol', () => {
 
   describe('mintBounty', () => {
     describe('TIERED FIXED', () => {
-      it.only('should correctly init bountyType and payout schedule', async () => {
+      it('should correctly init bountyType and payout schedule', async () => {
         // ARRANGE
         let initializationTimestamp = await setNextBlockTimestamp()
 
