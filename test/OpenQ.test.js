@@ -1095,6 +1095,35 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
     })
   })
 
+	describe('setTierWinner', () => {
+    it.only('should set tier winner', async () => {
+      // ARRANGE
+      await openQProxy.mintBounty(
+        Constants.bountyId,
+        Constants.organization,
+        tieredFixedBountyInitOperation
+      )
+			
+			const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
+      const bounty = await TieredFixedBountyV1.attach(bountyAddress)
+
+      // ASSUME
+      expect(await bounty.tierWinners(0)).to.equal('')
+      expect(await bounty.tierWinners(1)).to.equal('')
+
+      // ACT
+      await openQProxy.batchSetTierWinner(
+        [Constants.bountyId,Constants.bountyId],
+        [0,1],
+        [Constants.mockOpenQId, Constants.mockOpenQId + '2']
+      )
+
+      // ASSERT
+      expect(await bounty.tierWinners(0)).to.equal(Constants.mockOpenQId)
+      expect(await bounty.tierWinners(1)).to.equal(Constants.mockOpenQId + '2')
+    })
+	})
+
   describe('setPayoutScheduleFixed', () => {
     it('should revert if caller is not issuer', async () => {
       // ARRANGE
