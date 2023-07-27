@@ -257,12 +257,19 @@ contract OpenQV1 is OpenQStorageV1 {
             Errors.CALLER_NOT_ISSUER_OR_ORACLE
         );
 
+        (uint256 _tier, bool _invoiceComplete) = abi.decode(
+            _data,
+            (uint256, bool)
+        );
+
+        string memory _winner = bounty.getTierWinners()[_tier];
+
         bounty.setInvoiceComplete(_data);
 
         emit InvoiceCompleteSet(
             address(bounty),
             bounty.bountyType(),
-            _data,
+            abi.encode(_bountyId, _winner, _tier, _invoiceComplete),
             VERSION_1
         );
     }
@@ -302,7 +309,7 @@ contract OpenQV1 is OpenQStorageV1 {
         emit SupportingDocumentsCompleteSet(
             address(bounty),
             bounty.bountyType(),
-            abi.encode(_winner, _tier, _supportingDocumentsComplete),
+            abi.encode(_bountyId, _winner, _tier, _supportingDocumentsComplete),
             VERSION_1
         );
     }

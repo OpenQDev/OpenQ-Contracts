@@ -780,20 +780,15 @@ const bountyAddress = await openQProxy.bountyIdToAddress(Constants.bountyId)
           [0, true]
         )
 
-        let setSupportingDocumentsCompleteDataEvent = abiCoder.encode(
-          ['string', 'uint256', 'bool'],
-          [Constants.mockOpenQId, 0, true]
-        )
-
 				await openQProxy.setTierWinner(
 					Constants.bountyId,
 					0,
 					Constants.mockOpenQId
 				);
 
-        const supportingDocumentsCompleteArrayData = abiCoder.encode(
-          ['bool[]'],
-          [[true, false]]
+				let setSupportingDocumentsCompleteDataEvent = abiCoder.encode(
+          ['string', 'string', 'uint256', 'bool'],
+          [Constants.bountyId, Constants.mockOpenQId, 0, true]
         )
 
         // ACT/ASSERT
