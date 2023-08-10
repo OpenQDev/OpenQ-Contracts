@@ -228,6 +228,13 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
         return IKycValidity(kyc).hasValidToken(_address);
     }
 
+    /// @notice Checks if the address has a valid Polygon ID
+    /// @return True if address has a valid Polygon ID
+    function hasValidPolygonId(address _address) public view returns (bool) {
+        // TODO - Implement Polygon ID check
+        return true;
+    }
+
     /// @notice Runs all require statements to determine if the claimant can claim the specified tier on the tiered bounty
     function _eligibleToClaimTier(
         ITieredBounty _bounty,
@@ -252,6 +259,10 @@ contract ClaimManagerV1 is ClaimManagerStorageV1 {
 
         if (_bounty.kycRequired()) {
             require(hasKYC(_closer), Errors.ADDRESS_LACKS_KYC);
+        }
+
+        if (_bounty.polygonIdRequired()) {
+            require(hasValidPolygonId(_closer), Errors.ADDRESS_LACKS_KYC);
         }
     }
 

@@ -5,9 +5,9 @@ pragma solidity 0.8.17;
 /// @author FlacoJones
 /// @notice Interface declaring OpenQ events and methods used by other contracts
 interface IOpenQ {
-    function externalUserIdToAddress(string calldata)
-        external
-        returns (address);
+    function externalUserIdToAddress(
+        string calldata
+    ) external returns (address);
 
     function addressToExternalUserId(address) external returns (string memory);
 
@@ -61,6 +61,14 @@ interface IOpenQ {
     event KYCRequiredSet(
         address bountyAddress,
         bool kycRequired,
+        uint256 bountyType,
+        bytes data,
+        uint256 version
+    );
+
+    event PolygonIdRequired(
+        address bountyAddress,
+        bool polygonIdRequired,
         uint256 bountyType,
         bytes data,
         uint256 version
