@@ -74,8 +74,10 @@ interface IBountyCore {
     /// @notice Sets the funding goal
     /// @param _fundingToken Token address for funding goal
     /// @param _fundingGoal Token volume for funding goal
-    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
-        external;
+    function setFundingGoal(
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) external;
 
     /// @notice Whether or not KYC is required to fund and claim the bounty
     /// @param _kycRequired Whether or not KYC is required to fund and claim the bounty
@@ -85,10 +87,15 @@ interface IBountyCore {
     /// @param _invoiceRequired Whether or not the Bounty is invoiceRequired
     function setInvoiceRequired(bool _invoiceRequired) external;
 
+    /// @notice Whether or not the Bounty is polygonIdRequired
+    /// @param _polygonIdRequired Whether or not the Bounty is _polygonIdRequired
+    function setPolygonIdRequired(bool _polygonIdRequired) external;
+
     /// @notice Whether or not KYC is required to fund and claim the bounty
     /// @param _supportingDocumentsRequired Whether or not KYC is required to fund and claim the bounty
-    function setSupportingDocumentsRequired(bool _supportingDocumentsRequired)
-        external;
+    function setSupportingDocumentsRequired(
+        bool _supportingDocumentsRequired
+    ) external;
 
     /// @notice Whether or not invoice has been completed
     /// @param _data ABI encoded data
@@ -117,10 +124,9 @@ interface IBountyCore {
 
     /// @notice Returns token balance for both ERC20 or protocol token
     /// @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
-    function getTokenBalance(address _tokenAddress)
-        external
-        view
-        returns (uint256);
+    function getTokenBalance(
+        address _tokenAddress
+    ) external view returns (uint256);
 
     /// @notice Returns an array of all ERC20 token addresses which have funded this bounty
     /// @return tokenAddresses An array of all ERC20 token addresses which have funded this bounty
@@ -174,6 +180,8 @@ interface IBountyCore {
     function fundingGoal() external view returns (uint256);
 
     function invoiceRequired() external view returns (bool);
+
+    function polygonIdRequired() external view returns (bool);
 
     function kycRequired() external view returns (bool);
 

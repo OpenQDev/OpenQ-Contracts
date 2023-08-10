@@ -66,5 +66,7 @@ abstract contract BountyStorageCore is
     bool public supportingDocumentsRequired;
     string public issuerExternalUserId;
 
-    uint256[50] private __gap;
+    bool public polygonIdRequired;
+
+    uint256[49] private __gap;
 }

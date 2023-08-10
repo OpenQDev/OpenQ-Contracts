@@ -33,5 +33,7 @@ abstract contract OpenQStorageV1 is
     mapping(string => address) public externalUserIdToAddress;
     mapping(address => string) public addressToExternalUserId;
 
-    uint256[50] private __gap;
+    uint256 public constant VERSION_2 = 2;
+
+    uint256[49] private __gap;
 }

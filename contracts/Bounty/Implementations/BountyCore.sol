@@ -119,11 +119,10 @@ abstract contract BountyCore is BountyStorageCore {
     /// @notice Sets the funding goal
     /// @param _fundingToken Token address for funding goal
     /// @param _fundingGoal Token volume for funding goal
-    function setFundingGoal(address _fundingToken, uint256 _fundingGoal)
-        external
-        virtual
-        onlyOpenQ
-    {
+    function setFundingGoal(
+        address _fundingToken,
+        uint256 _fundingGoal
+    ) external virtual onlyOpenQ {
         fundingGoal = _fundingGoal;
         fundingToken = _fundingToken;
         hasFundingGoal = true;
@@ -137,21 +136,25 @@ abstract contract BountyCore is BountyStorageCore {
 
     /// @notice Whether or not the Bounty is invoiceRequired
     /// @param _invoiceRequired Whether or not the Bounty is invoiceRequired
-    function setInvoiceRequired(bool _invoiceRequired)
-        external
-        virtual
-        onlyOpenQ
-    {
+    function setInvoiceRequired(
+        bool _invoiceRequired
+    ) external virtual onlyOpenQ {
         invoiceRequired = _invoiceRequired;
+    }
+
+    /// @notice Whether or not the Bounty is polygonIdRequired
+    /// @param _polygonIdRequired Whether or not the Bounty is polygonIdRequired
+    function setPolygonIdRequired(
+        bool _polygonIdRequired
+    ) external virtual onlyOpenQ {
+        polygonIdRequired = _polygonIdRequired;
     }
 
     /// @notice Whether or not KYC is required to fund and claim the bounty
     /// @param _supportingDocumentsRequired Whether or not KYC is required to fund and claim the bounty
-    function setSupportingDocumentsRequired(bool _supportingDocumentsRequired)
-        external
-        virtual
-        onlyOpenQ
-    {
+    function setSupportingDocumentsRequired(
+        bool _supportingDocumentsRequired
+    ) external virtual onlyOpenQ {
         supportingDocumentsRequired = _supportingDocumentsRequired;
     }
 
@@ -211,10 +214,10 @@ abstract contract BountyCore is BountyStorageCore {
     /// @notice Transfers _volume of protocol token from bounty address to _payoutAddress
     /// @param _payoutAddress The destination address of the funds
     /// @param _volume The volume of token to transfer
-    function _transferProtocolToken(address _payoutAddress, uint256 _volume)
-        internal
-        virtual
-    {
+    function _transferProtocolToken(
+        address _payoutAddress,
+        uint256 _volume
+    ) internal virtual {
         payable(_payoutAddress).sendValue(_volume);
     }
 
@@ -227,12 +230,9 @@ abstract contract BountyCore is BountyStorageCore {
 
     /// @notice Returns token balance for both ERC20 or protocol token
     /// @param _tokenAddress Address of an ERC20 or Zero Address for protocol token
-    function getTokenBalance(address _tokenAddress)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function getTokenBalance(
+        address _tokenAddress
+    ) public view virtual returns (uint256) {
         if (_tokenAddress == address(0)) {
             return address(this).balance;
         } else {
@@ -243,12 +243,9 @@ abstract contract BountyCore is BountyStorageCore {
     /// @notice Returns the ERC20 balance for this bounty address
     /// @param _tokenAddress The ERC20 token address
     /// @return balance The ERC20 balance for this bounty address
-    function getERC20Balance(address _tokenAddress)
-        public
-        view
-        virtual
-        returns (uint256 balance)
-    {
+    function getERC20Balance(
+        address _tokenAddress
+    ) public view virtual returns (uint256 balance) {
         IERC20Upgradeable token = IERC20Upgradeable(_tokenAddress);
         return token.balanceOf(address(this));
     }

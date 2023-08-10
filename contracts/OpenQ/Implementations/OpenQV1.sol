@@ -81,7 +81,7 @@ contract OpenQV1 is OpenQStorageV1 {
             block.timestamp,
             bountyType(_bountyId),
             _initOperation.data,
-            VERSION_1
+            VERSION_2
         );
 
         return bountyAddress;
@@ -139,7 +139,7 @@ contract OpenQV1 is OpenQStorageV1 {
             address(bounty),
             bounty.getTierWinners(),
             abi.encode(_bountyId, _winner, _tier),
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -164,7 +164,7 @@ contract OpenQV1 is OpenQStorageV1 {
             _fundingGoalVolume,
             bounty.bountyType(),
             new bytes(0),
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -186,7 +186,7 @@ contract OpenQV1 is OpenQStorageV1 {
             _kycRequired,
             bounty.bountyType(),
             new bytes(0),
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -208,7 +208,29 @@ contract OpenQV1 is OpenQStorageV1 {
             _invoiceRequired,
             bounty.bountyType(),
             new bytes(0),
-            VERSION_1
+            VERSION_2
+        );
+    }
+
+    /// @notice Sets invoiceRequired on bounty with id _bountyId
+    /// @param _bountyId The id to update
+    /// @param _polygonIdRequired Whether or not the bounty should be set as invoiceRequired
+    function setPolygonIdRequired(
+        string calldata _bountyId,
+        bool _polygonIdRequired
+    ) external onlyProxy {
+        IBounty bounty = getBounty(_bountyId);
+
+        require(msg.sender == bounty.issuer(), Errors.CALLER_NOT_ISSUER);
+
+        bounty.setPolygonIdRequired(_polygonIdRequired);
+
+        emit PolygonIdRequired(
+            address(bounty),
+            _polygonIdRequired,
+            bounty.bountyType(),
+            new bytes(0),
+            VERSION_2
         );
     }
 
@@ -230,7 +252,7 @@ contract OpenQV1 is OpenQStorageV1 {
             _supportingDocumentsRequired,
             bounty.bountyType(),
             new bytes(0),
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -270,7 +292,7 @@ contract OpenQV1 is OpenQStorageV1 {
             address(bounty),
             bounty.bountyType(),
             abi.encode(_bountyId, _winner, _tier, _invoiceComplete),
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -310,7 +332,7 @@ contract OpenQV1 is OpenQStorageV1 {
             address(bounty),
             bounty.bountyType(),
             abi.encode(_bountyId, _winner, _tier, _supportingDocumentsComplete),
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -335,7 +357,7 @@ contract OpenQV1 is OpenQStorageV1 {
             _payoutSchedule,
             bounty.bountyType(),
             new bytes(0),
-            VERSION_1
+            VERSION_2
         );
     }
 
@@ -437,7 +459,7 @@ contract OpenQV1 is OpenQStorageV1 {
             formerExternalUserId,
             formerAddress,
             new bytes(0),
-            VERSION_1
+            VERSION_2
         );
     }
 }
