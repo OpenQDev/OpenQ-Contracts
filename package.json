@@ -48,7 +48,7 @@
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.2",
     "fs": "0.0.1-security",
-    "graphql": "16.5.0",
+    "graphql": "16.8.1",
     "hardhat": "^2.16.0",
     "hardhat-contract-sizer": "2.6.1",
     "hardhat-gas-reporter": "1.0.9",
