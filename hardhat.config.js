@@ -9,6 +9,8 @@ require('dotenv').config();
 require('@typechain/hardhat');
 require('solidity-coverage');
 
+/* Aurora */
+
 module.exports = (function () {
 	let chainId = process.env.CHAIN_ID;
 	const chainIdInt = parseInt(chainId);
