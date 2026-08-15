@@ -13,7 +13,7 @@ jobs:
       - run: yarn
   test:
     docker:
-      - image: cimg/python:3.11.2
+      - image: cimg/python:3.14.7
     steps:
       - checkout
       - run: pip3 install slither-analyzer
